@@ -33,6 +33,7 @@ parts:
     numbered: false
     chapters:
       - file: docs/anomaly-detection/anomaly-detection.md
+      - file: notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb
 
   - caption: Efficient and Inclusive AI Applications
     numbered: false

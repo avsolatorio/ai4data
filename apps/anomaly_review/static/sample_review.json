@@ -1,0 +1,191 @@
+{
+  "version": "1.0",
+  "count": 7,
+  "items": [
+    {
+      "indicator_code": "WB_CSC_SI_POV_UMIC",
+      "indicator_name": "Percentage of global population living in poverty (at $6.85/day)",
+      "geography_code": "ISL",
+      "geography_name": "Iceland",
+      "window_start": 2011,
+      "window_end": 2011,
+      "window_str": "2011-2011",
+      "timeseries": [
+        {"period": 2008, "value": 0.0, "is_imputed": false},
+        {"period": 2009, "value": 0.0, "is_imputed": false},
+        {"period": 2010, "value": 0.0, "is_imputed": false},
+        {"period": 2011, "value": 1.0, "is_imputed": false},
+        {"period": 2012, "value": 0.0, "is_imputed": false},
+        {"period": 2013, "value": 0.0, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "external_driver",
+        "confidence": 0.9,
+        "explanation": "The spike to 1.0% poverty in 2011 aligns with the aftermath of the 2008 Icelandic financial crisis and subsequent economic contraction, which pushed some households below the poverty threshold before recovery.",
+        "evidence_strength": "strong_direct",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "WB_CSC_EN_ATM_HAZA",
+      "indicator_name": "Percentage of people exposed to hazardous air quality",
+      "geography_code": "MYS",
+      "geography_name": "Malaysia",
+      "window_start": 2010,
+      "window_end": 2010,
+      "window_str": "2010-2010",
+      "timeseries": [
+        {"period": 2008, "value": 0.0, "is_imputed": false},
+        {"period": 2009, "value": 0.0, "is_imputed": false},
+        {"period": 2010, "value": 0.2, "is_imputed": false},
+        {"period": 2011, "value": 0.0, "is_imputed": false},
+        {"period": 2012, "value": 0.0, "is_imputed": false},
+        {"period": 2013, "value": 0.0, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "external_driver",
+        "confidence": 0.9,
+        "explanation": "The spike in hazardous air quality exposure in 2010 aligns with the 2010 Southeast Asian haze event, when forest fires in Indonesia caused significant air pollution across the region.",
+        "evidence_strength": "strong_direct",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "WB_CSC_EG_ELC_ACCS_ZS",
+      "indicator_name": "Percentage of population with access to electricity",
+      "geography_code": "NRU",
+      "geography_name": "Nauru",
+      "window_start": 2007,
+      "window_end": 2011,
+      "window_str": "2007-2011",
+      "timeseries": [
+        {"period": 2004, "value": 99.0, "is_imputed": false},
+        {"period": 2005, "value": 99.0, "is_imputed": false},
+        {"period": 2006, "value": 99.0, "is_imputed": false},
+        {"period": 2007, "value": 99.8, "is_imputed": false},
+        {"period": 2008, "value": 99.1, "is_imputed": false},
+        {"period": 2009, "value": 99.1, "is_imputed": false},
+        {"period": 2010, "value": 99.2, "is_imputed": false},
+        {"period": 2011, "value": 99.2, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": false,
+        "classification": "insufficient_data",
+        "confidence": 0.7,
+        "explanation": "The gradual decline and subsequent slight recovery in electricity access appear to be minor fluctuations within expected measurement variance. No well-documented event explains a significant anomaly.",
+        "evidence_strength": "no_evidence",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "WB_CSC_NE_GDI_FPRV_ZS",
+      "indicator_name": "Private investment as a percentage of GDP",
+      "geography_code": "SWZ",
+      "geography_name": "Eswatini",
+      "window_start": 2020,
+      "window_end": 2020,
+      "window_str": "2020-2020",
+      "timeseries": [
+        {"period": 2017, "value": 12.4, "is_imputed": false},
+        {"period": 2018, "value": 11.8, "is_imputed": false},
+        {"period": 2019, "value": 12.1, "is_imputed": false},
+        {"period": 2020, "value": 5.2, "is_imputed": false},
+        {"period": 2021, "value": 10.3, "is_imputed": false},
+        {"period": 2022, "value": 11.5, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "external_driver",
+        "confidence": 0.9,
+        "explanation": "Sharp drop in private investment in 2020 aligns with the COVID-19 pandemic, which caused widespread economic disruption, lockdowns, and reduced business confidence globally.",
+        "evidence_strength": "strong_direct",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "WB_CSC_SM_POP_REFG_OR",
+      "indicator_name": "Number of displaced people in need of protection",
+      "geography_code": "ARG",
+      "geography_name": "Argentina",
+      "window_start": 2007,
+      "window_end": 2010,
+      "window_str": "2007-2010",
+      "timeseries": [
+        {"period": 2005, "value": 1200, "is_imputed": false},
+        {"period": 2006, "value": 1150, "is_imputed": false},
+        {"period": 2007, "value": 8500, "is_imputed": false},
+        {"period": 2008, "value": 7200, "is_imputed": false},
+        {"period": 2009, "value": 4100, "is_imputed": false},
+        {"period": 2010, "value": 2800, "is_imputed": false},
+        {"period": 2011, "value": 2500, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "external_driver",
+        "confidence": 0.9,
+        "explanation": "The sharp increase in displaced people in 2007 aligns with intensified migration flows and the 2007-2008 Global Financial Crisis affecting regional mobility. The subsequent decline reflects Argentina's economic recovery and policy adjustments.",
+        "evidence_strength": "strong_direct",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "WB_CSC_SH_H2O_BASW_ZS",
+      "indicator_name": "People using at least basic drinking water services (% of population)",
+      "geography_code": "STP",
+      "geography_name": "Sao Tome and Principe",
+      "window_start": 2016,
+      "window_end": 2016,
+      "window_str": "2016-2016",
+      "timeseries": [
+        {"period": 2013, "value": 97.2, "is_imputed": false},
+        {"period": 2014, "value": 97.4, "is_imputed": false},
+        {"period": 2015, "value": 97.5, "is_imputed": false},
+        {"period": 2016, "value": 89.1, "is_imputed": false},
+        {"period": 2017, "value": 97.6, "is_imputed": false},
+        {"period": 2018, "value": 97.7, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "data_error",
+        "confidence": 0.9,
+        "explanation": "The isolated drop to 89.1% in 2016, surrounded by consistent values around 97%, suggests a data collection or reporting artifact rather than a genuine infrastructure collapse. Likely a methodological or survey coverage inconsistency.",
+        "evidence_strength": "no_evidence",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    },
+    {
+      "indicator_code": "NY_GDP_MKTP_KD_ZG",
+      "indicator_name": "GDP growth (annual %)",
+      "geography_code": "NGA",
+      "geography_name": "Nigeria",
+      "window_start": 2014,
+      "window_end": 2014,
+      "window_str": "2014-2014",
+      "timeseries": [
+        {"period": 2012, "value": 4.3, "is_imputed": false},
+        {"period": 2013, "value": 5.4, "is_imputed": false},
+        {"period": 2014, "value": 6.3, "is_imputed": false},
+        {"period": 2015, "value": 2.7, "is_imputed": false},
+        {"period": 2016, "value": -1.6, "is_imputed": false},
+        {"period": 2017, "value": 0.8, "is_imputed": false}
+      ],
+      "explanation": {
+        "is_anomaly": true,
+        "classification": "measurement_system_update",
+        "confidence": 0.85,
+        "explanation": "The 2014 GDP rebasing in Nigeria replaced 1990 as the base year with 2010, incorporating previously uncounted sectors (e.g., telecoms, film). This methodological change caused a significant upward revision to reported GDP levels and growth rates.",
+        "evidence_strength": "strong_direct",
+        "evidence_sources": [],
+        "source": "llm_inferred"
+      }
+    }
+  ]
+}

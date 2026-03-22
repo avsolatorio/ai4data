@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anomaly Explanation Reviewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    [data-theme="dark"] {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-hover: #243044;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-dim: #388bfd33;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --border: #30363d;
+      --chart-grid: rgba(48, 54, 61, 0.5);
+      --anomaly-band: rgba(248, 81, 73, 0.15);
+      --line-color: rgb(88, 166, 255);
+      --line-fill: rgba(88, 166, 255, 0.15);
+    }
+
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --surface-hover: #eaeef2;
+      --text: #1f2328;
+      --text-muted: #656d76;
+      --accent: #0969da;
+      --accent-dim: #0969da22;
+      --success: #1a7f37;
+      --warning: #9a6700;
+      --danger: #cf222e;
+      --border: #d0d7de;
+      --chart-grid: rgba(31, 35, 40, 0.12);
+      --anomaly-band: rgba(207, 34, 46, 0.12);
+      --line-color: rgb(9, 105, 218);
+      --line-fill: rgba(9, 105, 218, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      overflow: hidden;
+      height: 100%;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .header {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--text);
+      transition: background 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-hover);
+    }
+
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .app {
+      margin-top: 0.5rem;
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .sidebar h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .item-card {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .item-card:hover {
+      background: var(--surface-hover);
+      border-color: var(--border);
+    }
+
+    .item-card.active {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .item-card .indicator { font-weight: 600; font-size: 0.9rem; }
+    .item-card .geo { color: var(--text-muted); font-size: 0.85rem; }
+    .item-card .window { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); margin-top: 0.25rem; }
+    .item-card .classification { font-size: 0.75rem; margin-top: 0.25rem; }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .chart-container {
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      flex: 1;
+      min-height: 240px;
+      position: relative;
+    }
+
+    .chart-container h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .chart-legend .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .chart-legend .swatch-anomaly { background: var(--anomaly-band); border: 1px solid var(--danger); }
+    .chart-legend .swatch-line { background: var(--line-color); }
+
+    .explanation-panel {
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      flex: 0 1 280px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .explanation-panel h3 {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .explanation-text {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.7;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .meta span {
+      padding: 0.25rem 0.5rem;
+      background: var(--bg);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    [data-theme="dark"] .badge.classification-external-driver { background: #23863633; color: #3fb950; }
+    [data-theme="dark"] .badge.classification-data-error { background: #da363333; color: #f85149; }
+    [data-theme="dark"] .badge.classification-measurement-system-update { background: #d2992233; color: #d29922; }
+    [data-theme="dark"] .badge.classification-insufficient-data { background: #6e768133; color: #8b949e; }
+    [data-theme="dark"] .badge.classification-modeling-artifact { background: #8957e533; color: #a371f7; }
+
+    [data-theme="light"] .badge.classification-external-driver { background: #1a7f3722; color: #1a7f37; }
+    [data-theme="light"] .badge.classification-data-error { background: #cf222e22; color: #cf222e; }
+    [data-theme="light"] .badge.classification-measurement-system-update { background: #9a670022; color: #9a6700; }
+    [data-theme="light"] .badge.classification-insufficient-data { background: #656d7622; color: #656d76; }
+    [data-theme="light"] .badge.classification-modeling-artifact { background: #8250df22; color: #8250df; }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state p { margin-top: 0.5rem; }
+
+    .feedback-section { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .feedback-section h4 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+    .feedback-buttons { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .btn { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; }
+    .btn-approve { background: #238636; color: white; }
+    .btn-reject { background: #da3633; color: white; }
+    .btn-review { background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); }
+    textarea { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; margin-top: 0.5rem; resize: vertical; }
+    #feedback-status { font-size: 0.85rem; color: var(--success); margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <div class="header">
+    <h1>Anomaly Explanation Reviewer</h1>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+      <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <h2>Anomalies</h2>
+      <div id="item-list"></div>
+    </aside>
+    <main class="main">
+      <div class="chart-container">
+        <h3 id="chart-title">Timeseries</h3>
+        <canvas id="chart"></canvas>
+        <div class="chart-legend" id="chart-legend">
+          <span><span class="swatch swatch-line"></span> Value</span>
+          <span><span class="swatch swatch-anomaly"></span> Anomaly window</span>
+        </div>
+      </div>
+      <div class="explanation-panel">
+        <h3>Explanation</h3>
+        <div id="explanation-content"></div>
+        <div class="feedback-section" id="feedback-section">
+          <h4>Feedback</h4>
+          <div class="feedback-buttons">
+            <button class="btn btn-approve" onclick="submitVerdict('approved')">Approve</button>
+            <button class="btn btn-reject" onclick="submitVerdict('rejected')">Reject</button>
+            <button class="btn btn-review" onclick="submitVerdict('needs_review')">Needs Review</button>
+          </div>
+          <textarea id="feedback-comment" placeholder="Optional comment..." rows="2"></textarea>
+          <div id="feedback-status"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    const THEME_KEY = 'anomaly-reviewer-theme';
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      updateThemeUI(theme);
+    }
+
+    function updateThemeUI(theme) {
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+      const label = document.getElementById('theme-label');
+      if (theme === 'dark') {
+        sun.style.display = 'none';
+        moon.style.display = 'block';
+        label.textContent = 'Light';
+      } else {
+        sun.style.display = 'block';
+        moon.style.display = 'none';
+        label.textContent = 'Dark';
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem(THEME_KEY, next);
+      updateThemeUI(next);
+      if (chart) updateChartColors();
+    });
+
+    initTheme();
+
+    let chart = null;
+    let items = [];
+    let selectedId = null;
+    let currentChartConfig = null;
+
+    function getChartColors() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'light') {
+        return {
+          line: 'rgb(9, 105, 218)',
+          fill: 'rgba(9, 105, 218, 0.1)',
+          anomalyBand: 'rgba(207, 34, 46, 0.12)',
+          anomalyPoint: 'rgb(207, 34, 46)',
+          grid: 'rgba(31, 35, 40, 0.12)',
+          ticks: '#656d76',
+        };
+      }
+      return {
+        line: 'rgb(88, 166, 255)',
+        fill: 'rgba(88, 166, 255, 0.15)',
+        anomalyBand: 'rgba(248, 81, 73, 0.15)',
+        anomalyPoint: 'rgb(248, 81, 73)',
+        grid: 'rgba(48, 54, 61, 0.5)',
+        ticks: '#8b949e',
+      };
+    }
+
+    function updateChartColors() {
+      if (!chart || !currentChartConfig) return;
+      renderChart(currentChartConfig.series, currentChartConfig.wStart, currentChartConfig.wEnd);
+    }
+
+    async function load() {
+      const res = await fetch('/api/review');
+      const data = await res.json();
+      items = data.items || [];
+      renderList();
+      if (items.length) selectItem(0);
+    }
+
+    function renderList() {
+      const el = document.getElementById('item-list');
+      if (!items.length) {
+        el.innerHTML = '<div class="empty-state"><p>No anomalies loaded.</p><p>Start the app with a review JSON file.</p></div>';
+        return;
+      }
+      el.innerHTML = items.map((it, i) => `
+        <div class="item-card ${selectedId === i ? 'active' : ''}" data-id="${i}" onclick="selectItem(${i})">
+          <div class="indicator">${escapeHtml(it.indicator_name || it.indicator_code)}</div>
+          <div class="geo">${escapeHtml(it.geography_name || it.geography_code)}</div>
+          <div class="window">${escapeHtml(it.window_str || '')}</div>
+          <div class="classification"><span class="badge classification-${escapeHtml((it.explanation?.classification || '').replace(/_/g, '-'))}">${escapeHtml(it.explanation?.classification || '')}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function selectItem(id) {
+      selectedId = id;
+      renderList();
+      const it = items[id];
+      if (!it) return;
+      document.getElementById('chart-title').textContent = `${it.indicator_name || it.indicator_code} — ${it.geography_name || it.geography_code}`;
+      renderChart(it.timeseries || [], it.window_start, it.window_end);
+      renderExplanation(it);
+    }
+
+    function renderChart(series, wStart, wEnd) {
+      const ctx = document.getElementById('chart').getContext('2d');
+      if (chart) chart.destroy();
+      const periods = series.map(s => s.period);
+      const values = series.map(s => s.value);
+      const colors = getChartColors();
+
+      const inAnomalyWindow = (i) => wStart != null && wEnd != null && periods[i] >= wStart && periods[i] <= wEnd;
+      const pointColors = periods.map((_, i) => inAnomalyWindow(i) ? colors.anomalyPoint : colors.line);
+      const pointRadii = periods.map((_, i) => inAnomalyWindow(i) ? 6 : 4);
+      const pointHoverRadii = periods.map((_, i) => inAnomalyWindow(i) ? 8 : 6);
+
+      let xMin = -1, xMax = -1;
+      if (wStart != null && wEnd != null && periods.length) {
+        const idxStart = periods.findIndex(p => p >= wStart);
+        const idxEnd = periods.findIndex(p => p >= wEnd);
+        xMin = idxStart >= 0 ? idxStart - 0.4 : 0;
+        xMax = idxEnd >= 0 ? idxEnd + 0.4 : periods.length - 0.6;
+      }
+      const annotation = (xMin >= 0 && xMax > xMin)
+        ? {
+            anomalyBox: {
+              type: 'box',
+              xMin,
+              xMax,
+              yMin: 'min',
+              yMax: 'max',
+              backgroundColor: colors.anomalyBand,
+              borderColor: 'transparent',
+              borderWidth: 0,
+            },
+          }
+        : {};
+
+      currentChartConfig = { series, wStart, wEnd };
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: periods,
+          datasets: [{
+            label: 'Value',
+            data: values,
+            borderColor: colors.line,
+            backgroundColor: colors.fill,
+            fill: true,
+            tension: 0.25,
+            pointRadius: pointRadii,
+            pointHoverRadius: pointHoverRadii,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: pointColors,
+            pointBorderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterBody: (items) => {
+                  const i = items[0]?.dataIndex;
+                  if (i != null && wStart != null && wEnd != null && periods[i] >= wStart && periods[i] <= wEnd)
+                    return ['\nAnomaly window'];
+                  return [];
+                },
+              },
+            },
+            annotation: { annotations: annotation },
+          },
+          scales: {
+            x: {
+              type: 'category',
+              grid: { color: colors.grid },
+              ticks: { color: colors.ticks, maxRotation: 45 },
+            },
+            y: {
+              grid: { color: colors.grid },
+              ticks: { color: colors.ticks },
+            },
+          },
+        },
+      });
+    }
+
+    function renderExplanation(it) {
+      const ex = it.explanation || {};
+      const el = document.getElementById('explanation-content');
+      el.innerHTML = `
+        <div class="explanation-text">${escapeHtml(ex.explanation || 'No explanation available.')}</div>
+        <div class="meta">
+          <span class="badge classification-${escapeHtml((ex.classification || '').replace(/_/g, '-'))}">${escapeHtml(ex.classification || '')}</span>
+          <span>Confidence: ${(ex.confidence != null ? (ex.confidence * 100).toFixed(0) : '-')}%</span>
+          <span>Evidence: ${escapeHtml(ex.evidence_strength || '')}</span>
+          <span>Source: ${escapeHtml(ex.source || '')}</span>
+        </div>
+      `;
+      document.getElementById('feedback-comment').value = '';
+      document.getElementById('feedback-status').textContent = '';
+    }
+
+    async function submitVerdict(verdict) {
+      if (selectedId == null || !items[selectedId]) return;
+      const it = items[selectedId];
+      const comment = document.getElementById('feedback-comment').value.trim() || null;
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            item_id: selectedId,
+            indicator_code: it.indicator_code,
+            geography_code: it.geography_code,
+            window_str: it.window_str,
+            verdict,
+            comment,
+          }),
+        });
+        await res.json();
+        document.getElementById('feedback-status').textContent = `Feedback saved: ${verdict}`;
+      } catch (e) {
+        document.getElementById('feedback-status').textContent = 'Error: ' + e.message;
+        document.getElementById('feedback-status').style.color = 'var(--danger)';
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>
