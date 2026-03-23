@@ -10,7 +10,7 @@ This section covers tools for detecting and explaining anomalies in timeseries i
 ## Quick Start
 
 ```python
-from ai4data.anomaly_detection import (
+from ai4data.anomaly.explanation import (
     ScorecardWideAdapter,
     extract_anomaly_contexts,
     parse_batch_output,

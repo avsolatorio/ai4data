@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
 
-from ai4data.anomaly_detection.schemas import AnomalyExplanation
+from ai4data.anomaly.explanation.schemas import AnomalyExplanation
 
 ARBITER_SYSTEM_PROMPT = """You are a judge that evaluates multiple explanations for the same timeseries anomaly.
 
@@ -186,7 +186,7 @@ def harmonize_explanations(
         Harmonized anomalies, one row per (indicator, geography, window).
     """
     if response_format is None:
-        from ai4data.anomaly_detection.prompts import get_anomaly_response_format
+        from ai4data.anomaly.explanation.prompts import get_anomaly_response_format
 
         response_format = get_anomaly_response_format()
 

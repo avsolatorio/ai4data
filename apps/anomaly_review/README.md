@@ -19,7 +19,7 @@ Open http://localhost:8000
 Or use the pipeline to export review format first:
 
 ```python
-from ai4data.anomaly_detection import export_for_review, parse_batch_output
+from ai4data.anomaly.explanation import export_for_review, parse_batch_output
 
 anomalies_df = parse_batch_output("output.jsonl", provider="openai", ...)
 export_for_review(anomalies_df, timeseries_df=canonical_df, output_path="anomaly_review.json")

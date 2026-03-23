@@ -6,7 +6,7 @@ from typing import Dict, List, Any
 
 import pandas as pd
 
-from ai4data.anomaly_detection.explainers import (
+from ai4data.anomaly.explanation.explainers import (
     get_explainer,
     list_explainers,
     register_explainer,

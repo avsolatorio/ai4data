@@ -205,7 +205,7 @@ def row_to_item(
     # Use actual timeseries when available
     if timeseries_df is not None and window_start and window_end:
         try:
-            from ai4data.anomaly_detection.review_output import _extract_timeseries
+            from ai4data.anomaly.explanation.review_output import _extract_timeseries
 
             ts = _extract_timeseries(
                 timeseries_df,

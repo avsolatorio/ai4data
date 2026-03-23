@@ -11,9 +11,9 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 import pandas as pd
 
-from ai4data.anomaly_detection.context import extract_anomaly_contexts
-from ai4data.anomaly_detection.llm_client import ENDPOINT_URLS, build_payload
-from ai4data.anomaly_detection.prompts import (
+from ai4data.anomaly.explanation.context import extract_anomaly_contexts
+from ai4data.anomaly.explanation.llm_client import ENDPOINT_URLS, build_payload
+from ai4data.anomaly.explanation.prompts import (
     SYSTEM_PROMPT,
     USER_PROMPT_TEMPLATE,
     get_anomaly_response_format,

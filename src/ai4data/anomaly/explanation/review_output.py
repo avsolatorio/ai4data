@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from ai4data.anomaly_detection.arbiter import (
+from ai4data.anomaly.explanation.arbiter import (
     build_arbiter_payload,
     group_explanations_by_context_with_providers,
 )
@@ -212,7 +212,7 @@ def to_review_format_with_explainers(
         Items in review format with explanation.explainers for tabbed UI.
     """
     if response_format is None and run_arbiter:
-        from ai4data.anomaly_detection.prompts import get_anomaly_response_format
+        from ai4data.anomaly.explanation.prompts import get_anomaly_response_format
         response_format = get_anomaly_response_format()
 
     group_keys = ("indicator_code", "country_code", "window_str")

@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
-from ai4data.anomaly_detection.llm_client import ENDPOINT_URLS
+from ai4data.anomaly.explanation.llm_client import ENDPOINT_URLS
 
 
 def _get_openai_client(api_key: Optional[str] = None):

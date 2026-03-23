@@ -7,7 +7,7 @@ into the content dict. Build payloads via llm_client.build_payload (provider-agn
 import json
 from typing import Any, Callable, Dict
 
-from ai4data.anomaly_detection.schemas import AnomalyExplanation
+from ai4data.anomaly.explanation.schemas import AnomalyExplanation
 
 # Type for a row parser: (row: dict) -> content_dict or None
 RowParser = Callable[[Dict[str, Any]], dict | None]

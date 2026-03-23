@@ -54,7 +54,7 @@ Validate the anomalies in the time series below, explain their most likely verif
 
 def get_anomaly_response_format() -> dict:
     """Return the JSON schema for structured anomaly explanation responses."""
-    from ai4data.anomaly_detection.schemas import AnomalyExplanation
+    from ai4data.anomaly.explanation.schemas import AnomalyExplanation
 
     schema = AnomalyExplanation.model_json_schema()
     return {
