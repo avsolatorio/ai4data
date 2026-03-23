@@ -129,6 +129,7 @@
         border: 1px solid var(--border);
         padding: 1rem;
         overflow-y: auto;
+        overflow-x: hidden;
         min-height: 0;
       }
 
@@ -178,6 +179,12 @@
       .item-card .classification {
         font-size: 0.75rem;
         margin-top: 0.25rem;
+      }
+
+      .badge-reviewed {
+        color: var(--success);
+        font-size: 0.75rem;
+        margin-left: 0.25rem;
       }
 
       .main {
@@ -243,6 +250,11 @@
       }
       .chart-legend .swatch-line {
         background: var(--line-color);
+      }
+      .chart-legend .swatch-imputed {
+        background: transparent;
+        border: 2px solid var(--text-muted);
+        border-radius: 50%;
       }
 
       .explanation-panel {
@@ -412,6 +424,71 @@
         color: #8250df;
       }
 
+      .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+        min-width: 0;
+      }
+
+      .filter-bar input,
+      .filter-bar select {
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 0.85rem;
+        font-family: inherit;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .filter-bar input:focus,
+      .filter-bar select:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .filter-bar input[type="search"] {
+        flex: 1 1 120px;
+        min-width: 80px;
+      }
+
+      .filter-bar select {
+        flex: 1 1 90px;
+        max-width: 150px;
+      }
+
+      .filter-bar input[type="number"] {
+        width: 4rem;
+        flex: 0 0 auto;
+      }
+
+      .filter-bar .btn-clear {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        background: var(--surface-hover);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .filter-bar .btn-clear:hover {
+        color: var(--text);
+        background: var(--surface);
+      }
+
+      .results-count {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+      }
+
       .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -457,6 +534,10 @@
         background: var(--surface-hover);
         color: var(--text);
         border: 1px solid var(--border);
+      }
+      .btn-active {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
       textarea {
         width: 100%;
@@ -517,6 +598,43 @@
       <div class="app">
         <aside class="sidebar">
           <h2>Anomalies</h2>
+          <div class="filter-bar">
+            <input
+              type="search"
+              id="filter-search"
+              placeholder="Search indicator..."
+              aria-label="Search indicator name"
+            />
+            <select id="filter-indicator" aria-label="Filter by indicator">
+              <option value="">All indicators</option>
+            </select>
+            <select id="filter-geography" aria-label="Filter by geography">
+              <option value="">All geographies</option>
+            </select>
+            <input
+              type="number"
+              id="filter-year-min"
+              placeholder="From"
+              aria-label="Year from"
+              min="1900"
+              max="2100"
+            />
+            <input
+              type="number"
+              id="filter-year-max"
+              placeholder="To"
+              aria-label="Year to"
+              min="1900"
+              max="2100"
+            />
+            <select id="filter-classification" aria-label="Filter by classification">
+              <option value="">All classifications</option>
+            </select>
+            <button type="button" class="btn-clear" id="filter-clear">
+              Clear
+            </button>
+          </div>
+          <div class="results-count" id="results-count"></div>
           <div id="item-list"></div>
         </aside>
         <main class="main">
@@ -531,6 +649,7 @@
                 ><span class="swatch swatch-anomaly"></span> Anomaly
                 window</span
               >
+              <span><span class="swatch swatch-imputed"></span> Imputed</span>
             </div>
           </div>
           <div class="explanation-panel">
@@ -541,18 +660,21 @@
               <div class="feedback-buttons">
                 <button
                   class="btn btn-approve"
+                  data-verdict="approved"
                   onclick="submitVerdict('approved')"
                 >
                   Approve
                 </button>
                 <button
                   class="btn btn-reject"
+                  data-verdict="rejected"
                   onclick="submitVerdict('rejected')"
                 >
                   Reject
                 </button>
                 <button
                   class="btn btn-review"
+                  data-verdict="needs_review"
                   onclick="submitVerdict('needs_review')"
                 >
                   Needs Review
@@ -612,8 +734,10 @@
 
       let chart = null;
       let items = [];
+      let filteredItems = [];
       let selectedId = null;
       let currentChartConfig = null;
+      let feedbackKeys = new Set();
 
       function getChartColors() {
         const theme = document.documentElement.getAttribute("data-theme");
@@ -623,6 +747,7 @@
             fill: "rgba(9, 105, 218, 0.1)",
             anomalyBand: "rgba(207, 34, 46, 0.12)",
             anomalyPoint: "rgb(207, 34, 46)",
+            imputed: "rgba(101, 109, 118, 0.8)",
             grid: "rgba(31, 35, 40, 0.12)",
             ticks: "#656d76",
           };
@@ -632,6 +757,7 @@
           fill: "rgba(88, 166, 255, 0.15)",
           anomalyBand: "rgba(248, 81, 73, 0.15)",
           anomalyPoint: "rgb(248, 81, 73)",
+          imputed: "rgba(139, 148, 158, 0.9)",
           grid: "rgba(48, 54, 61, 0.5)",
           ticks: "#8b949e",
         };
@@ -646,26 +772,183 @@
         );
       }
 
-      async function load() {
-        const res = await fetch("/api/review");
-        const data = await res.json();
-        items = data.items || [];
+      let filterState = {
+        search: "",
+        indicator: "",
+        geography: "",
+        yearMin: null,
+        yearMax: null,
+        classification: "",
+      };
+
+      function buildFilterOptions() {
+        const indicators = [];
+        const geographies = [];
+        const classifications = [];
+        const seenInd = new Set();
+        const seenGeo = new Set();
+        const seenClass = new Set();
+        for (const it of items) {
+          const code = it.indicator_code || "";
+          const name = it.indicator_name || code;
+          if (code && !seenInd.has(code)) {
+            seenInd.add(code);
+            indicators.push({ code, name });
+          }
+          const gCode = it.geography_code || "";
+          const gName = it.geography_name || gCode;
+          if (gCode && !seenGeo.has(gCode)) {
+            seenGeo.add(gCode);
+            geographies.push({ code: gCode, name: gName });
+          }
+          const c = (it.explanation?.classification || "").trim();
+          if (c && !seenClass.has(c)) {
+            seenClass.add(c);
+            classifications.push(c);
+          }
+        }
+        indicators.sort((a, b) => (a.name || a.code).localeCompare(b.name || b.code));
+        geographies.sort((a, b) => (a.name || a.code).localeCompare(b.name || b.code));
+        classifications.sort();
+
+        const indEl = document.getElementById("filter-indicator");
+        const geoEl = document.getElementById("filter-geography");
+        const classEl = document.getElementById("filter-classification");
+        indEl.innerHTML =
+          '<option value="">All indicators</option>' +
+          indicators.map((o) => `<option value="${escapeHtml(o.code)}">${escapeHtml(o.name || o.code)}</option>`).join("");
+        geoEl.innerHTML =
+          '<option value="">All geographies</option>' +
+          geographies.map((o) => `<option value="${escapeHtml(o.code)}">${escapeHtml(o.name || o.code)}</option>`).join("");
+        classEl.innerHTML =
+          '<option value="">All classifications</option>' +
+          classifications.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      }
+
+      function matchesSearch(it, q) {
+        if (!q || !q.trim()) return true;
+        const qq = q.trim().toLowerCase();
+        const name = (it.indicator_name || "").toLowerCase();
+        const code = (it.indicator_code || "").toLowerCase();
+        return name.includes(qq) || code.includes(qq);
+      }
+
+      function applyFilters() {
+        const search = (document.getElementById("filter-search").value || "").trim();
+        const indicator = document.getElementById("filter-indicator").value || "";
+        const geography = document.getElementById("filter-geography").value || "";
+        const yearMinVal = document.getElementById("filter-year-min").value;
+        const yearMaxVal = document.getElementById("filter-year-max").value;
+        const yearMin = yearMinVal === "" ? null : parseInt(yearMinVal, 10);
+        const yearMax = yearMaxVal === "" ? null : parseInt(yearMaxVal, 10);
+        const classification = document.getElementById("filter-classification").value || "";
+
+        filterState = { search, indicator, geography, yearMin, yearMax, classification };
+
+        filteredItems = items.filter((it) => {
+          if (search && !matchesSearch(it, search)) return false;
+          if (indicator && it.indicator_code !== indicator) return false;
+          if (geography && it.geography_code !== geography) return false;
+          const wStart = it.window_start;
+          const wEnd = it.window_end;
+          if (yearMin != null && (wEnd == null || wEnd < yearMin)) return false;
+          if (yearMax != null && (wStart == null || wStart > yearMax)) return false;
+          if (classification && (it.explanation?.classification || "") !== classification) return false;
+          return true;
+        });
+
+        const countEl = document.getElementById("results-count");
+        countEl.textContent =
+          items.length === 0
+            ? ""
+            : items.length === filteredItems.length
+              ? `${items.length} result${items.length !== 1 ? "s" : ""}`
+              : `Showing ${filteredItems.length} of ${items.length} results`;
+        selectedId = filteredItems.length ? Math.min(selectedId ?? 0, filteredItems.length - 1) : null;
         renderList();
-        if (items.length) selectItem(0);
+        if (filteredItems.length) {
+          selectItem(selectedId);
+        } else {
+          document.getElementById("chart-title").textContent = "Timeseries";
+          document.getElementById("explanation-content").innerHTML = "";
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+        }
+      }
+
+      function clearFilters() {
+        document.getElementById("filter-search").value = "";
+        document.getElementById("filter-indicator").value = "";
+        document.getElementById("filter-geography").value = "";
+        document.getElementById("filter-year-min").value = "";
+        document.getElementById("filter-year-max").value = "";
+        document.getElementById("filter-classification").value = "";
+        applyFilters();
+      }
+
+      function initFilterListeners() {
+        document.getElementById("filter-search").addEventListener("input", () => applyFilters());
+        document.getElementById("filter-indicator").addEventListener("change", () => applyFilters());
+        document.getElementById("filter-geography").addEventListener("change", () => applyFilters());
+        document.getElementById("filter-year-min").addEventListener("input", () => applyFilters());
+        document.getElementById("filter-year-max").addEventListener("input", () => applyFilters());
+        document.getElementById("filter-classification").addEventListener("change", () => applyFilters());
+        document.getElementById("filter-clear").addEventListener("click", () => clearFilters());
+      }
+
+      async function loadFeedbackKeys() {
+        try {
+          const res = await fetch("/api/feedback");
+          const list = await res.json();
+          feedbackKeys = new Set(
+            (list || []).map((e) =>
+              [e.indicator_code, e.geography_code, e.window_str].join("\0"),
+            ),
+          );
+        } catch {
+          feedbackKeys = new Set();
+        }
+      }
+
+      function hasFeedback(it) {
+        return feedbackKeys.has(
+          [it.indicator_code, it.geography_code, it.window_str].join("\0"),
+        );
+      }
+
+      async function load() {
+        initFilterListeners();
+        const [reviewRes, _] = await Promise.all([
+          fetch("/api/review"),
+          loadFeedbackKeys(),
+        ]);
+        const data = await reviewRes.json();
+        items = data.items || [];
+        buildFilterOptions();
+        applyFilters();
+        if (filteredItems.length) selectItem(0);
       }
 
       function renderList() {
         const el = document.getElementById("item-list");
+        const list = filteredItems;
         if (!items.length) {
           el.innerHTML =
             '<div class="empty-state"><p>No anomalies loaded.</p><p>Start the app with a review JSON file.</p></div>';
           return;
         }
-        el.innerHTML = items
+        if (!list.length) {
+          el.innerHTML =
+            '<div class="empty-state"><p>No items match the current filters.</p></div>';
+          return;
+        }
+        el.innerHTML = list
           .map(
             (it, i) => `
         <div class="item-card ${selectedId === i ? "active" : ""}" data-id="${i}" onclick="selectItem(${i})">
-          <div class="indicator">${escapeHtml(it.indicator_name || it.indicator_code)}</div>
+          <div class="indicator">${escapeHtml(it.indicator_name || it.indicator_code)}${hasFeedback(it) ? ' <span class="badge-reviewed" title="Has feedback">✓</span>' : ""}</div>
           <div class="geo">${escapeHtml(it.geography_name || it.geography_code)}</div>
           <div class="window">${escapeHtml(it.window_str || "")}</div>
           <div class="classification"><span class="badge classification-${escapeHtml((it.explanation?.classification || "").replace(/_/g, "-"))}">${escapeHtml(it.explanation?.classification || "")}</span></div>
@@ -685,7 +968,8 @@
       function selectItem(id) {
         selectedId = id;
         renderList();
-        const it = items[id];
+        const list = filteredItems.length ? filteredItems : items;
+        const it = list[id];
         if (!it) return;
         document.getElementById("chart-title").textContent =
           `${it.indicator_name || it.indicator_code} — ${it.geography_name || it.geography_code}`;
@@ -698,6 +982,7 @@
         if (chart) chart.destroy();
         const periods = series.map((s) => s.period);
         const values = series.map((s) => s.value);
+        const isImputed = series.map((s) => s.is_imputed === true);
         const colors = getChartColors();
 
         const inAnomalyWindow = (i) =>
@@ -706,7 +991,14 @@
           periods[i] >= wStart &&
           periods[i] <= wEnd;
         const pointColors = periods.map((_, i) =>
-          inAnomalyWindow(i) ? colors.anomalyPoint : colors.line,
+          isImputed[i]
+            ? colors.imputed
+            : inAnomalyWindow(i)
+              ? colors.anomalyPoint
+              : colors.line,
+        );
+        const pointBackgroundColors = periods.map((_, i) =>
+          isImputed[i] ? "transparent" : pointColors[i],
         );
         const pointRadii = periods.map((_, i) => (inAnomalyWindow(i) ? 6 : 4));
         const pointHoverRadii = periods.map((_, i) =>
@@ -752,7 +1044,7 @@
                 tension: 0.25,
                 pointRadius: pointRadii,
                 pointHoverRadius: pointHoverRadii,
-                pointBackgroundColor: pointColors,
+                pointBackgroundColor: pointBackgroundColors,
                 pointBorderColor: pointColors,
                 pointBorderWidth: 2,
               },
@@ -768,6 +1060,7 @@
                 callbacks: {
                   afterBody: (items) => {
                     const i = items[0]?.dataIndex;
+                    const lines = [];
                     if (
                       i != null &&
                       wStart != null &&
@@ -775,8 +1068,9 @@
                       periods[i] >= wStart &&
                       periods[i] <= wEnd
                     )
-                      return ["\nAnomaly window"];
-                    return [];
+                      lines.push("Anomaly window");
+                    if (i != null && isImputed[i]) lines.push("Imputed");
+                    return lines.length ? ["\n" + lines.join(" · ")] : [];
                   },
                 },
               },
@@ -892,11 +1186,39 @@
         }
         document.getElementById("feedback-comment").value = "";
         document.getElementById("feedback-status").textContent = "";
+        loadExistingFeedback(it);
+      }
+
+      async function loadExistingFeedback(it) {
+        document.querySelectorAll(".feedback-buttons .btn").forEach((b) =>
+          b.classList.remove("btn-active"),
+        );
+        if (!it?.indicator_code || !it?.geography_code || it?.window_str == null) return;
+        try {
+          const params = new URLSearchParams({
+            indicator_code: it.indicator_code,
+            geography_code: it.geography_code,
+            window_str: String(it.window_str || ""),
+          });
+          const res = await fetch("/api/feedback/item?" + params);
+          const fb = await res.json();
+          if (fb && fb.verdict) {
+            document.getElementById("feedback-comment").value = fb.comment || "";
+            document.getElementById("feedback-status").textContent =
+              "Previous: " + fb.verdict + (fb.comment ? " — " + fb.comment : "");
+            document.getElementById("feedback-status").style.color = "var(--text-muted)";
+            document.querySelectorAll(".feedback-buttons .btn").forEach((btn) => {
+              if (btn.dataset.verdict === fb.verdict) btn.classList.add("btn-active");
+            });
+          }
+        } catch {
+          /* ignore */
+        }
       }
 
       async function submitVerdict(verdict) {
-        if (selectedId == null || !items[selectedId]) return;
-        const it = items[selectedId];
+        const it = getSelectedItem();
+        if (!it) return;
         const comment =
           document.getElementById("feedback-comment").value.trim() || null;
         try {
@@ -915,12 +1237,26 @@
           await res.json();
           document.getElementById("feedback-status").textContent =
             `Feedback saved: ${verdict}`;
+          document.getElementById("feedback-status").style.color = "var(--success)";
+          document.querySelectorAll(".feedback-buttons .btn").forEach((btn) => {
+            btn.classList.toggle("btn-active", btn.dataset.verdict === verdict);
+          });
+          feedbackKeys.add(
+            [it.indicator_code, it.geography_code, it.window_str].join("\0"),
+          );
+          renderList();
         } catch (e) {
           document.getElementById("feedback-status").textContent =
             "Error: " + e.message;
           document.getElementById("feedback-status").style.color =
             "var(--danger)";
         }
+      }
+
+      function getSelectedItem() {
+        const list = filteredItems.length ? filteredItems : items;
+        if (selectedId == null || selectedId < 0 || selectedId >= list.length) return null;
+        return list[selectedId];
       }
 
       load();

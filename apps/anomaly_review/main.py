@@ -11,6 +11,7 @@ from apps.anomaly_review.feedback import (
     FEEDBACK_SCHEMA,
     export_feedback_csv,
     get_feedback,
+    get_feedback_for_item,
     init_feedback_store,
     submit_feedback,
 )
@@ -110,9 +111,30 @@ async def post_feedback(fb: FeedbackIn):
 
 
 @app.get("/api/feedback")
-async def list_feedback(item_id: int | None = None):
-    """List feedback entries, optionally filtered by item_id."""
-    return get_feedback(item_id=item_id)
+async def list_feedback(
+    item_id: int | None = None,
+    indicator_code: str | None = None,
+    geography_code: str | None = None,
+    window_str: str | None = None,
+):
+    """List feedback entries, optionally filtered."""
+    return get_feedback(
+        item_id=item_id,
+        indicator_code=indicator_code,
+        geography_code=geography_code,
+        window_str=window_str,
+    )
+
+
+@app.get("/api/feedback/item")
+async def get_item_feedback(
+    indicator_code: str,
+    geography_code: str,
+    window_str: str,
+):
+    """Get feedback for a specific anomaly item by stable key."""
+    fb = get_feedback_for_item(indicator_code, geography_code, window_str)
+    return fb if fb is not None else {}
 
 
 @app.get("/api/feedback/schema")

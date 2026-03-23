@@ -42,12 +42,17 @@ REVIEW_OUTPUT_SCHEMA = {
 }
 
 
+# Default padding (years before/after anomaly window) so reviewer sees surrounding context
+DEFAULT_PERIOD_PADDING = 5
+
+
 def to_review_format(
     anomalies_df: pd.DataFrame,
     timeseries_df: Optional[pd.DataFrame] = None,
     indicator_col: str = "indicator_code",
     geography_col: str = "country_code",
     window_col: str = "window",
+    period_padding: int = DEFAULT_PERIOD_PADDING,
 ) -> List[Dict[str, Any]]:
     """Convert anomaly DataFrame to review-app-friendly format.
 
@@ -57,9 +62,12 @@ def to_review_format(
         Output from parse_batch_output or harmonize_explanations.
     timeseries_df : pd.DataFrame, optional
         Canonical long-format timeseries. If provided, each item includes
-        a "timeseries" array for the anomaly window.
+        a "timeseries" array with data around the anomaly window (extended by
+        period_padding years before/after so the reviewer sees full context).
     indicator_col, geography_col, window_col : str
         Column names for indicator, geography, and window.
+    period_padding : int
+        Years to include before and after the anomaly window (default 5).
 
     Returns
     -------
@@ -95,28 +103,14 @@ def to_review_format(
         }
 
         if timeseries_df is not None and start is not None and end is not None:
-            ind_id = item["indicator_code"]
-            geo_id = item["geography_code"]
-            period_col = "period" if "period" in timeseries_df.columns else "YEAR"
-            ind_col = "indicator_id" if "indicator_id" in timeseries_df.columns else "INDICATOR"
-            geo_col = "geography_id" if "geography_id" in timeseries_df.columns else "REF_AREA"
-            sub = timeseries_df[
-                (timeseries_df[ind_col] == ind_id)
-                & (timeseries_df[geo_col] == geo_id)
-                & (timeseries_df[period_col] >= start)
-                & (timeseries_df[period_col] <= end)
-            ]
-            value_col = "value" if "value" in timeseries_df.columns else "VALUE"
-            imp_col = "is_imputed" if "is_imputed" in timeseries_df.columns else "Imputed"
-            item["timeseries"] = [
-                {
-                    "period": int(r[period_col]),
-                    "value": float(r[value_col]) if pd.notna(r[value_col]) else None,
-                    "is_imputed": bool(r.get(imp_col, False)),
-                }
-                for _, r in sub.iterrows()
-            ]
-            item["timeseries"].sort(key=lambda x: x["period"])
+            item["timeseries"] = _extract_timeseries(
+                timeseries_df,
+                item["indicator_code"],
+                item["geography_code"],
+                start,
+                end,
+                period_padding=period_padding,
+            )
 
         items.append(item)
 
@@ -129,18 +123,33 @@ def _extract_timeseries(
     geography_code: str,
     start: Optional[int],
     end: Optional[int],
+    period_padding: int = DEFAULT_PERIOD_PADDING,
 ) -> List[Dict[str, Any]]:
-    """Extract timeseries slice for an anomaly from canonical long-format DataFrame."""
+    """Extract timeseries for an anomaly, including padding around the anomaly window.
+
+    Includes period_padding years before and after the anomaly so the reviewer
+    sees the full context (the anomaly window is still used for chart highlighting).
+    """
     if timeseries_df is None or start is None or end is None:
         return []
     period_col = "period" if "period" in timeseries_df.columns else "YEAR"
     ind_col = "indicator_id" if "indicator_id" in timeseries_df.columns else "INDICATOR"
     geo_col = "geography_id" if "geography_id" in timeseries_df.columns else "REF_AREA"
-    sub = timeseries_df[
+
+    base = timeseries_df[
         (timeseries_df[ind_col] == indicator_code)
         & (timeseries_df[geo_col] == geography_code)
-        & (timeseries_df[period_col] >= start)
-        & (timeseries_df[period_col] <= end)
+    ]
+    if base.empty:
+        return []
+    min_period = int(base[period_col].min())
+    max_period = int(base[period_col].max())
+    extended_start = max(min_period, start - period_padding)
+    extended_end = min(max_period, end + period_padding)
+
+    sub = base[
+        (base[period_col] >= extended_start)
+        & (base[period_col] <= extended_end)
     ]
     value_col = "value" if "value" in timeseries_df.columns else "VALUE"
     imp_col = "is_imputed" if "is_imputed" in timeseries_df.columns else "Imputed"
@@ -175,6 +184,7 @@ def to_review_format_with_explainers(
     indicator_col: str = "indicator_code",
     geography_col: str = "country_code",
     window_col: str = "window",
+    period_padding: int = DEFAULT_PERIOD_PADDING,
     run_arbiter: bool = False,
     invoke_llm: Optional[Callable[..., Optional[Dict[str, Any]]]] = None,
     response_format: Optional[dict] = None,
@@ -256,7 +266,10 @@ def to_review_format_with_explainers(
             "window_start": start,
             "window_end": end,
             "window_str": window_str,
-            "timeseries": _extract_timeseries(timeseries_df, ind_code, geo_code, start, end),
+            "timeseries": _extract_timeseries(
+                timeseries_df, ind_code, geo_code, start, end,
+                period_padding=period_padding,
+            ),
             "explanation": {
                 "is_anomaly": first.get("is_anomaly", True),
                 "classification": primary_classification,
@@ -277,6 +290,7 @@ def export_for_review_with_explainers(
     explainer_dfs: List[Tuple[str, pd.DataFrame]],
     timeseries_df: Optional[pd.DataFrame] = None,
     output_path: str | Path = "anomaly_review.json",
+    period_padding: int = DEFAULT_PERIOD_PADDING,
     run_arbiter: bool = False,
     invoke_llm: Optional[Callable[..., Optional[Dict[str, Any]]]] = None,
 ) -> Path:
@@ -291,6 +305,8 @@ def export_for_review_with_explainers(
         Canonical long-format timeseries.
     output_path : str or Path
         Output file path.
+    period_padding : int
+        Years to include before/after anomaly window in timeseries (default 5).
     run_arbiter : bool
         If True and multiple explainers, run arbiter for primary classification.
     invoke_llm : callable, optional
@@ -305,6 +321,7 @@ def export_for_review_with_explainers(
     items = to_review_format_with_explainers(
         grouped,
         timeseries_df=timeseries_df,
+        period_padding=period_padding,
         run_arbiter=run_arbiter,
         invoke_llm=invoke_llm,
     )
@@ -318,6 +335,7 @@ def export_for_review(
     anomalies_df: pd.DataFrame,
     timeseries_df: Optional[pd.DataFrame] = None,
     output_path: str | Path = "anomaly_review.json",
+    period_padding: int = DEFAULT_PERIOD_PADDING,
 ) -> Path:
     """Export anomalies to JSON for reviewer app consumption.
 
@@ -326,9 +344,12 @@ def export_for_review(
     anomalies_df : pd.DataFrame
         Anomaly explanations.
     timeseries_df : pd.DataFrame, optional
-        Canonical timeseries (adds timeseries to each item).
+        Canonical timeseries (adds timeseries to each item, with context around
+        the anomaly window).
     output_path : str or Path
         Output file path.
+    period_padding : int
+        Years to include before/after anomaly window in timeseries (default 5).
 
     Returns
     -------
@@ -336,7 +357,11 @@ def export_for_review(
         Path to written file.
     """
     output_path = Path(output_path)
-    items = to_review_format(anomalies_df, timeseries_df)
+    items = to_review_format(
+        anomalies_df,
+        timeseries_df,
+        period_padding=period_padding,
+    )
     payload = {"version": "1.0", "count": len(items), "items": items}
     output_path.write_text(
         __import__("json").dumps(payload, indent=2, default=str),
