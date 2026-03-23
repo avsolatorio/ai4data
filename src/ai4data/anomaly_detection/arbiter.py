@@ -127,6 +127,42 @@ def group_explanations_by_context(
     return grouped
 
 
+def group_explanations_by_context_with_providers(
+    dfs_with_names: List[tuple[str, pd.DataFrame]],
+    group_keys: tuple = ("indicator_code", "country_code", "window_str"),
+) -> Dict[tuple, List[tuple[str, Dict[str, Any]]]]:
+    """Group anomaly rows from multiple DataFrames by context, preserving provider names.
+
+    Parameters
+    ----------
+    dfs_with_names : list of (provider_name, DataFrame)
+        One (provider_name, df) per explainer, e.g. [("OpenAI", df_openai), ("Gemini", df_gemini)].
+    group_keys : tuple
+        Columns to use as group key.
+
+    Returns
+    -------
+    dict
+        (indicator_code, country_code, window_str) -> list of (provider_name, anomaly_dict).
+    """
+    grouped: Dict[tuple, List[tuple[str, Dict[str, Any]]]] = {}
+    for provider_name, df in dfs_with_names:
+        if df.empty:
+            continue
+        cols = list(group_keys)
+        missing = [c for c in cols if c not in df.columns]
+        if missing:
+            continue
+        for key, grp in df.groupby(cols):
+            k = key if isinstance(key, tuple) else (key,)
+            if k not in grouped:
+                grouped[k] = []
+            for _, row in grp.iterrows():
+                anomaly = row.to_dict()
+                grouped[k].append((provider_name, anomaly))
+    return grouped
+
+
 def harmonize_explanations(
     dfs: List[pd.DataFrame],
     invoke_llm: Callable[[str, str, List[Dict]], Dict[str, Any]],
