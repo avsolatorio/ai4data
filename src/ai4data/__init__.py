@@ -8,6 +8,9 @@ This package provides various AI-powered tools for data analysis:
 - anomaly: Anomaly detection and explanation in data
   Install with: uv pip install ai4data[anomaly]
 
+- metadata: Metadata quality assessment and augmentation
+  Install with: uv pip install ai4data[metadata]
+
 For all capabilities:
   uv pip install ai4data[all]
 """
@@ -24,9 +27,11 @@ except PackageNotFoundError:
 # if dependencies are not installed until you actually use the features
 from . import data_use
 from . import anomaly
+from . import metadata
 
 __all__ = [
     "__version__",
     "data_use",
     "anomaly",
+    "metadata",
 ]

@@ -72,21 +72,24 @@ To run the notebooks locally, after (1) and (2) above, please follow these steps
 
 ### Building Documentation Locally
 
-To build the documentation locally, after (1) and (2) above, please follow these steps:
+To build and test the documentation locally, after (1) and (2) above:
 
-- Install the documentation dependencies:
-
-  ```shell
-    pip install -r docs/requirements.txt
-  ```
-
-- Build the documentation:
+**Option 1 — Quick test (build + serve):**
 
   ```shell
-    jupyter-book build . --config docs/_config.yml --toc docs/_toc.yml
+  ./scripts/test-docs.sh
   ```
 
-The generated documentation will be available in the `_build/html` directory. Open the `index.html` file in a web browser to view it.
+  This builds the book, serves it at http://localhost:8000, and opens in your browser. Use `--build` to build only, or `--serve` to serve an existing build.
+
+**Option 2 — Manual build:**
+
+  ```shell
+  pip install ".[docs]"   # or: uv pip install ".[docs]"
+  jupyter-book build . --config docs/_config.yml --toc docs/_toc.yml
+  ```
+
+  The output is in `_build/html`. Open `_build/html/index.html` in a browser.
 
 ## Licensing
 
