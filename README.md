@@ -112,7 +112,7 @@ pip install ai4data[all]
 ### Usage Example
 
 ```python
-from ai4data import data_use, anomaly_detection
+from ai4data import data_use, anomaly
 
 # Extract dataset mentions from text
 # See documentation for detailed examples

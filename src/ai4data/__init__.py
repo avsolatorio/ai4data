@@ -5,8 +5,11 @@ This package provides various AI-powered tools for data analysis:
 - data_use: Dataset mention extraction from text and documents
   Install with: uv pip install ai4data[datause]
 
-- anomaly_detection: Anomaly and outlier detection in data
+- anomaly: Anomaly detection and explanation in data
   Install with: uv pip install ai4data[anomaly]
+
+- metadata: Metadata quality assessment and augmentation
+  Install with: uv pip install ai4data[metadata]
 
 For all capabilities:
   uv pip install ai4data[all]
@@ -23,10 +26,12 @@ except PackageNotFoundError:
 # These use lazy imports internally, so they won't fail
 # if dependencies are not installed until you actually use the features
 from . import data_use
-from . import anomaly_detection
+from . import anomaly
+from . import metadata
 
 __all__ = [
     "__version__",
     "data_use",
-    "anomaly_detection",
+    "anomaly",
+    "metadata",
 ]

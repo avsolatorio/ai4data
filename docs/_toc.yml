@@ -3,43 +3,53 @@ root: README
 
 parts:
   - caption: Introduction
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/introduction.md
 
   - caption: AI for Metadata Quality
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/metadata-quality/generative-ai-for-metadata-quality.md
       - file: notebooks/metadata-quality-assessment-with-llm.ipynb
 
+  - caption: Metadata Augmentation
+    numbered: true
+    chapters:
+      - file: docs/metadata-augmentation/index.md
+      - file: docs/metadata-augmentation/methodology.md
+
   - caption: Data Discoverability
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/data-discoverability/data-discoverability.md
 
   - caption: Model Context Protocol (MCP) for AI-centric Data Dissemination
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/mcp/mcp.md
-      - file: docs/mcp/mcp-for-official-statistics.md
 
   - caption: Monitoring of Data Use
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/data_use/data_use.md
 
   - caption: Anomaly Detection in Data
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/anomaly-detection/anomaly-detection.md
+      - file: docs/anomaly/explanation/index.md
+      - file: docs/anomaly/explanation/motivation.md
+      - file: docs/anomaly/explanation/elicitation-pipeline.md
+      - file: docs/anomaly-detection/feedback-system.md
+      - file: notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb
 
   - caption: Efficient and Inclusive AI Applications
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/inclusive-ai/inclusive-ai.md
 
   - caption: Partnerships
-    numbered: false
+    numbered: true
     chapters:
       - file: docs/partnerships/partnerships.md
