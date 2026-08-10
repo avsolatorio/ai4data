@@ -101,7 +101,7 @@ uv run python -m apps.anomaly_review review.json feedback.json
 # Navigate to http://localhost:8000
 ```
 
-See the [methodology handbook](../anomaly/explanation/index.md) and the [step-by-step notebook](../../notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb) for the full pipeline with all options.
+See the [methodology handbook](../anomaly/explanation/index.md) and the [step-by-step notebook](../notebooks/data-anomaly/timeseries-anomaly-explanation-with-llms.md) for the full pipeline with all options.
 
 ---
 
@@ -111,4 +111,4 @@ See the [methodology handbook](../anomaly/explanation/index.md) and the [step-by
 - [Motivation: Why LLM Elicitation](../anomaly/explanation/motivation.md) — The problem, why LLMs, and the elicitation design choice
 - [Elicitation Pipeline](../anomaly/explanation/elicitation-pipeline.md) — Detailed pipeline, schema reference, code examples
 - [Reviewer Feedback System](feedback-system.md) — Collecting and using reviewer feedback
-- [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb) — Step-by-step implementation notebook
+- [Timeseries Anomaly Explanation with LLMs](../notebooks/data-anomaly/timeseries-anomaly-explanation-with-llms.md) — Step-by-step implementation notebook

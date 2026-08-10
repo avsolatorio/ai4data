@@ -70,5 +70,5 @@ For large-scale runs across thousands of anomalies, use the batch mode described
 
 - [Motivation: Why LLM Elicitation](motivation.md) — The problem of anomaly explanation, why LLMs, and the design choice of elicitation versus generation
 - [Elicitation Pipeline](elicitation-pipeline.md) — Pipeline steps, schema, judge/arbiter, code examples, and batch mode
-- [Reviewer Feedback System](../anomaly-detection/feedback-system.md) — Reviewer feedback system and export formats
-- [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb) — Step-by-step implementation notebook
+- [Reviewer Feedback System](../../anomaly-detection/feedback-system.md) — Reviewer feedback system and export formats
+- [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/timeseries-anomaly-explanation-with-llms.md) — Step-by-step implementation notebook

@@ -1,0 +1,70 @@
+/**
+ * Brand theme for AI for Data - Data for AI, adapted from the
+ * World Bank Group navy / cyan palette.
+ */
+
+:root {
+  --ifm-color-primary: #1b75bc;
+  --ifm-color-primary-dark: #1966a4;
+  --ifm-color-primary-darker: #17609b;
+  --ifm-color-primary-darkest: #134f80;
+  --ifm-color-primary-light: #2384d3;
+  --ifm-color-primary-lighter: #2c8ad6;
+  --ifm-color-primary-lightest: #4c9dde;
+
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-footer-background-color: #0b3d66;
+
+  --brand-navy: #0b3d66;
+  --brand-blue: #1b75bc;
+  --brand-cyan: #00aeef;
+
+  --ifm-code-font-size: 92%;
+  --docusaurus-highlighted-code-line-bg: rgba(27, 117, 188, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4fb4ea;
+  --ifm-color-primary-dark: #2fa3e3;
+  --ifm-color-primary-darker: #1f9ade;
+  --ifm-color-primary-darkest: #187fb9;
+  --ifm-color-primary-light: #6fc2ee;
+  --ifm-color-primary-lighter: #7fc9f0;
+  --ifm-color-primary-lightest: #ade1f6;
+
+  --ifm-background-color: #0b1220;
+  --ifm-navbar-background-color: #0d1b2a;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 174, 239, 0.15);
+}
+
+/* Brand strip along the top of every page */
+.navbar {
+  border-bottom: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      var(--brand-navy) 0%,
+      var(--brand-blue) 50%,
+      var(--brand-cyan) 100%
+    )
+    1;
+}
+
+.navbar__title {
+  font-weight: 700;
+}
+
+.footer a {
+  color: #bfe4fb;
+}
+.footer a:hover {
+  color: #ffffff;
+}
+
+.menu__link--active,
+.menu__link--active:hover {
+  font-weight: 600;
+}
+
+.admonition {
+  border-radius: 6px;
+}

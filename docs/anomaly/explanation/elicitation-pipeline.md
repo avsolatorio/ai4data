@@ -15,7 +15,7 @@ The pipeline has six stages:
 5. **Parsed output** — Responses are validated against the schema. Each anomaly record includes `classification`, `confidence`, `explanation`, `evidence_strength`, and `evidence_source`.
 6. **Review** — Human reviewers use a web app to view explanations alongside timeseries charts, approve or reject them, and optionally suggest corrections. Feedback is exportable for audit or model improvement.
 
-The implementation is available in the `ai4data.anomaly.explanation` package. A step-by-step notebook is provided: [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb).
+The implementation is available in the `ai4data.anomaly.explanation` package. A step-by-step notebook is provided: [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/timeseries-anomaly-explanation-with-llms.md).
 
 ---
 
@@ -249,7 +249,7 @@ The following design choices govern how the LLM is prompted and how outputs are 
 
 ## Human-in-the-Loop
 
-The [Reviewer Feedback System](../anomaly-detection/feedback-system.md) supports:
+The [Reviewer Feedback System](../../anomaly-detection/feedback-system.md) supports:
 
 - Approving, rejecting, or flagging explanations for further review
 - Suggesting an alternative classification when the reviewer disagrees

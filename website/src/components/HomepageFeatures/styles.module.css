@@ -1,0 +1,52 @@
+.features {
+  padding: 3.5rem 0 4rem;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
+}
+
+.card {
+  display: block;
+  height: 100%;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.card:hover {
+  text-decoration: none;
+  color: var(--ifm-font-color-base);
+  border-color: var(--brand-blue, #1b75bc);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11, 61, 102, 0.12);
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  margin-bottom: 0.6rem;
+  color: var(--brand-navy, #0b3d66);
+}
+
+[data-theme='dark'] .cardTitle {
+  color: #ade1f6;
+}
+
+.cardDescription {
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0.75rem;
+  line-height: 1.55;
+}
+
+.cardLink {
+  font-weight: 600;
+  color: var(--brand-blue, #1b75bc);
+}

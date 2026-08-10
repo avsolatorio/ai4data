@@ -1,0 +1,74 @@
+.heroBanner {
+  padding: 5rem 1rem 4.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+  background: radial-gradient(
+      circle at 15% 20%,
+      rgba(0, 174, 239, 0.35) 0%,
+      rgba(0, 174, 239, 0) 45%
+    ),
+    linear-gradient(135deg, #0b3d66 0%, #0f4f80 55%, #12609b 100%);
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3rem 1.25rem;
+  }
+}
+
+.heroTitle {
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  max-width: 46rem;
+  margin: 0 auto 1.25rem;
+}
+
+@media screen and (max-width: 996px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+}
+
+.heroSubtitle {
+  font-size: 1.2rem;
+  color: #dceffb;
+  max-width: 42rem;
+  margin: 0 auto 2.25rem;
+  line-height: 1.6;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  background: var(--brand-cyan, #00aeef);
+  border-color: var(--brand-cyan, #00aeef);
+  color: #06283f;
+  font-weight: 700;
+}
+.primaryButton:hover {
+  background: #33c1f2;
+  border-color: #33c1f2;
+  color: #06283f;
+}
+
+.secondaryButton {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.65);
+  color: #ffffff;
+  font-weight: 600;
+}
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
+  color: #ffffff;
+}

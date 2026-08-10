@@ -213,4 +213,4 @@ Reviewed and corrected labels can be used to:
 
 ## Implementation Reference
 
-The feedback system implementation is in [`apps/anomaly_review/feedback.py`](../../../apps/anomaly_review/feedback.py) and [`apps/anomaly_review/main.py`](../../../apps/anomaly_review/main.py).
+The feedback system implementation is in [`apps/anomaly_review/feedback.py`](https://github.com/worldbank/ai4data/blob/main/apps/anomaly_review/feedback.py) and [`apps/anomaly_review/main.py`](https://github.com/worldbank/ai4data/blob/main/apps/anomaly_review/main.py).

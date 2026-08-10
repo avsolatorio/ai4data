@@ -44,7 +44,7 @@ Manual expert review does not scale to thousands of anomalies across many indica
 
 - **Triage** — Prioritize anomalies by confidence, evidence strength, or classification for human review. Focus expert attention on the most uncertain or high-impact cases.
 - **Audit trail** — Structured outputs (classification, evidence_source, verifiability) create a record that can be exported, analyzed, and used to improve future models.
-- **Human-in-the-loop** — The [Reviewer Feedback System](../anomaly-detection/feedback-system.md) collects verdicts, suggested corrections, and free-text comments. This feedback can support fine-tuning, prompt refinement, or audit coverage analysis.
+- **Human-in-the-loop** — The [Reviewer Feedback System](../../anomaly-detection/feedback-system.md) collects verdicts, suggested corrections, and free-text comments. This feedback can support fine-tuning, prompt refinement, or audit coverage analysis.
 
 ---
 

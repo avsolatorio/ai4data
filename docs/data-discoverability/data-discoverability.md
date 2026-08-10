@@ -86,7 +86,7 @@ A practical semantic search deployment for development data involves:
 3. **Query serving** — At query time, encode the user's query and run nearest-neighbor search against the index.
 4. **Re-ranking (optional)** — Apply BM25 or a cross-encoder to re-rank the top-K candidates.
 
-The [`packages/ai4data/search/`](../../packages/ai4data/search/) directory contains the JavaScript implementation. For Python-based indexing and search, the `[search]` optional dependency group provides the necessary libraries:
+The [`packages/ai4data/search/`](https://github.com/worldbank/ai4data/tree/main/packages/ai4data/search/) directory contains the JavaScript implementation. For Python-based indexing and search, the `[search]` optional dependency group provides the necessary libraries:
 
 ```bash
 uv pip install ai4data[search]

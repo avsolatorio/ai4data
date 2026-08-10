@@ -62,7 +62,7 @@ AI models can systematically identify missing or inconsistent fields, flag unusu
 
 ## LLM Assessment Workflow
 
-The [`notebooks/metadata-quality-assessment-with-llm.ipynb`](../../notebooks/metadata-quality-assessment-with-llm.ipynb) notebook demonstrates a complete metadata quality assessment pipeline applied to a development data catalog.
+The [`notebooks/metadata-quality-assessment-with-llm.ipynb`](../notebooks/metadata-quality-assessment-with-llm.md) notebook demonstrates a complete metadata quality assessment pipeline applied to a development data catalog.
 
 The workflow:
 
