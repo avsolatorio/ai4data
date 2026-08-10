@@ -34,6 +34,7 @@ const config = {
     },
   },
   themes: ['@docusaurus/theme-mermaid'],
+  clientModules: [path.join(__dirname, 'src/clientModules/fonts.js')],
 
   i18n: {
     defaultLocale: 'en',

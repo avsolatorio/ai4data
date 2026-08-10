@@ -1,6 +1,6 @@
 /**
- * Brand theme for AI for Data - Data for AI, adapted from the
- * World Bank Group navy / cyan palette.
+ * Brand theme for AI for Data - Data for AI.
+ * World Bank navy / cyan palette, Space Grotesk display + Inter body type.
  */
 
 :root {
@@ -12,15 +12,31 @@
   --ifm-color-primary-lighter: #2c8ad6;
   --ifm-color-primary-lightest: #4c9dde;
 
-  --ifm-navbar-background-color: #ffffff;
-  --ifm-footer-background-color: #0b3d66;
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.92);
+  --ifm-footer-background-color: #081c30;
 
   --brand-navy: #0b3d66;
+  --brand-navy-deep: #071f36;
   --brand-blue: #1b75bc;
   --brand-cyan: #00aeef;
+  --brand-amber: #f2a900;
 
-  --ifm-code-font-size: 92%;
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  --ifm-heading-font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
+  --ifm-heading-font-weight: 700;
+  --ifm-font-weight-semibold: 600;
+  --ifm-heading-color: var(--brand-navy);
+
+  --ifm-code-font-size: 90%;
+  --ifm-global-radius: 10px;
+  --ifm-code-border-radius: 6px;
+  --ifm-alert-border-left-width: 0px;
   --docusaurus-highlighted-code-line-bg: rgba(27, 117, 188, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(11, 61, 102, 0.06);
+  --shadow-md: 0 6px 20px rgba(11, 61, 102, 0.1);
+  --shadow-lg: 0 16px 40px rgba(11, 61, 102, 0.16);
 }
 
 [data-theme='dark'] {
@@ -32,39 +48,197 @@
   --ifm-color-primary-lighter: #7fc9f0;
   --ifm-color-primary-lightest: #ade1f6;
 
-  --ifm-background-color: #0b1220;
-  --ifm-navbar-background-color: #0d1b2a;
+  --ifm-background-color: #0a1220;
+  --ifm-background-surface-color: #0f1b2d;
+  --ifm-navbar-background-color: rgba(10, 18, 32, 0.86);
+  --ifm-heading-color: #eaf4fb;
   --docusaurus-highlighted-code-line-bg: rgba(0, 174, 239, 0.15);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.55);
 }
 
-/* Brand strip along the top of every page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---------- Navbar ---------- */
+
 .navbar {
-  border-bottom: 3px solid;
-  border-image: linear-gradient(
-      90deg,
-      var(--brand-navy) 0%,
-      var(--brand-blue) 50%,
-      var(--brand-cyan) 100%
-    )
-    1;
+  border-bottom: 1px solid rgba(11, 61, 102, 0.08);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: saturate(180%) blur(10px);
+}
+
+[data-theme='dark'] .navbar {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--brand-navy) 0%,
+    var(--brand-blue) 45%,
+    var(--brand-cyan) 100%
+  );
 }
 
 .navbar__title {
+  font-family: var(--ifm-heading-font-family);
   font-weight: 700;
 }
 
+.navbar__logo {
+  border-radius: 4px;
+}
+
+/* ---------- Sidebar ---------- */
+
+.theme-doc-sidebar-container {
+  border-right: 1px solid rgba(11, 61, 102, 0.08) !important;
+}
+[data-theme='dark'] .theme-doc-sidebar-container {
+  border-right-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.menu__link {
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  background: linear-gradient(
+    90deg,
+    rgba(27, 117, 188, 0.14),
+    rgba(0, 174, 239, 0.08)
+  );
+  color: var(--brand-navy);
+  font-weight: 600;
+}
+[data-theme='dark'] .menu__link--active:not(.menu__link--sublist) {
+  background: linear-gradient(
+    90deg,
+    rgba(79, 180, 234, 0.22),
+    rgba(0, 174, 239, 0.1)
+  );
+  color: #eaf4fb;
+}
+
+.menu__list-item-collapsible {
+  border-radius: 999px;
+}
+.menu__list-item-collapsible:hover,
+.menu__link:hover {
+  background: rgba(27, 117, 188, 0.08);
+}
+[data-theme='dark'] .menu__list-item-collapsible:hover,
+[data-theme='dark'] .menu__link:hover {
+  background: rgba(79, 180, 234, 0.12);
+}
+
+.menu__list-item-collapsible .menu__link--sublist-caret {
+  font-weight: 700;
+}
+
+/* ---------- Table of contents ---------- */
+
+.table-of-contents__link--active {
+  color: var(--brand-blue) !important;
+  font-weight: 600;
+}
+.table-of-contents {
+  border-left: 2px solid rgba(11, 61, 102, 0.1);
+}
+[data-theme='dark'] .table-of-contents {
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Content ---------- */
+
+article h1 {
+  letter-spacing: -0.02em;
+}
+article h2 {
+  letter-spacing: -0.01em;
+  padding-top: 0.25rem;
+}
+
+.markdown > p,
+.markdown li {
+  line-height: 1.72;
+}
+
+.markdown a {
+  text-decoration-color: var(--brand-cyan);
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.15em;
+  font-weight: 500;
+}
+
+/* ---------- Admonitions ---------- */
+
+.admonition {
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid rgba(11, 61, 102, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+[data-theme='dark'] .admonition {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Code blocks ---------- */
+
+div[class*='codeBlockContainer'] {
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(11, 61, 102, 0.08);
+}
+[data-theme='dark'] div[class*='codeBlockContainer'] {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Cards / pagination ---------- */
+
+.pagination-nav__link {
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid rgba(11, 61, 102, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pagination-nav__link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-blue);
+}
+
+.card {
+  border-radius: var(--ifm-global-radius);
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  background: linear-gradient(180deg, var(--brand-navy-deep) 0%, #051220 100%);
+}
 .footer a {
   color: #bfe4fb;
 }
 .footer a:hover {
   color: #ffffff;
 }
-
-.menu__link--active,
-.menu__link--active:hover {
-  font-weight: 600;
+.footer__title {
+  font-family: var(--ifm-heading-font-family);
+  color: #ffffff;
 }
 
-.admonition {
-  border-radius: 6px;
+/* ---------- Buttons ---------- */
+
+.button {
+  border-radius: 999px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }

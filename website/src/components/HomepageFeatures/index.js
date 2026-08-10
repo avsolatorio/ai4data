@@ -3,54 +3,135 @@ import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
+function SparklesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path
+        d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"
+        strokeLinejoin="round"
+      />
+      <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function LayersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z" strokeLinejoin="round" />
+      <path d="M4 12l8 4.5 8-4.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 16.5L12 21l8-4.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PulseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path
+        d="M3 12h4l2 6 4-14 2 8h6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M20 20l-4.5-4.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlugIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="M9 3v5M15 3v5" strokeLinecap="round" />
+      <path d="M6 8h12v3a6 6 0 01-12 0V8z" strokeLinejoin="round" />
+      <path d="M12 17v4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z" />
+    </svg>
+  );
+}
+
 const WorkstreamList = [
   {
     title: 'Generative AI for Metadata Quality',
     to: '/docs/metadata-quality/generative-ai-for-metadata-quality',
     description:
       'LLMs assess and improve metadata completeness, consistency, and semantic alignment across indicator catalogs.',
+    Icon: SparklesIcon,
   },
   {
     title: 'Metadata Augmentation',
     to: '/docs/metadata-augmentation/',
     description:
       'Automated thematic tagging and enrichment of microdata data dictionaries using semantic clustering and LLMs.',
+    Icon: LayersIcon,
   },
   {
     title: 'Anomaly Detection and Explanation',
     to: '/docs/anomaly-detection/',
     description:
       'Statistical detection combined with LLM elicitation to classify and explain unusual patterns in timeseries data.',
+    Icon: PulseIcon,
   },
   {
     title: 'Data Discoverability',
     to: '/docs/data-discoverability/',
     description:
       'Semantic search systems enabling natural language queries over development datasets.',
+    Icon: SearchIcon,
   },
   {
     title: 'Model Context Protocol',
     to: '/docs/mcp/',
     description:
       'Enabling AI assistants to query official statistics directly via an open standard.',
+    Icon: PlugIcon,
   },
   {
     title: 'Inclusive AI Applications',
     to: '/docs/inclusive-ai/',
     description:
       'Approaches to extend AI benefits to low-resource contexts and languages.',
+    Icon: GlobeIcon,
   },
 ];
 
-function Workstream({title, to, description}) {
+function Workstream({title, to, description, Icon}) {
   return (
     <div className={clsx('col col--4')}>
       <Link to={to} className={styles.card}>
+        <span className={styles.cardIcon}>
+          <Icon />
+        </span>
         <Heading as="h3" className={styles.cardTitle}>
           {title}
         </Heading>
         <p className={styles.cardDescription}>{description}</p>
-        <span className={styles.cardLink}>Read more →</span>
+        <span className={styles.cardLink}>
+          Read more
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={styles.cardLinkArrow}>
+            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </Link>
     </div>
   );
@@ -60,6 +141,7 @@ export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
       <div className="container">
+        <span className={styles.sectionEyebrow}>What we build</span>
         <Heading as="h2" className={styles.sectionTitle}>
           Flagship Workstreams
         </Heading>

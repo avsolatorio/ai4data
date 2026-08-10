@@ -1,38 +1,81 @@
 .features {
-  padding: 3.5rem 0 4rem;
+  padding: 1rem 0 5rem;
+}
+
+.sectionEyebrow {
+  display: block;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-blue, #1b75bc);
+  margin-bottom: 0.6rem;
 }
 
 .sectionTitle {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
   font-weight: 700;
+  font-size: 2.1rem;
 }
 
 .card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   height: 100%;
-  padding: 1.5rem;
+  padding: 1.75rem;
   margin-bottom: 1.5rem;
-  border-radius: 10px;
+  border-radius: 16px;
   border: 1px solid var(--ifm-color-emphasis-200);
   background: var(--ifm-background-surface-color);
   color: var(--ifm-font-color-base);
   text-decoration: none;
-  transition: border-color 0.15s ease, transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .card:hover {
   text-decoration: none;
   color: var(--ifm-font-color-base);
   border-color: var(--brand-blue, #1b75bc);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(11, 61, 102, 0.12);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 1.1rem;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(27, 117, 188, 0.16),
+    rgba(0, 174, 239, 0.12)
+  );
+  color: var(--brand-blue, #1b75bc);
+}
+[data-theme='dark'] .cardIcon {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 180, 234, 0.22),
+    rgba(0, 174, 239, 0.14)
+  );
+  color: #7fc9f0;
+}
+
+.cardIcon svg {
+  width: 1.4rem;
+  height: 1.4rem;
 }
 
 .cardTitle {
-  font-size: 1.15rem;
-  margin-bottom: 0.6rem;
+  font-size: 1.12rem;
+  margin-bottom: 0.55rem;
   color: var(--brand-navy, #0b3d66);
 }
 
@@ -42,11 +85,25 @@
 
 .cardDescription {
   color: var(--ifm-color-emphasis-700);
-  margin-bottom: 0.75rem;
-  line-height: 1.55;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  flex-grow: 1;
 }
 
 .cardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-weight: 600;
   color: var(--brand-blue, #1b75bc);
+}
+
+.cardLinkArrow {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.18s ease;
+}
+
+.card:hover .cardLinkArrow {
+  transform: translateX(3px);
 }
