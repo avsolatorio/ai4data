@@ -1,4 +1,7 @@
+import torch
+
 from relevance_explainer.distill.onpolicy import quality
+from relevance_explainer.distill.short_format import quotes_supported, valid
 from relevance_explainer.distill.teacher_checks import class_of, strip_similarity
 
 
@@ -18,8 +21,6 @@ def test_strip_similarity_removes_only_that_line():
 
 
 def test_dpo_loss_is_log2_at_the_reference_and_falls_when_chosen_gains():
-    import torch
-
     from relevance_explainer.tiny.dpo import dpo_loss
 
     z = torch.zeros(4)
@@ -34,3 +35,19 @@ def test_quality_prefers_faithful_and_requires_consistency():
     fluent_but_wrong = {"faithful": 2, "coherent": 5, "consistent": True, "language_ok": True}
     inconsistent = {"faithful": 5, "coherent": 5, "consistent": False, "language_ok": True}
     assert quality(good) > quality(fluent_but_wrong) > quality(inconsistent)
+
+
+def test_quotes_must_appear_in_the_input():
+    src = "Result: Labor force participation rate, female\nDefinition: The labor force is the sum of employed and unemployed persons."
+    assert quotes_supported('Measures "labor force participation rate" for women.', src)
+    assert quotes_supported("No quotes here.", src)
+    assert not quotes_supported('It covers "informal employment".', src)
+
+
+def test_valid_rejects_empty_multiline_long_and_unsupported_quotes():
+    src = "Result: Poverty headcount ratio"
+    assert valid("The item measures the poverty headcount ratio.", src)
+    assert not valid("", src)
+    assert not valid("Two\nlines.", src)
+    assert not valid(" ".join(["word"] * 50), src)
+    assert not valid('It has "invented phrase".', src)
