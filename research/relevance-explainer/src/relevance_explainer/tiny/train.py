@@ -111,7 +111,8 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 
 
 @torch.no_grad()
-def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48) -> tuple[dict, list[dict]]:
+def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48,
+             copy_bias: float = 0.0) -> tuple[dict, list[dict]]:
     model.eval()
     prompts = [tk.encode(e["row"]["input"] + SEP).ids for e in enc]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
@@ -119,7 +120,7 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
     for s in range(0, len(order), batch):
         ch = order[s : s + batch]
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new)
+            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias)
         for i, o in zip(ch, outs):
             gens[i] = tk.decode(o).strip()
     rows = [e["row"] for e in enc]

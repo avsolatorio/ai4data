@@ -68,6 +68,30 @@ def test_batched_decoding_stops_each_sequence_at_eos():
     assert len(out[1]) <= 12
 
 
+def test_copy_bias_restricts_later_tokens_to_the_prompt_and_spares_the_start():
+    torch.manual_seed(3)
+    m = _small()
+    prompt = [5, 6, 7, 8, 9, 10]
+    plain = m.generate_batch([prompt], eos=-1, max_new=12, no_repeat=0)[0]
+    biased = m.generate_batch([prompt], eos=-1, max_new=12, no_repeat=0, copy_bias=1e4, copy_skip=4)[0]
+    assert biased[:4] == plain[:4]  # the verdict region is untouched
+    assert all(t in prompt for t in biased[4:])
+
+
+def test_int8_export_round_trip_matches_fake_quantization(tmp_path):
+    from relevance_explainer.tiny.export import export_int8, load_int8
+
+    torch.manual_seed(4)
+    m = _small()
+    tk_json = '{"version":"1.0","truncation":null,"padding":null,"added_tokens":[],"normalizer":null,"pre_tokenizer":null,' \
+              '"post_processor":null,"decoder":null,"model":{"type":"BPE","vocab":{"a":0},"merges":[]}}'
+    export_int8(m.state_dict(), m.c.to_dict(), tk_json, tmp_path / "m.pt")
+    loaded, _ = load_int8(tmp_path / "m.pt")
+    q8, _ = quantize(m, 8)
+    ids = torch.randint(2, 100, (1, 16))
+    assert torch.allclose(loaded(ids), q8(ids), atol=1e-3)
+
+
 def test_quantization_sizes_and_error():
     m = _small()
     q8, s8 = quantize(m, 8)

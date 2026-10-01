@@ -139,11 +139,15 @@ class TinyLM(nn.Module):
         return out
 
     @torch.no_grad()
-    def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0) -> list[list[int]]:
+    def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0,
+                       copy_bias: float = 0.0, copy_skip: int = 4) -> list[list[int]]:
         """Greedy decoding for several prompts at once with a KV cache.
 
         Prompts are left-padded; padding is masked out of attention and does not shift rotary positions,
-        so each result equals single-sequence `generate` (see tests)."""
+        so each result equals single-sequence `generate` (see tests).
+
+        `copy_bias` adds a bonus to the logit of every token that occurs in the prompt, from the `copy_skip`-th
+        generated token on (the verdict line is left alone). It nudges the narrative towards terms of the input."""
         dev, B = self.emb.weight.device, len(prompts)
         L = max(len(p) for p in prompts)
         ids = torch.full((B, L), pad, dtype=torch.long, device=dev)
@@ -165,7 +169,15 @@ class TinyLM(nn.Module):
         seen: list[dict[tuple[int, ...], set[int]]] = [{} for _ in range(B)]
         done = [False] * B
         last = pos[:, -1]
-        for _ in range(max_new):
+        in_prompt = None
+        if copy_bias:
+            in_prompt = torch.zeros((B, self.c.vocab), dtype=torch.bool, device=dev)
+            in_prompt.scatter_(1, ids, True)
+            in_prompt[:, pad] = False
+            in_prompt[:, eos] = False
+        for step in range(max_new):
+            if in_prompt is not None and step >= copy_skip:
+                logits = logits + copy_bias * in_prompt
             if no_repeat:
                 for i in range(B):
                     o = outs[i]

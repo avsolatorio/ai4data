@@ -109,3 +109,24 @@ Commit: 903c62a plus uncommitted batched decoding, similarity signal, judge and 
 - Unsupported-item proxy: 16.1% of student narratives against 14.5% of teacher narratives contain a number or capitalized name absent from the input. French reads 37% for both because translated place names do not match the English input; the proxy does not see invented claims or nonsense words, so it is not a faithfulness measure. Reading samples showed invented descriptions and nonsense words, mostly outside English.
 
 **Implication.** The retrieval similarity is the signal that makes the verdict learnable at 20 MB; the explainer takes the retriever's evidence as input, as in the original design. Narrative faithfulness is the open problem (about 3 of 5 by the judge). Test set is 1,370 examples with 84 relevant, one seed, and a data snapshot; the class-wise numbers for "relevant" are noisy. Next: finish v2 narration, retry the 153 retrievals that returned HTTP 429, retrain on all data, try a second pretraining pass (running), and measure faithfulness again.
+
+## 2026-10-01 09:00 UTC — Full-data 20 MB model, faithfulness, copy-bias, export
+
+Commit: 875015a plus uncommitted export, copy-bias option and README (committed immediately after this entry). Data `data/f1`: v1 (Ollama, 4,155 pairs) plus v2 (vLLM, 27,469 narrated) merged, de-duplicated, with the retrieval-similarity input line: train 25,198 (2,176 relevant), val 3,797, test 2,437 (233 relevant, 657 partly relevant, 1,547 irrelevant; majority rate 63.5%).
+
+**Question/Context.** Does more data and a second pretraining pass improve the 20.6M-parameter model, and can faithfulness be improved cheaply at decoding time?
+
+**What was done.**
+- v2 generation on vLLM serving Qwen3.8-27B-FP8 (two workarounds for the missing CUDA compiler: `VLLM_USE_DEEP_GEMM=0`, `VLLM_USE_FLASHINFER_SAMPLER=0`). Narration ran at about 4.8 per second against 0.7 with Ollama (prefill-bound, 97% KV cache use).
+- Second pretraining pass over the 1.62B-token corpus (lr 1e-3, resumed): held-out perplexity English 11.4 -> 10.7, French 12.3 -> 11.5, Arabic 17.3 -> 16.3, Chinese 25.3 -> 23.5.
+- Task training on `data/f1` (lr 1e-3, 8 epochs, batch 32, verdict-token weight 5, best epoch by validation verdict accuracy) from the first-pass checkpoint (`f1-pre1`) and the second-pass checkpoint (`f1-pre2`).
+- Judge scores (n=400, same teacher model as judge), then a logit bonus for tokens occurring in the input applied after the verdict line, strengths 1, 2 and 4.
+- Exported INT8 file and CPU timing.
+
+**Result.**
+- `f1-pre2` test accuracy 82.6% at fp32, INT8 and INT4; macro-F1 0.775, 0.774, 0.776; per-class F1 at INT8 relevant 0.77, partly relevant 0.66, irrelevant 0.90. `f1-pre1`: accuracy 81.2% fp32, 81.1% INT8, 80.0% INT4; macro-F1 0.743, 0.742, 0.718. Best epoch 6 of 8 for both. One seed each, so the 1.4-point gap between pre2 and pre1 is suggestive and not established.
+- Judge, `f1-pre2` INT8: faithfulness 3.49 of 5 (53.7% scored 4 or more), coherence 3.85, argues for its verdict 98.8%, correct language 98.0%. Previous model (11k training examples): 2.98, 3.44, 97.0%, 98.3% (n=300). By language faithfulness: English 4.07 (n=174), Spanish 3.37 (52), French 3.31 (48), Arabic 3.05 (22), Chinese 2.95 (22), Indonesian 2.45 (20), Russian 2.37 (19). Teacher narratives scored 4.99 (self-judged).
+- Copy bonus: verdict accuracy unchanged (82.6%) at every strength. Faithfulness 3.50 / 3.43 / 2.78 and coherence 3.80 / 3.53 / 2.77 at strengths 1 / 2 / 4, against 3.49 and 3.85 without it. No benefit; not used.
+- Export: one file of 21.59 MB (0.84 MB of it the tokenizer), 18.4 MB gzipped. Loading takes 0.31 s. A random 300-example sample scores 81.0% accuracy with the loaded file (full test 82.6%; sampling error about 2 points). Single CPU thread: 172 ms to first token for a 330-token prompt (98 ms with 4 threads), 11 ms per token, 0.77 s for a 71-token output.
+
+**Implication.** The task data and pretraining are worth continuing: both raised faithfulness and verdict accuracy. Faithfulness is still about 3.5 of 5 and about half of the narratives carry an unsupported claim, so the model is suitable as a draft explanation and not for unreviewed use. Decoding-time copy bias is a negative result. The 21.6 MB file is slightly above a strict 20 MB budget; options are a 6-layer variant or fewer vocabulary entries. INT4 accuracy is simulated, with no packed export. Candidate next steps: more theme and source diversity, human review of a sample of non-English narratives, a judge that is not the teacher, and training for Russian, Indonesian and Chinese faithfulness.

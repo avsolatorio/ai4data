@@ -28,6 +28,7 @@ def main() -> None:
     ap.add_argument("--max-new", type=int, default=260)
     ap.add_argument("--batch", type=int, default=48)
     ap.add_argument("--tag", default="eval")
+    ap.add_argument("--copy-bias", type=float, default=0.0, help="logit bonus for tokens that occur in the input")
     a = ap.parse_args()
 
     run = Path(a.run)
@@ -48,7 +49,7 @@ def main() -> None:
         bits = {"fp32": None, "int8": 8, "int4": 4}[name]
         m, size = (model, model.n_params() * 4) if bits is None else quantize(model, bits)
         t = time.time()
-        metrics, gens = evaluate(m, tk, enc, a.max_new, a.batch)
+        metrics, gens = evaluate(m, tk, enc, a.max_new, a.batch, a.copy_bias)
         metrics["size_mb"] = round(size / 1e6, 2)
         metrics["eval_seconds"] = round(time.time() - t, 1)
         out[name] = metrics
