@@ -174,3 +174,26 @@ Commit: cb179d5 plus uncommitted layer-sharing option, latency benchmark and tes
 - Early-exit probe: the verdict token matches the final answer 0% after layer 3, 8% after 4, 71% after 5, 91% after 6. Narrative tokens match the final answer 17%, 23%, 30%, 39%, 52%, 79%, 100% after layers 1 to 7. Exiting at the first layer with confidence at least 0.9 gives a mean depth of 5.85 of 7 with 94.8% of narrative tokens unchanged (verdict: 6.33, 99.7%); at 0.99, 6.53 and 99.6%. Models trained for early exit do better than this untrained read-out, so it is a pessimistic estimate.
 
 **Implication.** Weight sharing saves bytes and not time, and at 20M parameters with 100M tokens it also does not preserve quality at equal stored size. Speed comes from fewer layer passes (4 passes: 6.1 ms per token against 9.6 ms for 7). Adaptive depth has little room in a 7-layer model and the verdict token needs nearly full depth. Mixture-of-Recursions is not a good fit at this size, in line with the paper's own 135M result. Caveats: 100M tokens of pretraining, one seed per shape, perplexity only (no task fine-tune), and recursion may need longer training to pay off. Untested: a looped model fine-tuned on the task, a model with fewer passes (4 or 5 layers) on the task, and packed INT4 kernels where memory bandwidth matters.
+
+## 2026-10-01 21:54 UTC — Layer sharing re-checked at tuned learning rates
+
+Commit: 2c3fb63 (no new code; results only).
+
+**Question/Context.** The layer-sharing study above used one learning rate (2e-3) for every shape. Tied-weight models can need a different rate, so the "sharing gives no gain at equal stored size" result could have been an artefact of that choice. Separately, the user asked whether the implementation was correct.
+
+**What was done.**
+- Implementation audit: shared blocks are the same objects at every application (repeat order [0,0,1,1,2,2,3,3], cycle order [0,1,2,3,0,1,2,3]); every block receives a non-zero gradient; parameter counts match the stored blocks; batched KV-cache decoding for shared models matches single-sequence decoding (unit test); training-loss curves of all five shapes are smooth (3.53 to 3.64 at step 400, 3.25 to 3.35 at step 762).
+- Learning-rate grid, 100M tokens each (762 steps), same data and settings as before, one seed per cell: 5e-4, 1e-3, 2e-3 and 4e-3 for the unshared 8-block model and the shared cycle; 1e-3, 2e-3 and 4e-3 for plain 4 layers and the shared repeat.
+
+**Result.** English held-out perplexity at step 762:
+
+| Shape | 5e-4 | 1e-3 | 2e-3 | 4e-3 |
+|---|---|---|---|---|
+| 8 blocks, unshared (22.8M) | 32.7 | 23.8 | 21.1 | 21.3 |
+| 4 layers, plain (14.1M) | n/a | 28.4 | 22.8 | 22.3 |
+| 8 passes over 4 blocks, cycle (14.1M) | 39.3 | 29.3 | 22.9 | 22.5 |
+| 8 passes over 4 blocks, repeat (14.1M) | n/a | 26.1 | 23.3 | 22.7 |
+
+At each shape's best tested rate: unshared 8 blocks 21.1, plain 4 layers 22.3, shared cycle 22.5, shared repeat 22.7. Lower rates were worse for every shape. At 1e-3 the shared repeat (26.1) beat plain 4 layers (28.4), but at their best rates plain 4 layers was ahead by 0.2 to 0.4. The best rate for plain 4 layers and both shared shapes is the largest one tested (4e-3), so a higher rate (not run) could move them further; the unshared model peaks at 2e-3 to 4e-3.
+
+**Implication.** The earlier conclusion holds under a tuned learning rate: at equal stored size, looping blocks to double the depth gives no measurable gain over a plain 4-layer model (differences of 0.2 to 0.4 perplexity, one seed, 100M tokens), and the time per token is that of the extra passes. The implementation checks passed. Untested: rates above 4e-3, longer training, and task fine-tuning of looped models.
