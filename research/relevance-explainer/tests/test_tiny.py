@@ -45,6 +45,29 @@ def test_no_repeat_blocks_repeated_ngrams():
     assert len(grams) == len(set(grams))
 
 
+def test_batched_cached_decoding_matches_single_sequence():
+    torch.manual_seed(1)
+    m = _small()
+    prompts = [torch.randint(2, 100, (n,)).tolist() for n in (5, 12, 9, 12, 3)]
+    for no_repeat in (0, 3):
+        batched = m.generate_batch(prompts, eos=-1, max_new=20, no_repeat=no_repeat)
+        for p, out in zip(prompts, batched):
+            single = m.generate(torch.tensor([p]), eos=-1, max_new=20, no_repeat=no_repeat)
+            assert out == single
+
+
+def test_batched_decoding_stops_each_sequence_at_eos():
+    torch.manual_seed(2)
+    m = _small()
+    prompts = [torch.randint(2, 100, (n,)).tolist() for n in (4, 10)]
+    first = m.generate_batch(prompts, eos=-1, max_new=12, no_repeat=2)  # blocks bigram loops so tokens vary
+    # Use as EOS the first token of sequence 0 that has not been generated before, then expect a stop right there.
+    j = next(i for i in range(1, 12) if first[0][i] not in first[0][:i])
+    out = m.generate_batch(prompts, eos=first[0][j], max_new=12, no_repeat=2)
+    assert out[0] == first[0][:j]
+    assert len(out[1]) <= 12
+
+
 def test_quantization_sizes_and_error():
     m = _small()
     q8, s8 = quantize(m, 8)

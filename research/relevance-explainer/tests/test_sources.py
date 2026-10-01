@@ -83,6 +83,15 @@ def test_passage_skips_front_matter_and_needs_term_overlap():
     assert Documents.passage(text, "volcano eruption monitoring") is None
 
 
+def test_similarity_line_goes_after_filters():
+    from relevance_explainer.synth.signals import add_similarity_line
+
+    text = "Respond in: French\nItem type: x\nQuery: q\nFilters: none\nResult: r"
+    out = add_similarity_line(text, 0.6149).split("\n")
+    assert out[out.index("Filters: none") + 1] == "Retrieval similarity: 0.61"
+    assert len(out) == 6
+
+
 def test_parse_json_tolerates_fences_and_prose():
     assert parse_json('```json\n{"a": 1}\n```') == {"a": 1}
     assert parse_json('Here you go: [{"a": 1}] thanks') == [{"a": 1}]

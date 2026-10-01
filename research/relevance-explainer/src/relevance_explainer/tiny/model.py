@@ -44,9 +44,12 @@ def rope_cache(head_dim: int, max_len: int, base: float = 10000.0):
 
 
 def apply_rope(x, cos, sin):
-    # x: (B, H, T, D); cos/sin: (T, D/2)
+    # x: (B, H, T, D); cos/sin: (T, D/2) shared positions, or (B, T, D/2) per-sequence positions
     x1, x2 = x[..., 0::2], x[..., 1::2]
-    cos, sin = cos[None, None, : x.size(2)], sin[None, None, : x.size(2)]
+    if cos.dim() == 2:
+        cos, sin = cos[None, None, : x.size(2)], sin[None, None, : x.size(2)]
+    else:
+        cos, sin = cos[:, None], sin[:, None]
     return torch.stack((x1 * cos - x2 * sin, x1 * sin + x2 * cos), dim=-1).flatten(-2)
 
 
@@ -61,11 +64,18 @@ class Block(nn.Module):
         self.up = nn.Linear(c.d_model, c.d_ff, bias=False)
         self.down = nn.Linear(c.d_ff, c.d_model, bias=False)
 
-    def forward(self, x, cos, sin):
+    def forward(self, x, cos, sin, mask=None, cache=None):
         B, T, C = x.shape
         q, k, v = self.qkv(self.norm1(x)).view(B, T, 3, self.n_head, C // self.n_head).permute(2, 0, 3, 1, 4)
         q, k = apply_rope(q, cos, sin), apply_rope(k, cos, sin)
-        a = F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=self.dropout if self.training else 0.0)
+        if cache is not None:  # incremental decoding: keys and values of earlier tokens are kept
+            if "k" in cache:
+                k, v = torch.cat([cache["k"], k], dim=2), torch.cat([cache["v"], v], dim=2)
+            cache["k"], cache["v"] = k, v
+        if mask is None:
+            a = F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=self.dropout if self.training else 0.0)
+        else:
+            a = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
         x = x + F.dropout(self.proj(a.transpose(1, 2).reshape(B, T, C)), self.dropout, self.training)
         h = self.norm2(x)
         return x + F.dropout(self.down(F.silu(self.gate(h)) * self.up(h)), self.dropout, self.training)
@@ -91,14 +101,20 @@ class TinyLM(nn.Module):
         if isinstance(m, (nn.Linear, nn.Embedding)):
             nn.init.normal_(m.weight, std=0.02)
 
-    def forward(self, ids, labels=None):
+    def forward(self, ids, labels=None, weights=None):
         x = F.dropout(self.emb(ids), self.c.dropout, self.training)
         for b in self.blocks:
             x = b(x, self.cos, self.sin)
         logits = F.linear(self.norm(x), self.emb.weight)  # tied output projection
         if labels is None:
             return logits
-        return logits, F.cross_entropy(logits[:, :-1].reshape(-1, logits.size(-1)), labels[:, 1:].reshape(-1), ignore_index=-100)
+        flat = logits[:, :-1].reshape(-1, logits.size(-1))
+        target = labels[:, 1:].reshape(-1)
+        if weights is None:
+            return logits, F.cross_entropy(flat, target, ignore_index=-100)
+        ce = F.cross_entropy(flat, target, ignore_index=-100, reduction="none")
+        w = weights[:, 1:].reshape(-1) * (target != -100)
+        return logits, (ce * w).sum() / w.sum().clamp_min(1e-8)
 
     @torch.no_grad()
     def generate(self, ids: torch.Tensor, eos: int, max_new: int, no_repeat: int = 4) -> list[int]:
@@ -121,6 +137,63 @@ class TinyLM(nn.Module):
             out.append(nxt)
             ids = torch.cat([ids, torch.tensor([[nxt]], device=ids.device)], dim=1)
         return out
+
+    @torch.no_grad()
+    def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0) -> list[list[int]]:
+        """Greedy decoding for several prompts at once with a KV cache.
+
+        Prompts are left-padded; padding is masked out of attention and does not shift rotary positions,
+        so each result equals single-sequence `generate` (see tests)."""
+        dev, B = self.emb.weight.device, len(prompts)
+        L = max(len(p) for p in prompts)
+        ids = torch.full((B, L), pad, dtype=torch.long, device=dev)
+        valid = torch.zeros((B, L), dtype=torch.bool, device=dev)
+        for i, p in enumerate(prompts):
+            ids[i, L - len(p) :] = torch.tensor(p, device=dev)
+            valid[i, L - len(p) :] = True
+        pos = (valid.long().cumsum(1) - 1).clamp_min(0)
+        # Causal and key-validity mask; the diagonal stays open so padded query rows never see an empty set.
+        mask = torch.tril(torch.ones(L, L, dtype=torch.bool, device=dev))[None, None] & valid[:, None, None, :]
+        mask = mask | torch.eye(L, dtype=torch.bool, device=dev)[None, None]
+        caches: list[dict] = [{} for _ in self.blocks]
+        x = self.emb(ids)
+        for b, c in zip(self.blocks, caches):
+            x = b(x, self.cos[pos], self.sin[pos], mask, c)
+        logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
+
+        outs: list[list[int]] = [[] for _ in range(B)]
+        seen: list[dict[tuple[int, ...], set[int]]] = [{} for _ in range(B)]
+        done = [False] * B
+        last = pos[:, -1]
+        for _ in range(max_new):
+            if no_repeat:
+                for i in range(B):
+                    o = outs[i]
+                    if not done[i] and len(o) >= no_repeat - 1:
+                        banned = seen[i].get(tuple(o[len(o) - no_repeat + 1 :]), ())
+                        if banned:
+                            logits[i, list(banned)] = float("-inf")
+            nxt = logits.argmax(-1).tolist()
+            for i in range(B):
+                if done[i]:
+                    continue
+                if nxt[i] == eos:
+                    done[i] = True
+                    continue
+                o = outs[i]
+                if no_repeat and len(o) >= no_repeat - 1:
+                    seen[i].setdefault(tuple(o[len(o) - no_repeat + 1 :]), set()).add(nxt[i])
+                o.append(nxt[i])
+            if all(done):
+                break
+            last = last + 1
+            valid = torch.cat([valid, torch.ones((B, 1), dtype=torch.bool, device=dev)], dim=1)
+            step_mask = valid[:, None, None, :]
+            x = self.emb(torch.tensor(nxt, device=dev)[:, None])
+            for b, c in zip(self.blocks, caches):
+                x = b(x, self.cos[last][:, None], self.sin[last][:, None], step_mask, c)
+            logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
+        return outs
 
     def n_params(self) -> int:
         return sum(p.numel() for p in self.parameters())

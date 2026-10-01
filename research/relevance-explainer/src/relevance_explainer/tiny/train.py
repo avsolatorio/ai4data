@@ -39,11 +39,13 @@ def encode(tk: Tokenizer, rows: list[dict], max_len: int) -> tuple[list[dict], i
         if len(p) + len(t) > max_len:
             dropped += 1
             continue
-        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "row": r})
+        v = len(tk.encode(r["verdict"]).ids) if "verdict" in r else 1  # tokens that carry the verdict word
+        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "plen": len(p), "vlen": v, "row": r})
     return out, dropped
 
 
-def batches(data, bs, shuffle, rng):
+def batches(data, bs, shuffle, rng, vw: float = 1.0):
+    """Yield (ids, labels, weights). Verdict tokens get loss weight `vw`, narrative tokens 1."""
     idx = list(range(len(data)))
     if shuffle:
         rng.shuffle(idx)
@@ -54,22 +56,44 @@ def batches(data, bs, shuffle, rng):
     for ch in chunks:
         n = max(len(data[i]["ids"]) for i in ch)
         ids, lab = torch.full((len(ch), n), PAD), torch.full((len(ch), n), -100)
+        wt = torch.ones((len(ch), n))
         for k, i in enumerate(ch):
             L = len(data[i]["ids"])
             ids[k, :L], lab[k, :L] = torch.tensor(data[i]["ids"]), torch.tensor(data[i]["labels"])
-        yield ids.cuda(), lab.cuda()
+            wt[k, data[i]["plen"] : data[i]["plen"] + data[i]["vlen"]] = vw
+        yield ids.cuda(), lab.cuda(), wt.cuda()
 
 
 @torch.no_grad()
 def val_loss(model, data, bs) -> float:
     model.eval()
     tot, n = 0.0, 0
-    for ids, lab in batches(data, bs, False, random.Random(0)):
+    for ids, lab, _ in batches(data, bs, False, random.Random(0)):
         with torch.autocast("cuda", dtype=torch.bfloat16):
             _, loss = model(ids, lab)
         k = (lab[:, 1:] != -100).sum().item()
         tot, n = tot + loss.item() * k, n + k
     return tot / n
+
+
+@torch.no_grad()
+def val_verdict_acc(model, data, bs) -> float:
+    """Teacher-forced check: does the first verdict token get the largest logit? Fast proxy for verdict accuracy."""
+    model.eval()
+    ok = 0
+    order = list(range(len(data)))
+    for s in range(0, len(order), bs):
+        ch = order[s : s + bs]
+        n = max(len(data[i]["ids"]) for i in ch)
+        ids = torch.full((len(ch), n), PAD)
+        for k, i in enumerate(ch):
+            ids[k, : len(data[i]["ids"])] = torch.tensor(data[i]["ids"])
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            logits = model(ids.cuda())
+        for k, i in enumerate(ch):
+            p = data[i]["plen"]
+            ok += int(logits[k, p - 1].argmax().item() == data[i]["ids"][p])
+    return ok / len(order)
 
 
 def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
@@ -87,14 +111,17 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 
 
 @torch.no_grad()
-def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int) -> tuple[dict, list[dict]]:
+def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48) -> tuple[dict, list[dict]]:
     model.eval()
-    gens = []
-    for e in enc:
-        p = tk.encode(e["row"]["input"] + SEP).ids
+    prompts = [tk.encode(e["row"]["input"] + SEP).ids for e in enc]
+    order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
+    gens = [""] * len(prompts)
+    for s in range(0, len(order), batch):
+        ch = order[s : s + batch]
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            out = model.generate(torch.tensor([p]).cuda(), EOS, max_new)
-        gens.append(tk.decode(out).strip())
+            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new)
+        for i, o in zip(ch, outs):
+            gens[i] = tk.decode(o).strip()
     rows = [e["row"] for e in enc]
     pred = [parse(g) for g in gens]
     gold, pv = [r["verdict"] for r in rows], [p[0] for p in pred]
@@ -135,6 +162,8 @@ def main() -> None:
     ap.add_argument("--max-len", type=int, default=1280)
     ap.add_argument("--max-new", type=int, default=260)
     ap.add_argument("--train-file", default="train.jsonl")
+    ap.add_argument("--verdict-weight", type=float, default=1.0, help="loss weight on the verdict tokens")
+    ap.add_argument("--select", choices=["val_loss", "val_verdict_acc"], default="val_loss", help="how to pick the best epoch")
     ap.add_argument("--tokenizer", default=None, help="prebuilt tokenizer.json; trained on the task data when omitted")
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
     ap.add_argument("--seed", type=int, default=0)
@@ -184,20 +213,21 @@ def main() -> None:
     for ep in range(a.epochs):
         model.train()
         run, k = 0.0, 0
-        for ids, lab in batches(enc["train"], a.bs, True, rng):
+        for ids, lab, wt in batches(enc["train"], a.bs, True, rng, a.verdict_weight):
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                _, loss = model(ids, lab)
+                _, loss = model(ids, lab, wt)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step(), sched.step(), opt.zero_grad(set_to_none=True)
             run, k = run + loss.item(), k + 1
         vl = val_loss(model, enc["val"], a.bs)
-        log.append({"epoch": ep + 1, "train_loss": run / k, "val_loss": vl})
-        if vl < best:
-            best, best_state = vl, copy.deepcopy(model.state_dict())
+        log.append({"epoch": ep + 1, "train_loss": run / k, "val_loss": vl,
+                    "val_verdict_acc": val_verdict_acc(model, enc["val"], a.bs)})
+        score = vl if a.select == "val_loss" else -log[-1]["val_verdict_acc"]
+        if score < best:
+            best, best_state = score, copy.deepcopy(model.state_dict())
             log[-1]["best"] = True
-        if (ep + 1) % 5 == 0 or ep == 0:
-            print(log[-1], f"{(time.time() - t0) / 60:.1f} min", flush=True)
+        print(log[-1], f"{(time.time() - t0) / 60:.1f} min", flush=True)
     model.load_state_dict(best_state)
     best_ep = max((l["epoch"] for l in log if l.get("best")), default=a.epochs)
     print(f"best val_loss {best:.4f} at epoch {best_ep}", flush=True)

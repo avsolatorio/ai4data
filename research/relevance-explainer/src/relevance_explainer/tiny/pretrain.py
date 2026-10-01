@@ -102,6 +102,7 @@ def main() -> None:
     ap.add_argument("--d-ff", type=int, default=1024)
     ap.add_argument("--dropout", type=float, default=0.0)
     ap.add_argument("--init-emb", default=None)
+    ap.add_argument("--resume", default=None, help="model.pt to continue pretraining from")
     ap.add_argument("--eval-every", type=int, default=500)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -115,11 +116,18 @@ def main() -> None:
     batch, probs = sampler(shards, a.alpha, a.seq, a.bs, np.random.default_rng(a.seed))
     print("language sampling:", probs, flush=True)
 
-    cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_head=a.heads, d_ff=a.d_ff,
-                 max_len=1536, dropout=a.dropout)
-    model = TinyLM(cfg).cuda()
-    if a.init_emb:
-        model.emb.weight.data.copy_(qwen_embeddings(tk, a.init_emb, a.d_model))
+    if a.resume:  # continue from a saved checkpoint (a further pass over the corpus at a lower learning rate)
+        ck = torch.load(a.resume, map_location="cpu")
+        cfg = Config(**{**ck["config"], "dropout": a.dropout})
+        model = TinyLM(cfg)
+        model.load_state_dict(ck["state"])
+        model = model.cuda()
+    else:
+        cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_head=a.heads, d_ff=a.d_ff,
+                     max_len=1536, dropout=a.dropout)
+        model = TinyLM(cfg).cuda()
+        if a.init_emb:
+            model.emb.weight.data.copy_(qwen_embeddings(tk, a.init_emb, a.d_model))
     print(f"params {model.n_params() / 1e6:.2f}M", flush=True)
 
     decay = [p for p in model.parameters() if p.dim() >= 2]

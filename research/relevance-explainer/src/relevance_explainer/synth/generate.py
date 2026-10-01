@@ -372,6 +372,13 @@ def cmd_assemble(a) -> None:
             if key not in seen:
                 seen.add(key)
                 rows.append(r)
+    if a.similarity:  # retrieval signal from the repo's multilingual search model, added to the student input
+        from .signals import add_similarity_line, item_text, similarities
+
+        sims = similarities([r["query"] for r in rows], [item_text(r["record"]) for r in rows])
+        for r, s in zip(rows, sims):
+            r["similarity"] = float(s)
+            r["input"] = add_similarity_line(r["input"], float(s))
     splits: dict[str, list[dict]] = {"train": [], "val": [], "test": []}
     for r in rows:
         splits[split_of(r["seed"])].append(r)
@@ -418,6 +425,7 @@ def main() -> None:
             p.add_argument("--max-ratio", type=float, default=1.5, help="largest verdict class / smallest, in train")
             p.add_argument("--balance-eval", action="store_true", help="also balance val and test")
             p.add_argument("--also", nargs="*", default=[], help="further data directories to merge")
+            p.add_argument("--similarity", action="store_true", help="add a retrieval-similarity line to each input")
     a = ap.parse_args()
     a.fn(a)
 
