@@ -52,9 +52,14 @@ def test_partly_covered_range():
 
 
 def test_point_record_inside_and_outside_range():
+    study = _rec(kind="study", year_start=2019, year_end=2019, year_label="survey years")
+    assert filter_check(study, {"years": "2010-2020"}) == ["survey years 2010-2020: within the range"]
+    assert filter_check(study, {"years": "2021-2023"}) == ["survey years 2021-2023: outside the range"]
+
+
+def test_document_years_are_not_checked_against_publication_year():
     doc = _rec(kind="document", year_start=2019, year_end=2019, year_label="publication year")
-    assert filter_check(doc, {"years": "2010-2020"}) == ["publication year 2010-2020: within the range"]
-    assert filter_check(doc, {"years": "2021-2023"}) == ["publication year 2021-2023: outside the range"]
+    assert filter_check(doc, {"years": "2010-2020"}) == ["years 2010-2020: period studied not verifiable from metadata (published 2019)"]
 
 
 def test_frequency_mismatch_names_actual_frequency():

@@ -70,3 +70,23 @@ Commit: 3f438bd plus uncommitted `train/finetune.py` and `scripts/run_pipeline.s
 - Reading generations showed faithfulness errors that the verdict metric does not capture: a narrative that says the item does not match while the verdict line says "relevant"; claims about item content that the metadata does not state (Russian example); a nonsensical phrase in French ("le bruitage"). No automatic measure of narrative faithfulness has been run.
 
 **Implication.** The task is learnable at this scale and the verdict is mostly right on unseen themes, but the test labels are the teacher's, not human judgments, and part of the accuracy may come from the deterministic filter-check line. Narrative faithfulness is the open problem: next steps are an LLM-judge faithfulness score on test generations, an ablation without the filter-check line, an early-stopped (epoch 2) run, and a smaller model closer to the 20 MB target. This is one seed on 267 test examples, so differences of a few points between runs are not interpretable.
+
+## 2026-10-01 06:17 UTC — 20 MB model: from-scratch baseline, Qwen embedding initialization, shape ablation
+
+Commit: a916c0e plus uncommitted `tiny/` package, corpus scripts and vLLM scripts (committed immediately after this entry).
+
+**Question/Context.** The target is a model of about 20 MB. Can a ~20M-parameter decoder learn the task, and what helps it?
+
+**What was done.**
+1. From-scratch model: 20.77M parameters (10 layers, d=384, SwiGLU, RoPE, tied embeddings), 8,000-token BPE trained on the 1,107 task examples, 60 epochs, best epoch by validation loss. Exported with per-row symmetric INT8 and INT4 weights.
+2. Pretraining corpus: Wikipedia (wikimedia/wikipedia 20231101) in the 11 query languages, 1.62B tokens with a new 12,000-token BPE trained on 25M characters per language plus the task text. English 411M, Chinese 271M, French 160M, Russian 149M, Spanish 152M, Arabic 129M, Hindi 103M, Portuguese 87M, Turkish 74M, Indonesian 66M, Swahili 20M tokens.
+3. Pretraining ablations at 100M tokens each (762 steps, batch 128x1024 tokens, lr 2e-3, one seed each): random embedding initialization versus embeddings initialized from Qwen3-0.6B (each token string re-tokenized with Qwen's tokenizer, vectors averaged, PCA to d_model). Then three shapes with Qwen initialization.
+4. Task fine-tune of the 100M-token Qwen-initialized model (lr 3e-4, 15 epochs, dropout 0.1, best epoch by validation loss).
+
+**Result.**
+- From scratch: best validation loss 4.06 at epoch 9, then memorization (train loss 0.003, validation 6.69). Test verdict accuracy 56.2% fp32, 55.4% INT8, 55.1% INT4 against a 57.3% majority baseline. Exported sizes 83.1, 20.9 and 10.5 MB. Narratives had the right shape and wrong content.
+- Qwen embedding initialization, held-out perplexity at 100M tokens (random -> Qwen init): English 36.0 -> 21.3, French 36.4 -> 21.7, Arabic 58.0 -> 31.1, Chinese 119 -> 51.9, Russian 35.7 -> 19.3, Indonesian 54.1 -> 30.2, Hindi 10.3 -> 6.4, Turkish 41.3 -> 23.3, Swahili 50.6 -> 27.6. Portuguese held-out perplexity (1.9 to 2.8) is not meaningful; the slice appears to be repetitive stub articles. Held-out slices are the last 1M tokens of each language file and are small.
+- Shape ablation with Qwen initialization (English perplexity): 7 layers d=448, 21.8M parameters 20.7; 10 layers d=384, 22.3M parameters 21.3; 14 layers d=320, 21.6M parameters 22.6. The wider and shallower model is best on every language, by small margins; one seed each, so the gaps between the wide and baseline models are within plausible noise.
+- Task fine-tune from the 100M-token checkpoint: validation loss 1.88 at epoch 4 (from scratch: 4.06; fine-tuned Qwen3-0.6B: 0.86). Test verdict accuracy 60.3% fp32 (macro-F1 0.526), 60.7% INT8 (22.4 MB), 59.2% INT4 (11.3 MB). Generations were fluent but repeated phrases and echoed query words without grounding; most verdicts were "partly_relevant".
+
+**Implication.** Qwen embedding initialization is a large gain for language modelling and is kept. The wide 7-layer shape is adopted. The judgment (verdict) is not learned from 1,107 examples even with pretraining: the task needs far more labelled data, and the teacher speed (0.7 examples per second with Ollama) limits that. A 4-gram repeat block was added to decoding. Next: serve the teacher with vLLM, generate tens of thousands of examples, pretrain on the full 1.6B-token corpus, and fine-tune.

@@ -282,7 +282,10 @@ def filter_check(rec: dict, filters: dict) -> list[str]:
         else:
             out.append(f"country {c}: not covered")
     yrs, label = filters.get("years"), rec.get("year_label", "years")
-    if yrs:
+    if yrs and rec["kind"] == "document":
+        # A paper's publication year says nothing about the period its data covers.
+        out.append(f"years {yrs}: period studied not verifiable from metadata (published {rec['year_start'] or 'date not stated'})")
+    elif yrs:
         m = re.fullmatch(r"\s*(\d{4})\s*(?:-|–|to)?\s*(\d{4})?\s*", str(yrs))
         if m and rec["year_start"] and rec["year_end"]:
             a, b = int(m.group(1)), int(m.group(2) or m.group(1))

@@ -123,14 +123,52 @@ def _append(p: Path, rows: list[dict]) -> None:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
+THEMES_FILE = Path("data/themes.json")
+AREAS = [
+    "health and nutrition", "education and skills", "labor markets and jobs", "poverty and inequality", "agriculture and food systems",
+    "energy and electricity", "climate and environment", "water, sanitation and hygiene", "trade and industry", "finance and banking",
+    "public finance and debt", "governance and institutions", "gender and social inclusion", "demography and migration",
+    "urbanization and housing", "transport and infrastructure", "digital economy and technology", "conflict, fragility and humanitarian crises",
+    "disasters and resilience", "firms and entrepreneurship", "social protection and safety nets", "natural resources and mining",
+    "macroeconomics and growth", "tourism and services", "child welfare and youth", "aging and pensions", "land use and rural development",
+    "health systems and diseases", "statistics and data quality", "development finance and aid",
+]
+
+
+def _seeds() -> list[str]:
+    extra = json.loads(THEMES_FILE.read_text()) if THEMES_FILE.exists() else []
+    return SEEDS + [t for t in extra if t not in SEEDS]
+
+
 def _combos(a, done: set) -> list[tuple[str, str]]:
     rng = random.Random(a.seed)
-    out: list[tuple[str, str]] = []
+    seeds, out = _seeds(), []
     while len(out) < a.combos:
-        c = (rng.choice(SEEDS), rng.choices(list(SOURCE_WEIGHTS), weights=list(SOURCE_WEIGHTS.values()))[0])
+        c = (rng.choice(seeds), rng.choices(list(SOURCE_WEIGHTS), weights=list(SOURCE_WEIGHTS.values()))[0])
         if c not in out and c not in done:
             out.append(c)
     return out
+
+
+def cmd_themes(a) -> None:
+    """Ask the teacher for specific search themes per development area; appends to data/themes.json."""
+    THEMES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    have = json.loads(THEMES_FILE.read_text()) if THEMES_FILE.exists() else []
+
+    def one(area: str) -> list[str]:
+        text, _ = llm.chat(QUERY_MODEL, QUERY_SYSTEM,
+                           f'List {a.per_area} specific, varied topics in the area "{area}" that people search for in open '
+                           "development data catalogs (indicators, surveys, research papers, humanitarian datasets). Each topic is a short "
+                           "noun phrase of 2 to 6 words, not a full question, and no two share a main keyword. Return only a JSON array of strings.",
+                           temperature=0.9, max_tokens=1500)
+        j = llm.parse_json(text)
+        return [t.strip() for t in j if isinstance(t, str) and 3 <= len(t) <= 60]
+
+    with ThreadPoolExecutor(a.workers) as ex:
+        for ts in ex.map(lambda ar: _safe(one, ar), AREAS):
+            have += [t for t in ts if t not in have and t not in SEEDS]
+    THEMES_FILE.write_text(json.dumps(have, ensure_ascii=False, indent=0))
+    print(f"themes: {len(have)} total (plus {len(SEEDS)} built-in)")
 
 
 def _langs(rng: random.Random, k: int) -> list[str]:
@@ -326,11 +364,14 @@ def cmd_assemble(a) -> None:
     out = Path(a.out)
     rng = random.Random(a.seed)
     seen, rows = set(), []
-    for r in _read(out / "examples.jsonl"):
-        key = (r["query"], r["record"]["id"])
-        if key not in seen:
-            seen.add(key)
-            rows.append(r)
+    for src in [out, *map(Path, a.also)]:
+        for r in _read(src / "examples.jsonl"):
+            key = (r["query"], r["record"]["id"])
+            if "publication year" in r["input"]:  # superseded document check (period studied vs publication year)
+                continue
+            if key not in seen:
+                seen.add(key)
+                rows.append(r)
     splits: dict[str, list[dict]] = {"train": [], "val": [], "test": []}
     for r in rows:
         splits[split_of(r["seed"])].append(r)
@@ -350,6 +391,10 @@ def cmd_assemble(a) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("themes")
+    p.add_argument("--per-area", type=int, default=40)
+    p.add_argument("--workers", type=int, default=8)
+    p.set_defaults(fn=cmd_themes)
     for name, fn in [("queries", cmd_queries), ("anchored", cmd_anchored), ("retrieve", cmd_retrieve),
                      ("narrate", cmd_narrate), ("assemble", cmd_assemble)]:
         p = sub.add_parser(name)
@@ -372,6 +417,7 @@ def main() -> None:
         if name == "assemble":
             p.add_argument("--max-ratio", type=float, default=1.5, help="largest verdict class / smallest, in train")
             p.add_argument("--balance-eval", action="store_true", help="also balance val and test")
+            p.add_argument("--also", nargs="*", default=[], help="further data directories to merge")
     a = ap.parse_args()
     a.fn(a)
 

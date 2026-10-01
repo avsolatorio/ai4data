@@ -38,6 +38,8 @@ def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
         "temperature": temperature,
         "max_tokens": max_tokens,
         **({"reasoning_effort": os.environ["LLM_REASONING"]} if os.environ.get("LLM_REASONING") else {}),
+        # Extra request fields as JSON, e.g. '{"chat_template_kwargs": {"enable_thinking": false}}' for vLLM.
+        **json.loads(os.environ.get("LLM_EXTRA", "{}")),
     }).encode()
     headers = {"Authorization": f"Bearer {load_key()}", "Content-Type": "application/json"}
     last: Exception | None = None
