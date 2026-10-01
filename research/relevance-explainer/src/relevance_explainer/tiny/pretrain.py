@@ -97,7 +97,9 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=2e-3)
     ap.add_argument("--alpha", type=float, default=0.5, help="language sampling exponent over corpus size")
     ap.add_argument("--d-model", type=int, default=384)
-    ap.add_argument("--layers", type=int, default=10)
+    ap.add_argument("--layers", type=int, default=10, help="layer applications per token")
+    ap.add_argument("--unique", type=int, default=0, help="distinct blocks stored (0: no sharing)")
+    ap.add_argument("--share", default="repeat", choices=["repeat", "cycle"])
     ap.add_argument("--heads", type=int, default=6)
     ap.add_argument("--d-ff", type=int, default=1024)
     ap.add_argument("--dropout", type=float, default=0.0)
@@ -123,8 +125,8 @@ def main() -> None:
         model.load_state_dict(ck["state"])
         model = model.cuda()
     else:
-        cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_head=a.heads, d_ff=a.d_ff,
-                     max_len=1536, dropout=a.dropout)
+        cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_unique=a.unique, share=a.share,
+                     n_head=a.heads, d_ff=a.d_ff, max_len=1536, dropout=a.dropout)
         model = TinyLM(cfg).cuda()
         if a.init_emb:
             model.emb.weight.data.copy_(qwen_embeddings(tk, a.init_emb, a.d_model))

@@ -17,7 +17,9 @@ import torch.nn.functional as F
 class Config:
     vocab: int = 8000
     d_model: int = 384
-    n_layer: int = 10
+    n_layer: int = 10  # layer applications per token (the depth that costs compute)
+    n_unique: int = 0  # distinct blocks stored; 0 means one per application (no sharing)
+    share: str = "repeat"  # "repeat": each block applied consecutively; "cycle": blocks reused in rotation
     n_head: int = 6
     d_ff: int = 1024
     max_len: int = 1280
@@ -53,6 +55,16 @@ def apply_rope(x, cos, sin):
     return torch.stack((x1 * cos - x2 * sin, x1 * sin + x2 * cos), dim=-1).flatten(-2)
 
 
+def layer_order(n_layer: int, n_unique: int, share: str) -> list[int]:
+    """Block index used at each of the n_layer applications."""
+    if n_unique in (0, n_layer):
+        return list(range(n_layer))
+    if share == "cycle":
+        return [i % n_unique for i in range(n_layer)]
+    per = n_layer / n_unique
+    return [min(int(i / per), n_unique - 1) for i in range(n_layer)]
+
+
 class Block(nn.Module):
     def __init__(self, c: Config):
         super().__init__()
@@ -86,7 +98,8 @@ class TinyLM(nn.Module):
         super().__init__()
         self.c = c
         self.emb = nn.Embedding(c.vocab, c.d_model)
-        self.blocks = nn.ModuleList(Block(c) for _ in range(c.n_layer))
+        self.blocks = nn.ModuleList(Block(c) for _ in range(c.n_unique or c.n_layer))
+        self.order = layer_order(c.n_layer, c.n_unique, c.share)
         self.norm = RMSNorm(c.d_model)
         cos, sin = rope_cache(c.d_model // c.n_head, c.max_len)
         self.register_buffer("cos", cos, persistent=False)
@@ -103,8 +116,8 @@ class TinyLM(nn.Module):
 
     def forward(self, ids, labels=None, weights=None):
         x = F.dropout(self.emb(ids), self.c.dropout, self.training)
-        for b in self.blocks:
-            x = b(x, self.cos, self.sin)
+        for j in self.order:
+            x = self.blocks[j](x, self.cos, self.sin)
         logits = F.linear(self.norm(x), self.emb.weight)  # tied output projection
         if labels is None:
             return logits
@@ -159,10 +172,10 @@ class TinyLM(nn.Module):
         # Causal and key-validity mask; the diagonal stays open so padded query rows never see an empty set.
         mask = torch.tril(torch.ones(L, L, dtype=torch.bool, device=dev))[None, None] & valid[:, None, None, :]
         mask = mask | torch.eye(L, dtype=torch.bool, device=dev)[None, None]
-        caches: list[dict] = [{} for _ in self.blocks]
+        caches: list[dict] = [{} for _ in self.order]  # one cache per application: shared weights see different inputs
         x = self.emb(ids)
-        for b, c in zip(self.blocks, caches):
-            x = b(x, self.cos[pos], self.sin[pos], mask, c)
+        for j, c in zip(self.order, caches):
+            x = self.blocks[j](x, self.cos[pos], self.sin[pos], mask, c)
         logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
 
         outs: list[list[int]] = [[] for _ in range(B)]
@@ -207,8 +220,8 @@ class TinyLM(nn.Module):
             valid = torch.cat([valid, torch.ones((B, 1), dtype=torch.bool, device=dev)], dim=1)
             step_mask = valid[:, None, None, :]
             x = self.emb(torch.tensor(nxt, device=dev)[:, None])
-            for b, c in zip(self.blocks, caches):
-                x = b(x, self.cos[last][:, None], self.sin[last][:, None], step_mask, c)
+            for j, c in zip(self.order, caches):
+                x = self.blocks[j](x, self.cos[last][:, None], self.sin[last][:, None], step_mask, c)
             logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
         return outs
 

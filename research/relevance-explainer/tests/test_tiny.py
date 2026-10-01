@@ -112,3 +112,23 @@ def test_quantization_sizes_and_error():
     err8 = (m(ids) - q8(ids)).abs().mean().item()
     err4 = (m(ids) - q4(ids)).abs().mean().item()
     assert err8 < err4
+
+
+def test_layer_order_patterns():
+    from relevance_explainer.tiny.model import layer_order
+
+    assert layer_order(6, 0, "repeat") == [0, 1, 2, 3, 4, 5]
+    assert layer_order(8, 4, "repeat") == [0, 0, 1, 1, 2, 2, 3, 3]
+    assert layer_order(8, 4, "cycle") == [0, 1, 2, 3, 0, 1, 2, 3]
+    assert layer_order(7, 3, "repeat")[0] == 0 and layer_order(7, 3, "repeat")[-1] == 2
+
+
+def test_shared_layers_cut_parameters_but_keep_depth_and_batched_decoding_matches():
+    torch.manual_seed(5)
+    full = TinyLM(Config(vocab=100, d_model=32, n_layer=4, n_head=4, d_ff=64, max_len=64, dropout=0.0)).eval()
+    shared = TinyLM(Config(vocab=100, d_model=32, n_layer=4, n_unique=2, n_head=4, d_ff=64, max_len=64, dropout=0.0)).eval()
+    assert shared.n_params() < full.n_params() and len(shared.blocks) == 2 and len(shared.order) == 4
+    prompts = [torch.randint(2, 100, (n,)).tolist() for n in (5, 9)]
+    batched = shared.generate_batch(prompts, eos=-1, max_new=10, no_repeat=0)
+    for p, out in zip(prompts, batched):
+        assert out == shared.generate(torch.tensor([p]), eos=-1, max_new=10, no_repeat=0)
