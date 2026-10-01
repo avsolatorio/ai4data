@@ -92,6 +92,17 @@ def test_int8_export_round_trip_matches_fake_quantization(tmp_path):
     assert torch.allclose(loaded(ids), q8(ids), atol=1e-3)
 
 
+def test_sampling_is_reproducible_with_a_seed_and_differs_from_greedy():
+    m = _small()
+    prompts = [torch.randint(2, 100, (n,)).tolist() for n in (6, 9)]
+    torch.manual_seed(7)
+    a = m.generate_batch(prompts, eos=-1, max_new=15, no_repeat=0, temperature=1.0, top_k=20)
+    torch.manual_seed(7)
+    b = m.generate_batch(prompts, eos=-1, max_new=15, no_repeat=0, temperature=1.0, top_k=20)
+    greedy = m.generate_batch(prompts, eos=-1, max_new=15, no_repeat=0)
+    assert a == b and a != greedy
+
+
 def test_quantization_sizes_and_error():
     m = _small()
     q8, s8 = quantize(m, 8)

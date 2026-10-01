@@ -140,7 +140,7 @@ class TinyLM(nn.Module):
 
     @torch.no_grad()
     def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0,
-                       copy_bias: float = 0.0, copy_skip: int = 4) -> list[list[int]]:
+                       copy_bias: float = 0.0, copy_skip: int = 4, temperature: float = 0.0, top_k: int = 40) -> list[list[int]]:
         """Greedy decoding for several prompts at once with a KV cache.
 
         Prompts are left-padded; padding is masked out of attention and does not shift rotary positions,
@@ -185,7 +185,12 @@ class TinyLM(nn.Module):
                         banned = seen[i].get(tuple(o[len(o) - no_repeat + 1 :]), ())
                         if banned:
                             logits[i, list(banned)] = float("-inf")
-            nxt = logits.argmax(-1).tolist()
+            if temperature > 0:  # sample from the top-k of the tempered distribution
+                top = logits.topk(min(top_k, logits.size(-1)), dim=-1)
+                pick = torch.multinomial(torch.softmax(top.values / temperature, dim=-1), 1)
+                nxt = top.indices.gather(1, pick).squeeze(1).tolist()
+            else:
+                nxt = logits.argmax(-1).tolist()
             for i in range(B):
                 if done[i]:
                     continue

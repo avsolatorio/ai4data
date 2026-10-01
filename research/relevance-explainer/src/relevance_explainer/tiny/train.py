@@ -33,19 +33,22 @@ def train_tokenizer(rows: list[dict], vocab: int, path: Path) -> Tokenizer:
 
 def encode(tk: Tokenizer, rows: list[dict], max_len: int) -> tuple[list[dict], int]:
     out, dropped = [], 0
-    for r in rows:
+    for idx, r in enumerate(rows):
         p = tk.encode(r["input"] + SEP).ids
         t = tk.encode(r["output"]).ids + [EOS]
         if len(p) + len(t) > max_len:
             dropped += 1
             continue
         v = len(tk.encode(r["verdict"]).ids) if "verdict" in r else 1  # tokens that carry the verdict word
-        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "plen": len(p), "vlen": v, "row": r})
+        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "plen": len(p), "vlen": v, "idx": idx, "row": r})
     return out, dropped
 
 
-def batches(data, bs, shuffle, rng, vw: float = 1.0):
-    """Yield (ids, labels, weights). Verdict tokens get loss weight `vw`, narrative tokens 1."""
+def batches(data, bs, shuffle, rng, vw: float = 1.0, soft: dict | None = None):
+    """Yield (ids, labels, weights, soft_rows). Verdict tokens get loss weight `vw`, narrative tokens 1.
+
+    `soft` maps a row index to the teacher's verdict probabilities. For such rows the first verdict token is left out
+    of the weighted cross-entropy and returned in `soft_rows` as (batch row, prompt length, probabilities)."""
     idx = list(range(len(data)))
     if shuffle:
         rng.shuffle(idx)
@@ -57,18 +60,22 @@ def batches(data, bs, shuffle, rng, vw: float = 1.0):
         n = max(len(data[i]["ids"]) for i in ch)
         ids, lab = torch.full((len(ch), n), PAD), torch.full((len(ch), n), -100)
         wt = torch.ones((len(ch), n))
+        soft_rows = []
         for k, i in enumerate(ch):
             L = len(data[i]["ids"])
             ids[k, :L], lab[k, :L] = torch.tensor(data[i]["ids"]), torch.tensor(data[i]["labels"])
             wt[k, data[i]["plen"] : data[i]["plen"] + data[i]["vlen"]] = vw
-        yield ids.cuda(), lab.cuda(), wt.cuda()
+            if soft and data[i]["idx"] in soft:
+                wt[k, data[i]["plen"]] = 0.0
+                soft_rows.append((k, data[i]["plen"], soft[data[i]["idx"]]))
+        yield ids.cuda(), lab.cuda(), wt.cuda(), soft_rows
 
 
 @torch.no_grad()
 def val_loss(model, data, bs) -> float:
     model.eval()
     tot, n = 0.0, 0
-    for ids, lab, _ in batches(data, bs, False, random.Random(0)):
+    for ids, lab, _, _ in batches(data, bs, False, random.Random(0)):
         with torch.autocast("cuda", dtype=torch.bfloat16):
             _, loss = model(ids, lab)
         k = (lab[:, 1:] != -100).sum().item()
@@ -164,6 +171,8 @@ def main() -> None:
     ap.add_argument("--max-new", type=int, default=260)
     ap.add_argument("--train-file", default="train.jsonl")
     ap.add_argument("--verdict-weight", type=float, default=1.0, help="loss weight on the verdict tokens")
+    ap.add_argument("--soft-weight", type=float, default=1.0, help="weight of the soft verdict cross-entropy")
+    ap.add_argument("--soft", action="store_true", help="use teacher verdict probabilities (soft_train.jsonl) for the first verdict token")
     ap.add_argument("--select", choices=["val_loss", "val_verdict_acc"], default="val_loss", help="how to pick the best epoch")
     ap.add_argument("--tokenizer", default=None, help="prebuilt tokenizer.json; trained on the task data when omitted")
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
@@ -190,6 +199,13 @@ def main() -> None:
     lens = sorted(len(x["ids"]) for x in enc["train"])
     info["train_tokens_median_p95_max"] = [lens[len(lens) // 2], lens[int(len(lens) * 0.95)], lens[-1]]
     print("data:", info, flush=True)
+    first_ids = [tk.encode(c).ids[0] for c in VERDICTS]  # first token of each verdict word, in VERDICTS order
+    assert len(set(first_ids)) == 3, "verdict words must start with distinct tokens"
+    soft = None
+    if a.soft:
+        soft = {d_["i"]: d_["p"] for d_ in map(json.loads, (d / "soft_train.jsonl").read_text().splitlines())}
+        info["soft_labels"] = len(soft)
+        print(f"soft verdict labels for {len(soft)} training examples", flush=True)
 
     if a.init:
         ck = torch.load(a.init, map_location="cpu")
@@ -214,9 +230,13 @@ def main() -> None:
     for ep in range(a.epochs):
         model.train()
         run, k = 0.0, 0
-        for ids, lab, wt in batches(enc["train"], a.bs, True, rng, a.verdict_weight):
+        for ids, lab, wt, soft_rows in batches(enc["train"], a.bs, True, rng, a.verdict_weight, soft):
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                _, loss = model(ids, lab, wt)
+                logits, loss = model(ids, lab, wt)
+                if soft_rows:  # cross-entropy of the first verdict token against the teacher's probabilities
+                    b, pl, pr = (torch.tensor(x) for x in zip(*soft_rows))
+                    lp = torch.log_softmax(logits[b.cuda(), (pl - 1).cuda()].float(), dim=-1)[:, first_ids]
+                    loss = loss + a.soft_weight * -(pr.cuda().float() * lp).sum(-1).mean()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step(), sched.step(), opt.zero_grad(set_to_none=True)
