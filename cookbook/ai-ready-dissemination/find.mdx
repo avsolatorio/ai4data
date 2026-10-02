@@ -46,44 +46,74 @@ schema.org record, and add a search that understands "jobless rate".
 
 ## Recipes
 
-<Recipe title="1.1 Run a metadata completeness report" level="Foundational" skills="Anyone who can export the catalog to CSV and run a Python script" time="One hour">
+<Recipe title="1.1 Check the records against the schema and a completeness profile" level="Foundational" skills="Anyone who can export the catalog and run a Python script; a metadata lead to set the profile" time="Half a day the first time; minutes after that">
 
-**Result:** a table of fill rates per field and a list of records that need
-work. This is the first measure to track, because every later step depends on
-these fields.
+**Result:** for every series record, three answers: is it a valid instance
+of the published schema, does it have every field the office requires at
+its target level, and are the values well-formed. This is the first measure
+to track, because every later step depends on these fields.
 
-1. Export the catalog to CSV with one row per series. The
-   [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
-   lists the fields a record needs, named as in the
-   [World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)
-   (`idno`, `name`, `definition_long`, `measurement_unit`, `periodicity`,
-   `sources`, `date_last_update`, and others). A catalog that already uses
-   that schema, through NADA or the Metadata Editor, exports in this form.
-   If the export uses other column names, pass your own list with
-   `--required`.
-2. Run the script.
+A completeness check has three layers, and they answer different questions:
 
-```python file=../../website/static/cookbook-files/ai-ready-dissemination/completeness_report.py
+| Layer | Question | Who decides the rule |
+|---|---|---|
+| Structure | Is the record a valid instance of the [World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)? | The schema. It requires only `idno` and `name`; the other 73 fields of `series_description` are optional. |
+| Completeness | Does the record have every field the office requires at this maturity level? | The office, in a **profile** file. The schema does not define completeness. |
+| Validity | Do dates parse, do periods run in order, are URLs URLs, is the periodicity from the office's vocabulary, is the definition more than the name repeated? | Rules in the script, with the vocabulary from the profile. |
+
+1. Export the catalog with one row per series and columns named as in the
+   schema. The [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   shows the layout; list fields such as `sources` and `geographic_units`
+   take `;` between values. A catalog that already uses the schema, through
+   NADA or the Metadata Editor, can export the records as JSON instead.
+2. Set the profile. Start from the
+   [indicator profile](pathname:///cookbook-files/ai-ready-dissemination/completeness_profile_indicator.json),
+   which names nine fields for the foundational level, twelve more for
+   AI-ready, and four more for AI-native, with a periodicity vocabulary.
+   Change it to the office's policy and keep it in version control; the
+   profile is the office's definition of "complete".
+3. Run the check. It needs the `jsonschema` package for the structure layer
+   and downloads the schema the first time.
+
+```python file=../../website/static/cookbook-files/ai-ready-dissemination/check_metadata.py
 ```
 
-Output for the example catalog:
+Output for the example catalog at the foundational level:
 
 ```text
-5 records, 11 fields
+Layer 1  Structure (World Bank timeseries-schema.json)
+         5 of 5 records are valid instances of the schema
+         Note: the schema requires only idno and name. Validity is not completeness.
 
-field                   filled   share
-idno                         5    100% *
-name                         5    100% *
-definition_long              4     80% *
-measurement_unit             5    100% *
-...
-1 of 5 records missing a required field
-  LF_UNEMP_PCT: definition_long
+Layer 2  Completeness against profile 'indicator profile (starting point)', level 'foundational' (9 fields)
+         4 of 5 records complete
+         missing definition_long          in 1 record(s)
+         LF_UNEMP_PCT: definition_long
+
+Layer 3  Validity: 0 issue(s)
 ```
 
-3. Assign the incomplete records to a curator and set a date. Re-run the
-   report monthly and keep the numbers; the trend is the evidence that the
-   catalog is improving.
+At `--level ai-ready` the same catalog has 0 of 5 records complete, with
+`methodology`, `universe`, `series_break`, `limitation`, `license`,
+`keywords`, `aliases`, and `contacts` missing from every record. That is the
+normal result for a catalog that was documented for people and is now being
+prepared for software, and it is the work list for the AI-ready level.
+
+4. Assign the incomplete records to a curator and set a date. Re-run the
+   check monthly at the target level and keep the counts; the trend is the
+   evidence that the catalog is improving.
+
+**What this does not check.** Whether the definition is correct, whether the
+name and the definition describe the same concept, whether the unit matches
+the values, whether the text is specific enough to be useful, and whether
+the keywords are the ones users search for. These are semantic checks. The
+program's [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality)
+work scores records on completeness, semantic alignment, specificity, and
+consistency with a language model and returns structured, auditable
+results; the [Metadata Reviewer](/docs/metadata-reviewer/overview) puts
+those suggestions in front of a curator. Run the three layers above first,
+because a semantic check on records with empty fields has nothing to work
+with.
 
 </Recipe>
 
@@ -150,6 +180,14 @@ def semantic_search(query, k=10):
    language with the baseline. Keep the result with the date and model name.
 5. Re-embed the catalog whenever records change, on a schedule.
 
+**What this does not do.** The snippet embeds each record as one string and
+ranks by cosine similarity. A production search also indexes the keyword
+field and aliases, handles thousands of records with a vector index, filters
+by topic and geography, re-ranks the top results, and logs queries for the
+monthly review ([chapter 4](./ask.mdx)). General embedding models also
+underperform on structured records with short labels, which is the problem
+the fine-tuning work below addresses.
+
 The program's [Data Discoverability](/docs/data-discoverability/) page
 describes the approach in more detail, and the
 [PI-FT pipeline](/pift-toolkit/pipeline) shows how to fine-tune an embedding
@@ -198,7 +236,7 @@ model on structured records when a general model is not good enough.
 
 ## How to test it
 
-- **Completeness:** the share of records with every required field filled, per field (recipe 1.1).
+- **Completeness:** the share of records that pass the schema and the office's profile at the target level, and the count of missing fields per field (recipe 1.1).
 - **Known-item queries:** 30 to 50 queries for which you know the correct series, written the way users write. Check whether the correct series appears in the top 5 and top 10 ([chapter 6](./evaluate.mdx)).
 - **Crawler view:** open a dataset page with a structured-data validator and confirm that the record is parsed.
 - **Language check:** repeat the known-item queries in each supported language.
@@ -209,7 +247,8 @@ model on structured records when a general model is not good enough.
   'Stable identifier and permanent URL for each dataset',
   'Records follow a published schema (World Bank indicator schema, DDI Codebook for microdata)',
   'Definition, unit, coverage, and source populated',
-  'Completeness report run and tracked monthly',
+  'Completeness profile agreed and kept in version control',
+  'Records checked against the schema and the profile monthly',
   'Machine-readable catalog record (schema.org or DCAT) on each series page',
   'Sitemap and crawler rules reviewed',
   'Known-item question set written and scored',

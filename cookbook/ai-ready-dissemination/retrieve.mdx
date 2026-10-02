@@ -147,6 +147,13 @@ production the tool bodies call the API from recipe 2.2 instead.
 5. Before public deployment, add authentication, rate limits, and logging,
    and run the governance checks in [chapter 8](./govern.mdx).
 
+**What this does not do.** The example reads two CSV files and matches
+words. A production server calls the office's API, paginates large
+responses, returns the structure (code lists, dimensions) so the client can
+form valid requests, handles disaggregations, caches, and runs behind
+authentication and rate limits. The Data360 server below shows the fuller
+tool set that results.
+
 The World Bank's [Data360 MCP server](https://github.com/worldbank/data360-mcp)
 is a production example of this pattern. It exposes discovery tools
 (`data360_search_indicators`, `data360_search_datasets`), metadata tools

@@ -107,6 +107,17 @@ so on), and the values file uses SDMX cross-domain concept names (`SERIES`,
 catalog, the values, and every script in this guide are in the files list
 below. All values are invented.
 
+## About the examples
+
+The examples are small on purpose: five series, fifteen test questions,
+scripts of under 200 lines, so that a reader can run them in an afternoon
+and see the shape of each check. They are starting points. Each recipe
+ends with a **What this does not do** note that says where the example
+stops and what the full version adds, and points to the program's tools
+where one exists. Treat a recipe as done when the office's own data pass
+the office's own version of the check, with the profile, question set, and
+rules that the office has agreed.
+
 ## Files
 
 Each file is embedded in the chapter that uses it and can be downloaded here.
@@ -117,7 +128,8 @@ The scripts use only the Python standard library unless stated.
 | [example_catalog.csv](pathname:///cookbook-files/ai-ready-dissemination/example_catalog.csv) | The running example catalog (World Bank indicator schema field names) |
 | [example_values.csv](pathname:///cookbook-files/ai-ready-dissemination/example_values.csv) | The running example values (SDMX cross-domain concept names) |
 | [metadata_template.csv](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv) | Chapter 1: fields every series record needs, named as in the World Bank indicator schema |
-| [completeness_report.py](pathname:///cookbook-files/ai-ready-dissemination/completeness_report.py) | Chapter 1: metadata completeness report |
+| [check_metadata.py](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) | Chapter 1: three-layer metadata check (schema, profile, validity); needs `jsonschema` |
+| [completeness_profile_indicator.json](pathname:///cookbook-files/ai-ready-dissemination/completeness_profile_indicator.json) | Chapter 1: the fields required at each level, for the office to edit |
 | [dataset.jsonld](pathname:///cookbook-files/ai-ready-dissemination/dataset.jsonld) | Chapter 1: schema.org Dataset markup |
 | [openapi_minimal.yaml](pathname:///cookbook-files/ai-ready-dissemination/openapi_minimal.yaml) | Chapter 2: API description |
 | [mcp_server_example.py](pathname:///cookbook-files/ai-ready-dissemination/mcp_server_example.py) | Chapter 2: MCP server (needs the `mcp` package) |

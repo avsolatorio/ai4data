@@ -134,6 +134,14 @@ Output for the running example:
    [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) paper describes
    that fuller approach.
 
+**What this does not do.** The script matches each number to any retrieved
+value within a tolerance. It accepts a correct value quoted for the wrong
+series, geography, or year, and it cannot check derived numbers such as a
+change or an average unless the inputs appear in the text. It also treats
+every four-digit number from 1900 to 2099 as a year. The fuller method binds
+each number to the claim it supports and checks the claim, which is the
+part that needs the paper's approach.
+
 </Recipe>
 
 ## Implementation options
