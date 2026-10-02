@@ -253,3 +253,13 @@ Commit: 4caf133 (results only; `scripts/pretrain.sh` committed earlier).
 | 40M, fp32 | 155 MB | 82.5% | 0.770 | 3.57 | 4.02 |
 
 **Implication.** At equal file size, 40M parameters at INT4 match the 20M model at INT8 and do not beat it (differences of 0.04 faithfulness and 0.5 accuracy points, within noise). INT4 costs the 40M model about 0.1 faithfulness and 0.17 coherence against its own INT8, which removes the gain from the extra parameters. At twice the file size (INT8), the 40M model adds 0.09 faithfulness and 0.16 coherence over the 20M model, less than preference tuning added (+0.15) at no size cost. Doubling the parameters in this range is a weak lever; the quality is bounded by something else, most plausibly the teacher data (12% label disagreement, one narrative per input) and the amount of pretraining per language. Caveats: one seed per model, one pass of pretraining for the 40M model against two for the 20M, judge is the teacher, and quantization-aware training was not tried (it might recover the INT4 loss).
+
+## 2026-10-02 02:27 UTC — Deferred experiment: byte-level input (Byte Latent Transformer or ByteFlow)
+
+Commit: 8c1f946 (decision only, no code).
+
+**Question/Context.** The embedding table (12,000 byte-level BPE tokens x 448) is 26% of the 20M-parameter model, and the small BPE penalizes Arabic, Hindi and Chinese with more tokens per word. Byte-level architectures remove the table and the subword penalty. Byte Latent Transformer (arXiv 2412.09871) reports parity with BPE models from about 1B parameters with patching by next-byte entropy; its small models trail BPE. ByteFlow (ICLR 2026) is a newer adaptive-compression variant without independent replication.
+
+**Decision.** Deferred, not rejected. Reasons: the measured bottleneck is the training signal and pretraining tokens per language, which a byte architecture does not change; the published gains appear above our scale; byte-level encoder and decoder layers run at byte rate, which is a harder CPU latency problem than the current 11 ms per token; and the test costs one to two days including bits-per-byte evaluation plumbing (perplexities across tokenizations are not comparable).
+
+**Plan when picked up.** First a cheap probe with the existing code: pretrain 6,000, 12,000 and 24,000 BPE vocabularies for 100M tokens each and compare bits per byte per language. If vocabulary size barely matters, the structural benefit of bytes is unlikely to matter either; if it matters a lot, implement BLT-style entropy patching (or ByteFlow) at 20M parameters, pretrain on the same corpus, fine-tune on the same task data, and compare verdict accuracy, judged faithfulness, file size and CPU latency against the BPE model.
