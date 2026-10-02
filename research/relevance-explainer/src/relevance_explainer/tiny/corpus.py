@@ -146,7 +146,7 @@ def _tok_one(args) -> tuple[str, int]:
                 batch = []
         if batch:
             n += _flush(tk, batch, f)
-    return lang, n
+    return stem, n
 
 
 def _flush(tk, batch, f) -> int:
