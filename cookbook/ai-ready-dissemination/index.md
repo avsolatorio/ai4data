@@ -13,9 +13,7 @@ description: A cookbook for national statistical offices that want their publish
 :::note Working draft
 This guide is a working draft from the AI for Data – Data for AI program. It
 collects practical approaches and open standards. It is not an international
-guideline and does not replace the work of the UN Statistical Commission, the
-Kigali City Group, PARIS21, or other bodies. Comments and corrections are
-welcome as [GitHub issues](https://github.com/worldbank/ai4data/issues).
+guideline. Comments and corrections are welcome as [GitHub issues](https://github.com/worldbank/ai4data/issues).
 :::
 
 People increasingly reach statistics through AI systems: search assistants,
