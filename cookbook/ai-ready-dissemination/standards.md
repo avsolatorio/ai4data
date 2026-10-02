@@ -2,6 +2,7 @@
 id: standards
 title: Standards used in this guide
 sidebar_position: 11
+hide_table_of_contents: true
 description: The published standards each chapter builds on, with the ones the World Bank has adopted marked, and where each is used in the guide.
 ---
 
