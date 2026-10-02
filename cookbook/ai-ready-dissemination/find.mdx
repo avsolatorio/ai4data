@@ -57,23 +57,40 @@ A completeness check has three layers, and they answer different questions:
 
 | Layer | Question | Who decides the rule |
 |---|---|---|
-| Structure | Is the record a valid instance of the [World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)? | The schema. It requires only `idno` and `name`; the other 73 fields of `series_description` are optional. |
-| Completeness | Does the record have every field the office requires at this maturity level? | The office, in a **profile** file. The schema does not define completeness. |
-| Validity | Do dates parse, do periods run in order, are URLs URLs, is the periodicity from the office's vocabulary, is the definition more than the name repeated? | Rules in the script, with the vocabulary from the profile. |
+| Structure | Is the record a valid instance of the [World Bank metadata schema](https://github.com/worldbank/metadata-schemas) for its type? | The schema. The indicator schema requires only `idno` and `name`; the other 73 fields of `series_description` are optional. The other types are similar. |
+| Completeness | Does the record have every field the office requires at this maturity level? | The office, in a **profile** file, one per data type. The schema does not define completeness. |
+| Validity | Do dates parse, do periods run in order, are URLs URLs, do values come from the office's vocabulary, is the definition more than the name repeated? | Rules named in the profile and applied by the script. |
 
-1. Export the catalog with one row per series and columns named as in the
-   schema. The [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
-   shows the layout; list fields such as `sources` and `geographic_units`
-   take `;` between values. A catalog that already uses the schema, through
-   NADA or the Metadata Editor, can export the records as JSON instead.
-2. Set the profile. Start from the
-   [indicator profile](pathname:///cookbook-files/ai-ready-dissemination/completeness_profile_indicator.json),
-   which names nine fields for the foundational level, twelve more for
-   AI-ready, and four more for AI-native, with a periodicity vocabulary.
-   Change it to the office's policy and keep it in version control; the
-   profile is the office's definition of "complete".
-3. Run the check. It needs the `jsonschema` package for the structure layer
-   and downloads the schema the first time.
+The same check runs for indicators, survey microdata, geospatial data,
+documents, tables, scripts, images, and videos: the profile names the type,
+the script fetches that type's schema. The [By data type](./data-types.md)
+page lists the profiles and example records for each.
+
+1. Export the records. A catalog that uses the schemas, through NADA or the
+   Metadata Editor, exports nested JSON, which works for every type. For
+   indicators, a CSV with one row per series also works: the
+   [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   shows the layout, and list fields such as `sources` and
+   `geographic_units` take `;` between values.
+2. Set the profile. Start from the profile for the type
+   ([indicator](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json),
+   [microdata](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json),
+   [geospatial](pathname:///cookbook-files/ai-ready-dissemination/profile_geospatial.json),
+   [document](pathname:///cookbook-files/ai-ready-dissemination/profile_document.json)).
+   Each is a recommended default: it names the fields required at the
+   foundational, AI-ready, and AI-native levels as paths into the record,
+   gives the reason each field matters for AI-ready dissemination, and
+   sets the validity rules (which fields are dates, which are URLs, which
+   take a vocabulary, which need a minimum length). An office can remove a
+   field from a level, and the reason states what that costs. Keep the
+   edited profile in version control; it is the office's definition of
+   "complete". Offices that document with the
+   [Metadata Editor](https://github.com/worldbank/metadata-editor) can
+   mirror the profile in its metadata templates, which set the required
+   fields at entry time and validate records before they are published to
+   NADA.
+3. Run the check. It needs the `jsonschema` package (4.18 or later) for the
+   structure layer and downloads the schema files the first time.
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/check_metadata.py
 ```
@@ -83,12 +100,13 @@ Output for the example catalog at the foundational level:
 ```text
 Layer 1  Structure (World Bank timeseries-schema.json)
          5 of 5 records are valid instances of the schema
-         Note: the schema requires only idno and name. Validity is not completeness.
+         Note: the schemas require little more than an identifier and a title. Validity is not completeness.
 
-Layer 2  Completeness against profile 'indicator profile (starting point)', level 'foundational' (9 fields)
+Layer 2  Completeness against profile 'recommended indicator profile', level 'foundational' (9 fields)
          4 of 5 records complete
-         missing definition_long          in 1 record(s)
-         LF_UNEMP_PCT: definition_long
+         missing series_description.definition_long               in 1 record(s)
+                 why: Search by meaning and answers both read this text; without it a system matches on the title alone (chapter 1).
+         LF_UNEMP_PCT: series_description.definition_long
 
 Layer 3  Validity: 0 issue(s)
 ```
@@ -98,6 +116,15 @@ At `--level ai-ready` the same catalog has 0 of 5 records complete, with
 `keywords`, `aliases`, and `contacts` missing from every record. That is the
 normal result for a catalog that was documented for people and is now being
 prepared for software, and it is the work list for the AI-ready level.
+
+For the other types, the same command with the type's profile and a JSON
+export:
+
+```bash
+python check_metadata.py example_microdata.json  profile_microdata.json  --level ai-ready
+python check_metadata.py example_geospatial.json profile_geospatial.json
+python check_metadata.py example_document.json   profile_document.json
+```
 
 4. Assign the incomplete records to a curator and set a date. Re-run the
    check monthly at the target level and keep the counts; the trend is the
@@ -122,6 +149,13 @@ with.
 **Result:** every series page carries a JSON-LD block that dataset search
 engines and crawlers read, generated from the same catalog record that the
 page shows.
+
+Offices that run [NADA](https://nada.ihsn.org/) already have this: NADA
+writes a schema.org `Dataset` block on every catalog page from the stored
+record (the World Bank [Microdata Library](https://microdata.worldbank.org/)
+pages show it), and the Metadata Editor can export schema.org, Croissant,
+and DCAT from the same records. The steps below are for an office with its
+own website.
 
 1. Map the catalog fields to the schema.org properties in the example below.
    The required properties are `name`, `description`, and `url`; the others
@@ -152,6 +186,10 @@ need to load the data.
 **Result:** search returns `LF_UNEMP_PCT` for "jobless rate" and
 `FS_UNDERNOURISH_PCT` for "how many people go hungry", with the keyword
 search still available for exact codes and names.
+
+NADA provides semantic search over its catalog records, so an office that
+runs it gets this layer with the catalog. The steps below are for an office
+with its own search, and the evaluation in step 4 applies to both.
 
 1. Build the question set and baseline scores first ([chapter 6](./evaluate.mdx)). Without them there is no way to tell whether the new search is better.
 2. Embed each catalog record (title plus description) with a multilingual

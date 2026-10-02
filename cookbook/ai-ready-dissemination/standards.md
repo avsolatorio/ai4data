@@ -1,7 +1,7 @@
 ---
 id: standards
 title: Standards used in this guide
-sidebar_position: 11
+sidebar_position: 12
 hide_table_of_contents: true
 description: The published standards each chapter builds on, with the ones the World Bank has adopted marked, and where each is used in the guide.
 ---
@@ -23,7 +23,8 @@ cross-domain concept names.
 | Standard | Use | World Bank use | In this guide |
 |---|---|---|---|
 | [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas) | JSON Schema definitions for indicators, indicator databases, microdata, documents, geospatial data, tables, images, scripts, and videos, with a Python library and Excel templates (MIT licence) | Used by the Development Data Group's catalogs and the Metadata Editor; the microdata schema is based on DDI Codebook, documents on Dublin Core, geospatial on ISO 19115/19139, images on IPTC, with DataCite and provenance blocks | Chapters [1](./find.mdx) and [3](./understand.mdx): the record template and the completeness report |
-| [NADA](https://nada.ihsn.org/) | Open-source data catalog from the International Household Survey Network | Runs the World Bank [Microdata Library](https://microdata.worldbank.org/); supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC | Chapter 1: an implementation option for the catalog |
+| [NADA](https://nada.ihsn.org/) | Open-source data catalog from the International Household Survey Network: stores records in the World Bank schemas, writes schema.org markup on each page, offers keyword and semantic search, a REST API, an MCP interface, and managed access to microdata | Runs the World Bank [Microdata Library](https://microdata.worldbank.org/) | Chapters 1 and 2 |
+| [Metadata Editor](https://github.com/worldbank/metadata-editor) | Open-source application from the Office of the Chief Statistician for documenting microdata, indicators, geospatial data, documents, tables, images, videos, and scripts, with templates, validation, publishing to NADA, and export to SDMX metadata structures, schema.org, Croissant, and DCAT | Used by the Development Data Group's curators | Chapter 1, recipe 1.1: templates mirror the completeness profile |
 | [DCAT 3](https://www.w3.org/TR/vocab-dcat-3/) | W3C vocabulary for catalogs, datasets, and distributions | Common in open data portals that harvest from each other | Chapter 1: machine-readable catalog |
 | [schema.org Dataset](https://schema.org/Dataset) | Dataset markup on web pages, read by general crawlers and dataset search engines | | Chapter 1, recipe 1.2 |
 | [Croissant 1.1](https://mlcommons.org/croissant/) | MLCommons extension of schema.org for machine-learning datasets: contents, provenance, usage restrictions, and how to load the data | | Chapter 1: AI-native option for datasets meant for model training |
@@ -44,6 +45,23 @@ cross-domain concept names.
 | [DDI Lifecycle](https://ddialliance.org/ddi-lifecycle) | Documentation across the data lifecycle, with reusable questions and concepts | | Chapter 3: for offices that manage questionnaires and concepts centrally |
 | [DDI-CDI](https://ddialliance.org/ddi-cdi) | Cross-domain integration: describes data structures and provenance across data types | | Chapter 5: provenance for derived data |
 | [XKOS](https://ddialliance.org/xkos) | Extension of SKOS for statistical classifications and correspondences between them | | Chapter 3, recipe 3.2: classifications and crosswalks |
+
+## Geospatial data
+
+| Standard | Use | World Bank use | In this guide |
+|---|---|---|---|
+| [ISO 19115 / 19139](https://www.iso.org/standard/53798.html) | Metadata for geographic information and its XML encoding | The World Bank geospatial schema and NADA follow it | [By data type](./data-types.md); chapter 3 for CRS, extent, and feature catalogue |
+| [OGC API Features](https://ogcapi.ogc.org/features/), [WMS and WFS](https://www.ogc.org/standards/) | Open Geospatial Consortium interfaces for serving vector features and map images | | Chapter 2: the geospatial equivalent of an SDMX API |
+| [GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946), [GeoPackage](https://www.geopackage.org/), [Cloud Optimized GeoTIFF](https://cogeo.org/) | Open formats for vector and raster data | | Chapter 2: open formats for geospatial files |
+| [STAC](https://stacspec.org/) | SpatioTemporal Asset Catalog, a specification for cataloguing imagery and other spatiotemporal assets | | Chapter 1: catalog records for imagery |
+
+## Documents, tables, and images
+
+| Standard | Use | World Bank use | In this guide |
+|---|---|---|---|
+| [Dublin Core](https://www.dublincore.org/specifications/dublin-core/) | Core metadata elements for documents and other resources | The World Bank document schema and NADA are based on it | By data type; chapter 1 |
+| [IPTC Photo Metadata](https://iptc.org/standards/photo-metadata/) | Metadata for images and video | The World Bank image schema and NADA | By data type |
+| [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/) | Column types and annotations for tables published as CSV | | Chapter 2; By data type (tables) |
 
 ## Files and APIs
 

@@ -1,7 +1,7 @@
 ---
 id: glossary
 title: Glossary
-sidebar_position: 12
+sidebar_position: 13
 description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 ---
 
@@ -50,6 +50,8 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
 
 **MCP.** Model Context Protocol, an open standard that lets AI clients discover and call tools exposed by a server, such as a statistics API.
+
+**Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX, schema.org, Croissant, and DCAT.
 
 **MRR.** Mean reciprocal rank. The average of 1 divided by the rank of the first correct result, across a question set.
 
