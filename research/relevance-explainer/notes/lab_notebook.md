@@ -298,3 +298,19 @@ Commit: d208b94 (corpus code committed in eb79696 and 2f54e07).
 - 60k task data: verdict 83.4% / 0.773 (new base, INT8) against 83.6% / 0.778 (old); faithfulness 3.70 against 3.85, coherence 3.95 against 4.08, share at 4 or more 58.9% against 63.9% (same 800 examples).
 
 **Implication.** Doubling the pretraining corpus with web text, and raising the small languages' pretraining tokens 2 to 6 times, gave no improvement on the task and a small loss on the 60k data (−0.15 faithfulness, about three standard errors at n=800, one seed). The old Wikipedia-only base stays. Possible reasons, not separated: the web text is a different register from the task text and the Wikipedia held-out slices; the language sampling moved share away from English; a single tokenizer trained on Wikipedia. Together with the earlier results, pretraining volume per language is not the lever at this model size, while task data is (previous entry). Not tried: a tokenizer retrained on the mixed corpus, web text for English too, or a third pass.
+
+## 2026-10-02 08:12 UTC — Preference tuning on the 60k model
+
+Commit: 74cf7b2 plus uncommitted `scripts/run_round.sh` (committed immediately after this entry).
+
+**Question/Context.** Does the +0.15 faithfulness from on-policy preference tuning (measured on the 25k model) stack on top of the 60k model?
+
+**What was done.** Same procedure as before: the 60k model (`f2-pre2`) sampled 4 narratives (temperature 0.8, top-k 40, verdict fixed) for 8,000 random training inputs of `data/f2`; the teacher scored all 32,000 (about 2 hours on one vLLM server, shared with judge runs); pairs built with the same rules gave 5,203 pairs (3,255 chosen from the student, 1,948 from the teacher narrative; 2,797 inputs without a pair). DPO from `f2-pre2` with the settings selected earlier (beta 0.3, lr 2e-5, 2 epochs, batch 16, supervised term 0.5): preference accuracy 0.99 and log-ratio margin 8.7 after epoch 2. Evaluated on the 7,056-example test; judged on the standard 800.
+
+**Result.**
+- Verdict: 83.6% / macro-F1 0.782 at INT8 (before DPO 83.6% / 0.778), 83.2% / 0.776 at INT4.
+- Judge, INT8, same 800 examples: faithfulness 3.99 (before 3.85), share at 4 or more 70.0% (63.9%), coherence 4.19 (4.08), consistent with the verdict 99.4%, correct language 99.0%. At INT4: 3.94, 66.7%, 4.08.
+- By language, 60k -> 60k+DPO (n): English 4.47 -> 4.52 (220), French 3.81 -> 3.91 (74), Spanish 4.01 -> 4.20 (88), Portuguese 4.38 -> 4.17 (42), Arabic 3.48 -> 3.70 (66), Chinese 3.42 -> 3.74 (72), Russian 3.55 -> 3.64 (77), Hindi 3.23 -> 3.62 (48), Indonesian 3.31 -> 3.54 (48), Swahili 3.65 -> 3.91 (23), Turkish 3.12 -> 3.31 (42).
+- Export: 21.59 MB INT8 file (`runs/f2-dpo/explainer-int8.pt`).
+
+**Implication.** Preference tuning stacks with the data gain: +0.14 faithfulness on top of the 60k model, the same size as on the 25k model, with the verdict unchanged. Over this session the 20 MB model went from 3.50 to 3.99 judged faithfulness (54.5% to 70.0% of narratives at 4 or more) through more task data and one round of preference tuning; the lowest language (Turkish) is now 3.31 against 2.25 for the lowest before. Caveats unchanged: one seed, the judge is the teacher and also selected the pairs, Portuguese (n=42) moved down. Next: a fourth data round (the learning curve is still rising), then a second preference round on the larger model.
