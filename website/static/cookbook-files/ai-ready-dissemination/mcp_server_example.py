@@ -18,10 +18,13 @@ Try it with the inspector:         mcp dev mcp_server_example.py
 import csv
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+try:  # mcp 2.x
+    from mcp.server import MCPServer as Server
+except ImportError:  # mcp 1.x, where the class was called FastMCP
+    from mcp.server.fastmcp import FastMCP as Server
 
 HERE = Path(__file__).parent
-mcp = FastMCP("statistics-example")
+mcp = Server("statistics-example")
 
 
 def _read(name):

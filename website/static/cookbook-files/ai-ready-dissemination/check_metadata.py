@@ -307,7 +307,7 @@ def layer_structure(records: list[Record], store: SchemaStore, root: str, id_pat
     try:
         import jsonschema
         from referencing import Registry, Resource
-        from referencing.exceptions import NoSuchResource
+        from referencing.exceptions import NoSuchResource, Unresolvable
         from referencing.jsonschema import DRAFT202012
     except ImportError:
         return StructureResult(None, ["jsonschema 4.18+ not installed; layer 1 skipped"])
@@ -335,7 +335,7 @@ def layer_structure(records: list[Record], store: SchemaStore, root: str, id_pat
                 where = "/".join(str(p) for p in err.absolute_path)
                 problems.append(f"{rid}: {where}: {err.message[:90]}")
                 invalid.add(rid)
-        except Exception as exc:  # a dangling reference in the schema set, for example
+        except (Unresolvable, jsonschema.exceptions.SchemaError) as exc:
             problems.append(f"{rid}: validation failed: {exc}")
             invalid.add(rid)
     return StructureResult(len(records) - len(invalid), problems)
