@@ -1,6 +1,5 @@
 ---
 id: index
-slug: /
 title: Practical Guide to AI-Ready Data Dissemination
 sidebar_label: Overview
 sidebar_position: 0

@@ -4,15 +4,15 @@ import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
 const Chapters = [
-  {to: '/cookbook/find', n: '1', q: 'Can people and AI find our statistics?'},
-  {to: '/cookbook/retrieve', n: '2', q: 'Can AI retrieve our data reliably?'},
-  {to: '/cookbook/understand', n: '3', q: 'Can AI understand what the numbers mean?'},
-  {to: '/cookbook/ask', n: '4', q: 'Can users ask questions naturally?'},
-  {to: '/cookbook/trust', n: '5', q: 'Can answers be trusted and traced?'},
-  {to: '/cookbook/evaluate', n: '6', q: 'Can we tell whether it works?'},
-  {to: '/cookbook/monitor-use', n: '7', q: 'Can we see how our data are used?'},
-  {to: '/cookbook/govern', n: '8', q: 'Can we operate this responsibly?'},
-  {to: '/cookbook/sustain', n: '9', q: 'Can we maintain it?'},
+  {to: '/cookbook/ai-ready-dissemination/find', n: '1', q: 'Can people and AI find our statistics?'},
+  {to: '/cookbook/ai-ready-dissemination/retrieve', n: '2', q: 'Can AI retrieve our data reliably?'},
+  {to: '/cookbook/ai-ready-dissemination/understand', n: '3', q: 'Can AI understand what the numbers mean?'},
+  {to: '/cookbook/ai-ready-dissemination/ask', n: '4', q: 'Can users ask questions naturally?'},
+  {to: '/cookbook/ai-ready-dissemination/trust', n: '5', q: 'Can answers be trusted and traced?'},
+  {to: '/cookbook/ai-ready-dissemination/evaluate', n: '6', q: 'Can we tell whether it works?'},
+  {to: '/cookbook/ai-ready-dissemination/monitor-use', n: '7', q: 'Can we see how our data are used?'},
+  {to: '/cookbook/ai-ready-dissemination/govern', n: '8', q: 'Can we operate this responsibly?'},
+  {to: '/cookbook/ai-ready-dissemination/sustain', n: '9', q: 'Can we maintain it?'},
 ];
 
 export default function CookbookCta() {
@@ -36,7 +36,7 @@ export default function CookbookCta() {
             </p>
             <Link
               className={clsx('button button--md', styles.button)}
-              to="/cookbook/">
+              to="/cookbook/ai-ready-dissemination/">
               Open the guide
             </Link>
           </div>
