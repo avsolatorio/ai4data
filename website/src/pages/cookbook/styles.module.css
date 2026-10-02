@@ -75,3 +75,15 @@
   font-size: 0.88rem;
   font-weight: 600;
 }
+
+.logo {
+  display: block;
+  width: fit-content;
+  margin-bottom: 1.4rem;
+}
+
+.logo img {
+  display: block;
+  height: 48px;
+  width: auto;
+}

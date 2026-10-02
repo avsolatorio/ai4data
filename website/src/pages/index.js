@@ -3,6 +3,8 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
+import ThemedImage from "@theme/ThemedImage";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import Challenge from "@site/src/components/Challenge";
 import Program from "@site/src/components/Program";
 import ScrollDemo from "@site/src/components/ScrollDemo";
@@ -12,14 +14,24 @@ import GetInvolved from "@site/src/components/GetInvolved";
 
 import styles from "./index.module.css";
 
+const DDG_URL = "https://www.worldbank.org/en/about/unit/unit-dec/dev";
+
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
+  const logoLight = useBaseUrl("/img/ddg-logo.png");
+  const logoDark = useBaseUrl("/img/ddg-logo-dark.png");
   return (
     <header className={styles.heroBanner}>
       <div className="container">
         <div className={styles.heroGrid}>
           <div className={styles.heroInner}>
-            <Link className={clsx("eyebrow", styles.eyebrowLink)} to="https://www.worldbank.org/en/about/unit/unit-dec/dev">
+            <Link className={styles.heroLogo} to={DDG_URL}>
+              <ThemedImage
+                alt="World Bank Group, Development Data Group"
+                sources={{ light: logoLight, dark: logoDark }}
+              />
+            </Link>
+            <Link className={clsx("eyebrow", styles.eyebrowLink)} to={DDG_URL}>
               Office of the WBG Chief Statistician &amp; Development Data Group
             </Link>
             <Heading as="h1" className={styles.heroTitle}>

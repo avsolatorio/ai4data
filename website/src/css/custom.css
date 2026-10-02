@@ -317,3 +317,16 @@ div[class*='codeBlockContainer'] {
   font-weight: 600;
   transition: opacity 0.12s ease, background-color 0.12s ease;
 }
+
+/* Development Data Group logo in the footer brand block. The footer is a
+   fixed dark surface, so the dark variant is used in both themes. */
+.footer .fb-logo {
+  display: block;
+  flex-basis: 100%;
+  margin-bottom: 0.35rem;
+}
+.footer .fb-logo img {
+  display: block;
+  height: 38px;
+  width: auto;
+}

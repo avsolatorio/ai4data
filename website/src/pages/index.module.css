@@ -141,3 +141,21 @@
   color: var(--primary);
   text-decoration: underline;
 }
+
+/* Development Data Group logo above the hero eyebrow. */
+.heroLogo {
+  display: inline-block;
+  margin-bottom: 1.4rem;
+}
+
+.heroLogo img {
+  display: block;
+  height: 56px;
+  width: auto;
+}
+
+@media screen and (max-width: 996px) {
+  .heroLogo img {
+    height: 44px;
+  }
+}

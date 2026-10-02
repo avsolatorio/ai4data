@@ -118,6 +118,7 @@ const config = {
         ],
         copyright: `
           <div class="fb-brand">
+            <a href="https://www.worldbank.org/en/about/unit/unit-dec/dev" class="fb-logo"><img src="/ai4data/img/ddg-logo-dark.png" alt="World Bank Group, Development Data Group"></a>
             <strong>AI for Data - Data for AI</strong>
             <span><a href="https://www.worldbank.org/en/about/unit/unit-dec/dev">Office of the WBG Chief Statistician &amp; Development Data Group</a> · World Bank Group</span>
             <a href="mailto:ai4data@worldbank.org">ai4data@worldbank.org</a>
