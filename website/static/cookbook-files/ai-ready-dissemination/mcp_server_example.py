@@ -69,7 +69,11 @@ def get_values(series: str, ref_area: str = "NAT") -> dict:
         "RELEASE": rows[0]["RELEASE"],
         "SOURCE_URL": rows[0]["SOURCE_URL"],
         "observations": [
-            {"TIME_PERIOD": r["TIME_PERIOD"], "OBS_VALUE": float(r["OBS_VALUE"]), "OBS_STATUS": r["OBS_STATUS"]}
+            {
+                "TIME_PERIOD": r["TIME_PERIOD"],
+                "OBS_VALUE": float(r["OBS_VALUE"]),
+                "OBS_STATUS": r["OBS_STATUS"],
+            }
             for r in rows
         ],
     }

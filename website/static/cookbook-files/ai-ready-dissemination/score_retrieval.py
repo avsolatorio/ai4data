@@ -13,79 +13,84 @@ Usage:
     python score_retrieval.py eval_questions.csv example_catalog.csv
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import re
+import sys
 from collections import defaultdict
+from pathlib import Path
 
-TOKEN = re.compile(r"[a-zà-ÿ0-9]+", re.IGNORECASE)
+TOKEN = re.compile(r"\w+")  # Unicode-aware: words in any script
 ID_FIELD = "idno"
 TEXT_FIELDS = ("name", "definition_long")
+K_VALUES = (5, 10)
 
 
-def tokens(text):
-    return set(TOKEN.findall((text or "").lower()))
+def tokens(text: str) -> set[str]:
+    return set(TOKEN.findall(text.lower()))
 
 
-def load_catalog(path):
-    with open(path, newline="", encoding="utf-8") as fh:
+def load_csv(path: Path) -> list[dict[str, str]]:
+    with path.open(newline="", encoding="utf-8") as fh:
         return list(csv.DictReader(fh))
 
 
-def search(question, catalog, k=10):
+def search(question: str, catalog: list[dict[str, str]], k: int = 10) -> list[str]:
     """Return up to k catalog ids ranked by keyword overlap.
 
     Replace this function with a call to your search system. It must return
     a ranked list of ids.
     """
-    q = tokens(question)
+    query = tokens(question)
     scored = []
-    for rec in catalog:
-        text = tokens(" ".join(rec.get(f, "") for f in TEXT_FIELDS))
-        overlap = len(q & text)
+    for record in catalog:
+        text = tokens(" ".join(record.get(f, "") for f in TEXT_FIELDS))
+        overlap = len(query & text)
         if overlap:
-            scored.append((overlap, rec[ID_FIELD]))
+            scored.append((overlap, record[ID_FIELD]))
     scored.sort(reverse=True)
     return [rid for _, rid in scored[:k]]
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("questions")
-    parser.add_argument("catalog")
-    args = parser.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("questions", type=Path)
+    parser.add_argument("catalog", type=Path)
+    args = parser.parse_args(argv)
 
-    catalog = load_catalog(args.catalog)
-    with open(args.questions, newline="", encoding="utf-8") as fh:
-        questions = [q for q in csv.DictReader(fh) if q["expected_id"] != "NONE"]
+    catalog = load_csv(args.catalog)
+    questions = [q for q in load_csv(args.questions) if q["expected_id"] != "NONE"]
 
-    hits5 = defaultdict(int)
-    hits10 = defaultdict(int)
-    rr = defaultdict(float)
-    n = defaultdict(int)
+    hits: dict[int, dict[str, int]] = {k: defaultdict(int) for k in K_VALUES}
+    reciprocal_rank: dict[str, float] = defaultdict(float)
+    count: dict[str, int] = defaultdict(int)
 
     print(f"{'id':<5} {'lang':<5} {'rank':>4}  question")
     for q in questions:
-        ranked = search(q["question"], catalog)
+        ranked = search(q["question"], catalog, k=max(K_VALUES))
         rank = ranked.index(q["expected_id"]) + 1 if q["expected_id"] in ranked else None
-        for key in ("all", q["language"]):
-            n[key] += 1
+        for group in ("all", q["language"]):
+            count[group] += 1
             if rank is not None:
-                rr[key] += 1 / rank
-                if rank <= 5:
-                    hits5[key] += 1
-                if rank <= 10:
-                    hits10[key] += 1
+                reciprocal_rank[group] += 1 / rank
+                for k in K_VALUES:
+                    if rank <= k:
+                        hits[k][group] += 1
         print(f"{q['question_id']:<5} {q['language']:<5} {rank or '-':>4}  {q['question']}")
 
     print()
-    print(f"{'group':<6} {'n':>3} {'R@5':>6} {'R@10':>6} {'MRR':>6}")
-    for key in sorted(n, key=lambda k: (k != "all", k)):
-        print(
-            f"{key:<6} {n[key]:>3} {hits5[key] / n[key]:>6.2f} "
-            f"{hits10[key] / n[key]:>6.2f} {rr[key] / n[key]:>6.2f}"
-        )
+    header = " ".join(f"{'R@' + str(k):>6}" for k in K_VALUES)
+    print(f"{'group':<6} {'n':>3} {header} {'MRR':>6}")
+    for group in sorted(count, key=lambda g: (g != "all", g)):
+        n = count[group]
+        recalls = " ".join(f"{hits[k][group] / n:>6.2f}" for k in K_VALUES)
+        print(f"{group:<6} {n:>3} {recalls} {reciprocal_rank[group] / n:>6.2f}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

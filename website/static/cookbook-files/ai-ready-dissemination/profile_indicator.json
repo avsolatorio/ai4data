@@ -7,6 +7,13 @@
     "time_period_start": "time_periods.start",
     "time_period_end": "time_periods.end"
   },
+  "csv_item_keys": {
+    "series_description.definition_references": "uri",
+    "series_description.methodology_references": "uri",
+    "series_description.license": "uri",
+    "series_description.links": "uri",
+    "series_description.contacts": "email"
+  },
   "levels": {
     "foundational": [
       "series_description.idno",
