@@ -29,6 +29,12 @@ dissemination system. Each chapter explains why the question matters, what a
 good answer looks like, and gives **recipes**: tasks with a defined result,
 the skills and time they need, and the code or template to do them.
 
+The recipes build on published standards: SDMX for aggregate data, DDI for
+microdata, DCAT and schema.org for catalogs, DataCite for identifiers, and
+the World Bank's own metadata schemas for records. The
+[standards page](./standards.md) lists each one, where the World Bank uses
+it, and where it appears in the guide.
+
 :::tip[AI readiness does not require generative AI]
 Many of the highest-value steps are ordinary data practice: complete
 metadata, open structured data, stable identifiers, and documented APIs. These
@@ -91,10 +97,15 @@ where the previous one ends. The example office publishes five series:
 | `LF_UNEMP_PCT` | Unemployment rate | % of labour force |
 | `PV_HEADCOUNT_NPL_PCT` | Poverty headcount ratio at national poverty line | % of population |
 
-One record has an empty description on purpose, so that the completeness
+One record has an empty definition on purpose, so that the completeness
 report in chapter 1 and the search scores in chapter 6 have something to
-find. The catalog, the values, and every script in this guide are in the
-files list below. All values are invented.
+find. The catalog file uses the field names of the
+[World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)
+(`idno`, `name`, `definition_long`, `measurement_unit`, `periodicity`, and
+so on), and the values file uses SDMX cross-domain concept names (`SERIES`,
+`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`). The
+catalog, the values, and every script in this guide are in the files list
+below. All values are invented.
 
 ## Files
 
@@ -103,9 +114,9 @@ The scripts use only the Python standard library unless stated.
 
 | File | Used in |
 |---|---|
-| [example_catalog.csv](pathname:///cookbook-files/ai-ready-dissemination/example_catalog.csv) | The running example catalog |
-| [example_values.csv](pathname:///cookbook-files/ai-ready-dissemination/example_values.csv) | The running example values |
-| [metadata_template.csv](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv) | Chapter 1: fields every series record needs |
+| [example_catalog.csv](pathname:///cookbook-files/ai-ready-dissemination/example_catalog.csv) | The running example catalog (World Bank indicator schema field names) |
+| [example_values.csv](pathname:///cookbook-files/ai-ready-dissemination/example_values.csv) | The running example values (SDMX cross-domain concept names) |
+| [metadata_template.csv](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv) | Chapter 1: fields every series record needs, named as in the World Bank indicator schema |
 | [completeness_report.py](pathname:///cookbook-files/ai-ready-dissemination/completeness_report.py) | Chapter 1: metadata completeness report |
 | [dataset.jsonld](pathname:///cookbook-files/ai-ready-dissemination/dataset.jsonld) | Chapter 1: schema.org Dataset markup |
 | [openapi_minimal.yaml](pathname:///cookbook-files/ai-ready-dissemination/openapi_minimal.yaml) | Chapter 2: API description |
@@ -121,6 +132,7 @@ The scripts use only the Python standard library unless stated.
 | Resource | Purpose |
 |---|---|
 | This guide | What a statistical office can do, and why, in a sequence of practical steps. |
+| [Standards used in this guide](./standards.md) | The published standards behind each recipe, with the ones the World Bank has adopted. |
 | [AI-readiness assessment](/ai-readiness-assessment) | A structured assessment of where an office stands before planning. |
 | [Documentation](/docs/introduction) | How each program method and tool works. |
 | [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |

@@ -1,9 +1,10 @@
 """Check the numbers in a generated answer against retrieved values.
 
-Takes an answer text and a CSV of the values that were retrieved for it
-(series_id, geography, period, value, unit). Every number in the answer is
-matched to a retrieved value within a rounding tolerance and marked verified
-or unverified. Standard library only.
+Takes an answer text and a CSV of the values that were retrieved for it,
+with SDMX cross-domain concept names as columns (SERIES, REF_AREA,
+TIME_PERIOD, OBS_VALUE, UNIT_MEASURE). Every number in the answer is matched
+to a retrieved value within a rounding tolerance and marked verified or
+unverified. Standard library only.
 
 This is the simplest form of the check described in the Proof-Carrying
 Numbers paper (https://arxiv.org/abs/2509.06902). Production systems also
@@ -57,13 +58,13 @@ def main():
         num = parse(raw)
         match = None
         for v in values:
-            if abs(float(v["value"]) - num) <= args.tolerance:
+            if abs(float(v["OBS_VALUE"]) - num) <= args.tolerance:
                 match = v
                 break
         if match:
             print(
-                f"{raw:>8}  {'verified':<10} {match['series_id']} "
-                f"{match['geography']} {match['period']} = {match['value']} {match['unit']}"
+                f"{raw:>8}  {'verified':<10} {match['SERIES']} "
+                f"{match['REF_AREA']} {match['TIME_PERIOD']} = {match['OBS_VALUE']} {match['UNIT_MEASURE']}"
             )
         else:
             unverified += 1

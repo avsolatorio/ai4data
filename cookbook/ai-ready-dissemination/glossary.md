@@ -1,7 +1,7 @@
 ---
 id: glossary
 title: Glossary
-sidebar_position: 11
+sidebar_position: 12
 description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 ---
 
@@ -15,11 +15,21 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **Citation validity.** The share of citations in generated answers that resolve to a real record and support the statement they are attached to.
 
-**Code list.** A published table of the codes used in a dataset (for geography, periods, categories) with their labels.
+**Code list.** A published table of the codes used in a dataset (for geography, periods, categories) with their labels. In SDMX, a code list is part of the data structure definition.
+
+**Content-Oriented Guidelines.** The SDMX guidelines that define cross-domain concepts (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`, and others) and cross-domain code lists for reuse across statistical domains.
+
+**COUNTER Code of Practice for Research Data.** Rules for logging and reporting dataset views and downloads, including the separation of machine access from regular access.
+
+**Croissant.** An MLCommons extension of schema.org for describing machine-learning datasets, including how to load them.
 
 **Crosswalk.** A mapping from one classification to another, for example from a national occupation classification to ISCO.
 
+**DataCite.** The registration agency and metadata schema for dataset DOIs. The World Bank Microdata Library assigns DataCite DOIs.
+
 **DCAT.** Data Catalog Vocabulary, a W3C standard for describing datasets and catalogs in machine-readable form.
+
+**DOI.** Digital Object Identifier, a persistent identifier that resolves to the dataset's page and carries citation metadata.
 
 **DDI.** Data Documentation Initiative, a standard for documenting surveys and microdata, including variables and value labels.
 
@@ -42,6 +52,10 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 **MCP.** Model Context Protocol, an open standard that lets AI clients discover and call tools exposed by a server, such as a statistics API.
 
 **MRR.** Mean reciprocal rank. The average of 1 divided by the rank of the first correct result, across a question set.
+
+**NADA.** The open-source data catalog from the International Household Survey Network, used for the World Bank Microdata Library. It supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC.
+
+**OBS_STATUS.** The SDMX observation status attribute, with codes such as `A` normal, `P` provisional, `B` break in series, `E` estimated.
 
 **nDCG@k.** Normalized discounted cumulative gain at k. A retrieval measure that credits partially relevant results and rewards placing the best ones first.
 
@@ -70,3 +84,7 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 **Tidy data.** A table layout with one observation per row and one variable per column.
 
 **Tool use.** The ability of a language model to call functions or APIs during an answer, so that values come from the source.
+
+**World Bank metadata schemas.** JSON Schema definitions published by the Development Data Group for indicators, microdata, documents, geospatial data, tables, images, scripts, and videos, used by its catalogs and the Metadata Editor.
+
+**XKOS.** The DDI Alliance extension of SKOS for statistical classifications and the correspondences between them.

@@ -48,23 +48,27 @@ both so that a system reading "41" or "7.6" cannot misread them.
 **Result:** every indicator has the same short set of fields, in the same
 order, which people read quickly and software extracts reliably.
 
-Use these fields and keep each to one to three sentences:
+Use these fields and keep each to one to three sentences. The third column
+gives the field of the
+[World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)
+that holds it, so the record can be stored in NADA or the Metadata Editor
+without translation:
 
-| Field | Example for `FS_UNDERNOURISH_PCT` |
-|---|---|
-| Definition | Share of the population whose habitual food consumption is insufficient to provide the dietary energy levels required to maintain a normal active and healthy life. |
-| Numerator and denominator | Estimated number of undernourished people, divided by the total population. |
-| Unit | % of population |
-| Population | Resident population, all ages |
-| Reference period | Three-year average centred on the year shown |
-| Source | Food balance sheets and household budget survey |
-| Comparability | Comparable across years from 2010; the 2016 survey changed the food item list (see breaks) |
-| Limitations | Estimates for regions have wider margins of error than the national figure |
+| Field | Example for `FS_UNDERNOURISH_PCT` | Schema field |
+|---|---|---|
+| Definition | Share of the population whose habitual food consumption is insufficient to provide the dietary energy levels required to maintain a normal active and healthy life. | `definition_long` |
+| Method, with numerator and denominator | Estimated number of undernourished people, divided by the total population. | `methodology` |
+| Unit | % of population | `measurement_unit` |
+| Population | Resident population, all ages | `universe` |
+| Reference period | Three-year average centred on the year shown; annual | `base_period`, `periodicity` |
+| Source | Food balance sheets and household budget survey | `sources` |
+| Breaks and comparability | Comparable across years from 2010; the 2016 survey changed the food item list | `series_break` |
+| Limitations | Estimates for regions have wider margins of error than the national figure | `limitation` |
 
 1. Fill the template for the ten most-used indicators first.
-2. Store the fields in the catalog record, with the `definition_url` pointing
-   to the page that shows them. The [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
-   has columns for method note and limitations.
+2. Store the fields in the catalog record, with `definition_references`
+   pointing to the page that shows them. The [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   has a column for each schema field above.
 3. Add the template to the release checklist so that new indicators arrive
    with it filled.
 
@@ -75,17 +79,23 @@ Use these fields and keep each to one to three sentences:
 **Result:** every code used in the data appears in a published list with
 labels, and national classifications map to international ones.
 
-1. Publish one CSV per code list. Geography, for example:
+1. Publish one CSV per code list, in the form of an SDMX code list: a code,
+   a name per language, and a parent for hierarchies. For the reference
+   area list, use the ISO 3166 country code at the top and the national
+   subdivision codes below it:
 
 ```csv
-code,label_en,label_fr,level,parent,iso_3166_2
-NAT,National,National,0,,
-R01,Northern Region,Région du Nord,1,NAT,
-R02,Central Region,Région du Centre,1,NAT,
+code,name_en,name_fr,parent
+NAT,National,National,
+R01,Northern Region,Région du Nord,NAT
+R02,Central Region,Région du Centre,NAT
 ```
 
 2. For each national classification, publish a crosswalk to the
-   international one and state the mapping type:
+   international one and state the mapping type. [XKOS](https://ddialliance.org/xkos),
+   the DDI Alliance extension of SKOS for statistical classifications,
+   defines the correspondence types (exact, partial, and others) and lets the
+   crosswalk be published as linked data:
 
 ```csv
 national_code,national_label,target_classification,target_code,mapping
@@ -97,9 +107,11 @@ national_code,national_label,target_classification,target_code,mapping
 3. Audit: list every distinct code in the data files and confirm that each
    appears in a code list. A short script does this in minutes and should run
    on each release.
-4. For aggregate data, the same lists become SDMX code lists in a data
-   structure definition. For surveys, DDI holds the variable labels and value
-   codes.
+4. For aggregate data, the same lists become code lists in an SDMX data
+   structure definition. Reuse published structures where they exist: the
+   [SDG global DSD](https://unstats.un.org/sdgs/iaeg-sdgs/sdmx-working-group/)
+   already defines the structure and code lists for SDG indicator reporting.
+   For surveys, DDI Codebook holds the variable labels and value codes.
 
 </Recipe>
 
@@ -108,32 +120,36 @@ national_code,national_label,target_classification,target_code,mapping
 **Result:** a system reading the values can see where a series is not
 comparable and what changed in the last release, without parsing footnotes.
 
-1. Add a `status` column to the values file with a small documented set of
-   values, for example `provisional`, `break`, `estimate`, `revised`.
+1. Add an `OBS_STATUS` column to the values file with codes from the SDMX
+   observation status code list: `A` normal, `P` provisional, `B` break in
+   series, `E` estimated, `I` imputed, `M` missing.
 2. Publish a revisions file with one row per changed value:
 
 ```csv
-series_id,geography,period,previous_value,new_value,release,reason
+SERIES,REF_AREA,TIME_PERIOD,previous_value,OBS_VALUE,RELEASE,reason
 FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
 ```
 
-3. In the series record, keep a `breaks` field that lists the periods and
-   reasons, and keep the human-readable note on the page as well.
-4. Make the API return `status` with each value (see the OpenAPI example in
-   [chapter 2](./retrieve.mdx)).
+3. In the series record, fill the `series_break` field with the periods and
+   reasons, and use the `errata` field for corrections. Keep the
+   human-readable note on the page as well.
+4. Make the API return `OBS_STATUS` with each observation (see the OpenAPI
+   example in [chapter 2](./retrieve.mdx)).
 
 </Recipe>
 
 ## Implementation options
 
-- **SDMX** provides data structure definitions, code lists, and concept schemes for aggregate statistics.
-- **DDI** documents variables, questions, and value labels for surveys and administrative microdata.
-- **Classifications:** ISO 3166 for countries, ISO 8601 for dates, and the relevant international statistical classifications (ISIC, ISCO, COICOP, ISCED, and others) with crosswalks to national versions.
-- **Controlled vocabularies and ontologies:** SKOS concept schemes can publish a thesaurus of statistical concepts with multilingual labels.
+- **SDMX** provides data structure definitions, code lists, and concept schemes for aggregate statistics, and the Content-Oriented Guidelines provide cross-domain concepts and code lists to reuse. Published DSDs such as the SDG global DSD can be adopted as they are.
+- **DDI Codebook** documents variables, questions, and value labels for surveys and administrative microdata; **DDI Lifecycle** adds reusable questions and concepts across studies.
+- **The World Bank metadata schemas** give the record fields for indicators and microdata, aligned with these standards.
+- **Classifications:** ISO 3166 for countries, ISO 8601 for dates, ISO 639 for languages, and the relevant international statistical classifications (ISIC, ISCO, COICOP, ISCED, CPC) with crosswalks to national versions, published with XKOS where possible.
+- **Controlled vocabularies and ontologies:** SKOS concept schemes can publish a thesaurus of statistical concepts with multilingual labels; GSIM names the information objects (concept, variable, classification, unit) that these schemes describe.
 - **Documentation text:** a short, consistent template for definition, method, limitations, and comparability makes both human reading and machine extraction easier.
 
 ## World Bank examples
 
+- The [indicator metadata schema](https://github.com/worldbank/metadata-schemas) of the Development Data Group has fields for definition, methodology, universe, base period, series breaks, limitations, and errata, and the microdata schema follows DDI Codebook.
 - [Metadata Augmentation](/docs/metadata-augmentation/) generates DDI-style variable groups from data dictionaries, with human review.
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) checks that an indicator's name and definition describe the same concept.
 - The [AI-ready data framework](/docs/ai-ready-framework) lists the attributes, including standards and semantic knowledge, that make data interpretable.
@@ -159,7 +175,7 @@ FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
   'Standard codes for geography and time',
   'Code lists published with labels in each language',
   'Crosswalks from national to international classifications',
-  'Series breaks and revisions recorded as data',
-  'Structure published in SDMX or DDI',
+  'Series breaks and revisions recorded as data, with SDMX observation status codes',
+  'Structure published in SDMX or DDI, reusing published DSDs where they exist',
   'Concept links to shared vocabularies considered',
 ]} />

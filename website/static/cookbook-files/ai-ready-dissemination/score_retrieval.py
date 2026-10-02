@@ -4,9 +4,10 @@ Reads a question set (CSV with question_id, language, question, expected_id)
 and a catalog, runs each question through a search function, and prints
 Recall@5, Recall@10, and MRR overall and per language.
 
-The built-in search is a plain keyword overlap over title and description. It
-exists so that the script runs without any dependencies and gives a baseline.
-Replace `search()` with a call to your own search API to score it.
+The built-in search is a plain keyword overlap over the catalog's `name` and
+`definition_long` fields (World Bank indicator schema names). It exists so
+that the script runs without any dependencies and gives a baseline. Replace
+`search()` with a call to your own search API to score it.
 
 Usage:
     python score_retrieval.py eval_questions.csv example_catalog.csv
@@ -18,6 +19,8 @@ import re
 from collections import defaultdict
 
 TOKEN = re.compile(r"[a-zà-ÿ0-9]+", re.IGNORECASE)
+ID_FIELD = "idno"
+TEXT_FIELDS = ("name", "definition_long")
 
 
 def tokens(text):
@@ -38,10 +41,10 @@ def search(question, catalog, k=10):
     q = tokens(question)
     scored = []
     for rec in catalog:
-        text = tokens(rec["title"] + " " + rec.get("description", ""))
+        text = tokens(" ".join(rec.get(f, "") for f in TEXT_FIELDS))
         overlap = len(q & text)
         if overlap:
-            scored.append((overlap, rec["id"]))
+            scored.append((overlap, rec[ID_FIELD]))
     scored.sort(reverse=True)
     return [rid for _, rid in scored[:k]]
 

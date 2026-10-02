@@ -4,6 +4,10 @@ Reads a catalog export (CSV) and prints, for each field, the share of records
 that have it filled, followed by the records that are missing a required
 field. Standard library only.
 
+The default required fields use the names of the World Bank indicator
+metadata schema (worldbank/metadata-schemas, timeseries-schema.json), so a
+catalog exported from NADA or the Metadata Editor can be checked as is.
+
 Usage:
     python completeness_report.py example_catalog.csv
     python completeness_report.py catalog.csv --required id,title,description,unit
@@ -14,16 +18,16 @@ import csv
 import sys
 
 DEFAULT_REQUIRED = [
-    "id",
-    "title",
-    "description",
-    "unit",
-    "frequency",
-    "start_period",
-    "end_period",
-    "geography",
-    "source",
-    "last_revised",
+    "idno",
+    "name",
+    "definition_long",
+    "measurement_unit",
+    "periodicity",
+    "time_period_start",
+    "time_period_end",
+    "geographic_units",
+    "sources",
+    "date_last_update",
 ]
 
 
@@ -45,18 +49,18 @@ def main():
 
     fields = list(rows[0].keys())
     print(f"{len(rows)} records, {len(fields)} fields\n")
-    print(f"{'field':<20} {'filled':>7} {'share':>7}")
+    print(f"{'field':<22} {'filled':>7} {'share':>7}")
     for field in fields:
         filled = sum(1 for r in rows if (r.get(field) or "").strip())
         flag = "" if field not in required else " *"
-        print(f"{field:<20} {filled:>7} {filled / len(rows):>7.0%}{flag}")
+        print(f"{field:<22} {filled:>7} {filled / len(rows):>7.0%}{flag}")
     print("\n* required field")
 
     incomplete = []
     for r in rows:
         missing = [f for f in required if not (r.get(f) or "").strip()]
         if missing:
-            incomplete.append((r.get("id", "?"), missing))
+            incomplete.append((r.get("idno", "?"), missing))
 
     print(f"\n{len(incomplete)} of {len(rows)} records missing a required field")
     for rid, missing in incomplete:

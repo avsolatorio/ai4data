@@ -30,7 +30,7 @@ prioritize datasets, find misuse, and show the value of its work.
 
 | Level | Steps |
 |---|---|
-| **Foundational** | Publish a recommended citation and a persistent identifier for each dataset. Keep web and API logs, and separate known crawlers and automated agents from human traffic. |
+| **Foundational** | Publish a recommended citation and a persistent identifier (a DataCite DOI where possible) for each dataset. Keep web and API logs, and count views and downloads following the COUNTER Code of Practice for Research Data, which separates machine access from regular access. |
 | **AI-ready** | Search publication sources for dataset names and identifiers on a schedule. Keep a table of dataset name variants and acronyms. Review a sample of results by hand. |
 | **AI-native** | Extract dataset mentions from documents with a named-entity model, harmonize variants to canonical identifiers, and report use by dataset, topic, and geography. Periodically ask AI systems a fixed set of questions and record how they cite or misquote the office. |
 
@@ -56,7 +56,11 @@ HBS,Household Budget Survey,HBS,household survey;budget survey;HBS 2021
 
 1. Start from the datasets with the most downloads.
 2. Add variants as they are found in documents (recipe 7.2 produces them).
-3. Publish the table with the recommended citation from [chapter 5](./trust.mdx), and use the canonical name everywhere the office writes.
+3. Publish the table with the recommended citation and the DOI from
+   [chapter 5](./trust.mdx), and use the canonical name everywhere the
+   office writes. A DOI makes citations countable: DataCite collects
+   citations of DOIs from the literature, which gives a second source of
+   use next to text mining.
 
 </Recipe>
 
@@ -104,7 +108,8 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 
 ## Implementation options
 
-- **Citation design:** one canonical dataset name, a short acronym, and a persistent identifier reduce ambiguity.
+- **Citation design:** one canonical dataset name, a short acronym, and a persistent identifier (DataCite DOI) reduce ambiguity and make citations countable.
+- **Usage counts:** the [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/), developed with [Make Data Count](https://makedatacount.org/), gives rules for logging views and downloads, filtering repeated requests, and reporting machine access separately from regular access. Following it makes an office's counts comparable with those of data repositories.
 - **Log analysis:** user-agent strings and request patterns identify many crawlers and automated clients. Record them in a separate category and report human and automated use separately.
 - **Mention extraction:** zero-shot named-entity models can find dataset mentions in PDF and web text. A matching step maps variants such as an acronym and a full title to one identifier.
 - **AI visibility check:** a fixed set of questions run against several assistants, repeated on a schedule.
@@ -130,7 +135,8 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 
 <Checklist id="monitor-use" items={[
   'Canonical dataset names, acronyms, and identifiers published',
-  'Recommended citation published',
+  'Recommended citation and DOI published',
+  'Views and downloads counted following the COUNTER Code of Practice for Research Data',
   'Automated clients separated in access logs',
   'Publication mentions searched on a schedule',
   'Extraction and matching accuracy measured on a labeled sample',

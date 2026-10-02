@@ -1,7 +1,7 @@
 ---
 id: contribute
 title: Contribute a recipe
-sidebar_position: 12
+sidebar_position: 13
 description: How to propose a recipe, a correction, or an example for this guide.
 ---
 

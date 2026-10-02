@@ -100,7 +100,7 @@ hosted models.
 
 ## Implementation options
 
-- **Architecture:** keep the AI layer separate from the authoritative data store and API.
+- **Architecture:** keep the AI layer separate from the authoritative data store and API. Place each component in the [GSBPM](https://unece.org/statistics/modernstats/gsbpm) phase it serves (the program's [GSBPM mapping](/docs/gsbpm-mapping) does this for its own workstreams), so that ownership follows the existing process.
 - **Model size:** classification, tagging, and embedding tasks often work with small models. Open-weight models can run on one modest server.
 - **Cost control:** cache repeated queries, batch non-urgent work such as metadata review, and set usage limits.
 - **Skills:** a small team that combines a metadata specialist, a data engineer, and someone responsible for evaluation covers most of the work in this guide. Training material can be shared across offices.

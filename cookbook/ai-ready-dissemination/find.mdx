@@ -54,8 +54,13 @@ these fields.
 
 1. Export the catalog to CSV with one row per series. The
    [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
-   lists the fields a record needs. If the export uses other column names,
-   pass your own list with `--required`.
+   lists the fields a record needs, named as in the
+   [World Bank indicator metadata schema](https://github.com/worldbank/metadata-schemas)
+   (`idno`, `name`, `definition_long`, `measurement_unit`, `periodicity`,
+   `sources`, `date_last_update`, and others). A catalog that already uses
+   that schema, through NADA or the Metadata Editor, exports in this form.
+   If the export uses other column names, pass your own list with
+   `--required`.
 2. Run the script.
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/completeness_report.py
@@ -66,14 +71,14 @@ Output for the example catalog:
 ```text
 5 records, 11 fields
 
-field                 filled   share
-id                         5    100% *
-title                      5    100% *
-description                4     80% *
-unit                       5    100% *
+field                   filled   share
+idno                         5    100% *
+name                         5    100% *
+definition_long              4     80% *
+measurement_unit             5    100% *
 ...
 1 of 5 records missing a required field
-  LF_UNEMP_PCT: description
+  LF_UNEMP_PCT: definition_long
 ```
 
 3. Assign the incomplete records to a curator and set a date. Re-run the
@@ -105,7 +110,10 @@ page shows.
 
 For catalogs that already run a data portal, check whether the portal
 software can emit [DCAT](https://www.w3.org/TR/vocab-dcat-3/) for the whole
-catalog. DCAT and schema.org markup can coexist.
+catalog. DCAT and schema.org markup can coexist. For datasets that are
+published for model training, [Croissant](https://mlcommons.org/croissant/)
+extends the same schema.org record with the fields machine-learning tools
+need to load the data.
 
 </Recipe>
 
@@ -151,10 +159,16 @@ model on structured records when a general model is not good enough.
 
 ## Implementation options
 
-**Machine-readable catalog metadata**
+**Catalog records**
+
+- The [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas) define records for indicators, indicator databases, microdata (based on DDI Codebook), documents (Dublin Core), geospatial data (ISO 19115/19139), tables, images (IPTC), and scripts, with a DataCite block for DOIs. They come with a Python library and Excel templates.
+- [NADA](https://nada.ihsn.org/), the open-source catalog that runs the World Bank Microdata Library, stores records in these schemas and supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC.
+- Each record gets a persistent identifier, with a DOI through [DataCite](https://schema.datacite.org/) where the office can register one ([chapter 5](./trust.mdx)).
+
+**Machine-readable catalog metadata for the web**
 
 - [DCAT](https://www.w3.org/TR/vocab-dcat-3/) (W3C) describes catalogs, datasets, and distributions. It is the base for many open data portals.
-- [schema.org `Dataset`](https://schema.org/Dataset) markup in JSON-LD on dataset pages is read by general web crawlers and dataset search engines.
+- [schema.org `Dataset`](https://schema.org/Dataset) markup in JSON-LD on dataset pages is read by general web crawlers and dataset search engines. [Croissant](https://mlcommons.org/croissant/) extends it for machine-learning datasets.
 - [DDI](https://ddialliance.org/) describes surveys and microdata. [SDMX](https://sdmx.org/) describes aggregate statistical data and its structure.
 
 **Search**
@@ -170,6 +184,7 @@ model on structured records when a general model is not good enough.
 
 ## World Bank examples
 
+- The [metadata schemas](https://github.com/worldbank/metadata-schemas) of the Development Data Group define the record fields used in this chapter, and the [Microdata Library](https://microdata.worldbank.org/) runs on NADA with DDI records and DataCite DOIs.
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) scores indicator metadata on completeness, semantic alignment, specificity, and consistency.
 - [Metadata Augmentation](/docs/metadata-augmentation/) groups survey variables into DDI-style themes.
 - [Data Discoverability](/docs/data-discoverability/) describes semantic search over indicator catalogs, and the [PI-FT toolkit](/pift-toolkit/pipeline) fine-tunes embedding models for structured metadata.
@@ -192,7 +207,8 @@ model on structured records when a general model is not good enough.
 
 <Checklist id="find" items={[
   'Stable identifier and permanent URL for each dataset',
-  'Description, unit, coverage, and source populated',
+  'Records follow a published schema (World Bank indicator schema, DDI Codebook for microdata)',
+  'Definition, unit, coverage, and source populated',
   'Completeness report run and tracked monthly',
   'Machine-readable catalog record (schema.org or DCAT) on each series page',
   'Sitemap and crawler rules reviewed',
