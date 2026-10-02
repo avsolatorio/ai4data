@@ -158,7 +158,9 @@ def main() -> None:
         if vl < best:
             best, best_state = vl, {k_: v.detach().cpu().clone() for k_, v in model.state_dict().items()}
             log[-1]["best"] = True
+            torch.save({"config": cfg.to_dict(), "state": best_state}, out / "model_fp32.pt")  # survives interruption
         print(log[-1], flush=True)
+        (out / "train_log.json").write_text(json.dumps(log, indent=1))
     model.load_state_dict(best_state)
     torch.save({"config": cfg.to_dict(), "state": best_state}, out / "model_fp32.pt")
 
