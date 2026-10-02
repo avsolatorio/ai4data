@@ -233,3 +233,23 @@ Commit: 8a4d911 plus uncommitted `tiny/lora.py`, `distill/split_language.py`, a 
 - Coherence followed the same pattern (English 4.38 against 4.26; French 3.79 against 3.71; Russian 2.63 against 2.87, the one exception).
 
 **Implication.** Restricting the task fine-tune to one language made every language worse, including English with 9,890 examples. The task knowledge (what to say about an item and how to argue a verdict) transfers across languages, and each language alone has too little task data. The adapter on top of the multilingual model changed nothing measurable (+0.03 faithfulness, +0.3 accuracy, one rank, one language). So the weak non-English output is not explained by competition for capacity in the fine-tune. What remains as explanation: the pretrained representation of the smaller languages (Swahili 20M tokens, Russian 149M, against 411M for English) and the overall model size. Caveats: one seed per model, the judge is the teacher, Russian test has 134 examples, and the adapter was tried at one rank and learning rate. Not tried: adapters trained on a language's Wikipedia slice (continued pretraining per language), and mixing in all languages while up-weighting one.
+
+## 2026-10-02 01:26 UTC — 40M parameters at INT4 against 20M at INT8
+
+Commit: 4caf133 (results only; `scripts/pretrain.sh` committed earlier).
+
+**Question/Context.** INT4 cost the 20M model nothing, so a model with twice the parameters at INT4 fits the same file size. Does it generate better narratives?
+
+**What was done.** Pretrained a 38.77M-parameter model (8 layers, d=576, 9 heads, feed-forward 1536, same tokenizer and Qwen-initialized embeddings) on the 1.62B-token corpus, one pass, lr 2e-3: held-out perplexity English 9.85, French 10.61, Arabic 15.14, Chinese 21.83, Russian 9.25 (20M after two passes: 10.7, 11.5, 16.3, 23.5, 9.9). Task fine-tune on `data/f1`. A first run with lr 1e-3 and best epoch by validation verdict accuracy selected epoch 2 (validation loss 1.171 while loss kept falling to 1.061 at epoch 5) and scored badly on narratives (faithfulness 2.92 at INT8, verdict accuracy 81.2%); it is discarded as an under-trained checkpoint. The rerun used lr 5e-4 and best epoch by validation loss (epoch 6, loss 0.999 against 1.073 for the 20M model). Judge on the same 800 test examples as the 20M results.
+
+**Result** (verdict accuracy on 2,437 test examples; faithfulness and coherence on 800 judged):
+
+| Model | File | Accuracy | Macro-F1 | Faithfulness | Coherence |
+|---|---|---|---|---|---|
+| 20M, INT8 (`f1-pre2`) | 20.7 MB | 82.6% | 0.774 | 3.50 | 3.85 |
+| 20M, INT8, after DPO (`f1-dpo-d`) | 20.7 MB | 82.5% | 0.775 | 3.65 | 3.88 |
+| 40M, INT4 (`f1-40m-b`) | 19.5 MB | 82.1% | 0.767 | 3.46 | 3.84 |
+| 40M, INT8 | 38.9 MB | 82.5% | 0.770 | 3.59 | 4.02 |
+| 40M, fp32 | 155 MB | 82.5% | 0.770 | 3.57 | 4.02 |
+
+**Implication.** At equal file size, 40M parameters at INT4 match the 20M model at INT8 and do not beat it (differences of 0.04 faithfulness and 0.5 accuracy points, within noise). INT4 costs the 40M model about 0.1 faithfulness and 0.17 coherence against its own INT8, which removes the gain from the extra parameters. At twice the file size (INT8), the 40M model adds 0.09 faithfulness and 0.16 coherence over the 20M model, less than preference tuning added (+0.15) at no size cost. Doubling the parameters in this range is a weak lever; the quality is bounded by something else, most plausibly the teacher data (12% label disagreement, one narrative per input) and the amount of pretraining per language. Caveats: one seed per model, one pass of pretraining for the 40M model against two for the 20M, judge is the teacher, and quantization-aware training was not tried (it might recover the INT4 loss).
