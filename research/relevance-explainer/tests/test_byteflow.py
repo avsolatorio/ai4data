@@ -72,6 +72,24 @@ def test_select_topk_respects_validity_mask():
     assert idx.tolist() == [[0, 1, 2]]
 
 
+def test_task_encoding_and_weighted_loss():
+    import random
+
+    from relevance_explainer.tiny.bytetrain import batches, encode, weighted_loss
+
+    rows = [{"input": "Query: q\nResult: r", "output": "relevant\nIt matches.", "verdict": "relevant"},
+            {"input": "Query: longer query here", "output": "irrelevant\nNo.", "verdict": "irrelevant"}]
+    data, dropped = encode(rows, 4096)
+    assert dropped == 0 and data[0]["ids"][0] == BOS and data[0]["ids"][-1] == EOS
+    m = _small()
+    for ids, lab, wt, valid in batches(data, 2, False, random.Random(0), 5.0):
+        ids, lab, wt, valid = ids.cpu(), lab.cpu(), wt.cpu(), valid.cpu()
+        assert (lab[:, : data[0]["plen"]] == -100).all()
+        assert wt.max().item() == 5.0
+        loss = weighted_loss(m, ids, lab, wt, valid)
+        assert torch.isfinite(loss)
+
+
 def test_rate_state_matches_batch_computation():
     torch.manual_seed(2)
     h = torch.randn(3, 9, 6)
