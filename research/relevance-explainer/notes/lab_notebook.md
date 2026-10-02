@@ -370,3 +370,19 @@ Commit: 7f6a1df (`tiny/byteflow.py`, `tiny/bytecorpus.py`, `tiny/bytepretrain.py
 **Result.** Mean held-out bits per byte 1.695 (ByteFlow) against 1.442 (12k BPE, same text budget, same global transformer shape), 1.484 (6k BPE) and 1.412 (24k BPE). By language, ByteFlow / 12k BPE: English 1.95 / 1.52, French 1.86 / 1.51, Spanish 1.77 / 1.45, Arabic 1.48 / 1.21, Chinese 2.61 / 1.94, Russian 1.28 / 0.99, Indonesian 2.27 / 1.87, Hindi 0.90 / 0.75, Turkish 1.92 / 1.55, Swahili 2.00 / 1.63. ByteFlow's curve was still falling at the end (1.724 at 2,500 steps, 1.695 at 2,950), so it is not converged at this budget. Training throughput 50k bytes per second against about 1.4M bytes per second for the BPE model.
 
 **Implication.** At 20M parameters and 290M bytes, ByteFlow Net trails the BPE model by 18% in bits per byte on every language, consistent with the paper's own finding that byte-level models need scale and data to catch up (its 600M models overtake BPE only after about 25B bytes). The implementation is not tuned (one seed, one learning rate, the paper's 600M hyperparameters were not re-fitted), and the sequential coding-rate loop makes it about 25 times slower to train here. The task fine-tune and generation test on the standard 800 examples are running; that result decides whether the byte model's robustness or segmentation advantages show up on the task despite the worse language modelling.
+
+## 2026-10-02 22:10 UTC — Fifth data round: 131k examples
+
+Commit: 48abca1.
+
+**Question/Context.** Continue the data learning curve past 100k examples.
+
+**What was done.** Round 5 (`data/v5`, seed 400, flat language mix): 11,364 queries, 44,844 pairs, 44,838 narrated, the second half across two teacher servers (GPU 0 at 45% memory and GPU 1 at 50%) at a combined 4.2 narrations per second. Combined set `data/f4` = v1 to v5: train 130,813 (11,214 relevant, 33,490 partly relevant, 86,109 irrelevant), val 19,987, test 15,159. The unattended chain fine-tuned from `pre-wide-full2` (standard recipe), sampled 8,000 x 4 narratives, scored them, built 5,091 pairs (3,287 chosen from the student) and ran DPO with the usual settings. Both models evaluated on the third-round test set (7,056) and judged on the same 800 examples as the rest of the curve.
+
+**Result.**
+- Verdict on the 7,056-example test (INT8): 131k SFT 84.7% / macro-F1 0.794; 131k + DPO 84.5% / 0.791 (100k + DPO: 84.5% / 0.791). On its own 15,159-example test: SFT 84.6% (INT4 83.9%), DPO 84.5% (INT4 83.5%).
+- Judge, same 800 examples: SFT faithfulness 4.18 (74.3% at 4 or more), coherence 4.30; with DPO 4.33 (80.1%), coherence 4.41, consistent 99.8%, correct language 99.4%. SFT curve: 25k 3.24, 30k 3.57, 60k 3.85, 100k 4.04, 131k 4.18. With DPO: 60k 3.99, 100k 4.24, 131k 4.33.
+- By language, 100k+DPO -> 131k+DPO (n): English 4.65 -> 4.71 (220), Spanish 4.39 -> 4.49 (88), Portuguese 4.36 -> 4.40 (42), Chinese 4.15 -> 4.25 (72), Russian 4.03 -> 4.21 (77), French 4.27 -> 4.16 (74), Indonesian 3.73 -> 4.08 (48), Hindi 3.71 -> 4.06 (48), Turkish 3.98 -> 4.05 (42), Swahili 4.04 -> 4.04 (23), Arabic 3.92 -> 3.89 (66).
+- Export: `runs/f4-dpo/explainer-int8.pt`, 21.59 MB.
+
+**Implication.** The SFT gain per round is now +0.14 (from +0.19 and +0.28 before) and the verdict is flat at 84.5 to 84.7%, so the data curve is flattening but has not stopped; every language is now at or above 3.9 on the judge, and 80% of narratives score 4 or more after DPO. A sixth round (seed 500) and its chain are running; if its SFT gain is below 0.1, further rounds stop. Caveats unchanged: one seed per point, teacher as judge, per-language groups of 23 to 220, French and Arabic moved down within noise.
