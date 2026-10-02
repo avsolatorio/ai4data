@@ -174,6 +174,8 @@ def main() -> None:
     ap.add_argument("--soft-weight", type=float, default=1.0, help="weight of the soft verdict cross-entropy")
     ap.add_argument("--soft", action="store_true", help="use teacher verdict probabilities (soft_train.jsonl) for the first verdict token")
     ap.add_argument("--select", choices=["val_loss", "val_verdict_acc"], default="val_loss", help="how to pick the best epoch")
+    ap.add_argument("--lora-rank", type=int, default=0, help="train a low-rank adapter of this rank instead of all weights")
+    ap.add_argument("--lora-alpha", type=float, default=32.0)
     ap.add_argument("--tokenizer", default=None, help="prebuilt tokenizer.json; trained on the task data when omitted")
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
     ap.add_argument("--seed", type=int, default=0)
@@ -219,8 +221,13 @@ def main() -> None:
                      max_len=a.max_len, dropout=a.dropout)
         model = TinyLM(cfg).cuda()
     print(f"params: {model.n_params() / 1e6:.2f}M", flush=True)
-    decay = [p for p in model.parameters() if p.dim() >= 2]
-    nodecay = [p for p in model.parameters() if p.dim() < 2]
+    if a.lora_rank:
+        from .lora import add_lora, lora_bytes, lora_state, merge_lora
+
+        add_lora(model, a.lora_rank, a.lora_alpha, a.dropout)
+        print(f"lora rank {a.lora_rank}: {sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e6:.2f}M trainable parameters", flush=True)
+    decay = [p for p in model.parameters() if p.requires_grad and p.dim() >= 2]
+    nodecay = [p for p in model.parameters() if p.requires_grad and p.dim() < 2]
     opt = torch.optim.AdamW([{"params": decay, "weight_decay": 0.1}, {"params": nodecay, "weight_decay": 0.0}], lr=a.lr, betas=(0.9, 0.95))
     steps = a.epochs * math.ceil(len(enc["train"]) / a.bs)
     warm = min(100, steps // 10)
@@ -250,6 +257,12 @@ def main() -> None:
             log[-1]["best"] = True
         print(log[-1], f"{(time.time() - t0) / 60:.1f} min", flush=True)
     model.load_state_dict(best_state)
+    if a.lora_rank:  # keep the adapter on its own, then fold it into the base for evaluation and export
+        adapter = lora_state(model)
+        torch.save({"rank": a.lora_rank, "alpha": a.lora_alpha, "state": adapter}, out / "adapter.pt")
+        info["adapter_bytes_int8"] = lora_bytes(adapter, 8)
+        merge_lora(model)
+        best_state = model.state_dict()
     best_ep = max((l["epoch"] for l in log if l.get("best")), default=a.epochs)
     print(f"best val_loss {best:.4f} at epoch {best_ep}", flush=True)
     torch.save({"config": cfg.to_dict(), "state": best_state}, out / "model_fp32.pt")

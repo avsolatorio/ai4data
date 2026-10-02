@@ -51,10 +51,14 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=300)
     ap.add_argument("--model", default="qwen3.8-27b")
     ap.add_argument("--workers", type=int, default=32)
+    ap.add_argument("--language", default=None, help="judge only generations for this query language")
+    ap.add_argument("--out-suffix", default="", help="appended to the judge file name")
     a = ap.parse_args()
 
     run = Path(a.run)
     rows = [json.loads(l) for l in (run / f"{a.tag}_generations_{a.prec}.jsonl").read_text().splitlines()]
+    if a.language:
+        rows = [r for r in rows if r["language"] == a.language]
     rows = random.Random(0).sample(rows, min(a.n, len(rows)))
     jobs = [(i, who, r["input"], r[key]) for i, r in enumerate(rows) for who, key in (("student", "generated"), ("teacher", "reference"))]
     with ThreadPoolExecutor(a.workers) as ex:
@@ -68,7 +72,7 @@ def main() -> None:
             by_lang[(who, rows[i]["language"])].append(s)
     out = {who: summarize(v) for who, v in by.items()}
     out["by_language"] = {f"{who}/{lang}": summarize(v) for (who, lang), v in sorted(by_lang.items()) if len(v) >= 15}
-    (run / f"judge_{a.tag}_{a.prec}.json").write_text(json.dumps(out, indent=2))
+    (run / f"judge_{a.tag}_{a.prec}{a.out_suffix}.json").write_text(json.dumps(out, indent=2))
     for who in ("teacher", "student"):
         print(who, {k: round(v, 3) if isinstance(v, float) else v for k, v in out[who].items()})
     for k, v in out["by_language"].items():

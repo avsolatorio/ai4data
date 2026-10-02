@@ -214,3 +214,22 @@ Commit: b174620 plus uncommitted `distill/short_format.py`, `tiny/judge_issues.p
 - Faithfulness (800 judged examples): mean 2.83 / 3.07; share scoring 3 or lower 62.9% / 49.6%. Main issue as a share of all 800: none 35.4% / 49.7%, item content 34.0% / 26.5%, misstated filter status 11.0% / 2.0%, garbled 9.9% / 12.4%, numbers or names 4.8% / 5.5%, query relation 5.0% / 3.9%. Share with a problem, English only: 46.4% / 34.7%; other languages: 77.7% / 61.4%.
 
 **Implication.** The hybrid removes almost all filter-status errors and lowers the share of explanations with a faithfulness problem by 13 points (63% to 50%, about a fifth fewer), at a cost of about 0.4 points of verdict accuracy (within the usual seed variation of about 0.1 points plus a possible small real effect; not separated). Item-content errors remain the largest category (about half of the remaining problems), and garbled text does not fall, so non-English free text is still the weak part. Caveats: only 9,788 training examples (the 25k-example model has a lower problem rate under the earlier judge, and the two judge prompts are not comparable), one seed each, the sentence writer and judge are the same model, the deterministic filter display is assumed correct and was not judged, and no user study was done on whether the structured layout is preferred. Not tried: all 25k examples in the new format, copying the item's own definition text for the content part, a shorter sentence, and a native-speaker check of non-English output.
+
+## 2026-10-02 01:06 UTC — Per-language models and adapters: capacity per language is not the fine-tuning bottleneck
+
+Commit: 8a4d911 plus uncommitted `tiny/lora.py`, `distill/split_language.py`, a `--language` filter in the judge and `--lora-rank` in task training (committed immediately after this entry).
+
+**Question/Context.** Non-English narratives are the weak part (faithfulness 2.4 to 3.4 against 4.1 to 4.3 for English). If the 20M model lacks capacity per language, a model fine-tuned on one language, or a shared base with a per-language adapter, should do better on that language. The full per-language fine-tune is the upper bound for any adapter.
+
+**What was done.**
+1. Monolingual fine-tunes from the shared pretrained base (`pre-wide-full2`), same recipe as the multilingual model (lr 1e-3, batch 32, verdict weight 5, best epoch by validation verdict accuracy): English only (9,890 train, 8 epochs), French only (3,168, 12 epochs), Russian only (1,002, 20 epochs).
+2. A rank-16 adapter (alpha 32, on qkv, proj, gate, up and down of every block; 0.8M parameters, about 0.8 MB at INT8) trained on French data on top of the multilingual task model `f1-pre2`, base frozen, 12 epochs at lr 1e-3; best epoch 1.
+3. Judge (same prompt and model as before) on the same test examples per language: the multilingual `f1-pre2` filtered to the language, and each per-language model on its language's test split. English 400 of 977 sampled with a fixed seed, French all 325, Russian all 134. INT8 weights.
+
+**Result.**
+- English: multilingual faithfulness 4.25 (75.7% at 4 or more), verdict accuracy 85.5%; English-only 3.96 (68.0%), 83.7%.
+- French: multilingual 3.28 (47.7%), 80.3%; French-only 2.90 (39.1%), 75.7%; French adapter on the multilingual model 3.31 (49.8%), 80.6%.
+- Russian: multilingual 2.21 (18.7%), 79.9%; Russian-only 1.84 (14.2%), 70.9%.
+- Coherence followed the same pattern (English 4.38 against 4.26; French 3.79 against 3.71; Russian 2.63 against 2.87, the one exception).
+
+**Implication.** Restricting the task fine-tune to one language made every language worse, including English with 9,890 examples. The task knowledge (what to say about an item and how to argue a verdict) transfers across languages, and each language alone has too little task data. The adapter on top of the multilingual model changed nothing measurable (+0.03 faithfulness, +0.3 accuracy, one rank, one language). So the weak non-English output is not explained by competition for capacity in the fine-tune. What remains as explanation: the pretrained representation of the smaller languages (Swahili 20M tokens, Russian 149M, against 411M for English) and the overall model size. Caveats: one seed per model, the judge is the teacher, Russian test has 134 examples, and the adapter was tried at one rank and learning rate. Not tried: adapters trained on a language's Wikipedia slice (continued pretraining per language), and mixing in all languages while up-weighting one.
