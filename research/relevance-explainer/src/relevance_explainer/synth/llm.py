@@ -1,6 +1,7 @@
 """Minimal OpenRouter chat client (stdlib only) with retries and JSON parsing."""
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import re
@@ -10,8 +11,10 @@ import urllib.request
 from pathlib import Path
 
 # Any OpenAI-compatible endpoint works. Set LLM_BASE_URL=http://localhost:11434/v1 for a local Ollama server.
-BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")
-URL = BASE_URL.rstrip("/") + "/chat/completions"
+# Several comma-separated URLs are used in rotation, so two vLLM servers on two GPUs share the load.
+BASE_URLS = [u.strip() for u in os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1").split(",") if u.strip()]
+BASE_URL = BASE_URLS[0]
+_counter = itertools.count()
 
 
 def load_key() -> str:
@@ -45,7 +48,8 @@ def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(URL, body, headers)
+            url = BASE_URLS[next(_counter) % len(BASE_URLS)].rstrip("/") + "/chat/completions"
+            req = urllib.request.Request(url, body, headers)
             with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.load(r)
             choice = data["choices"][0]

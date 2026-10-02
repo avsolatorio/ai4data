@@ -50,7 +50,10 @@ def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: 
 
 
 @torch.no_grad()
-def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64) -> dict[str, float]:
+def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64, tk=None) -> dict[str, float]:
+    """Held-out perplexity per token for each language. With a tokenizer, also bits per UTF-8 byte of the same
+    text (key '<lang>_bpb'), which is comparable across vocabularies. The first token of each sequence is not
+    predicted, so bits per byte is slightly optimistic by the same small factor for every vocabulary."""
     model.eval()
     res = {}
     for l, s in shards.items():
@@ -62,6 +65,9 @@ def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64) -> dict[str, f
                 _, loss = model(x[i : i + 16], x[i : i + 16])
             tot += loss.item() * len(x[i : i + 16])
         res[l] = round(math.exp(tot / n_seq), 2)
+        if tk is not None:
+            nbytes = len(tk.decode(tail[: n_seq * seq].tolist()).encode("utf-8"))
+            res[f"{l}_bpb"] = round(tot / n_seq * (seq - 1) / math.log(2) / nbytes, 4)
     model.train()
     return res
 
@@ -162,7 +168,7 @@ def main() -> None:
             print(f"step {step}/{steps} loss {loss.item():.3f} {(time.time() - t0) / 60:.1f} min "
                   f"{step * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
         if step % a.eval_every == 0 or step == steps:
-            ppl = heldout_ppl(model, shards, a.seq)
+            ppl = heldout_ppl(model, shards, a.seq, tk=tk)
             log.append({"step": step, "tokens": step * a.bs * a.seq, "train_loss": loss.item(), "heldout_ppl": ppl})
             print("heldout ppl:", ppl, flush=True)
             torch.save({"config": cfg.to_dict(), "state": model.state_dict()}, out / "model.pt")
