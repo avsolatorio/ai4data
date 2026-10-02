@@ -67,7 +67,8 @@ def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64, tk=None) -> di
         res[l] = round(math.exp(tot / n_seq), 2)
         if tk is not None:
             nbytes = len(tk.decode(tail[: n_seq * seq].tolist()).encode("utf-8"))
-            res[f"{l}_bpb"] = round(tot / n_seq * (seq - 1) / math.log(2) / nbytes, 4)
+            # tot / n_seq is the mean loss per predicted token; n_seq * (seq - 1) tokens are predicted in total
+            res[f"{l}_bpb"] = round(tot / n_seq * n_seq * (seq - 1) / math.log(2) / nbytes, 4)
     model.train()
     return res
 
