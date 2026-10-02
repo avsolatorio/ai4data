@@ -31,8 +31,13 @@ QUERY_MODEL = os.environ.get("QUERY_MODEL", "anthropic/claude-haiku-4.5")
 NARRATE_MODEL = os.environ.get("NARRATE_MODEL", "anthropic/claude-sonnet-5.5")
 
 # Query languages and sampling weights. Catalog metadata stays in English.
+# LANG_WEIGHTS (a JSON object) overrides the weights, e.g. to flatten the mix for a later data round.
 LANGUAGES = {"English": 40, "French": 12, "Spanish": 12, "Portuguese": 6, "Arabic": 8,
              "Chinese": 6, "Russian": 4, "Indonesian": 4, "Hindi": 4, "Turkish": 2, "Swahili": 2}
+if os.environ.get("LANG_WEIGHTS"):
+    _override = json.loads(os.environ["LANG_WEIGHTS"])
+    assert set(_override) <= set(LANGUAGES), f"unknown languages in LANG_WEIGHTS: {set(_override) - set(LANGUAGES)}"
+    LANGUAGES = {k: _override.get(k, 0) for k in LANGUAGES}
 # Share of searches per catalog source.
 SOURCE_WEIGHTS = {"indicator": 35, "document": 25, "study": 20, "dataset": 20}
 

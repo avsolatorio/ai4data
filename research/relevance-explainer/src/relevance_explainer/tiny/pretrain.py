@@ -21,8 +21,15 @@ from .model import Config, TinyLM
 HOLDOUT = 1_000_000  # tokens per language kept out of training
 
 
-def load_shards(root: Path) -> dict[str, np.memmap]:
-    return {l: np.memmap(root / "tok" / f"{l}.bin", dtype=np.uint16, mode="r") for l in LANGS}
+def load_shards(root: Path) -> dict[str, np.ndarray]:
+    """Token arrays per language. Extra shards (tok/<lang>_*.bin) go in front of the Wikipedia shard, so the
+    held-out slice (the last HOLDOUT tokens) is the same Wikipedia tail whether or not extra shards exist."""
+    out = {}
+    for l in LANGS:
+        extra = [np.memmap(p, dtype=np.uint16, mode="r") for p in sorted((root / "tok").glob(f"{l}_*.bin"))]
+        wiki = np.memmap(root / "tok" / f"{l}.bin", dtype=np.uint16, mode="r")
+        out[l] = np.concatenate([*extra, wiki]) if extra else wiki
+    return out
 
 
 def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: np.random.Generator):
