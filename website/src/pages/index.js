@@ -7,6 +7,7 @@ import Challenge from "@site/src/components/Challenge";
 import Program from "@site/src/components/Program";
 import ScrollDemo from "@site/src/components/ScrollDemo";
 import HeroVisual from "@site/src/components/HeroVisual";
+import CookbookCta from "@site/src/components/CookbookCta";
 import GetInvolved from "@site/src/components/GetInvolved";
 
 import styles from "./index.module.css";
@@ -89,6 +90,7 @@ export default function Home() {
         <Challenge />
         <ScrollDemo />
         <Program />
+        <CookbookCta />
         <GetInvolved />
         <ClosingCta />
       </main>

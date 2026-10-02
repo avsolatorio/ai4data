@@ -80,6 +80,12 @@ const config = {
         },
         items: [
           {
+            to: '/cookbook/',
+            label: 'Cookbook',
+            position: 'left',
+            activeBaseRegex: '/cookbook/',
+          },
+          {
             type: 'docSidebar',
             sidebarId: 'docsSidebar',
             position: 'left',
@@ -100,6 +106,7 @@ const config = {
       footer: {
         style: 'dark',
         links: [
+          {label: 'Cookbook', to: '/cookbook/'},
           {label: 'Introduction', to: '/docs/introduction'},
           {label: 'Partnerships', to: '/docs/partnerships/'},
           {label: 'AI-readiness assessment', to: '/ai-readiness-assessment'},
@@ -145,6 +152,17 @@ const config = {
       }),
     ],
     [
+      '@docusaurus/plugin-content-docs',
+      /** @type {import('@docusaurus/plugin-content-docs').Options} */
+      ({
+        id: 'cookbook',
+        path: '../cookbook',
+        routeBasePath: 'cookbook',
+        sidebarPath: path.join(__dirname, 'sidebars-cookbook.js'),
+        editUrl: 'https://github.com/worldbank/ai4data/edit/main/cookbook/',
+      }),
+    ],
+    [
       '@easyops-cn/docusaurus-search-local',
       /** @type {import('@easyops-cn/docusaurus-search-local').PluginOptions} */
       ({
@@ -152,7 +170,7 @@ const config = {
         indexDocs: true,
         indexBlog: false,
         indexPages: true,
-        docsRouteBasePath: ['/docs', '/pift-toolkit'],
+        docsRouteBasePath: ['/docs', '/pift-toolkit', '/cookbook'],
       }),
     ],
   ],
