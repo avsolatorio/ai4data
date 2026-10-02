@@ -1,0 +1,163 @@
+---
+id: trust
+title: "5. Make answers trustworthy"
+sidebar_label: "5. Trust"
+sidebar_position: 6
+description: Provenance, citations, numeric verification, grounding, and freshness for answers that use official statistics.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 5. Make answers trustworthy
+
+**Question:** Can answers be trusted and traced?
+
+## Why this matters
+
+Official statistics carry the authority of the office that publishes them. When
+an AI system quotes a number, readers assume it comes from that office. A
+wrong or outdated value, shown with the office's name, damages trust in the
+source. Users need to see where a number came from and check it.
+
+## What good looks like
+
+- Every number in an answer links to the series, release, and date it came from.
+- Numbers shown to users are checked against the official record before display.
+- Answers show the publication date and the latest release, so outdated values are visible.
+- When the system is unsure, it says so.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Show the source, release date, and citation text on every dataset page. Provide a suggested citation in a consistent format. Publish a revisions log. |
+| **AI-ready** | Return source, identifier, and release date with every API response. Publish citation metadata in machine-readable form. Mark superseded series and point to their replacements. |
+| **AI-native** | Check each number in a generated answer against the official record and flag those that do not match. Attach provenance to the answer. Log answers with the retrieved records for audit. |
+
+:::info[Running example]
+An assistant writes "Undernourishment fell from 8.4% in 2022 to 7.2% in
+2024." The retrieved values say 7.6 for 2024. Recipe 5.3 flags the 7.2 before
+the user sees it.
+:::
+
+## Recipes
+
+<Recipe title="5.1 Put source, release, and a citation on every page" level="Foundational" skills="Web editor" time="Half a day for the template">
+
+**Result:** every series page shows where the numbers come from and how to
+cite them, in the same place and format.
+
+1. Add a fixed block to the series page template with: source, release date,
+   next release date if known, and a citation in one format, for example:
+
+```text
+National Statistics Office (example). 2025. Prevalence of undernourishment
+(FS_UNDERNOURISH_PCT), release of 14 March 2025.
+https://stats.example/series/FS_UNDERNOURISH_PCT. Accessed [date].
+```
+
+2. Offer the same citation as a file download (BibTeX or RIS) and in the
+   schema.org record from [chapter 1](./find.mdx) (`dateModified`,
+   `publisher`, `identifier`).
+3. Link the revisions log ([chapter 3](./understand.mdx)) from the block.
+4. When a series is discontinued or replaced, keep the page and add a notice
+   that names the replacement.
+
+</Recipe>
+
+<Recipe title="5.2 Return provenance with every API response" level="AI-ready" skills="Backend developer" time="One day">
+
+**Result:** any client, including an AI system, receives enough with each
+response to cite it correctly.
+
+1. Include these fields at the top level of every data response:
+
+| Field | Example |
+|---|---|
+| `series_id` | `FS_UNDERNOURISH_PCT` |
+| `unit` | `% of population` |
+| `release` | `2025-03-14` |
+| `source_url` | `https://stats.example/series/FS_UNDERNOURISH_PCT` |
+| `retrieved_at` | `2026-10-02T09:14:00Z` |
+| `license` | `https://creativecommons.org/licenses/by/4.0/` |
+
+2. Return `status` per value (provisional, revised, break).
+3. For a superseded series, return the replacement id in the error or the
+   record.
+4. Test: fetch any value and write the citation from the response alone.
+
+</Recipe>
+
+<Recipe title="5.3 Verify the numbers in a generated answer" level="AI-native" skills="Python developer" time="Half a day for the basic check">
+
+**Result:** every number in an answer is marked verified or unverified
+against the values that were retrieved for it, before the user sees it.
+
+```python file=../../website/static/cookbook-files/ai-ready-dissemination/verify_numbers.py
+```
+
+Output for the running example:
+
+```text
+  number  status     match
+     8.4  verified   FS_UNDERNOURISH_PCT NAT 2022 = 8.4 % of population
+    2022  period
+     7.2  UNVERIFIED no retrieved value within 0.05
+    2024  period
+
+4 numbers, 1 unverified
+```
+
+1. Run the check on every answer, with the values retrieved for that answer.
+2. Show flagged numbers as unverified, or regenerate the answer with a note
+   that the number was not found. Do not show an unverified number as a
+   plain figure.
+3. Log the result with the answer. The share of flagged numbers is one of the
+   measures in [chapter 6](./evaluate.mdx).
+4. Extend the check to match the series and period named in the sentence,
+   so that a correct number attached to the wrong year is also caught. The
+   [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) paper describes
+   that fuller approach.
+
+</Recipe>
+
+## Implementation options
+
+- **Provenance vocabulary:** [W3C PROV](https://www.w3.org/TR/prov-overview/) describes the origin and derivation of data. A simpler form is a fixed set of fields: source, identifier, release, retrieval date.
+- **Citation:** DOIs and a standard citation string make it easy for systems and people to cite the same way.
+- **Grounding:** instruct the model to answer only from retrieved material, and return that material with the answer ([chapter 4](./ask.mdx)).
+- **Numeric verification:** extract numbers from the generated text, match them to the retrieved values, and mark each one verified or unverified.
+- **Freshness:** include the date of the latest release in API responses, and have the answer interface mention when it is using an older release.
+
+## World Bank examples
+
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) checks each number in a chatbot answer against the official record and marks it as verified or flagged. The [home page](/) shows an example.
+- [Anomaly Detection and Explanation](/docs/anomaly-detection/) classifies unusual values in a series and cites the evidence, which supports review before publication.
+
+## Common mistakes
+
+- **Citing the office without the release.** A correct number from an old release looks wrong next to the current one. The release date is part of the citation.
+- **Trusting the model to cite.** Models produce plausible citations. The citation must come from the retrieved record, and the number must be checked against it.
+- **Deleting superseded pages.** Citations break and the replacement is not found. Keep the page with a notice.
+- **Verifying only the final answer.** Intermediate values a model computes (a change, an average) need the inputs shown so a reader can check them.
+
+## How to test it
+
+- **Number match rate:** on a test set, the share of numbers in answers that match the official values (recipe 5.3).
+- **Citation check:** sample answers and confirm that each citation resolves and supports the statement.
+- **Staleness test:** publish a revision in a test environment and confirm that answers reflect it.
+- **Adversarial prompts:** ask for numbers the office does not publish and check that the system declines to invent them.
+
+## Checklist
+
+<Checklist id="trust" items={[
+  'Source, release, and citation text on every series page',
+  'Citation available in a machine-readable form',
+  'Source, release date, and license in every API response',
+  'Revisions and superseded series documented and linked',
+  'Numbers in generated answers checked against retrieved values',
+  'Flagged numbers never shown as plain figures',
+  'Answers logged with the records they used',
+  'Declining behavior tested',
+]} />

@@ -159,6 +159,9 @@ const config = {
         path: '../cookbook',
         routeBasePath: 'cookbook',
         sidebarPath: path.join(__dirname, 'sidebars-cookbook.js'),
+        remarkPlugins: [
+          [codeImport, {rootDir: repoRoot, allowImportingFromOutside: true}],
+        ],
         editUrl: 'https://github.com/worldbank/ai4data/edit/main/cookbook/',
       }),
     ],

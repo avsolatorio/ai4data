@@ -1,0 +1,2 @@
+id,title,description,unit,frequency,start_period,end_period,geography,source,last_revised,definition_url,method_note,limitations,contact
+EXAMPLE_ID,Short title in plain language,"Two or three sentences: what is measured, for whom, and how it is expressed.",unit of measure,annual | quarterly | monthly | every N years,2010,2024,national;region;district,Name of the survey or administrative source,2025-01-31,https://stats.example/def/EXAMPLE_ID,"How the value is computed, including the denominator.","Known breaks, coverage gaps, or comparability issues.",stats@example

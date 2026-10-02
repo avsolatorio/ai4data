@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: Statistics API (example)
+  version: "1.0"
+  description: >
+    Read-only access to published series. Every data response includes the
+    unit, the period, and the release that the values come from.
+servers:
+  - url: https://stats.example/api/v1
+paths:
+  /series:
+    get:
+      summary: List published series
+      parameters:
+        - name: q
+          in: query
+          description: Free-text filter on title and description
+          schema: {type: string}
+      responses:
+        "200":
+          description: Series records
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Series"}
+  /series/{id}:
+    get:
+      summary: Metadata for one series
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Series record
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Series"}
+        "404": {description: Unknown series}
+  /series/{id}/data:
+    get:
+      summary: Values for one series
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: geography, in: query, schema: {type: string}, description: Code from the published geography list}
+        - {name: from, in: query, schema: {type: string}, description: First period, inclusive}
+        - {name: to, in: query, schema: {type: string}, description: Last period, inclusive}
+      responses:
+        "200":
+          description: Values with their unit, period, and release
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DataResponse"}
+components:
+  schemas:
+    Series:
+      type: object
+      required: [id, title, unit, frequency, source, last_revised]
+      properties:
+        id: {type: string, example: FS_UNDERNOURISH_PCT}
+        title: {type: string}
+        description: {type: string}
+        unit: {type: string, example: "% of population"}
+        frequency: {type: string, example: annual}
+        start_period: {type: string}
+        end_period: {type: string}
+        source: {type: string}
+        last_revised: {type: string, format: date}
+        definition_url: {type: string, format: uri}
+    DataResponse:
+      type: object
+      required: [series_id, unit, release, source_url, values]
+      properties:
+        series_id: {type: string}
+        unit: {type: string}
+        release: {type: string, format: date}
+        source_url: {type: string, format: uri}
+        values:
+          type: array
+          items:
+            type: object
+            required: [geography, period, value]
+            properties:
+              geography: {type: string, example: NAT}
+              period: {type: string, example: "2024"}
+              value: {type: number, example: 7.6}
+              status: {type: string, description: "Optional flag such as provisional or break in series"}

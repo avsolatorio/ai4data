@@ -1,0 +1,165 @@
+---
+id: understand
+title: "3. Make the meaning of the numbers clear"
+sidebar_label: "3. Understand"
+sidebar_position: 4
+description: Units, concepts, classifications, method notes, and the standards that make them machine-readable.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Make the meaning of the numbers clear
+
+**Question:** Can AI understand what the numbers mean?
+
+## Why this matters
+
+A number carries meaning through its unit, reference period, population,
+definition, and method. An AI system that retrieves "41" without these may
+describe it as a percentage when it is a rate per 1,000, or combine two series
+that use different definitions.
+
+## What good looks like
+
+- Each series states its unit, frequency, reference period, geographic coverage, and population.
+- Definitions and method notes are written once, linked to the series, and available in structured form.
+- Codes for geography, time, sex, age groups, and activities come from published code lists and classifications.
+- Breaks in a series and revisions are recorded as data.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write a plain-language definition, a unit, and a method note for each indicator. Use standard geography and date codes. Add a "last revised" date. |
+| **AI-ready** | Publish structure and code lists in SDMX (aggregate data) or DDI (surveys and microdata). Use standard classifications and publish the mapping from national codes. Record series breaks and revisions in fields as well as in footnotes. |
+| **AI-native** | Link concepts to shared vocabularies or an ontology, so that systems can relate "poverty headcount" in one catalog to the same concept elsewhere. Use AI to propose concept links and variable groupings, with expert review. |
+
+:::info[Running example]
+`HE_U5_MORT_RATE` is expressed per 1,000 live births, and
+`FS_UNDERNOURISH_PCT` is a three-year average. The recipes below document
+both so that a system reading "41" or "7.6" cannot misread them.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Write a definition and method note with a fixed template" level="Foundational" skills="Subject-matter statistician" time="About 30 minutes per indicator">
+
+**Result:** every indicator has the same short set of fields, in the same
+order, which people read quickly and software extracts reliably.
+
+Use these fields and keep each to one to three sentences:
+
+| Field | Example for `FS_UNDERNOURISH_PCT` |
+|---|---|
+| Definition | Share of the population whose habitual food consumption is insufficient to provide the dietary energy levels required to maintain a normal active and healthy life. |
+| Numerator and denominator | Estimated number of undernourished people, divided by the total population. |
+| Unit | % of population |
+| Population | Resident population, all ages |
+| Reference period | Three-year average centred on the year shown |
+| Source | Food balance sheets and household budget survey |
+| Comparability | Comparable across years from 2010; the 2016 survey changed the food item list (see breaks) |
+| Limitations | Estimates for regions have wider margins of error than the national figure |
+
+1. Fill the template for the ten most-used indicators first.
+2. Store the fields in the catalog record, with the `definition_url` pointing
+   to the page that shows them. The [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   has columns for method note and limitations.
+3. Add the template to the release checklist so that new indicators arrive
+   with it filled.
+
+</Recipe>
+
+<Recipe title="3.2 Publish code lists and crosswalks" level="AI-ready" skills="Data manager; classification specialist for the crosswalk" time="One to two days per code list">
+
+**Result:** every code used in the data appears in a published list with
+labels, and national classifications map to international ones.
+
+1. Publish one CSV per code list. Geography, for example:
+
+```csv
+code,label_en,label_fr,level,parent,iso_3166_2
+NAT,National,National,0,,
+R01,Northern Region,Région du Nord,1,NAT,
+R02,Central Region,Région du Centre,1,NAT,
+```
+
+2. For each national classification, publish a crosswalk to the
+   international one and state the mapping type:
+
+```csv
+national_code,national_label,target_classification,target_code,mapping
+111,Growing of cereals,ISIC Rev.4,0111,exact
+112,Growing of rice,ISIC Rev.4,0112,exact
+119,Other crops,ISIC Rev.4,0119,partial
+```
+
+3. Audit: list every distinct code in the data files and confirm that each
+   appears in a code list. A short script does this in minutes and should run
+   on each release.
+4. For aggregate data, the same lists become SDMX code lists in a data
+   structure definition. For surveys, DDI holds the variable labels and value
+   codes.
+
+</Recipe>
+
+<Recipe title="3.3 Record breaks and revisions as data" level="AI-ready" skills="Data manager" time="Half a day to set up; part of each release">
+
+**Result:** a system reading the values can see where a series is not
+comparable and what changed in the last release, without parsing footnotes.
+
+1. Add a `status` column to the values file with a small documented set of
+   values, for example `provisional`, `break`, `estimate`, `revised`.
+2. Publish a revisions file with one row per changed value:
+
+```csv
+series_id,geography,period,previous_value,new_value,release,reason
+FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
+```
+
+3. In the series record, keep a `breaks` field that lists the periods and
+   reasons, and keep the human-readable note on the page as well.
+4. Make the API return `status` with each value (see the OpenAPI example in
+   [chapter 2](./retrieve.mdx)).
+
+</Recipe>
+
+## Implementation options
+
+- **SDMX** provides data structure definitions, code lists, and concept schemes for aggregate statistics.
+- **DDI** documents variables, questions, and value labels for surveys and administrative microdata.
+- **Classifications:** ISO 3166 for countries, ISO 8601 for dates, and the relevant international statistical classifications (ISIC, ISCO, COICOP, ISCED, and others) with crosswalks to national versions.
+- **Controlled vocabularies and ontologies:** SKOS concept schemes can publish a thesaurus of statistical concepts with multilingual labels.
+- **Documentation text:** a short, consistent template for definition, method, limitations, and comparability makes both human reading and machine extraction easier.
+
+## World Bank examples
+
+- [Metadata Augmentation](/docs/metadata-augmentation/) generates DDI-style variable groups from data dictionaries, with human review.
+- [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) checks that an indicator's name and definition describe the same concept.
+- The [AI-ready data framework](/docs/ai-ready-framework) lists the attributes, including standards and semantic knowledge, that make data interpretable.
+
+## Common mistakes
+
+- **Units in the title only.** "Under-five mortality rate (per 1,000)" in the title and no `unit` field. Systems that read the field get nothing.
+- **Footnote-only breaks.** A break noted at the bottom of a page is invisible to any system that reads the values.
+- **One definition page for a family of indicators.** Each series needs its own record, even when the text is shared.
+- **National codes without a crosswalk.** Users and systems cannot compare with other countries.
+
+## How to test it
+
+- **Interpretation questions:** for 20 series, ask an assistant for the unit, the reference period, and the definition. Compare the answers with the official metadata.
+- **Comparability questions:** ask whether two series can be compared, where you know the answer, for example because of a definition change.
+- **Code audit:** list every code used in the data and confirm that each appears in a published code list.
+
+## Checklist
+
+<Checklist id="understand" items={[
+  'Unit, frequency, and reference period stated for each series',
+  'Definition and method note for each indicator, in the fixed template',
+  'Standard codes for geography and time',
+  'Code lists published with labels in each language',
+  'Crosswalks from national to international classifications',
+  'Series breaks and revisions recorded as data',
+  'Structure published in SDMX or DDI',
+  'Concept links to shared vocabularies considered',
+]} />

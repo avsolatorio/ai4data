@@ -1,0 +1,202 @@
+---
+id: find
+title: "1. Make your statistics findable"
+sidebar_label: "1. Find"
+sidebar_position: 2
+description: Metadata completeness, machine-readable catalogs, and semantic search so that people and AI systems find the right statistics.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Make your statistics findable
+
+**Question:** Can people and AI find our statistics?
+
+## Why this matters
+
+AI systems increasingly mediate how users discover data. A search assistant
+looks at page titles, descriptions, and catalog records. A series with a vague
+title, an empty description, or no machine-readable record may never appear in
+the answer, even when it is the right series.
+
+Users also describe what they need in their own words. "How many people go
+hungry" and "prevalence of undernourishment" refer to the same topic, and a
+keyword index treats them as unrelated.
+
+## What good looks like
+
+- Every dataset and indicator has a stable identifier and a complete record: title, description, unit, time coverage, geography, frequency, source, and contact.
+- The catalog is published in a machine-readable form that crawlers and harvesters can read.
+- Search finds results by meaning as well as by exact words, in the languages users use.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Fill in the description, unit, and coverage fields for every published series. Give each dataset its own page with a permanent URL. Publish an XML sitemap and a clear `robots.txt`. |
+| **AI-ready** | Publish catalog records as DCAT or schema.org `Dataset` markup (JSON-LD) on each dataset page. Expose a catalog API or a harvestable feed. Add translated titles and descriptions for the main national and user languages. |
+| **AI-native** | Add semantic search over the catalog using embeddings, combined with keyword search. Use AI to find and repair missing or inconsistent metadata, with human review. Offer the catalog to AI assistants through an agent interface (see [chapter 2](./retrieve.mdx)). |
+
+:::info[Running example]
+The example office has five series. One of them, `LF_UNEMP_PCT`, has no
+description. The recipes below find that gap, publish each series as a
+schema.org record, and add a search that understands "jobless rate".
+:::
+
+## Recipes
+
+<Recipe title="1.1 Run a metadata completeness report" level="Foundational" skills="Anyone who can export the catalog to CSV and run a Python script" time="One hour">
+
+**Result:** a table of fill rates per field and a list of records that need
+work. This is the first measure to track, because every later step depends on
+these fields.
+
+1. Export the catalog to CSV with one row per series. The
+   [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   lists the fields a record needs. If the export uses other column names,
+   pass your own list with `--required`.
+2. Run the script.
+
+```python file=../../website/static/cookbook-files/ai-ready-dissemination/completeness_report.py
+```
+
+Output for the example catalog:
+
+```text
+5 records, 11 fields
+
+field                 filled   share
+id                         5    100% *
+title                      5    100% *
+description                4     80% *
+unit                       5    100% *
+...
+1 of 5 records missing a required field
+  LF_UNEMP_PCT: description
+```
+
+3. Assign the incomplete records to a curator and set a date. Re-run the
+   report monthly and keep the numbers; the trend is the evidence that the
+   catalog is improving.
+
+</Recipe>
+
+<Recipe title="1.2 Publish a schema.org Dataset record on every series page" level="AI-ready" skills="Web developer with access to the page template" time="Half a day for the template, then automatic">
+
+**Result:** every series page carries a JSON-LD block that dataset search
+engines and crawlers read, generated from the same catalog record that the
+page shows.
+
+1. Map the catalog fields to the schema.org properties in the example below.
+   The required properties are `name`, `description`, and `url`; the others
+   make the record useful.
+
+```json file=../../website/static/cookbook-files/ai-ready-dissemination/dataset.jsonld
+```
+
+2. Insert the block in the page template inside a `script` element with
+   `type="application/ld+json"`, filled from the catalog at render time.
+3. Validate one page with the [Schema Markup Validator](https://validator.schema.org/).
+4. Add the series pages to the XML sitemap and confirm that `robots.txt` does
+   not block them.
+5. Check after a few weeks whether the pages appear in a dataset search
+   engine; indexing takes time.
+
+For catalogs that already run a data portal, check whether the portal
+software can emit [DCAT](https://www.w3.org/TR/vocab-dcat-3/) for the whole
+catalog. DCAT and schema.org markup can coexist.
+
+</Recipe>
+
+<Recipe title="1.3 Add semantic search next to keyword search" level="AI-native" skills="Developer with Python; a server with a few GB of memory" time="One to two weeks including evaluation">
+
+**Result:** search returns `LF_UNEMP_PCT` for "jobless rate" and
+`FS_UNDERNOURISH_PCT` for "how many people go hungry", with the keyword
+search still available for exact codes and names.
+
+1. Build the question set and baseline scores first ([chapter 6](./evaluate.mdx)). Without them there is no way to tell whether the new search is better.
+2. Embed each catalog record (title plus description) with a multilingual
+   sentence-embedding model. Small open models run on a CPU for a catalog of
+   a few thousand records.
+
+```python
+from sentence_transformers import SentenceTransformer, util
+
+model = SentenceTransformer("intfloat/multilingual-e5-small")
+records = [...]  # list of dicts with id, title, description
+texts = ["passage: " + r["title"] + ". " + r["description"] for r in records]
+index = model.encode(texts, normalize_embeddings=True)
+
+def semantic_search(query, k=10):
+    q = model.encode("query: " + query, normalize_embeddings=True)
+    scores = util.cos_sim(q, index)[0]
+    top = scores.argsort(descending=True)[:k]
+    return [records[i]["id"] for i in top]
+```
+
+3. Combine the semantic ranking with the keyword ranking, for example by
+   taking the best rank of each record across both lists. Keep the keyword
+   path so that an exact identifier always wins.
+4. Re-run the scoring script from chapter 6 and compare Recall@5 and MRR per
+   language with the baseline. Keep the result with the date and model name.
+5. Re-embed the catalog whenever records change, on a schedule.
+
+The program's [Data Discoverability](/docs/data-discoverability/) page
+describes the approach in more detail, and the
+[PI-FT pipeline](/pift-toolkit/pipeline) shows how to fine-tune an embedding
+model on structured records when a general model is not good enough.
+
+</Recipe>
+
+## Implementation options
+
+**Machine-readable catalog metadata**
+
+- [DCAT](https://www.w3.org/TR/vocab-dcat-3/) (W3C) describes catalogs, datasets, and distributions. It is the base for many open data portals.
+- [schema.org `Dataset`](https://schema.org/Dataset) markup in JSON-LD on dataset pages is read by general web crawlers and dataset search engines.
+- [DDI](https://ddialliance.org/) describes surveys and microdata. [SDMX](https://sdmx.org/) describes aggregate statistical data and its structure.
+
+**Search**
+
+- Keyword search (BM25) remains valuable for exact codes, acronyms, and names.
+- Dense retrieval with embedding models matches by meaning. Combining both usually gives the best results.
+- Multilingual embedding models support queries in languages other than the one the metadata is written in. Translated metadata still improves results.
+
+**Metadata quality**
+
+- Start with a completeness report, then move to consistency: does the title describe the same thing as the definition?
+- Use an LLM to draft missing descriptions or flag inconsistencies, and keep a person responsible for approval.
+
+## World Bank examples
+
+- [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) scores indicator metadata on completeness, semantic alignment, specificity, and consistency.
+- [Metadata Augmentation](/docs/metadata-augmentation/) groups survey variables into DDI-style themes.
+- [Data Discoverability](/docs/data-discoverability/) describes semantic search over indicator catalogs, and the [PI-FT toolkit](/pift-toolkit/pipeline) fine-tunes embedding models for structured metadata.
+
+## Common mistakes
+
+- **Launching semantic search over incomplete metadata.** The model can only match what the record says. Recipe 1.1 comes first.
+- **Redesigning the website and changing every URL.** Crawlers, citations, and AI systems lose the pages. Keep identifiers and set redirects for anything that must move.
+- **Translating metadata by machine without review.** A wrong translation of a definition is worse than none. Translate titles first and have them checked.
+- **Measuring once.** Scores drift as the catalog and models change. Keep the question set and re-run it.
+
+## How to test it
+
+- **Completeness:** the share of records with every required field filled, per field (recipe 1.1).
+- **Known-item queries:** 30 to 50 queries for which you know the correct series, written the way users write. Check whether the correct series appears in the top 5 and top 10 ([chapter 6](./evaluate.mdx)).
+- **Crawler view:** open a dataset page with a structured-data validator and confirm that the record is parsed.
+- **Language check:** repeat the known-item queries in each supported language.
+
+## Checklist
+
+<Checklist id="find" items={[
+  'Stable identifier and permanent URL for each dataset',
+  'Description, unit, coverage, and source populated',
+  'Completeness report run and tracked monthly',
+  'Machine-readable catalog record (schema.org or DCAT) on each series page',
+  'Sitemap and crawler rules reviewed',
+  'Known-item question set written and scored',
+  'Translated metadata for priority languages, reviewed',
+  'Semantic retrieval scored against the keyword baseline',
+]} />
