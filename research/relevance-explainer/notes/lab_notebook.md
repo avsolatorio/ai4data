@@ -438,3 +438,20 @@ Commit: fd3bfef. The first GRPO run used the same code without the informativene
 - Pairwise usefulness (Gemma 4, 800 examples): `f5-dpo` preferred over GRPO 398 times, GRPO 284, tie 83 (35 identical). Controls: `f5-dpo` against the second DPO round 289 / 303 / 121 (87 identical); `f5-dpo` against the teacher's narratives 82 / 658 / 60.
 
 **Implication.** GRPO with a faithfulness reward raises faithfulness under both judges, but part of the gain comes from saying less: narratives are 14% shorter and a second judge finds them less useful. The gap between the two judges (+0.185 against +0.115) also suggests some fitting to the teacher judge's preferences. The verdict drop of 0.6 points exceeds the 0.1-point seed variation. A second GRPO run adds an informativeness score to the reward (weight 1.0) and a supervised term on the teacher's output (weight 0.2) to address both. A faithfulness score alone should not be used to select between narrative models; the pairwise usefulness check is now part of the evaluation.
+
+## 2026-10-03 09:28 UTC — GRPO with an informativeness reward and a supervised anchor: verdict held, preferred for usefulness
+
+Commit: fd3bfef (`tiny/grpo.py` with `--inf-weight 1.0 --sft 0.2`). Judges as in the previous entry.
+
+**Question/Context.** The first GRPO run (previous entry) raised faithfulness by writing shorter narratives, lost the pairwise usefulness comparison (284 against 398), and lowered the verdict by 0.6 points. Does an informativeness term in the reward and a supervised term on the teacher's output fix both?
+
+**What was done.** Same settings as the first GRPO run (from `runs/f5-dpo`, 4,000 inputs, 16 x 8 per step, 250 steps, KL 0.04, lr 1e-5, 32,000 judge calls), with two changes: the teacher judge also returns an informativeness score (1-5: what the item contains and how it relates to the query and each filter), added to the reward with weight 1.0 after rescaling to 0..1; and each update adds 0.2 x the mean token NLL of the teacher's full output (verdict and narrative) for the step's 16 inputs. Output `runs/f5-grpo2`. Evaluated like the other arms.
+
+**Result.**
+- Verdict accuracy 85.5% (macro-F1 0.811), equal to `f5-dpo` (85.5%, 0.814).
+- Faithfulness, paired against `f5-dpo` on the same 800: teacher 4.43 to 4.50 (+0.066 [+0.001, +0.134]); Gemma 4 4.53 to 4.56 (+0.030 [-0.035, +0.092]). Coherence: teacher +0.071 [+0.029, +0.117]; Gemma 4 +0.020 [-0.011, +0.054].
+- Length unchanged: median 35 words (mean 33.6) against 36 (33.7). Share with an unsupported number or name 13.8% against 14.5%.
+- Pairwise usefulness (Gemma 4, random order): `f5-grpo2` preferred 316 times, `f5-dpo` 248, tie 143, identical 92, 1 failure. Sign test on the 564 decided pairs: 56.0%, z = 2.86 (two-sided p about 0.004).
+- Training reward (10-step means) rose from 2.25 at step 1 to 2.58 at step 50 and then stayed between 2.44 and 2.58 to step 250; KL to the start model reached 0.012 per token.
+
+**Implication.** With the two terms, GRPO keeps the verdict and the length, and a judge from another model family prefers its explanations more often than the current model's. The faithfulness gain under that judge is small and not distinguishable from zero. The first run's larger faithfulness gain came with shorter, less useful text. The reward stopped rising after about 50 steps, so more steps of this setting are unlikely to help; a larger KL budget or a stronger informativeness weight are the untested levers. The recipe will be applied to the round-7 model when its chain finishes, and judged against that model with the same two-judge and pairwise evaluation.
