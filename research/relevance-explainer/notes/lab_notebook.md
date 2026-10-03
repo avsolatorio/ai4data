@@ -403,3 +403,17 @@ Commit: 3a90796.
 - For reference, the teacher-forced task cross-entropy is about twice the BPE model's (0.477 nats per byte against about 0.36 nats per byte for the BPE student on the same narratives, converting its 0.466 bits per character at roughly 1.3 bytes per character).
 
 **Implication.** The paper's chunking is non-causal at training time (Top-K over the full sequence, which it acknowledges) and it never generates text; the decoder learns to rely on a chunking pattern that no causal streaming rule reproduces, so generation collapses whichever rule is used. Making ByteFlow generate would require training with a causal boundary rule, which changes the method. Combined with the pretraining gap (18% more bits per byte) and the 25-times slower training from the sequential coding-rate update, ByteFlow Net is not a candidate for this task at 20M parameters. The experiment is closed with the implementation and tests kept (`tiny/byteflow.py`). Caveats: one seed, no hyperparameter search for the byte model, 290M bytes of pretraining, and the paper's own gains appear at 600M parameters and tens of billions of bytes.
+
+## 2026-10-03 03:34 UTC — Sixth data round: 166k examples
+
+Commit: d455f06.
+
+**What was done.** Round 6 (`data/v6`, seed 500): 11,428 queries, 43,941 pairs, 43,933 narrated on two teacher servers. Combined set `data/f5` = v1 to v6: train 165,550 (14,353 relevant, 44,157 partly relevant, 107,040 irrelevant), val 25,232, test 19,003. Unattended chain as before; 4,499 preference pairs (3,136 chosen from the student). Evaluated on the third-round test set (7,056) and judged on the standard 800.
+
+**Result.**
+- Verdict on the 7,056-example test (INT8): 166k SFT 85.6% / macro-F1 0.813; 166k + DPO 85.5% / 0.814 (131k + DPO: 84.5% / 0.791). On its own 19,003-example test: SFT 85.1% (INT4 84.9%), DPO 85.0% (INT4 84.7%).
+- Judge, same 800: SFT faithfulness 4.30 (77.9% at 4 or more), coherence 4.44; with DPO 4.44 (81.8%), coherence 4.51, consistent 99.6%, correct language 99.8%. SFT curve: 25k 3.24, 30k 3.57, 60k 3.85, 100k 4.04, 131k 4.18, 166k 4.30. With DPO: 3.99, 4.24, 4.33, 4.44.
+- By language, 131k+DPO -> 166k+DPO (n): English 4.71 -> 4.73 (220), Spanish 4.49 -> 4.58 (88), Chinese 4.25 -> 4.51 (72), Hindi 4.06 -> 4.42 (48), Russian 4.21 -> 4.29 (77), French 4.16 -> 4.26 (74), Arabic 3.89 -> 4.20 (66), Turkish 4.05 -> 4.21 (42), Swahili 4.04 -> 4.09 (23), Indonesian 4.08 -> 4.08 (48), Portuguese 4.40 -> 4.29 (42).
+- Export: `runs/f5-dpo/explainer-int8.pt`, 21.59 MB.
+
+**Implication.** The SFT faithfulness gain per round is +0.12 (after +0.14), and this round also moved the verdict by a full point (84.5% to 85.5%, macro-F1 0.791 to 0.814), the first verdict gain since 60k. Every language is now above 4.0 after DPO except Swahili at 4.09 and Indonesian at 4.08; the lowest is 4.08. A seventh round (seed 600) and its chain are running and will be the last unless its SFT gain stays above 0.1. Caveats unchanged: one seed per point, the teacher is the judge, per-language groups are 23 to 220.
