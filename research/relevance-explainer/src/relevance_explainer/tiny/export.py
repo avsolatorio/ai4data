@@ -15,6 +15,7 @@ import torch
 from tokenizers import Tokenizer
 
 from .model import Config, TinyLM
+from .scriptguard import banned_for, token_masks
 
 EOS = 1
 
@@ -42,16 +43,19 @@ def load_int8(path: str | Path, device: str = "cpu") -> tuple[TinyLM, Tokenizer]
     return model.to(device).eval(), Tokenizer.from_str(blob["tokenizer"])
 
 
-def explain(model: TinyLM, tk: Tokenizer, inputs: list[str], max_new: int = 260, batch: int = 32) -> list[tuple[str, str]]:
-    """Return (verdict, narrative) for each rendered input text."""
+def explain(model: TinyLM, tk: Tokenizer, inputs: list[str], max_new: int = 260, batch: int = 32,
+            script_guard: bool = True) -> list[tuple[str, str]]:
+    """Return (verdict, narrative) for each rendered input text. `script_guard` blocks stray characters of scripts
+    that neither the requested language nor the input uses (see scriptguard)."""
     sep = "\n\n### Judgment\n"
-    dev = next(model.parameters()).device
     prompts = [tk.encode(t + sep).ids for t in inputs]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))
+    masks = token_masks(tk) if script_guard else None
     res: dict[int, tuple[str, str]] = {}
     for s in range(0, len(order), batch):
         ch = order[s : s + batch]
-        outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new)
+        ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
+        outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban)
         for i, o in zip(ch, outs):
             head, _, rest = tk.decode(o).strip().partition("\n")
             res[i] = (head.strip(), rest.strip())

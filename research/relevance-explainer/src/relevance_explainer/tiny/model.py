@@ -153,14 +153,17 @@ class TinyLM(nn.Module):
 
     @torch.no_grad()
     def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0,
-                       copy_bias: float = 0.0, copy_skip: int = 4, temperature: float = 0.0, top_k: int = 40) -> list[list[int]]:
+                       copy_bias: float = 0.0, copy_skip: int = 4, temperature: float = 0.0, top_k: int = 40,
+                       banned: torch.Tensor | None = None) -> list[list[int]]:
         """Greedy decoding for several prompts at once with a KV cache.
 
         Prompts are left-padded; padding is masked out of attention and does not shift rotary positions,
         so each result equals single-sequence `generate` (see tests).
 
         `copy_bias` adds a bonus to the logit of every token that occurs in the prompt, from the `copy_skip`-th
-        generated token on (the verdict line is left alone). It nudges the narrative towards terms of the input."""
+        generated token on (the verdict line is left alone). It nudges the narrative towards terms of the input.
+
+        `banned` is an optional [B, vocab] boolean mask of tokens that may never be generated (see scriptguard)."""
         dev, B = self.emb.weight.device, len(prompts)
         L = max(len(p) for p in prompts)
         ids = torch.full((B, L), pad, dtype=torch.long, device=dev)
@@ -188,7 +191,10 @@ class TinyLM(nn.Module):
             in_prompt.scatter_(1, ids, True)
             in_prompt[:, pad] = False
             in_prompt[:, eos] = False
+        block = banned.to(dev) if banned is not None else None  # `banned` is reused below by the repeat block
         for step in range(max_new):
+            if block is not None:
+                logits = logits.masked_fill(block, float("-inf"))
             if in_prompt is not None and step >= copy_skip:
                 logits = logits + copy_bias * in_prompt
             if no_repeat:

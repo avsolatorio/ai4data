@@ -19,6 +19,7 @@ from tokenizers import ByteLevelBPETokenizer, Tokenizer
 
 from ..train.finetune import SCRIPTS, SEP, VERDICTS, macro_f1, parse, read, script_share
 from .model import Config, TinyLM
+from .scriptguard import banned_for, token_masks
 
 PAD, EOS = 0, 1
 
@@ -119,15 +120,17 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 
 @torch.no_grad()
 def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48,
-             copy_bias: float = 0.0) -> tuple[dict, list[dict]]:
+             copy_bias: float = 0.0, script_guard: bool = False) -> tuple[dict, list[dict]]:
     model.eval()
     prompts = [tk.encode(e["row"]["input"] + SEP).ids for e in enc]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
     gens = [""] * len(prompts)
+    masks = token_masks(tk) if script_guard else None
     for s in range(0, len(order), batch):
         ch = order[s : s + batch]
+        ban = torch.stack([banned_for(masks, enc[i]["row"]["input"]) for i in ch]) if masks else None
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias)
+            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias, banned=ban)
         for i, o in zip(ch, outs):
             gens[i] = tk.decode(o).strip()
     rows = [e["row"] for e in enc]
