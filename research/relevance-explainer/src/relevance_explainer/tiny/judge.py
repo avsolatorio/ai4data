@@ -72,6 +72,8 @@ def main() -> None:
             by_lang[(who, rows[i]["language"])].append(s)
     out = {who: summarize(v) for who, v in by.items()}
     out["by_language"] = {f"{who}/{lang}": summarize(v) for (who, lang), v in sorted(by_lang.items()) if len(v) >= 15}
+    # per-example scores in sample order, for paired comparisons between runs judged on the same examples
+    out["items"] = [{"k": i, "who": who, "language": rows[i]["language"], "score": s} for (i, who, _, _), s in zip(jobs, res)]
     (run / f"judge_{a.tag}_{a.prec}{a.out_suffix}.json").write_text(json.dumps(out, indent=2))
     for who in ("teacher", "student"):
         print(who, {k: round(v, 3) if isinstance(v, float) else v for k, v in out[who].items()})
