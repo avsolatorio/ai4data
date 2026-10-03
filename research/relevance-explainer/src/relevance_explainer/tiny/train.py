@@ -62,7 +62,7 @@ def encode(tk: Tokenizer, rows: list[dict], max_len: int, verdict_last: bool = F
     return out, dropped
 
 
-def batches(data, bs, shuffle, rng, vw: float = 1.0, soft: dict | None = None):
+def batches(data, bs, shuffle, rng, vw: float = 1.0, soft: dict | None = None, pw: float = 0.0):
     """Yield (ids, labels, weights, soft_rows). Verdict tokens get loss weight `vw`, narrative tokens 1.
 
     `soft` maps a row index to the teacher's verdict probabilities. For such rows the first verdict token is left out
@@ -84,6 +84,10 @@ def batches(data, bs, shuffle, rng, vw: float = 1.0, soft: dict | None = None):
             ids[k, :L], lab[k, :L] = torch.tensor(data[i]["ids"]), torch.tensor(data[i]["labels"])
             vs = data[i].get("vstart", data[i]["plen"])
             wt[k, vs : vs + data[i]["vlen"]] = vw
+            if pw:  # language-model loss on the input tokens too, with weight pw (position 0 has no prediction)
+                p = data[i]["plen"]
+                lab[k, 1:p] = ids[k, 1:p]
+                wt[k, :p] = pw
             if soft and data[i]["idx"] in soft:
                 wt[k, data[i]["plen"]] = 0.0
                 soft_rows.append((k, data[i]["plen"], soft[data[i]["idx"]]))
@@ -205,7 +209,9 @@ def main() -> None:
     ap.add_argument("--copy", action="store_true", help="add a pointer (copy) head to the initialized model")
     ap.add_argument("--prefix-lm", action="store_true", help="bidirectional attention within the input (prefix LM)")
     ap.add_argument("--verdict-last", action="store_true", help="target is the narrative followed by 'Verdict: <verdict>'")
+    ap.add_argument("--prompt-loss", type=float, default=0.0, help="loss weight on the input tokens (0: output only)")
     a = ap.parse_args()
+    assert not (a.prompt_loss and a.prefix_lm), "the prefix LM takes the prompt length from the labels"
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -265,7 +271,7 @@ def main() -> None:
     for ep in range(a.epochs):
         model.train()
         run, k = 0.0, 0
-        for ids, lab, wt, soft_rows in batches(enc["train"], a.bs, True, rng, a.verdict_weight, soft):
+        for ids, lab, wt, soft_rows in batches(enc["train"], a.bs, True, rng, a.verdict_weight, soft, a.prompt_loss):
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 logits, loss = model(ids, lab, wt)
                 if soft_rows:  # cross-entropy of the first verdict token against the teacher's probabilities

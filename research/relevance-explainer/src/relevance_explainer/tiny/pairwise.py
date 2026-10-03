@@ -47,7 +47,9 @@ def main() -> None:
     ra = [json.loads(l) for l in (Path(a.a) / f"{a.tag}_generations_{a.prec}.jsonl").read_text().splitlines()]
     tag_b = a.tag_b or a.tag
     rb = [json.loads(l) for l in (Path(a.b) / f"{tag_b}_generations_{a.prec}.jsonl").read_text().splitlines()]
-    assert len(ra) == len(rb) and all(x["input"] == y["input"] for x, y in zip(ra, rb))
+    # same examples in the same order; inputs may differ only in added signal lines (for example a reranker score)
+    key = lambda t: [l for l in t.split("\n") if l.startswith(("Respond in:", "Query:", "Filters:", "Result:"))]  # noqa: E731
+    assert len(ra) == len(rb) and all(key(x["input"]) == key(y["input"]) for x, y in zip(ra, rb))
     idx = random.Random(0).sample(range(len(ra)), min(a.n, len(ra)))  # the judge's usual seeded sample
     rng = random.Random(1)
     swap = {i: rng.random() < 0.5 for i in idx}

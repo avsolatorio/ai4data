@@ -28,3 +28,7 @@ def test_encode_verdict_last_marks_the_verdict_tokens(monkeypatch):
     assert wt[0, e["vstart"]] == 5.0 and wt[0, e["plen"]] == 1.0
     (f,), _ = encode(tk, [row], 512)
     assert f["vstart"] == f["plen"]
+    ids, lab, wt, _ = next(batches([f], 1, False, None, vw=5.0, pw=0.1))
+    p = f["plen"]
+    assert (lab[0, 1:p] == ids[0, 1:p]).all() and lab[0, 0] == -100
+    assert torch.allclose(wt[0, :p], torch.full((p,), 0.1)) and wt[0, p] == 5.0
