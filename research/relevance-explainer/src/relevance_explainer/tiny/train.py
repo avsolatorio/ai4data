@@ -182,6 +182,7 @@ def main() -> None:
     ap.add_argument("--tokenizer", default=None, help="prebuilt tokenizer.json; trained on the task data when omitted")
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--copy", action="store_true", help="add a pointer (copy) head to the initialized model")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -214,9 +215,10 @@ def main() -> None:
 
     if a.init:
         ck = torch.load(a.init, map_location="cpu")
-        cfg = Config(**{**ck["config"], "dropout": a.dropout})
+        cfg = Config(**{**ck["config"], "dropout": a.dropout, **({"copy": True} if a.copy else {})})
         model = TinyLM(cfg)
-        model.load_state_dict(ck["state"])
+        missing, unexpected = model.load_state_dict(ck["state"], strict=False)
+        assert not unexpected and all(k.startswith("copy_") for k in missing), (missing, unexpected)
         model = model.cuda()
         a.max_len = min(a.max_len, cfg.max_len)
     else:

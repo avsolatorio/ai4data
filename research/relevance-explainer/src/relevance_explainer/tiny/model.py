@@ -24,6 +24,8 @@ class Config:
     d_ff: int = 1024
     max_len: int = 1280
     dropout: float = 0.1
+    copy: bool = False  # pointer head: mix the vocabulary distribution with attention over earlier tokens
+    copy_dim: int = 64
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -104,10 +106,31 @@ class TinyLM(nn.Module):
         cos, sin = rope_cache(c.d_model // c.n_head, c.max_len)
         self.register_buffer("cos", cos, persistent=False)
         self.register_buffer("sin", sin, persistent=False)
+        if c.copy:
+            self.copy_q = nn.Linear(c.d_model, c.copy_dim, bias=False)
+            self.copy_k = nn.Linear(c.d_model, c.copy_dim, bias=False)
+            self.copy_gate = nn.Linear(c.d_model, 1)
         self.apply(self._init)
         for b in self.blocks:  # scale residual projections by depth
             for lin in (b.proj, b.down):
                 nn.init.normal_(lin.weight, std=0.02 / math.sqrt(2 * c.n_layer))
+        if c.copy:  # start close to the plain model: generate with probability about 0.9
+            nn.init.zeros_(self.copy_gate.weight)
+            nn.init.constant_(self.copy_gate.bias, 2.2)
+
+    def _mix(self, h: torch.Tensor, keys: torch.Tensor, src: torch.Tensor, allow: torch.Tensor) -> torch.Tensor:
+        """Log-probabilities of the pointer mixture.
+
+        h [B, T, d] final hidden states (after norm); keys [B, S, k] copy keys of the source positions; src [B, S] their
+        token ids; allow [B or 1, T, S] which sources each position may copy from. Returns [B, T, vocab] in float32."""
+        h = h.float()
+        p_gen = torch.softmax(F.linear(h, self.emb.weight.float()), dim=-1)
+        q = F.linear(h, self.copy_q.weight.float())
+        att = (q @ keys.float().transpose(1, 2)) / math.sqrt(self.c.copy_dim)
+        att = torch.softmax(att.masked_fill(~allow, float("-inf")), dim=-1).nan_to_num(0.0)
+        p_copy = torch.zeros_like(p_gen).scatter_add_(2, src[:, None, :].expand(-1, h.size(1), -1), att)
+        g = torch.sigmoid(F.linear(h, self.copy_gate.weight.float(), self.copy_gate.bias.float()))
+        return torch.log(g * p_gen + (1 - g) * p_copy + 1e-9)
 
     @staticmethod
     def _init(m):
@@ -118,7 +141,13 @@ class TinyLM(nn.Module):
         x = F.dropout(self.emb(ids), self.c.dropout, self.training)
         for j in self.order:
             x = self.blocks[j](x, self.cos, self.sin)
-        logits = F.linear(self.norm(x), self.emb.weight)  # tied output projection
+        if self.c.copy:  # log-probabilities; they behave as logits for softmax, argmax and cross-entropy
+            h = self.norm(x)
+            T = ids.size(1)
+            causal = torch.tril(torch.ones(T, T, dtype=torch.bool, device=ids.device))[None]
+            logits = self._mix(h, F.linear(h.float(), self.copy_k.weight.float()), ids, causal)
+        else:
+            logits = F.linear(self.norm(x), self.emb.weight)  # tied output projection
         if labels is None:
             return logits
         flat = logits[:, :-1].reshape(-1, logits.size(-1))
@@ -179,7 +208,12 @@ class TinyLM(nn.Module):
         x = self.emb(ids)
         for j, c in zip(self.order, caches):
             x = self.blocks[j](x, self.cos[pos], self.sin[pos], mask, c)
-        logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
+        if self.c.copy:  # copy keys and token ids of every position so far; padding is never a source
+            h = self.norm(x)
+            keys, src = F.linear(h.float(), self.copy_k.weight.float()), ids
+            logits = self._mix(h[:, -1:], keys, src, valid[:, None, :])[:, 0]
+        else:
+            logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
 
         outs: list[list[int]] = [[] for _ in range(B)]
         seen: list[dict[tuple[int, ...], set[int]]] = [{} for _ in range(B)]
@@ -228,7 +262,13 @@ class TinyLM(nn.Module):
             x = self.emb(torch.tensor(nxt, device=dev)[:, None])
             for j, c in zip(self.order, caches):
                 x = self.blocks[j](x, self.cos[last][:, None], self.sin[last][:, None], step_mask, c)
-            logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
+            if self.c.copy:
+                h = self.norm(x)
+                keys = torch.cat([keys, F.linear(h.float(), self.copy_k.weight.float())], dim=1)
+                src = torch.cat([src, torch.tensor(nxt, device=dev)[:, None]], dim=1)
+                logits = self._mix(h, keys, src, valid[:, None, :])[:, 0]
+            else:
+                logits = F.linear(self.norm(x[:, -1]), self.emb.weight).float()
         return outs
 
     def n_params(self) -> int:

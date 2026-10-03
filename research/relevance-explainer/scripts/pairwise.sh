@@ -5,4 +5,4 @@ cd "$(dirname "$0")/.."
 export PYTHONPATH=src
 export LLM_BASE_URL=${GEMMA_URL:-http://localhost:8002/v1}
 export LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
-exec "$HOME/venvs/relexp/bin/python" -m relevance_explainer.tiny.pairwise "$1" "$2" --model gemma-4-31b --n 800
+exec "$HOME/venvs/relexp/bin/python" -m relevance_explainer.tiny.pairwise "$1" "$2" --model gemma-4-31b --n 800 "${@:3}"

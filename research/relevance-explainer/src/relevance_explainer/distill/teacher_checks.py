@@ -130,6 +130,10 @@ def cmd_think(a) -> None:
     servers = urls()
     with ThreadPoolExecutor(a.workers) as ex:
         res = list(ex.map(lambda k: think_one(servers[k % len(servers)], rows[sample[k]]["input"]), range(len(sample))))
+    out = Path(a.data, f"think_{a.split}_{a.n}.jsonl")
+    with out.open("w") as f:  # per-example labels, in the seeded sample order (the judge's sample for test files)
+        for i, v in zip(sample, res):
+            f.write(json.dumps({"i": i, "stored": rows[i]["verdict"], "thinking": v}) + "\n")
     pairs = [(rows[i]["verdict"], v) for i, v in zip(sample, res) if v]
     agree = sum(s == t for s, t in pairs) / len(pairs)
     print(f"thinking-mode verdicts: {len(pairs)} parsed of {len(sample)}; agree with stored (no-thinking) verdict {agree:.3f}")

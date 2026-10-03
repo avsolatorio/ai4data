@@ -32,11 +32,12 @@ def main() -> None:
     ap.add_argument("a")
     ap.add_argument("b")
     ap.add_argument("--tag", default="f2test")
+    ap.add_argument("--tag-b", default=None, help="judge tag for run b (default: --tag)")
     ap.add_argument("--prec", default="int8")
     ap.add_argument("--suffixes", nargs="+", default=["", "_gemma4"])
     a = ap.parse_args()
     for suf in a.suffixes:
-        sa, sb = student_scores(Path(a.a), a.tag, a.prec, suf), student_scores(Path(a.b), a.tag, a.prec, suf)
+        sa, sb = student_scores(Path(a.a), a.tag, a.prec, suf), student_scores(Path(a.b), a.tag_b or a.tag, a.prec, suf)
         keys = sorted(set(sa) & set(sb))
         for metric in ("faithful", "coherent"):
             r = paired([sa[k][metric] for k in keys], [sb[k][metric] for k in keys])

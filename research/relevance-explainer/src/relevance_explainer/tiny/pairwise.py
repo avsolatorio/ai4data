@@ -38,13 +38,15 @@ def main() -> None:
     ap.add_argument("a")
     ap.add_argument("b")
     ap.add_argument("--tag", default="f2test")
+    ap.add_argument("--tag-b", default=None, help="generations tag for run b (default: --tag)")
     ap.add_argument("--prec", default="int8")
     ap.add_argument("--n", type=int, default=800)
     ap.add_argument("--model", default="gemma-4-31b")
     ap.add_argument("--workers", type=int, default=32)
     a = ap.parse_args()
     ra = [json.loads(l) for l in (Path(a.a) / f"{a.tag}_generations_{a.prec}.jsonl").read_text().splitlines()]
-    rb = [json.loads(l) for l in (Path(a.b) / f"{a.tag}_generations_{a.prec}.jsonl").read_text().splitlines()]
+    tag_b = a.tag_b or a.tag
+    rb = [json.loads(l) for l in (Path(a.b) / f"{tag_b}_generations_{a.prec}.jsonl").read_text().splitlines()]
     assert len(ra) == len(rb) and all(x["input"] == y["input"] for x, y in zip(ra, rb))
     idx = random.Random(0).sample(range(len(ra)), min(a.n, len(ra)))  # the judge's usual seeded sample
     rng = random.Random(1)
@@ -68,7 +70,7 @@ def main() -> None:
     out = {"a": a.a, "b": a.b, "judge": a.model, "n_sampled": len(idx), "identical": len(idx) - len(jobs),
            "a_better": c["a"], "b_better": c["b"], "tie": c["tie"], "failed": sum(v is None for v in res.values()),
            "by_language": {k: dict(v) for k, v in sorted(by.items())}}
-    name = f"pairwise_{Path(a.a).name}_vs_{Path(a.b).name}_{a.model}.json"
+    name = f"pairwise_{Path(a.a).name}-{a.tag}_vs_{Path(a.b).name}-{tag_b}_{a.model}.json"
     (Path(a.b) / name).write_text(json.dumps(out, indent=2))
     print(json.dumps({k: v for k, v in out.items() if k != "by_language"}))
 
