@@ -222,7 +222,16 @@ class ByteFlowNet(nn.Module):
 
     # ----- generation (one sequence, with caches) -----
     @torch.no_grad()
-    def generate(self, prompt: list[int], max_new: int = 400, no_repeat: int = 16) -> list[int]:
+    def generate(self, prompt: list[int], max_new: int = 400, no_repeat: int = 16, trace: dict | None = None,
+                 max_chunk: int | None = None, rule: str = "prompt", window: int = 96) -> list[int]:
+        """Greedy byte generation. `trace`, if given, receives the boundary positions and per-step logits.
+
+        Boundary rules after the prompt (the paper defines Top-K for teacher forcing only):
+        - "prompt": a byte starts a chunk when its marginal rate is at least the smallest rate in the prompt's Top-K.
+          Marginal rates fall as context accumulates, so this rarely fires; kept for reference.
+        - "quantile": a byte starts a chunk when its rate is at least the (1 - 1/ratio) quantile of the rates of the
+          last `window` bytes, which keeps the training density of one boundary per `ratio` bytes, adaptively.
+        `max_chunk` additionally forces a boundary once a chunk reaches that many bytes."""
         dev = self.emb.weight.device
         ids = torch.tensor([prompt], device=dev)
         T = ids.size(1)
@@ -238,6 +247,8 @@ class ByteFlowNet(nn.Module):
         rates = marginal_rate(h, self.c.rate, state)
         idx = select_topk(rates, self.k_for(T))
         tau = rates[0, idx[0, 1:]].min().item() if idx.size(1) > 1 else float("inf")
+        recent = rates[0, -window:].tolist()  # for the quantile rule
+        q = 1.0 - 1.0 / self.c.ratio
         z = self.proj(h.gather(1, idx[:, :, None].expand(-1, -1, h.size(2))))
         K = z.size(1)
         for b, c in zip(self.globals, glob_c):
@@ -252,6 +263,8 @@ class ByteFlowNet(nn.Module):
         out: list[int] = []
         seen: dict[tuple[int, ...], set[int]] = {}
         pos = T
+        if trace is not None:
+            trace["prompt_boundaries"], trace["boundaries"], trace["logits"], trace["tau"] = idx[0].tolist(), [], [logits[0].clone()], tau
         for _ in range(max_new):
             if no_repeat and len(out) >= no_repeat - 1:
                 key = tuple(out[len(out) - no_repeat + 1 :])
@@ -274,16 +287,31 @@ class ByteFlowNet(nn.Module):
                 r = hn.pow(2).sum(-1)
             else:
                 r = state.step(hn / (hn.pow(2).mean(-1, keepdim=True).sqrt() + 1e-6))
-            if r.item() >= tau and n_glob < self.c.max_global:
+            forced = max_chunk is not None and pos - chunk_start >= max_chunk
+            rv = r.item()
+            if rule == "quantile":
+                srt = sorted(recent)
+                thr = srt[min(len(srt) - 1, int(q * len(srt)))]
+                recent.append(rv)
+                if len(recent) > window:
+                    recent.pop(0)
+                fire = rv >= thr
+            else:
+                fire = rv >= tau
+            if (fire or forced) and n_glob < self.c.max_global:
                 zc = self.proj(x)
                 for b, c in zip(self.globals, glob_c):
                     zc = b(zc, self.gcos[n_glob : n_glob + 1], self.gsin[n_glob : n_glob + 1],
                            torch.ones(1, 1, 1, n_glob + 1, dtype=torch.bool, device=dev), c)
                 g_last, n_glob, chunk_start = zc, n_glob + 1, pos
+                if trace is not None:
+                    trace["boundaries"].append(pos)
             off = min(pos - chunk_start, self.c.bins - 1)
             s = x + g_last @ self.up_w[off]
             for b, c in zip(self.decoder, dec_c):
                 s = b(s, self.lcos[pos : pos + 1], self.lsin[pos : pos + 1], c)
             logits = self.out(self.norm(s[:, 0])).float()
+            if trace is not None:
+                trace["logits"].append(logits[0].clone())
             pos += 1
         return out
