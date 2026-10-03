@@ -417,3 +417,24 @@ Commit: d455f06.
 - Export: `runs/f5-dpo/explainer-int8.pt`, 21.59 MB.
 
 **Implication.** The SFT faithfulness gain per round is +0.12 (after +0.14), and this round also moved the verdict by a full point (84.5% to 85.5%, macro-F1 0.791 to 0.814), the first verdict gain since 60k. Every language is now above 4.0 after DPO except Swahili at 4.09 and Indonesian at 4.08; the lowest is 4.08. A seventh round (seed 600) and its chain are running and will be the last unless its SFT gain stays above 0.1. Caveats unchanged: one seed per point, the teacher is the judge, per-language groups are 23 to 220.
+
+## 2026-10-03 07:31 UTC — GRPO on the narratives, a second judge (Gemma 4), and a pairwise check that catches shorter outputs
+
+Commit: fd3bfef. The first GRPO run used the same code without the informativeness and supervised terms (both default to off). Teacher judge: Qwen3.8-27B-FP8. Second judge: Gemma 4 31B instruct (RedHatAI FP8-dynamic build), served with vLLM.
+
+**Question/Context.** Would GRPO improve the narratives beyond the current DPO model (`runs/f5-dpo`: verdict 85.5%, teacher-judged faithfulness 4.44)? GRPO optimizes the teacher judge's score directly, and the same judge grades the test set, so the result needs a judge from another model family.
+
+**What was done.**
+1. Reward check before training: on 32,000 scored DPO samples, narratives with no unsupported number or name (83%) average judge faithfulness 4.10 and those with one 3.95. The earlier error-type entry (2026-10-01 22:48) puts numbers and names at about 5% of faithfulness errors. The reward is therefore the teacher judge's score: 2 x faithfulness + 0.5 x coherence (both rescaled to 0..1), minus 1 if inconsistent with the verdict or in the wrong language, minus 0.25 per unsupported item (up to 4), and -2 for empty or truncated output.
+2. GRPO (`tiny/grpo.py`, `runs/f5-grpo`): from `runs/f5-dpo`, 4,000 training inputs of `data/f5`, 16 inputs and 8 samples per step (temperature 0.9, top-40), teacher verdict forced as prefix, rewards standardized within each group, clipped surrogate (0.2) with 2 updates per batch, KL to the start model 0.04, lr 1e-5, 250 steps, 32,000 judge calls.
+3. Control at the same judge budget: a second on-policy DPO round from `runs/f5-dpo` (8,000 new inputs x 4 samples, 4,154 pairs, same settings as the first round), `runs/f5-dpo2`.
+4. Evaluation: verdict accuracy on the third-round test set (7,056); teacher and Gemma 4 judges on the standard seeded 800, with per-example scores and paired bootstrap intervals (`tiny/compare.py`); Gemma 4 pairwise preference for usefulness, order randomized (`tiny/pairwise.py`).
+
+**Result.**
+- Judge agreement on `f5-dpo`'s 800: Pearson 0.848 on faithfulness, identical score 81.2%. Narratives at 3 or lower: 114 flagged by both, 36 by the teacher only, 21 by Gemma 4 only. Gemma 4 scores `f5-dpo` 4.53 (teacher 4.43; the earlier 4.44 reproduces) and the teacher's own narratives 4.99.
+- Second DPO round: verdict 85.6% (macro-F1 0.814). Faithfulness +0.044 [-0.019, +0.113] under the teacher and +0.040 [-0.019, +0.100] under Gemma 4. Not distinguishable from zero.
+- GRPO: verdict 84.9% (macro-F1 0.808), 0.6 points below `f5-dpo`. Faithfulness 4.43 to 4.62 under the teacher (+0.185 [+0.116, +0.259]) and 4.53 to 4.65 under Gemma 4 (+0.115 [+0.055, +0.176]); share at 4 or more 88.1% / 88.0%. Against the second DPO round, Gemma 4 faithfulness +0.075 [+0.013, +0.138].
+- GRPO narratives are shorter: median 31 words against 36 (mean 29.3 against 33.7), median 201 characters against 232. Share with an unsupported number or name 11.9% against 14.5%.
+- Pairwise usefulness (Gemma 4, 800 examples): `f5-dpo` preferred over GRPO 398 times, GRPO 284, tie 83 (35 identical). Controls: `f5-dpo` against the second DPO round 289 / 303 / 121 (87 identical); `f5-dpo` against the teacher's narratives 82 / 658 / 60.
+
+**Implication.** GRPO with a faithfulness reward raises faithfulness under both judges, but part of the gain comes from saying less: narratives are 14% shorter and a second judge finds them less useful. The gap between the two judges (+0.185 against +0.115) also suggests some fitting to the teacher judge's preferences. The verdict drop of 0.6 points exceeds the 0.1-point seed variation. A second GRPO run adds an informativeness score to the reward (weight 1.0) and a supervised term on the teacher's output (weight 0.2) to address both. A faithfulness score alone should not be used to select between narrative models; the pairwise usefulness check is now part of the evaluation.
