@@ -16,6 +16,7 @@ from tokenizers import Tokenizer
 
 from .model import Config, TinyLM
 from .scriptguard import banned_for, token_masks
+from .train import from_verdict_last
 
 EOS = 1
 
@@ -57,7 +58,10 @@ def explain(model: TinyLM, tk: Tokenizer, inputs: list[str], max_new: int = 260,
         ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
         outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban)
         for i, o in zip(ch, outs):
-            head, _, rest = tk.decode(o).strip().partition("\n")
+            text = tk.decode(o).strip()
+            if model.c.verdict_last:
+                text = from_verdict_last(text)
+            head, _, rest = text.partition("\n")
             res[i] = (head.strip(), rest.strip())
     return [res[i] for i in range(len(inputs))]
 

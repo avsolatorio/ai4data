@@ -42,7 +42,7 @@ def main() -> None:
     rows = read(Path(a.data) / f"{a.split}.jsonl")
     if a.limit and len(rows) > a.limit:
         rows = random.Random(0).sample(rows, a.limit)
-    enc, dropped = encode(tk, rows, model.c.max_len)
+    enc, dropped = encode(tk, rows, model.c.max_len, model.c.verdict_last)
     print(f"{len(enc)} examples ({dropped} dropped as too long)", flush=True)
 
     out = {}

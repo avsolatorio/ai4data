@@ -27,6 +27,7 @@ class Config:
     copy: bool = False  # pointer head: mix the vocabulary distribution with attention over earlier tokens
     copy_dim: int = 64
     prefix_lm: bool = False  # attention is bidirectional within the prompt (input) and causal after it
+    verdict_last: bool = False  # output format: narrative, then "Verdict: <verdict>" (decoders convert it back)
 
     def to_dict(self) -> dict:
         return asdict(self)

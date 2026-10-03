@@ -32,16 +32,33 @@ def train_tokenizer(rows: list[dict], vocab: int, path: Path) -> Tokenizer:
     return Tokenizer.from_file(str(path))
 
 
-def encode(tk: Tokenizer, rows: list[dict], max_len: int) -> tuple[list[dict], int]:
+VERDICT_TAG = "\nVerdict:"
+
+
+def from_verdict_last(text: str) -> str:
+    """'narrative\\nVerdict: x' -> 'x\\nnarrative', the format the parsers and judges expect."""
+    narrative, tag, verdict = text.rpartition(VERDICT_TAG)
+    return f"{verdict.strip()}\n{narrative.strip()}" if tag else f"invalid\n{text.strip()}"
+
+
+def encode(tk: Tokenizer, rows: list[dict], max_len: int, verdict_last: bool = False) -> tuple[list[dict], int]:
+    """Prompt and target ids. With `verdict_last` the target is the narrative followed by 'Verdict: <verdict>';
+    `vstart` marks where the verdict tokens begin, so that they get the verdict loss weight."""
     out, dropped = [], 0
     for idx, r in enumerate(rows):
         p = tk.encode(r["input"] + SEP).ids
-        t = tk.encode(r["output"]).ids + [EOS]
+        if verdict_last:
+            head = tk.encode(r["output"].split("\n", 1)[1].strip() + VERDICT_TAG).ids
+            vt = tk.encode(" " + r["verdict"]).ids
+            t, vstart, v = head + vt + [EOS], len(p) + len(head), len(vt)
+        else:
+            t = tk.encode(r["output"]).ids + [EOS]
+            v = len(tk.encode(r["verdict"]).ids) if "verdict" in r else 1  # tokens that carry the verdict word
+            vstart = len(p)
         if len(p) + len(t) > max_len:
             dropped += 1
             continue
-        v = len(tk.encode(r["verdict"]).ids) if "verdict" in r else 1  # tokens that carry the verdict word
-        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "plen": len(p), "vlen": v, "idx": idx, "row": r})
+        out.append({"ids": p + t, "labels": [-100] * len(p) + t, "plen": len(p), "vstart": vstart, "vlen": v, "idx": idx, "row": r})
     return out, dropped
 
 
@@ -65,7 +82,8 @@ def batches(data, bs, shuffle, rng, vw: float = 1.0, soft: dict | None = None):
         for k, i in enumerate(ch):
             L = len(data[i]["ids"])
             ids[k, :L], lab[k, :L] = torch.tensor(data[i]["ids"]), torch.tensor(data[i]["labels"])
-            wt[k, data[i]["plen"] : data[i]["plen"] + data[i]["vlen"]] = vw
+            vs = data[i].get("vstart", data[i]["plen"])
+            wt[k, vs : vs + data[i]["vlen"]] = vw
             if soft and data[i]["idx"] in soft:
                 wt[k, data[i]["plen"]] = 0.0
                 soft_rows.append((k, data[i]["plen"], soft[data[i]["idx"]]))
@@ -98,8 +116,8 @@ def val_verdict_acc(model, data, bs) -> float:
             ids[k, : len(data[i]["ids"])] = torch.tensor(data[i]["ids"])
         with torch.autocast("cuda", dtype=torch.bfloat16):
             logits = model(ids.cuda(), prefix=torch.tensor([data[i]["plen"] for i in ch]).cuda() if model.c.prefix_lm else None)
-        for k, i in enumerate(ch):
-            p = data[i]["plen"]
+        for k, i in enumerate(ch):  # with the verdict last this is teacher-forced on the reference narrative
+            p = data[i].get("vstart", data[i]["plen"])
             ok += int(logits[k, p - 1].argmax().item() == data[i]["ids"][p])
     return ok / len(order)
 
@@ -133,6 +151,8 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
             outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias, banned=ban)
         for i, o in zip(ch, outs):
             gens[i] = tk.decode(o).strip()
+            if model.c.verdict_last:
+                gens[i] = from_verdict_last(gens[i])
     rows = [e["row"] for e in enc]
     pred = [parse(g) for g in gens]
     gold, pv = [r["verdict"] for r in rows], [p[0] for p in pred]
@@ -184,6 +204,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--copy", action="store_true", help="add a pointer (copy) head to the initialized model")
     ap.add_argument("--prefix-lm", action="store_true", help="bidirectional attention within the input (prefix LM)")
+    ap.add_argument("--verdict-last", action="store_true", help="target is the narrative followed by 'Verdict: <verdict>'")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -201,7 +222,7 @@ def main() -> None:
         tk = train_tokenizer(raw["train"] + raw["val"], a.vocab, out / "tokenizer.json")
     enc, info = {}, {}
     for s, rows in raw.items():
-        enc[s], dropped = encode(tk, rows, a.max_len)
+        enc[s], dropped = encode(tk, rows, a.max_len, a.verdict_last)
         info[s] = {"examples": len(rows), "dropped_too_long": dropped}
     lens = sorted(len(x["ids"]) for x in enc["train"])
     info["train_tokens_median_p95_max"] = [lens[len(lens) // 2], lens[int(len(lens) * 0.95)], lens[-1]]
@@ -217,7 +238,7 @@ def main() -> None:
     if a.init:
         ck = torch.load(a.init, map_location="cpu")
         cfg = Config(**{**ck["config"], "dropout": a.dropout, **({"copy": True} if a.copy else {}),
-                        **({"prefix_lm": True} if a.prefix_lm else {})})
+                        **({"prefix_lm": True} if a.prefix_lm else {}), **({"verdict_last": True} if a.verdict_last else {})})
         model = TinyLM(cfg)
         missing, unexpected = model.load_state_dict(ck["state"], strict=False)
         assert not unexpected and all(k.startswith("copy_") for k in missing), (missing, unexpected)
