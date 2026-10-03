@@ -534,3 +534,15 @@ Commit: 7a4dad8 (`distill/audit.py`). Second model: Gemma 4 31B (FP8), thinking 
 - Models on the 793: `f6-dpo` 85.5% against stored, 85.1% against Gemma 4, 79.4% against thinking, 85.2% against the majority, 90.8% on the unanimous 640. `f5-dpo` 86.1 / 84.1 / 81.3 / 85.6 / 91.2. `f6-sft` 85.8 / 85.5 / 79.6 / 85.5 / 90.9. `f6-copy-dpo` 86.0 / 86.5 / 80.2 / 86.5 / 91.7.
 
 **Implication.** The narratives and queries are of high quality by an independent model's judgment; no human or native-speaker check has been made. The verdict labels are the weak part: about one test example in five has a contested label, nearly all at the partly-relevant and irrelevant boundary, and the teacher tends to call an item partly relevant when it matches a filter but not the topic. Verdict accuracy above about 86% on the stored labels is therefore not a reliable measure, and differences of a point between models are within what the label choice changes (the copy-head model ranks first against Gemma 4 and the majority, but not against the stored labels). On the unanimous subset the models miss about 9%, which is the part of the verdict error that is clearly the model's. A tighter definition (a match on filters alone with a different topic is irrelevant) and consensus labels for training and test are the data-side remedy; changed labels need new narratives, since each narrative argues for its verdict.
+
+## 2026-10-03 17:31 UTC — Prefix LM (bidirectional attention over the input): no gain
+
+Commit: a79f830 (`Config.prefix_lm`, `train.py --prefix-lm`). Judges and test sample as in the previous entries; INT8 without the script constraint.
+
+**Question/Context.** The model misses about 9% of verdicts even where all three labels agree (previous entry). A causal decoder reads the input strictly left to right; would bidirectional attention within the input (prefix LM), with causal attention over the output, help the verdict or the narrative?
+
+**What was done.** Fine-tuned `runs/pre-wide-full2` (pretrained causally) on `data/f6` with the round recipe and `--prefix-lm` (`runs/f6-prefix-sft`). Tests check that prompt positions see the whole prompt, that output positions stay causal, that labels give the same prefix as explicit lengths, and that cached batched decoding equals full recomputation. Compared with `runs/f6-sft` (same recipe, causal).
+
+**Result.** Validation loss 0.688 (best verdict epoch 7) against 0.693; test verdict 85.7% (macro-F1 0.814) against 85.9% (0.811); on the 640 test examples with unanimous labels 91.2% against 90.9% (copy head 91.4%). Faithfulness: teacher 4.36 to 4.38 (+0.021 [-0.054, +0.099]), Gemma 4 4.47 to 4.50 (+0.036 [-0.036, +0.110]); coherence teacher -0.022 [-0.083, +0.035], Gemma 4 -0.029 [-0.074, +0.020]. Pairwise usefulness 363 to 361.
+
+**Implication.** Bidirectional attention over the input does not change the verdict or the narrative at this size after causal pretraining. A prefix-LM pretraining objective was not tested. Not adopted.
