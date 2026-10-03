@@ -97,7 +97,7 @@ def val_verdict_acc(model, data, bs) -> float:
         for k, i in enumerate(ch):
             ids[k, : len(data[i]["ids"])] = torch.tensor(data[i]["ids"])
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            logits = model(ids.cuda())
+            logits = model(ids.cuda(), prefix=torch.tensor([data[i]["plen"] for i in ch]).cuda() if model.c.prefix_lm else None)
         for k, i in enumerate(ch):
             p = data[i]["plen"]
             ok += int(logits[k, p - 1].argmax().item() == data[i]["ids"][p])
@@ -183,6 +183,7 @@ def main() -> None:
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--copy", action="store_true", help="add a pointer (copy) head to the initialized model")
+    ap.add_argument("--prefix-lm", action="store_true", help="bidirectional attention within the input (prefix LM)")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -215,7 +216,8 @@ def main() -> None:
 
     if a.init:
         ck = torch.load(a.init, map_location="cpu")
-        cfg = Config(**{**ck["config"], "dropout": a.dropout, **({"copy": True} if a.copy else {})})
+        cfg = Config(**{**ck["config"], "dropout": a.dropout, **({"copy": True} if a.copy else {}),
+                        **({"prefix_lm": True} if a.prefix_lm else {})})
         model = TinyLM(cfg)
         missing, unexpected = model.load_state_dict(ck["state"], strict=False)
         assert not unexpected and all(k.startswith("copy_") for k in missing), (missing, unexpected)

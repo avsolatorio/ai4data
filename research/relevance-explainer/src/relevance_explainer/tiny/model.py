@@ -26,6 +26,7 @@ class Config:
     dropout: float = 0.1
     copy: bool = False  # pointer head: mix the vocabulary distribution with attention over earlier tokens
     copy_dim: int = 64
+    prefix_lm: bool = False  # attention is bidirectional within the prompt (input) and causal after it
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -137,10 +138,25 @@ class TinyLM(nn.Module):
         if isinstance(m, (nn.Linear, nn.Embedding)):
             nn.init.normal_(m.weight, std=0.02)
 
-    def forward(self, ids, labels=None, weights=None):
+    def prefix_mask(self, T: int, prefix: torch.Tensor) -> torch.Tensor:
+        """[B, 1, T, T] attention mask: causal, plus full attention among the first prefix[b] positions."""
+        r = torch.arange(T, device=prefix.device)
+        causal = r[None, :, None] >= r[None, None, :]
+        inside = (r[None, :] < prefix[:, None])  # [B, T]
+        return (causal | (inside[:, :, None] & inside[:, None, :]))[:, None]
+
+    def forward(self, ids, labels=None, weights=None, prefix=None):
+        """`prefix` [B]: prompt lengths for a prefix-LM model; derived from `labels` (first target) when omitted."""
         x = F.dropout(self.emb(ids), self.c.dropout, self.training)
+        mask = None
+        if self.c.prefix_lm:
+            if prefix is None and labels is not None:
+                prefix = (labels != -100).int().argmax(1)
+            if prefix is None:
+                raise ValueError("a prefix-LM model needs the prompt lengths (prefix) or labels")
+            mask = self.prefix_mask(ids.size(1), prefix.to(ids.device))
         for j in self.order:
-            x = self.blocks[j](x, self.cos, self.sin)
+            x = self.blocks[j](x, self.cos, self.sin, mask)
         if self.c.copy:  # log-probabilities; they behave as logits for softmax, argmax and cross-entropy
             h = self.norm(x)
             T = ids.size(1)
@@ -166,7 +182,8 @@ class TinyLM(nn.Module):
         out: list[int] = []
         seen: dict[tuple[int, ...], set[int]] = {}
         for _ in range(max_new):
-            logits = self(ids[:, -self.c.max_len :])[0, -1]
+            prefix = torch.tensor([ids.size(1) - len(out)], device=ids.device) if self.c.prefix_lm else None
+            logits = self(ids[:, -self.c.max_len :], prefix=prefix)[0, -1]
             if no_repeat and len(out) >= no_repeat - 1:
                 banned = seen.get(tuple(out[len(out) - no_repeat + 1 :]), ())
                 if banned:
@@ -202,7 +219,10 @@ class TinyLM(nn.Module):
             valid[i, L - len(p) :] = True
         pos = (valid.long().cumsum(1) - 1).clamp_min(0)
         # Causal and key-validity mask; the diagonal stays open so padded query rows never see an empty set.
-        mask = torch.tril(torch.ones(L, L, dtype=torch.bool, device=dev))[None, None] & valid[:, None, None, :]
+        mask = torch.tril(torch.ones(L, L, dtype=torch.bool, device=dev))[None, None]
+        if self.c.prefix_lm:  # the whole (valid) prompt attends to itself in both directions
+            mask = mask | (valid[:, None, :, None] & valid[:, None, None, :])
+        mask = mask & valid[:, None, None, :]
         mask = mask | torch.eye(L, dtype=torch.bool, device=dev)[None, None]
         caches: list[dict] = [{} for _ in self.order]  # one cache per application: shared weights see different inputs
         x = self.emb(ids)
