@@ -546,3 +546,19 @@ Commit: a79f830 (`Config.prefix_lm`, `train.py --prefix-lm`). Judges and test sa
 **Result.** Validation loss 0.688 (best verdict epoch 7) against 0.693; test verdict 85.7% (macro-F1 0.814) against 85.9% (0.811); on the 640 test examples with unanimous labels 91.2% against 90.9% (copy head 91.4%). Faithfulness: teacher 4.36 to 4.38 (+0.021 [-0.054, +0.099]), Gemma 4 4.47 to 4.50 (+0.036 [-0.036, +0.110]); coherence teacher -0.022 [-0.083, +0.035], Gemma 4 -0.029 [-0.074, +0.020]. Pairwise usefulness 363 to 361.
 
 **Implication.** Bidirectional attention over the input does not change the verdict or the narrative at this size after causal pretraining. A prefix-LM pretraining objective was not tested. Not adopted.
+
+## 2026-10-03 21:44 UTC — Narrative first, verdict last: worse verdict, no better narrative; field similarities and a reranker probe
+
+Commit: cc893b0 (`train.py --verdict-last`, `synth/fieldsignals.py`); reranker probe with `synth/rerankscore.py` at 12ad6a9. Judges and test sample as before; INT8 without the script constraint.
+
+**Question/Context.** (1) Would letting the 20M model write its explanation before committing to a verdict improve the verdict (a reasoning-first order) or the narrative? (2) Do precomputed signals beyond the retrieval similarity carry verdict information: per-field similarities from the same retriever model, or a cross-encoder reranker score?
+
+**What was done.**
+1. `runs/f6-vlast-sft`: same base, data and recipe as `runs/f6-sft`, but the target is the narrative followed by "Verdict: <verdict>", with the verdict weight on the final verdict tokens. Best epoch by validation loss (the validation verdict check is teacher-forced on the reference narrative, which reveals the verdict: it read 97.5% after one epoch). Generations are converted back to verdict-first for the judges.
+2. Probes: gradient-boosted classifiers on numeric features only (retrieval similarity, counts of passing and failing filter checks, source), trained on 120,000 (field similarities) or 40,000 (reranker) training examples of `data/f6`, tested on the 7,056 third-round test examples. Field similarities: query against title, against the description field, and against the retrieved passage, from `ai4data/devdata-search-granite-97m-multilingual-cmnrl`. Reranker: `BAAI/bge-reranker-v2-m3` on (query, title + description + passage), FP16.
+
+**Result.**
+- Narrative first: verdict 82.2% (macro-F1 0.752) against 85.9% (0.811); on the 640 unanimous-label test examples 86.1% against 90.9%. Faithfulness teacher 4.36 to 4.34 (-0.019 [-0.094, +0.056]), Gemma 4 4.47 to 4.43 (-0.039 [-0.115, +0.039]); coherence -0.044 and -0.019 (both intervals include 0). The in-training test evaluation was cut short by a GPU memory clash with a concurrently started job; the numbers above come from the standard evaluation run afterwards.
+- Probes, test accuracy: retrieval similarity alone 72.4% (first probe) ; with filter counts and source 78.8% / 78.2% (two probe runs); adding field similarities 79.1% (+0.3); adding the reranker score 81.1% (+2.9). The reranker scored 40,000 pairs in 21 s on one H100.
+
+**Implication.** Reasoning before the verdict costs 3.7 points of verdict accuracy at this size and does not improve the narrative; the verdict-first order stays. This also lowers the prior for a generated "pitfalls" stream before the answer. Field similarities from the retriever add almost nothing beyond its overall similarity and are not pursued; the reranker score carries more verdict information and is being tested as a model input (`data/f6rr`).
