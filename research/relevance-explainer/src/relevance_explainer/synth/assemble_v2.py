@@ -39,6 +39,18 @@ def _render_old(args):
     return render_v2(p, _U, parsed, sim), render_v2min(p, sim)
 
 
+def _render_real(r: dict):
+    """Re-render a realistic example with the current query understanding. Returns None when an earlier parse found a
+    place the current one does not and the narrative names it (the narrative followed a wrong Understood line)."""
+    from .understand import norm
+    parsed = _U.parse(r["query"], r.get("facet_values"))
+    new = {x.get("iso3") or x.get("code") for x in parsed["places"]}
+    for x in (r.get("parsed") or {}).get("places", []):
+        if (x.get("iso3") or x.get("code")) not in new and norm(x["name"]) in norm(r["narrative"]):
+            return None
+    return render_v2(r, _U, parsed, r["similarity"]), render_v2min(r, r["similarity"])
+
+
 def load_old() -> list[dict]:
     seen, rows = set(), []
     for d in ROUNDS:
@@ -76,15 +88,22 @@ def main() -> None:
             for r, (v2, vm) in zip(old, rendered)]
 
     real_dirs = a.real if a.real is not None else sorted(str(p) for g in ("c*", "t*") for p in Path("data/real").glob(g) if (p / "examples.jsonl").exists())
-    seen = set()
+    seen, real = set(), []
     for d in real_dirs:
         for line in (Path(d) / "examples.jsonl").read_text().splitlines():
             r = json.loads(line)
             key = (r["query"], r["record"]["id"])
-            if key in seen:
-                continue
-            seen.add(key)
-            rows.append({"input": r["input_v2"], "input_min": r["input_v2min"], "output": f"{r['verdict']}\n{r['narrative']}",
+            if key not in seen:
+                seen.add(key)
+                real.append(r)
+    with ProcessPoolExecutor(a.procs, initializer=_init) as ex:
+        rer = list(ex.map(_render_real, real, chunksize=256))
+    print(f"realistic examples: {len(real)}; dropped after re-rendering: {sum(x is None for x in rer)}")
+    for r, x in zip(real, rer):
+        if x is None:
+            continue
+        r["input_v2"], r["input_v2min"] = x
+        rows.append({"input": r["input_v2"], "input_min": r["input_v2min"], "output": f"{r['verdict']}\n{r['narrative']}",
                          "verdict": r["verdict"], "source": r["record"]["kind"], "language": r["language"], "seed": r["topic"],
                          "origin": "translated" if r.get("mode") == "translated" else "real", "style": r.get("style"), "writer": r.get("writer", "qwen3.8-27b"), "mode": r.get("mode")})
 

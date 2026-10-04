@@ -21,6 +21,12 @@ def main() -> None:
     ap.add_argument("--out", default="data/eval_real")
     a = ap.parse_args()
     rows = [json.loads(l) for l in Path(a.src).read_text().splitlines()]
+    from .realistic import render_v2, render_v2min
+    from .understand import Understander
+    u = Understander()
+    for r in rows:  # inputs as the current preprocessor renders them
+        parsed = u.parse(r["query"], r.get("facet_values"))
+        r["input_v2"], r["input_v2min"] = render_v2(r, u, parsed, r["similarity"]), render_v2min(r, r["similarity"])
     for name, key in (("full", "input_v2"), ("min", "input_v2min"), ("itemfirst", None)):
         d = Path(a.out) / name
         d.mkdir(parents=True, exist_ok=True)
