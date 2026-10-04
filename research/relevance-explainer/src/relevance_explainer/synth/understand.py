@@ -18,6 +18,8 @@ from pathlib import Path
 _RES = Path(__file__).resolve().parents[3] / "resources"  # tracked copies; data/geo holds freshly built ones
 GEO = Path("data/geo/geo.json") if Path("data/geo/geo.json").exists() else _RES / "geo.json"
 LEX = Path("data/geo/lexicon.json") if Path("data/geo/lexicon.json").exists() else _RES / "lexicon.json"
+COMMON = Path("data/geo/common_words.json")
+ALLOW_PLACES = {"bihar", "gaza", "papua"}  # frequent in searches because people search for them
 CURRENT_YEAR = 2026
 YEAR = r"(?:19[5-9]\d|20[0-3]\d)"
 
@@ -29,6 +31,7 @@ STOP_PLACES = {
     "san", "santa", "la", "el", "al", "as", "es", "da", "de", "do", "ba", "aba", "ede", "ife", "orlu", "gaza strip",
     "independencia", "libertad", "victoria", "concepcion", "trinidad", "esperanza", "progreso", "union", "colon", "bolivar",
     "sucre", "cuba", "chad", "jordan", "georgia", "niger", "guinea", "mali", "togo", "peru", "chile",
+    "lima", "cuenca", "corona", "covid", "kota", "pueblo", "valle", "mina", "sur", "norte", "oeste", "este",
 }
 GROUP_EVIDENCE = {  # English metadata words that show a population group is covered
     "female": r"\b(women|woman|female|girls?|sex|gender|maternal|mothers?)\b",
@@ -49,7 +52,7 @@ KIND_LABEL = {"indicator": "an indicator series", "study": "survey microdata", "
 def norm(s: str) -> str:
     """Lowercase; drop accents on Latin letters only (Devanagari vowel signs and other combining marks are kept)."""
     out, prev_latin = [], False
-    for ch in unicodedata.normalize("NFKD", s.lower()):
+    for ch in unicodedata.normalize("NFKD", s.lower().replace("ı", "i")):  # Turkish dotless i is often typed as i
         if unicodedata.combining(ch):
             if prev_latin:
                 continue
@@ -57,6 +60,75 @@ def norm(s: str) -> str:
             prev_latin = ch.isascii() or "LATIN" in unicodedata.name(ch, "")
         out.append(ch)
     return unicodedata.normalize("NFC", "".join(out))
+
+
+def _variants(n: str) -> set[str]:
+    """Query tokens plus forms without Arabic clitics (الريفية -> ريفية)."""
+    out = set()
+    for t in TOKEN.findall(n):
+        out.add(t)
+        for p in AR_PREFIX:
+            if t.startswith(p) and len(t) - len(p) >= 3:
+                out.add(t[len(p):])
+    return out
+
+
+def _has(n: str, toks: set[str], w: str) -> bool:
+    """Lexicon entry w occurs in the normalized query n: exact word or phrase, Chinese substring, or an inflected form
+    of a one-word entry (Latin plural or agreement endings, Russian case endings, Arabic clitics)."""
+    if _is_cjk(w):
+        return w in n
+    if " " in w or "-" in w:
+        return re.search(rf"(?:^|\W){re.escape(w)}(?:\W|$)", n) is not None
+    if w in toks:
+        return True
+    if len(w) < 4:
+        return False
+    cyr = any("Ѐ" <= c <= "ӿ" for c in w)
+    for t in toks:
+        if cyr:
+            k = 0
+            while k < min(len(t), len(w)) and t[k] == w[k]:
+                k += 1
+            if k >= max(4, len(w) - 2) and abs(len(t) - len(w)) <= 3:
+                return True
+        elif len(w) >= 5 and t.startswith(w) and len(t) - len(w) <= 3:
+            return True
+    return False
+
+
+DECADE_WORDS = {norm(k): v for k, v in {
+    "الستينات": 1960, "السبعينات": 1970, "الثمانينات": 1980, "التسعينات": 1990, "الالفينات": 2000, "الألفينات": 2000,
+    "шестидесят": 1960, "семидесят": 1970, "восьмидесят": 1980, "девяност": 1990, "нулевых": 2000, "нулевые": 2000,
+    "六十年代": 1960, "七十年代": 1970, "八十年代": 1980, "九十年代": 1990, "90-е": 1990, "80-е": 1980, "90-х": 1990, "80-х": 1980,
+    "90-an": 1990, "80-an": 1980, "1990-an": 1990, "2000-an": 2000, "2010-an": 2010, "1990 के दशक": 1990, "2000 के दशक": 2000,
+    "1980 के दशक": 1980, "miaka ya 1990": 1990, "miaka ya 2000": 2000, "miaka ya 1980": 1980, "90'lar": 1990, "80'ler": 1980,
+}.items()}
+COVID_PHRASES = {k: [norm(x) for x in v] for k, v in {
+    "pre_covid": ["pre-pandemic", "pre pandemic", "before covid", "pre-covid", "pre covid", "prepandemia", "pré-pandemia",
+                  "pre-pandemia", "pré-covid", "avant la pandémie", "avant covid", "antes de la pandemia", "antes da pandemia",
+                  "antes del covid", "до пандемии", "до ковида", "قبل كوفيد", "قبل الجائحة", "قبل كورونا", "疫情前", "新冠前",
+                  "महामारी से पहले", "कोविड से पहले", "kabla ya covid", "kabla ya janga", "sebelum pandemi", "sebelum covid",
+                  "pandemi öncesi", "pandemiden önce", "covid öncesi"],
+    "post_covid": ["post-pandemic", "post pandemic", "after covid", "since covid", "post-covid", "après la pandémie",
+                   "depuis la pandémie", "après covid", "después de la pandemia", "desde la pandemia", "pós-pandemia",
+                   "após a pandemia", "после пандемии", "после ковида", "بعد كوفيد", "بعد الجائحة", "بعد كورونا", "منذ جائحة",
+                   "疫情后", "疫情以来", "新冠以来", "महामारी के बाद", "कोविड के बाद", "baada ya covid", "baada ya janga",
+                   "setelah pandemi", "pasca pandemi", "pascapandemi", "pandemi sonrası", "pandemiden sonra", "covid sonrası"],
+}.items()}
+
+
+def _edit_distance(a: str, b: str, limit: int) -> int:
+    """Levenshtein distance, stopping early once every path exceeds `limit`."""
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i] + [0] * len(b)
+        for j, cb in enumerate(b, 1):
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb))
+        if min(cur) > limit:
+            return limit + 1
+        prev = cur
+    return prev[-1]
 
 
 def _is_cjk(s: str) -> bool:
@@ -74,6 +146,11 @@ ABBREV = {"mena": "CME", "ssa": "SSF", "lac": "LCN", "eap": "EAS", "eca": "ECS",
           "lmic": "LMC", "lmics": "LMC", "lic": "LIC", "lics": "LIC", "hic": "HIC", "hics": "HIC", "umic": "UMC", "umics": "UMC",
           "eu": "EUU", "oecd": "OED", "sids": "SST", "hipc": "HPC", "menaap": "MEA", "asean": "ASEAN", "gcc": "GCC",
           "ecowas": "ECOWAS", "sadc": "SADC", "eac": "EAC", "brics": "BRICS", "g7": "G7"}
+# Everyday English names that map to the nearest grouping.
+EXTRA_GROUP_NAMES = {"latin america": "LCN", "europe": "ECS", "east asia": "EAS", "middle east": "CME", "west africa": "AFW",
+                     "east africa": "AFE", "southern africa": "AFE", "central africa": "AFW", "small island states": "SST",
+                     "small island developing states": "SST", "low-income countries": "LIC", "middle-income countries": "MIC",
+                     "high-income countries": "HIC", "least developed countries": "LDC", "emerging markets": "LMY"}
 # English country variants absent from the official names.
 COUNTRY_ALIASES = {"turkey": "TUR", "ivory coast": "CIV", "czech republic": "CZE", "swaziland": "SWZ", "burma": "MMR",
                    "cape verde": "CPV", "east timor": "TLS", "macedonia": "MKD", "drc": "COD", "dr congo": "COD",
@@ -106,6 +183,13 @@ class Understander:
         self.stems: dict[tuple, list[dict]] = {}  # stemmed token tuple -> candidates (fallback)
         self.cjk: list[tuple[str, dict]] = []
         stop = set(STOP_PLACES)
+        common = COMMON if COMMON.exists() else _RES / "common_words.json"  # frequent ordinary words in searches
+        if common.exists():
+            stop.update(set(json.loads(common.read_text())) - ALLOW_PLACES)
+        for lang in self.lex.values():  # time words such as COVID terms are never places
+            for k in ("pre_covid", "post_covid", "latest", "recent"):
+                for w in lang.get("time", {}).get(k, []):
+                    stop.update(TOKEN.findall(norm(w)))
         for lang in self.lex.values():
             for sec in ("group", "datatype", "frequency", "scope"):
                 for words in lang.get(sec, {}).values():
@@ -122,12 +206,20 @@ class Understander:
         for alias, iso3 in COUNTRY_ALIASES.items():
             if iso3 in self.countries:
                 self._add(alias, {"kind": "country", "iso3": iso3, "name": self.countries[iso3]["name"]}, stop_ok=True)
+        for lang in self.lex.values():  # per-language search aliases (synth.aliases), including inflected forms
+            for iso3, ns in lang.get("country_aliases", {}).items():
+                if iso3 in self.countries:
+                    for n in ns:
+                        self._add(n, {"kind": "country", "iso3": iso3, "name": self.countries[iso3]["name"]}, stop_ok=True)
         for code, g in self.groups.items():
             ent = {"kind": "group", "code": code, "name": g["name"]}
             self._add(g["name"], ent, stop_ok=True)
             for lang in self.lex.values():
-                for n in lang.get("groupings", {}).get(g["name"], []):
+                for n in lang.get("groupings", {}).get(g["name"], []) + lang.get("group_aliases", {}).get(code, []):
                     self._add(n, ent, stop_ok=True)
+        for name, code in EXTRA_GROUP_NAMES.items():
+            if code in self.groups:
+                self._add(name, {"kind": "group", "code": code, "name": self.groups[code]["name"]}, stop_ok=True)
         for lang in self.lex.values():
             for key, words in lang.get("scope", {}).items():
                 for w in words:
@@ -145,6 +237,16 @@ class Understander:
             if all(c["kind"] in ("admin1", "city") for c in v) and len("".join(k)) < 5:
                 continue
             self.cyr.setdefault(len(k), []).append((k, v))
+        official = {tuple(TOKEN.findall(norm(n))) for c in self.countries.values() for ns in c["names"].values() for n in ns}
+        for k, v in list(self.names.items()):  # an informal one-word country alias that names a place elsewhere: the place wins
+            if len(k) == 1 and k not in official and any(c["kind"] == "country" for c in v):
+                ctry = {c["iso3"] for c in v if c["kind"] == "country"}
+                if any(c["kind"] in ("admin1", "city") and c["iso3"] not in ctry for c in v):
+                    self.names[k] = [c for c in v if c["kind"] != "country"]
+        self.latin_countries: dict[tuple, list[tuple[str, list]]] = {}  # (word count, first letter) -> country names
+        for k, v in self.names.items():
+            if all(t.isascii() for t in k) and len(" ".join(k)) >= 6 and any(c["kind"] == "country" for c in v):
+                self.latin_countries.setdefault((len(k), k[0][0]), []).append((" ".join(k), [c for c in v if c["kind"] == "country"]))
         self._time_words()
 
     # ------------------------------------------------------------------ index
@@ -178,13 +280,31 @@ class Understander:
 
         best, best_score = None, None
         for name_key, cands in self.cyr.get(len(key), []):
+            only_places = all(c["kind"] in ("admin1", "city") for c in cands)
             need = [(3 if len(w) <= 4 or len(key) > 1 else 4) for w in name_key]
             need = [max(n, len(w) - 2) if len(w) > 4 else n for n, w in zip(need, name_key)]
-            if all(pref(q, w) >= n and len(q) <= len(w) + 3 for q, w, n in zip(key, name_key, need)):
+            if only_places:  # cities and provinces: near-exact forms only (туризма is not Турин)
+                need = [max(n, len(w) - 1) for n, w in zip(need, name_key)]
+            slack = 1 if only_places else 2 if any(len(w) <= 4 for w in name_key) else 3  # перепис is not Перу
+            if only_places and any(len(w) < 5 for w in name_key):
+                continue
+            if all(pref(q, w) >= n and len(q) <= len(w) + slack for q, w, n in zip(key, name_key, need)):
                 score = sum(pref(q, w) - abs(len(q) - len(w)) for q, w in zip(key, name_key))
                 if best_score is None or score > best_score:
                     best, best_score = cands, score
         return best
+
+    def _typo(self, key: tuple) -> list[dict] | None:
+        """Countries spelled with one wrong, missing or extra letter (two for names of 10+ letters), same first letter:
+        indonesi, kazanakhstan, phillipines. Names under 6 letters are matched exactly only."""
+        s = " ".join(key)
+        if len(s) < 6:
+            return None
+        for name, cands in self.latin_countries.get((len(key), s[0]), []):
+            limit = 2 if len(name) >= 10 else 1
+            if abs(len(name) - len(s)) <= limit and _edit_distance(s, name, limit) <= limit:
+                return cands
+        return None
 
     def _iso3_by_name(self, name: str) -> str | None:
         n = norm(name)
@@ -226,6 +346,8 @@ class Understander:
                     for p in AR_PREFIX:  # Arabic clitics written together with the name
                         if w.startswith(p) and len(w) - len(p) >= 3 and (cands := self.names.get((w[len(p):],))):
                             break
+                if not cands and size <= 3 and all(t.isascii() for t in key):
+                    cands = self._typo(key)
                 if cands:
                     found.append({"span": n[toks[i][1] : toks[i + size - 1][2]], "cands": cands})
                     used.update(range(i, i + size))
@@ -298,21 +420,26 @@ class Understander:
             return {"type": "years", "start": ys[0], "end": ys[-1], "list": ys, "span": " ".join(years)}
         if years:
             return {"type": "year", "start": int(years[0]), "end": int(years[0]), "span": years[0]}
+        for word, d in DECADE_WORDS.items():
+            if word in n:
+                return {"type": "decade", "start": d, "end": d + 9, "span": word}
+        toks = _variants(n)
         for kind, label in (("pre_covid", "before COVID-19"), ("post_covid", "since COVID-19")):
-            for w in tw.get(kind, []):
-                if len(w) >= 4 and w in n:
+            for w in list(COVID_PHRASES[kind]) + tw.get(kind, []):
+                if (len(w) >= 4 or _is_cjk(w)) and (w in n if (" " in w or "-" in w or _is_cjk(w)) else _has(n, toks, w)):
                     return ({"type": "before", "start": None, "end": 2019, "span": w, "label": label} if kind == "pre_covid"
                             else {"type": "since", "start": 2020, "end": CURRENT_YEAR, "span": w, "label": label})
         for kind in ("latest", "recent"):
             for w in tw.get(kind, []):
-                if len(w) >= 4 and re.search(rf"(?:^|\W){re.escape(w)}(?:\W|$)", n):
+                if (len(w) >= 4 or (_is_cjk(w) and len(w) >= 2)) and _has(n, toks, w):
                     return {"type": kind, "start": CURRENT_YEAR - (3 if kind == "latest" else 5), "end": CURRENT_YEAR, "span": w}
         return None
 
     def _lexmatch(self, sec: str, text: str) -> list[str]:
         n, out = norm(text), []
+        toks = _variants(n)
         for key, words in self.lex_flat[sec].items():
-            if any(re.search(rf"(?:^|\W){re.escape(w)}(?:\W|$)", n) or (_is_cjk(w) and w in n) for w in words):
+            if any(_has(n, toks, w) for w in words):
                 out.append(key)
         return out
 

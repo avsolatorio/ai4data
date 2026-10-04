@@ -420,6 +420,1031 @@
     "western and central africa",
     "wca"
    ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afghanistan",
+    "afghan"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albania"
+   ],
+   "AND": [
+    "andorra"
+   ],
+   "ARE": [
+    "united arab emirates",
+    "uae",
+    "emirates"
+   ],
+   "ARG": [
+    "argentina"
+   ],
+   "ARM": [
+    "armenia"
+   ],
+   "ASM": [
+    "american samoa"
+   ],
+   "ATG": [
+    "antigua and barbuda",
+    "antigua"
+   ],
+   "AUS": [
+    "australia",
+    "oz",
+    "aus"
+   ],
+   "AUT": [
+    "austria"
+   ],
+   "AZE": [
+    "azerbaijan",
+    "azerbaycan"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "belgium"
+   ],
+   "BEN": [
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladesh"
+   ],
+   "BGR": [
+    "bulgaria"
+   ],
+   "BHR": [
+    "bahrain"
+   ],
+   "BHS": [
+    "bahamas",
+    "the bahamas"
+   ],
+   "BIH": [
+    "bosnia and herzegovina",
+    "bosnia",
+    "bih"
+   ],
+   "BLR": [
+    "belarus",
+    "belorussia"
+   ],
+   "BLZ": [
+    "belize"
+   ],
+   "BMU": [
+    "bermuda"
+   ],
+   "BOL": [
+    "bolivia"
+   ],
+   "BRA": [
+    "brazil",
+    "brasil"
+   ],
+   "BRB": [
+    "barbados"
+   ],
+   "BRN": [
+    "brunei darussalam",
+    "brunei"
+   ],
+   "BTN": [
+    "bhutan"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "central african republic",
+    "car"
+   ],
+   "CAN": [
+    "canada"
+   ],
+   "CHE": [
+    "switzerland",
+    "swiss"
+   ],
+   "CHI": [
+    "channel islands"
+   ],
+   "CHL": [
+    "chile"
+   ],
+   "CHN": [
+    "china"
+   ],
+   "CIV": [
+    "cote d'ivoire",
+    "ivory coast",
+    "côte d'ivoire"
+   ],
+   "CMR": [
+    "cameroon"
+   ],
+   "COD": [
+    "congo, dem. rep.",
+    "democratic republic of the congo",
+    "drc",
+    "congo-kinshasa"
+   ],
+   "COG": [
+    "congo, rep.",
+    "republic of the congo",
+    "congo-brazzaville",
+    "congo"
+   ],
+   "COL": [
+    "colombia"
+   ],
+   "COM": [
+    "comoros"
+   ],
+   "CPV": [
+    "cabo verde",
+    "cape verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "cuba"
+   ],
+   "CUW": [
+    "curacao",
+    "curaçao"
+   ],
+   "CYM": [
+    "cayman islands",
+    "caymans"
+   ],
+   "CYP": [
+    "cyprus"
+   ],
+   "CZE": [
+    "czechia",
+    "czech republic"
+   ],
+   "DEU": [
+    "germany",
+    "deutschland"
+   ],
+   "DJI": [
+    "djibouti"
+   ],
+   "DMA": [
+    "dominica"
+   ],
+   "DNK": [
+    "denmark"
+   ],
+   "DOM": [
+    "dominican republic",
+    "dr",
+    "dom rep"
+   ],
+   "DZA": [
+    "algeria"
+   ],
+   "ECU": [
+    "ecuador"
+   ],
+   "EGY": [
+    "egypt",
+    "arab republic of egypt"
+   ],
+   "ERI": [
+    "eritrea"
+   ],
+   "ESP": [
+    "spain",
+    "espana"
+   ],
+   "EST": [
+    "estonia"
+   ],
+   "ETH": [
+    "ethiopia"
+   ],
+   "FIN": [
+    "finland",
+    "suomi"
+   ],
+   "FJI": [
+    "fiji"
+   ],
+   "FRA": [
+    "france"
+   ],
+   "FRO": [
+    "faroe islands",
+    "faroe"
+   ],
+   "FSM": [
+    "micronesia",
+    "federated states of micronesia",
+    "fsm"
+   ],
+   "GAB": [
+    "gabon"
+   ],
+   "GBR": [
+    "united kingdom",
+    "uk",
+    "britain",
+    "great britain"
+   ],
+   "GEO": [
+    "georgia",
+    "sakartvelo"
+   ],
+   "GHA": [
+    "ghana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guinea"
+   ],
+   "GMB": [
+    "gambia",
+    "the gambia"
+   ],
+   "GNB": [
+    "guinea-bissau",
+    "bissau"
+   ],
+   "GNQ": [
+    "equatorial guinea"
+   ],
+   "GRC": [
+    "greece",
+    "hellas"
+   ],
+   "GRD": [
+    "grenada"
+   ],
+   "GRL": [
+    "greenland"
+   ],
+   "GTM": [
+    "guatemala"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guyana"
+   ],
+   "HKG": [
+    "hong kong",
+    "hong kong sar",
+    "hk"
+   ],
+   "HND": [
+    "honduras"
+   ],
+   "HRV": [
+    "croatia",
+    "hrv"
+   ],
+   "HTI": [
+    "haiti",
+    "hti"
+   ],
+   "HUN": [
+    "hungary",
+    "hun"
+   ],
+   "IDN": [
+    "indonesia",
+    "indo"
+   ],
+   "IMN": [
+    "isle of man",
+    "man",
+    "iom"
+   ],
+   "IND": [
+    "india",
+    "ind"
+   ],
+   "IRL": [
+    "ireland",
+    "irl",
+    "eire"
+   ],
+   "IRN": [
+    "iran",
+    "islamic republic of iran",
+    "irn"
+   ],
+   "IRQ": [
+    "iraq",
+    "irq"
+   ],
+   "ISL": [
+    "iceland",
+    "isl"
+   ],
+   "ISR": [
+    "israel",
+    "isr"
+   ],
+   "ITA": [
+    "italy",
+    "ita"
+   ],
+   "JAM": [
+    "jamaica",
+    "jam"
+   ],
+   "JOR": [
+    "jordan",
+    "jor"
+   ],
+   "JPN": [
+    "japan",
+    "jpn",
+    "nipon",
+    "nippon"
+   ],
+   "KAZ": [
+    "kazakhstan",
+    "kaz"
+   ],
+   "KEN": [
+    "kenya",
+    "ken"
+   ],
+   "KGZ": [
+    "kyrgyz republic",
+    "kyrgyzstan",
+    "kyrgyz",
+    "kgz"
+   ],
+   "KHM": [
+    "cambodia",
+    "khamer",
+    "khmer"
+   ],
+   "KIR": [
+    "kiribati",
+    "kir"
+   ],
+   "KNA": [
+    "st. kitts and nevis",
+    "st kits",
+    "st christopher",
+    "kna"
+   ],
+   "KOR": [
+    "korea, rep.",
+    "south korea",
+    "republic of korea",
+    "rok",
+    "kor"
+   ],
+   "KWT": [
+    "kuwait",
+    "kwt"
+   ],
+   "LAO": [
+    "lao pdr",
+    "laos",
+    "lao"
+   ],
+   "LBN": [
+    "lebanon",
+    "lbn"
+   ],
+   "LBR": [
+    "liberia",
+    "lbr"
+   ],
+   "LBY": [
+    "libya",
+    "lby"
+   ],
+   "LCA": [
+    "st. lucia",
+    "st lucia",
+    "lca"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesotho"
+   ],
+   "LTU": [
+    "lithuania"
+   ],
+   "LUX": [
+    "luxembourg",
+    "lux"
+   ],
+   "LVA": [
+    "latvia"
+   ],
+   "MAC": [
+    "macao",
+    "macau"
+   ],
+   "MAF": [
+    "st martin",
+    "saint martin",
+    "st martin french part"
+   ],
+   "MAR": [
+    "morocco"
+   ],
+   "MCO": [
+    "monaco"
+   ],
+   "MDA": [
+    "moldova",
+    "moldavia"
+   ],
+   "MDG": [
+    "madagascar"
+   ],
+   "MDV": [
+    "maldives",
+    "maldives islands"
+   ],
+   "MEX": [
+    "mexico"
+   ],
+   "MHL": [
+    "marshall islands"
+   ],
+   "MKD": [
+    "north macedonia",
+    "macedonia"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malta"
+   ],
+   "MMR": [
+    "myanmar",
+    "burma"
+   ],
+   "MNE": [
+    "montenegro"
+   ],
+   "MNG": [
+    "mongolia"
+   ],
+   "MNP": [
+    "northern mariana islands",
+    "mariana islands",
+    "nmi"
+   ],
+   "MOZ": [
+    "mozambique"
+   ],
+   "MRT": [
+    "mauritania"
+   ],
+   "MUS": [
+    "mauritius"
+   ],
+   "MWI": [
+    "malawi"
+   ],
+   "MYS": [
+    "malaysia"
+   ],
+   "NAM": [
+    "namibia"
+   ],
+   "NCL": [
+    "new caledonia"
+   ],
+   "NER": [
+    "niger"
+   ],
+   "NGA": [
+    "nigeria"
+   ],
+   "NIC": [
+    "nicaragua"
+   ],
+   "NLD": [
+    "netherlands",
+    "holland",
+    "dutch"
+   ],
+   "NOR": [
+    "norway"
+   ],
+   "NPL": [
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "new zealand",
+    "nz"
+   ],
+   "OMN": [
+    "oman"
+   ],
+   "PAK": [
+    "pakistan"
+   ],
+   "PAN": [
+    "panama"
+   ],
+   "PER": [
+    "peru"
+   ],
+   "PHL": [
+    "philippines",
+    "phils",
+    "ph"
+   ],
+   "PLW": [
+    "palau"
+   ],
+   "PNG": [
+    "papua new guinea",
+    "png"
+   ],
+   "POL": [
+    "poland"
+   ],
+   "PRI": [
+    "puerto rico",
+    "pr"
+   ],
+   "PRK": [
+    "north korea",
+    "dprk",
+    "democratic people's republic of korea"
+   ],
+   "PRT": [
+    "portugal"
+   ],
+   "PRY": [
+    "paraguay"
+   ],
+   "PSE": [
+    "palestine",
+    "west bank",
+    "gaza",
+    "gaza strip"
+   ],
+   "PYF": [
+    "french polynesia",
+    "tahiti"
+   ],
+   "QAT": [
+    "qatar"
+   ],
+   "ROU": [
+    "romania"
+   ],
+   "RUS": [
+    "russia",
+    "russian federation"
+   ],
+   "RWA": [
+    "rwanda"
+   ],
+   "SAU": [
+    "saudi arabia",
+    "saudi"
+   ],
+   "SDN": [
+    "sudan"
+   ],
+   "SEN": [
+    "senegal"
+   ],
+   "SGP": [
+    "singapore",
+    "sg"
+   ],
+   "SLB": [
+    "solomon islands",
+    "solomons"
+   ],
+   "SLE": [
+    "sierra leone"
+   ],
+   "SLV": [
+    "el salvador",
+    "salvador"
+   ],
+   "SMR": [
+    "san marino"
+   ],
+   "SOM": [
+    "somalia"
+   ],
+   "SRB": [
+    "serbia"
+   ],
+   "SSD": [
+    "south sudan"
+   ],
+   "STP": [
+    "sao tome and principe",
+    "sao tome",
+    "são tomé and príncipe"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "slovakia",
+    "slovak republic"
+   ],
+   "SVN": [
+    "slovenia"
+   ],
+   "SWE": [
+    "sweden"
+   ],
+   "SWZ": [
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "sint maarten",
+    "st maarten",
+    "st martin"
+   ],
+   "SYC": [
+    "seychelles"
+   ],
+   "SYR": [
+    "syria",
+    "syrian arab republic"
+   ],
+   "TCA": [
+    "turks and caicos islands",
+    "turks and caicos"
+   ],
+   "TCD": [
+    "chad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "thailand"
+   ],
+   "TJK": [
+    "tajikistan"
+   ],
+   "TKM": [
+    "turkmenistan"
+   ],
+   "TLS": [
+    "timor-leste",
+    "east timor",
+    "timor leste"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinidad and tobago",
+    "trinidad"
+   ],
+   "TUN": [
+    "tunisia"
+   ],
+   "TUR": [
+    "turkiye",
+    "turkey"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzania",
+    "tanzania mainland"
+   ],
+   "UGA": [
+    "uganda"
+   ],
+   "UKR": [
+    "ukraine"
+   ],
+   "URY": [
+    "uruguay"
+   ],
+   "USA": [
+    "united states",
+    "usa",
+    "us",
+    "united states of america",
+    "america"
+   ],
+   "UZB": [
+    "uzbekistan"
+   ],
+   "VCT": [
+    "st. vincent and the grenadines",
+    "st vincent",
+    "saint vincent",
+    "st vincent and the grenadines"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "british virgin islands",
+    "bvi"
+   ],
+   "VIR": [
+    "us virgin islands",
+    "usvi",
+    "virgin islands"
+   ],
+   "VNM": [
+    "vietnam",
+    "viet nam"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "yemen"
+   ],
+   "ZAF": [
+    "south africa",
+    "sa"
+   ],
+   "ZMB": [
+    "zambia"
+   ],
+   "ZWE": [
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "eastern and southern africa",
+    "east and south africa",
+    "esa"
+   ],
+   "AFR": [
+    "africa",
+    "african region"
+   ],
+   "AFW": [
+    "western and central africa",
+    "west and central africa",
+    "wca"
+   ],
+   "ARB": [
+    "arab world",
+    "arab states",
+    "arab region"
+   ],
+   "CME": [
+    "middle east and north africa",
+    "mena",
+    "middle east & north africa"
+   ],
+   "CSS": [
+    "caribbean small states",
+    "small caribbean states",
+    "caribbean islands"
+   ],
+   "EAS": [
+    "east asia & pacific",
+    "east asia and pacific",
+    "east asia pacific",
+    "eap"
+   ],
+   "ECS": [
+    "europe & central asia",
+    "europe and central asia",
+    "europe central asia",
+    "eca"
+   ],
+   "EMU": [
+    "euro area",
+    "eurozone",
+    "euro zone"
+   ],
+   "EUU": [
+    "european union",
+    "eu"
+   ],
+   "HPC": [
+    "heavily indebted poor countries",
+    "hipc"
+   ],
+   "LCN": [
+    "latin america & caribbean",
+    "latin america and caribbean",
+    "lac"
+   ],
+   "LDC": [
+    "least developed countries",
+    "ldcs"
+   ],
+   "MEA": [
+    "middle east, north africa, afghanistan & pakistan",
+    "mena",
+    "mea region"
+   ],
+   "NAC": [
+    "north america",
+    "na"
+   ],
+   "NAF": [
+    "north africa",
+    "n. africa",
+    "north african region"
+   ],
+   "OED": [
+    "oecd members",
+    "oecd countries",
+    "oecd",
+    "member states of oecd"
+   ],
+   "PSS": [
+    "pacific island small states",
+    "pacific small states",
+    "pacific islands",
+    "pss"
+   ],
+   "SAS": [
+    "south asia",
+    "s. asia",
+    "south asian region"
+   ],
+   "SSF": [
+    "sub-saharan africa",
+    "sub saharan africa",
+    "ssa",
+    "sub-saharan"
+   ],
+   "SST": [
+    "small states",
+    "small island states",
+    "small nations"
+   ],
+   "HIC": [
+    "high income",
+    "high income countries",
+    "hic",
+    "high income economies"
+   ],
+   "LIC": [
+    "low income",
+    "low income countries",
+    "lic",
+    "low income economies"
+   ],
+   "LMC": [
+    "lower middle income",
+    "lower middle income countries",
+    "lmc",
+    "lower-middle income"
+   ],
+   "LMY": [
+    "low & middle income",
+    "low and middle income",
+    "lmi",
+    "low-middle income"
+   ],
+   "MIC": [
+    "middle income",
+    "middle income countries",
+    "mic",
+    "middle-income"
+   ],
+   "UMC": [
+    "upper middle income",
+    "upper middle income countries",
+    "umc",
+    "upper-middle income"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "sahel region",
+    "g5 sahel",
+    "the sahel"
+   ],
+   "HORN": [
+    "horn of africa",
+    "horn africa",
+    "the horn"
+   ],
+   "G7": [
+    "g7",
+    "group of seven",
+    "g-7"
+   ],
+   "BRICS": [
+    "brics",
+    "brics nations",
+    "brics group"
+   ],
+   "ASEAN": [
+    "asean",
+    "association of southeast asian nations"
+   ],
+   "EAC": [
+    "east african community",
+    "eac"
+   ],
+   "SADC": [
+    "sadc",
+    "southern african development community"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "economic community of west african states"
+   ],
+   "CENTRAL_ASIA": [
+    "central asia",
+    "central asian countries",
+    "central asian republics"
+   ],
+   "SOUTHEAST_ASIA": [
+    "southeast asia",
+    "se asia",
+    "sea"
+   ],
+   "CARIBBEAN": [
+    "caribbean",
+    "the caribbean",
+    "caribbean islands"
+   ],
+   "PACIFIC_ISLANDS": [
+    "pacific islands",
+    "south pacific",
+    "pacific island nations"
+   ],
+   "MAGHREB": [
+    "maghreb",
+    "the maghreb",
+    "northwest africa"
+   ],
+   "GCC": [
+    "gcc",
+    "gulf cooperation council",
+    "gulf countries",
+    "gcc states"
+   ],
+   "BALKANS": [
+    "western balkans",
+    "the balkans",
+    "balkans"
+   ],
+   "ANDEAN": [
+    "andean countries",
+    "andean region",
+    "andes countries"
+   ],
+   "CENTRAL_AMERICA": [
+    "central america",
+    "central american countries"
+   ],
+   "LAKE_CHAD": [
+    "lake chad basin",
+    "lake chad region",
+    "lake chad"
+   ]
   }
  },
  "Portuguese": {
@@ -789,6 +1814,988 @@
    "Western and Central Africa": [
     "áfrica ocidental e central"
    ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afeganistão",
+    "afeganistao"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albânia",
+    "albania"
+   ],
+   "AND": [
+    "andorra"
+   ],
+   "ARE": [
+    "emirados árabes unidos",
+    "emirados árabes",
+    "emirados",
+    "eau"
+   ],
+   "ARG": [
+    "argentina"
+   ],
+   "ARM": [
+    "armênia",
+    "armenia"
+   ],
+   "ASM": [
+    "samoa americana"
+   ],
+   "ATG": [
+    "antígua e barbuda",
+    "antigua e barbuda"
+   ],
+   "AUS": [
+    "austrália",
+    "australia"
+   ],
+   "AUT": [
+    "austria"
+   ],
+   "AZE": [
+    "azerbaijão",
+    "azerbaijao"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "bélgica",
+    "belgica"
+   ],
+   "BEN": [
+    "benim",
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladexe",
+    "bangladesh"
+   ],
+   "BGR": [
+    "bulgária",
+    "bulgaria"
+   ],
+   "BHR": [
+    "bahrein",
+    "bahrain"
+   ],
+   "BHS": [
+    "bahamas"
+   ],
+   "BIH": [
+    "bósnia e herzegovina",
+    "bosnia e herzegovina",
+    "bósnia",
+    "bosnia"
+   ],
+   "BLR": [
+    "belarrússia",
+    "belarus",
+    "belarrussia"
+   ],
+   "BLZ": [
+    "belize"
+   ],
+   "BMU": [
+    "bermuda"
+   ],
+   "BOL": [
+    "bolívia",
+    "bolivia"
+   ],
+   "BRA": [
+    "brasil"
+   ],
+   "BRB": [
+    "barbados"
+   ],
+   "BRN": [
+    "brunei",
+    "brunei darussalam"
+   ],
+   "BTN": [
+    "butão"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "república centro-africana",
+    "centro-africana",
+    "rca"
+   ],
+   "CAN": [
+    "canadá"
+   ],
+   "CHE": [
+    "suíça"
+   ],
+   "CHI": [
+    "ilhas do canal"
+   ],
+   "CHL": [
+    "chile"
+   ],
+   "CHN": [
+    "china"
+   ],
+   "CIV": [
+    "costa do marfim",
+    "marfim"
+   ],
+   "CMR": [
+    "camarões"
+   ],
+   "COD": [
+    "república democrática do congo",
+    "rd congo",
+    "congo-kinshasa",
+    "rdc"
+   ],
+   "COG": [
+    "república do congo",
+    "congo-brazzaville",
+    "congo"
+   ],
+   "COL": [
+    "colômbia"
+   ],
+   "COM": [
+    "comores"
+   ],
+   "CPV": [
+    "cabo verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "cuba"
+   ],
+   "CUW": [
+    "curaçao",
+    "curacao"
+   ],
+   "CYM": [
+    "ilhas caimã",
+    "ilhas caiman"
+   ],
+   "CYP": [
+    "chipre"
+   ],
+   "CZE": [
+    "chéquia",
+    "república checa",
+    "tchequia"
+   ],
+   "DEU": [
+    "alemanha"
+   ],
+   "DJI": [
+    "djibuti"
+   ],
+   "DMA": [
+    "dominica"
+   ],
+   "DNK": [
+    "dinamarca"
+   ],
+   "DOM": [
+    "república dominicana",
+    "dominicana"
+   ],
+   "DZA": [
+    "argélia"
+   ],
+   "ECU": [
+    "equador"
+   ],
+   "EGY": [
+    "egito",
+    "república árabe do egito"
+   ],
+   "ERI": [
+    "eritreia"
+   ],
+   "ESP": [
+    "espanha"
+   ],
+   "EST": [
+    "estônia",
+    "estonia"
+   ],
+   "ETH": [
+    "etiópia",
+    "etiopia"
+   ],
+   "FIN": [
+    "finlândia",
+    "finlandia"
+   ],
+   "FJI": [
+    "fiji"
+   ],
+   "FRA": [
+    "frança"
+   ],
+   "FRO": [
+    "ilhas faroé",
+    "faroé",
+    "faroe"
+   ],
+   "FSM": [
+    "micronésia",
+    "micronesia",
+    "estados federados da micronésia"
+   ],
+   "GAB": [
+    "gabão"
+   ],
+   "GBR": [
+    "reino unido",
+    "inglaterra",
+    "gb",
+    "uk"
+   ],
+   "GEO": [
+    "geórgia",
+    "georgia"
+   ],
+   "GHA": [
+    "gana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guiné",
+    "guine"
+   ],
+   "GMB": [
+    "gâmbia",
+    "gambia"
+   ],
+   "GNB": [
+    "guiné-bisau",
+    "guiné bissau"
+   ],
+   "GNQ": [
+    "guiné equatorial",
+    "guine equatorial"
+   ],
+   "GRC": [
+    "grécia"
+   ],
+   "GRD": [
+    "grenada"
+   ],
+   "GRL": [
+    "groenlândia",
+    "groenlandia"
+   ],
+   "GTM": [
+    "guatemala"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guiana"
+   ],
+   "HKG": [
+    "hong kong"
+   ],
+   "HND": [
+    "honduras"
+   ],
+   "HRV": [
+    "croácia"
+   ],
+   "HTI": [
+    "haiti"
+   ],
+   "HUN": [
+    "hungria"
+   ],
+   "IDN": [
+    "indonésia"
+   ],
+   "IMN": [
+    "ilha de man",
+    "man"
+   ],
+   "IND": [
+    "índia"
+   ],
+   "IRL": [
+    "irlanda"
+   ],
+   "IRN": [
+    "irã",
+    "iran"
+   ],
+   "IRQ": [
+    "iraque"
+   ],
+   "ISL": [
+    "islândia"
+   ],
+   "ISR": [
+    "israel"
+   ],
+   "ITA": [
+    "itália"
+   ],
+   "JAM": [
+    "jamaica"
+   ],
+   "JOR": [
+    "jordânia"
+   ],
+   "JPN": [
+    "japão"
+   ],
+   "KAZ": [
+    "cazaquistão",
+    "casaquistão"
+   ],
+   "KEN": [
+    "quênia",
+    "kenia"
+   ],
+   "KGZ": [
+    "quirguistão",
+    "quirguizião"
+   ],
+   "KHM": [
+    "camboja"
+   ],
+   "KIR": [
+    "kiribati"
+   ],
+   "KNA": [
+    "são cristóvão e névis",
+    "st kitts e nevis"
+   ],
+   "KOR": [
+    "coreia do sul",
+    "coreia sul",
+    "coreia"
+   ],
+   "KWT": [
+    "kuwait"
+   ],
+   "LAO": [
+    "laos"
+   ],
+   "LBN": [
+    "líbano"
+   ],
+   "LBR": [
+    "libéria"
+   ],
+   "LBY": [
+    "líbia"
+   ],
+   "LCA": [
+    "santa lúcia"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesoto"
+   ],
+   "LTU": [
+    "lituânia"
+   ],
+   "LUX": [
+    "luxemburgo"
+   ],
+   "LVA": [
+    "letônia"
+   ],
+   "MAC": [
+    "macau"
+   ],
+   "MAF": [
+    "são martinho",
+    "st martin"
+   ],
+   "MAR": [
+    "marrocos"
+   ],
+   "MCO": [
+    "mônaco",
+    "monaco"
+   ],
+   "MDA": [
+    "moldávia",
+    "moldova"
+   ],
+   "MDG": [
+    "madagascar"
+   ],
+   "MDV": [
+    "maldivas"
+   ],
+   "MEX": [
+    "méxico",
+    "mexico"
+   ],
+   "MHL": [
+    "ilhas marshall",
+    "marshall"
+   ],
+   "MKD": [
+    "macedônia do norte",
+    "macedônia",
+    "macedonia"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malta"
+   ],
+   "MMR": [
+    "mianmar",
+    "myanmar",
+    "birmânia",
+    "birmania"
+   ],
+   "MNE": [
+    "montenegro"
+   ],
+   "MNG": [
+    "mongólia",
+    "mongolia"
+   ],
+   "MNP": [
+    "ilhas marianas do norte",
+    "marianas do norte"
+   ],
+   "MOZ": [
+    "moçambique"
+   ],
+   "MRT": [
+    "mauritânia",
+    "mauritania"
+   ],
+   "MUS": [
+    "maurício",
+    "mauritius"
+   ],
+   "MWI": [
+    "malaui"
+   ],
+   "MYS": [
+    "malásia",
+    "malasia"
+   ],
+   "NAM": [
+    "namíbia",
+    "namibia"
+   ],
+   "NCL": [
+    "nova calédonia",
+    "calédonia"
+   ],
+   "NER": [
+    "níger"
+   ],
+   "NGA": [
+    "nígeria"
+   ],
+   "NIC": [
+    "nicarágua"
+   ],
+   "NLD": [
+    "países baixos",
+    "holanda"
+   ],
+   "NOR": [
+    "noruega"
+   ],
+   "NPL": [
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "nova zelândia",
+    "nz"
+   ],
+   "OMN": [
+    "omã",
+    "oman"
+   ],
+   "PAK": [
+    "paquistão"
+   ],
+   "PAN": [
+    "panamá"
+   ],
+   "PER": [
+    "peru"
+   ],
+   "PHL": [
+    "filipinas"
+   ],
+   "PLW": [
+    "palau"
+   ],
+   "PNG": [
+    "papua nova guiné",
+    "papua"
+   ],
+   "POL": [
+    "polônia"
+   ],
+   "PRI": [
+    "porto rico"
+   ],
+   "PRK": [
+    "coreia do norte",
+    "rpdc",
+    "coreia شمالی"
+   ],
+   "PRT": [
+    "portugal"
+   ],
+   "PRY": [
+    "paraguai"
+   ],
+   "PSE": [
+    "cisjordânia",
+    "gaza",
+    "territórios palestinos",
+    "palestina"
+   ],
+   "PYF": [
+    "polinésia francesa"
+   ],
+   "QAT": [
+    "catar"
+   ],
+   "ROU": [
+    "romênia"
+   ],
+   "RUS": [
+    "rússia",
+    "federação russa"
+   ],
+   "RWA": [
+    "ruanda"
+   ],
+   "SAU": [
+    "arábia saudita"
+   ],
+   "SDN": [
+    "sudão",
+    "sudan"
+   ],
+   "SEN": [
+    "senegal"
+   ],
+   "SGP": [
+    "singapura",
+    "singapura city"
+   ],
+   "SLB": [
+    "ilhas salomão",
+    "salomão"
+   ],
+   "SLE": [
+    "serra leoa"
+   ],
+   "SLV": [
+    "el salvador",
+    "salvador"
+   ],
+   "SMR": [
+    "san marino"
+   ],
+   "SOM": [
+    "somália",
+    "somalia"
+   ],
+   "SRB": [
+    "sérvia",
+    "servia"
+   ],
+   "SSD": [
+    "sudão do sul"
+   ],
+   "STP": [
+    "são tomé e príncipe",
+    "são tomé"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "eslováquia",
+    "eslovaquia"
+   ],
+   "SVN": [
+    "eslovênia",
+    "eslovenia"
+   ],
+   "SWE": [
+    "suécia",
+    "suecia"
+   ],
+   "SWZ": [
+    "essuatíni",
+    "eswatini",
+    "suazilândia",
+    "suazilandia"
+   ],
+   "SXM": [
+    "sint maarten",
+    "sao martinho"
+   ],
+   "SYC": [
+    "seicheles",
+    "seychelles"
+   ],
+   "SYR": [
+    "síria",
+    "siria"
+   ],
+   "TCA": [
+    "ilhas turcas e caicos",
+    "turcas e caicos"
+   ],
+   "TCD": [
+    "chade",
+    "chad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "tailândia",
+    "tailandia"
+   ],
+   "TJK": [
+    "tadjiquistão",
+    "tajiquistão",
+    "tadjikistão",
+    "tajikistão"
+   ],
+   "TKM": [
+    "turcomenistão",
+    "turcomenistan",
+    "turkmenistão",
+    "turkmenistan"
+   ],
+   "TLS": [
+    "timor-leste",
+    "timor"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinidad e tobago"
+   ],
+   "TUN": [
+    "tunísia"
+   ],
+   "TUR": [
+    "turquia",
+    "turco"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzânia"
+   ],
+   "UGA": [
+    "uganda"
+   ],
+   "UKR": [
+    "ucrânia"
+   ],
+   "URY": [
+    "uruguai"
+   ],
+   "USA": [
+    "estados unidos",
+    "eua",
+    "usa",
+    "estados unidos da américa"
+   ],
+   "UZB": [
+    "uzbequistão",
+    "uzbequistao"
+   ],
+   "VCT": [
+    "são vicente e granadinas",
+    "sao vicente e granadinas",
+    "são vicente"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "ilhas virgens britânicas",
+    "ilhas virgens britanicas",
+    "virgens britânicas"
+   ],
+   "VIR": [
+    "ilhas virgens americanas",
+    "virgens americanas"
+   ],
+   "VNM": [
+    "vietnã",
+    "vietname"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "iêmen",
+    "yemen"
+   ],
+   "ZAF": [
+    "áfrica do sul",
+    "africa do sul",
+    "sul-africana"
+   ],
+   "ZMB": [
+    "zâmbia",
+    "zambia"
+   ],
+   "ZWE": [
+    "zimbábue",
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "áfrica oriental e meridional",
+    "áfrica oriental e sul",
+    "áfrica oriental e austral"
+   ],
+   "AFR": [
+    "áfrica",
+    "continente africano"
+   ],
+   "AFW": [
+    "áfrica ocidental e central",
+    "áfrica central e ocidental"
+   ],
+   "ARB": [
+    "mundo árabe",
+    "países árabes",
+    "mundo arabe"
+   ],
+   "CME": [
+    "oriente médio e norte da áfrica",
+    "mena",
+    "norte da áfrica e oriente médio"
+   ],
+   "CSS": [
+    "pequenos estados do caribe",
+    "estados do caribe",
+    "caribe"
+   ],
+   "EAS": [
+    "ásia oriental e pacífico",
+    "leste asiático e pacífico"
+   ],
+   "ECS": [
+    "europa e ásia central",
+    "europa e central ásia"
+   ],
+   "EMU": [
+    "zona do euro",
+    "eurozona",
+    "área do euro"
+   ],
+   "EUU": [
+    "união europeia",
+    "ue"
+   ],
+   "HPC": [
+    "países pobres fortemente endividados",
+    "ppfe"
+   ],
+   "LCN": [
+    "américa latina e caribe",
+    "alc"
+   ],
+   "LDC": [
+    "países menos desenvolvidos",
+    "pmd"
+   ],
+   "MEA": [
+    "oriente médio, norte da áfrica, afeganistão e paquistão",
+    "mena",
+    "mea"
+   ],
+   "NAC": [
+    "américa do norte",
+    "américa norte"
+   ],
+   "NAF": [
+    "norte da áfrica",
+    "norte africano",
+    "áfrica do norte"
+   ],
+   "OED": [
+    "ocde",
+    "países da ocde",
+    "membros da ocde"
+   ],
+   "PSS": [
+    "pequenos estados do pacífico",
+    "ilhas do pacífico",
+    "estados insulares do pacífico"
+   ],
+   "SAS": [
+    "sul da ásia",
+    "sul asiático",
+    "ásia meridional"
+   ],
+   "SSF": [
+    "áfrica subsaariana",
+    "subsaariana",
+    "região subsaariana"
+   ],
+   "SST": [
+    "pequenos estados",
+    "estados pequenos",
+    "países pequenos"
+   ],
+   "HIC": [
+    "renda alta",
+    "rendimentos altos",
+    "países de alta renda"
+   ],
+   "LIC": [
+    "baixa renda",
+    "rendimentos baixos",
+    "países de baixa renda"
+   ],
+   "LMC": [
+    "renda média baixa",
+    "rendimentos médio-baixos",
+    "países de renda média baixa"
+   ],
+   "LMY": [
+    "renda baixa e média",
+    "rendimentos baixos e médios",
+    "países de renda baixa e média"
+   ],
+   "MIC": [
+    "renda média",
+    "rendimentos médios",
+    "países de renda média"
+   ],
+   "UMC": [
+    "renda média alta",
+    "rendimentos médio-altos",
+    "países de renda média alta"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "g5 do sahel",
+    "região do sahel"
+   ],
+   "HORN": [
+    "chifre da áfrica",
+    "corno da áfrica"
+   ],
+   "G7": [
+    "g7",
+    "grupo dos sete",
+    "g7 países"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "ASEAN": [
+    "asean",
+    "associação de nações do sudeste asiático"
+   ],
+   "EAC": [
+    "eac",
+    "comunidade da áfrica oriental"
+   ],
+   "SADC": [
+    "sadc",
+    "comunidade para o desenvolvimento da áfrica austral"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "cedea"
+   ],
+   "CENTRAL_ASIA": [
+    "ásia central"
+   ],
+   "SOUTHEAST_ASIA": [
+    "sudeste asiático",
+    "sudeste da ásia"
+   ],
+   "CARIBBEAN": [
+    "caribe",
+    "caribeña"
+   ],
+   "PACIFIC_ISLANDS": [
+    "ilhas do pacífico",
+    "oceania"
+   ],
+   "MAGHREB": [
+    "magrebe"
+   ],
+   "GCC": [
+    "gcc",
+    "conselho de cooperação do golfo",
+    "ccg"
+   ],
+   "BALKANS": [
+    "bálcãs",
+    "bálcãs ocidentais"
+   ],
+   "ANDEAN": [
+    "países andinos",
+    "região andina",
+    "comunidade andina"
+   ],
+   "CENTRAL_AMERICA": [
+    "américa central"
+   ],
+   "LAKE_CHAD": [
+    "bacia do lago chade",
+    "lago chade"
+   ]
   }
  },
  "Arabic": {
@@ -1152,6 +3159,1147 @@
    "Western and Central Africa": [
     "غرب ووسط أفريقيا",
     "أفريقيا الغربية والوسطى"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "أروبا",
+    "جزيرة أروبا"
+   ],
+   "AFG": [
+    "أفغانستان",
+    "افغانستان"
+   ],
+   "AGO": [
+    "أنغولا",
+    "انغولا",
+    "أنجولا",
+    "انجولا"
+   ],
+   "ALB": [
+    "ألبانيا",
+    "البانيا"
+   ],
+   "AND": [
+    "أندورا",
+    "اندورا"
+   ],
+   "ARE": [
+    "الإمارات العربية المتحدة",
+    "الإمارات",
+    "الامارات",
+    "امارات"
+   ],
+   "ARG": [
+    "الأرجنتين",
+    "الارجنتين",
+    "أرجنتين"
+   ],
+   "ARM": [
+    "أرمينيا",
+    "ارمينيا"
+   ],
+   "ASM": [
+    "ساموا الأمريكية",
+    "ساموا الامريكية"
+   ],
+   "ATG": [
+    "أنتيغوا وباربودا",
+    "أنتيغوا",
+    "انتيغوا وباربودا"
+   ],
+   "AUS": [
+    "أستراليا",
+    "استراليا"
+   ],
+   "AUT": [
+    "النمسا",
+    "نمسا"
+   ],
+   "AZE": [
+    "أذربيجان",
+    "اذربيجان"
+   ],
+   "BDI": [
+    "بوروندي"
+   ],
+   "BEL": [
+    "بلجيكا"
+   ],
+   "BEN": [
+    "بنين",
+    "بنن",
+    "جمهورية بنين"
+   ],
+   "BFA": [
+    "بوركينا فاسو"
+   ],
+   "BGD": [
+    "بنغلاديش",
+    "بنجلاديش",
+    "بنغلادش"
+   ],
+   "BGR": [
+    "بلغاريا"
+   ],
+   "BHR": [
+    "البحرين",
+    "بحرين"
+   ],
+   "BHS": [
+    "جزر البهاما",
+    "البهاما",
+    "الباهاما"
+   ],
+   "BIH": [
+    "البوسنة والهرسك",
+    "البوسنة",
+    "بوسنة والهرسك"
+   ],
+   "BLR": [
+    "بيلاروسيا",
+    "بيلاروس",
+    "روسيا البيضاء"
+   ],
+   "BLZ": [
+    "بليز"
+   ],
+   "BMU": [
+    "برمودا"
+   ],
+   "BOL": [
+    "بوليفيا"
+   ],
+   "BRA": [
+    "البرازيل",
+    "برازيل"
+   ],
+   "BRB": [
+    "باربادوس"
+   ],
+   "BRN": [
+    "بروناي",
+    "بروناي دار السلام",
+    "سلطنة بروناي"
+   ],
+   "BTN": [
+    "بوتان",
+    "مملكة بوتان"
+   ],
+   "BWA": [
+    "بوتسوانا"
+   ],
+   "CAF": [
+    "جمهورية أفريقيا الوسطى",
+    "أفريقيا الوسطى",
+    "وسط أفريقيا"
+   ],
+   "CAN": [
+    "كندا"
+   ],
+   "CHE": [
+    "سويسرا",
+    "الاتحاد السويسري"
+   ],
+   "CHI": [
+    "جزر القنال",
+    "جزر التشينل"
+   ],
+   "CHL": [
+    "تشيلي",
+    "شيلي"
+   ],
+   "CHN": [
+    "الصين",
+    "چین"
+   ],
+   "CIV": [
+    "كوت ديفوار",
+    "ساحل العاج"
+   ],
+   "CMR": [
+    "الكاميرون",
+    "كاميرون"
+   ],
+   "COD": [
+    "جمهورية الكونغو الديمقراطية",
+    "الكونغو الديمقراطية",
+    "كينشاسا",
+    "الكونغو"
+   ],
+   "COG": [
+    "جمهورية الكونغو",
+    "الكونغو برازافيل",
+    "الكونغو"
+   ],
+   "COL": [
+    "كولومبيا"
+   ],
+   "COM": [
+    "جزر القمر",
+    "القمر",
+    "جزر كومور"
+   ],
+   "CPV": [
+    "الرأس الأخضر",
+    "كابو فيردي"
+   ],
+   "CRI": [
+    "كوستاريكا",
+    "كوستا ريكا"
+   ],
+   "CUB": [
+    "كوبا"
+   ],
+   "CUW": [
+    "كوراساو",
+    "كوراكاو"
+   ],
+   "CYM": [
+    "جزر كايمان",
+    "جزر الكايمان"
+   ],
+   "CYP": [
+    "قبرص"
+   ],
+   "CZE": [
+    "التشيك",
+    "جمهورية التشيك",
+    "تشيكيا"
+   ],
+   "DEU": [
+    "ألمانيا"
+   ],
+   "DJI": [
+    "جيبوتي",
+    "جمهورية جيبوتي"
+   ],
+   "DMA": [
+    "دومينيكا"
+   ],
+   "DNK": [
+    "الدنمارك",
+    "دنمارك"
+   ],
+   "DOM": [
+    "جمهورية الدومينيكان",
+    "الدومينيكان",
+    "دومينيكان"
+   ],
+   "DZA": [
+    "الجزائر",
+    "جزائر"
+   ],
+   "ECU": [
+    "الإكوادور",
+    "إكوادور",
+    "ecuador"
+   ],
+   "EGY": [
+    "مصر",
+    "جمهورية مصر العربية",
+    "egypt"
+   ],
+   "ERI": [
+    "إريتريا",
+    "erytrea"
+   ],
+   "ESP": [
+    "إسبانيا",
+    "اسبانيا",
+    "spain"
+   ],
+   "EST": [
+    "إستونيا",
+    "استونيا",
+    "estonia"
+   ],
+   "ETH": [
+    "إثيوبيا",
+    "اثيوبيا",
+    "ethiopia"
+   ],
+   "FIN": [
+    "فنلندا",
+    "finland"
+   ],
+   "FJI": [
+    "فيجي",
+    "fiji"
+   ],
+   "FRA": [
+    "فرنسا",
+    "france"
+   ],
+   "FRO": [
+    "جزر فارو",
+    "جزر الفارو",
+    "faroe islands"
+   ],
+   "FSM": [
+    "ميكرونيزيا",
+    "ولايات ميكرونيزيا المتحدة",
+    "micronesia"
+   ],
+   "GAB": [
+    "الغابون",
+    "جابون",
+    "gabon"
+   ],
+   "GBR": [
+    "المملكة المتحدة",
+    "بريطانيا",
+    "بريطانيا العظمى",
+    "uk"
+   ],
+   "GEO": [
+    "جورجيا",
+    "georgia"
+   ],
+   "GHA": [
+    "غانا",
+    "ghana"
+   ],
+   "GIB": [
+    "جبل طارق",
+    "gibraltar"
+   ],
+   "GIN": [
+    "غينيا",
+    "guinea"
+   ],
+   "GMB": [
+    "غامبيا",
+    "الغامبيا",
+    "gambia"
+   ],
+   "GNB": [
+    "غينيا بيساو",
+    "guinea-bissau"
+   ],
+   "GNQ": [
+    "غينيا الاستوائية",
+    "guinea equatorial"
+   ],
+   "GRC": [
+    "اليونان",
+    "greece"
+   ],
+   "GRD": [
+    "غرينادا",
+    "grenada"
+   ],
+   "GRL": [
+    "غرينلاند",
+    "جرينلاند",
+    "greenland"
+   ],
+   "GTM": [
+    "غواتيمالا",
+    "guatemala"
+   ],
+   "GUM": [
+    "غوام",
+    "guam"
+   ],
+   "GUY": [
+    "غويانا",
+    "guyana"
+   ],
+   "HKG": [
+    "هونج كونج",
+    "هونغ كونغ",
+    "hong kong"
+   ],
+   "HND": [
+    "هندوراس",
+    "honduras"
+   ],
+   "HRV": [
+    "كرواتيا",
+    "كرواتيا وجمهورية كرواتيا"
+   ],
+   "HTI": [
+    "هاييتي",
+    "هايتي"
+   ],
+   "HUN": [
+    "المجر",
+    "هنغاريا",
+    "المجر وهنغاريا"
+   ],
+   "IDN": [
+    "إندونيسيا",
+    "اندونيسيا"
+   ],
+   "IMN": [
+    "جزيرة مان"
+   ],
+   "IND": [
+    "الهند",
+    "هند"
+   ],
+   "IRL": [
+    "أيرلندا",
+    "ايرلندا"
+   ],
+   "IRN": [
+    "إيران",
+    "إيران الإسلامية",
+    "إيران والجمهورية الإسلامية الإيرانية"
+   ],
+   "IRQ": [
+    "العراق",
+    "عراق"
+   ],
+   "ISL": [
+    "آيسلندا",
+    "ايسلندا"
+   ],
+   "ISR": [
+    "إسرائيل",
+    "اسرائيل"
+   ],
+   "ITA": [
+    "إيطاليا",
+    "ايطاليا"
+   ],
+   "JAM": [
+    "جامايكا"
+   ],
+   "JOR": [
+    "الأردن",
+    "اردن"
+   ],
+   "JPN": [
+    "اليابان",
+    "يابان"
+   ],
+   "KAZ": [
+    "كازاخستان",
+    "كازاخستان والجمهورية الكازاخستانية"
+   ],
+   "KEN": [
+    "كينيا"
+   ],
+   "KGZ": [
+    "قيرغيزستان",
+    "قرغيزستان",
+    "جمهورية قيرغيزستان"
+   ],
+   "KHM": [
+    "كمبوديا"
+   ],
+   "KIR": [
+    "كيريباتي"
+   ],
+   "KNA": [
+    "سانت كيتس ونيفيس",
+    "سانت كيتس"
+   ],
+   "KOR": [
+    "كوريا الجنوبية",
+    "جمهورية كوريا",
+    "كوريا"
+   ],
+   "KWT": [
+    "الكويت",
+    "كويت"
+   ],
+   "LAO": [
+    "لاوس",
+    "جمهورية لاوس الديمقراطية الشعبية"
+   ],
+   "LBN": [
+    "لبنان"
+   ],
+   "LBR": [
+    "ليبيريا"
+   ],
+   "LBY": [
+    "ليبيا"
+   ],
+   "LCA": [
+    "سانت لوسيا"
+   ],
+   "LIE": [
+    "ليختنشتاين"
+   ],
+   "LKA": [
+    "سريلانكا",
+    "سري لانكا",
+    "اللانكا"
+   ],
+   "LSO": [
+    "ليسوتو",
+    "مملكة ليسوتو"
+   ],
+   "LTU": [
+    "ليتوانيا"
+   ],
+   "LUX": [
+    "لوكسمبورغ",
+    "لوكسمبورج"
+   ],
+   "LVA": [
+    "لاتفيا"
+   ],
+   "MAC": [
+    "ماكاو",
+    "ماكاو الصين"
+   ],
+   "MAF": [
+    "سان مارتن",
+    "القديس مارتن",
+    "سان مارتن الفرنسية"
+   ],
+   "MAR": [
+    "المغرب",
+    "مغرب"
+   ],
+   "MCO": [
+    "موناكو",
+    "إمارة موناكو"
+   ],
+   "MDA": [
+    "مولدوفا",
+    "جمهورية مولدوفا"
+   ],
+   "MDG": [
+    "مدغشقر"
+   ],
+   "MDV": [
+    "المالديف",
+    "مالديف"
+   ],
+   "MEX": [
+    "المكسيك",
+    "مكسيك"
+   ],
+   "MHL": [
+    "جزر مارشال",
+    "مارشال"
+   ],
+   "MKD": [
+    "مقدونيا الشمالية",
+    "مقدونيا",
+    "الشمالية مقدونيا"
+   ],
+   "MLI": [
+    "مالي",
+    "جمهورية مالي"
+   ],
+   "MLT": [
+    "مالطا"
+   ],
+   "MMR": [
+    "ميانمار",
+    "بورما"
+   ],
+   "MNE": [
+    "الجبل الأسود",
+    "مونتينيغرو",
+    "الجبل الاسود"
+   ],
+   "MNG": [
+    "منغوليا"
+   ],
+   "MNP": [
+    "جزر ماريانا الشمالية",
+    "ماريانا الشمالية"
+   ],
+   "MOZ": [
+    "موزمبيق"
+   ],
+   "MRT": [
+    "موريتانيا",
+    "الجمهورية الإسلامية الموريتانية"
+   ],
+   "MUS": [
+    "موريشيوس"
+   ],
+   "MWI": [
+    "مالاوي"
+   ],
+   "MYS": [
+    "ماليزيا"
+   ],
+   "NAM": [
+    "ناميبيا"
+   ],
+   "NCL": [
+    "كاليدونيا الجديدة",
+    "كاليدونيا"
+   ],
+   "NER": [
+    "النيجر",
+    "نيجر"
+   ],
+   "NGA": [
+    "نيجيريا",
+    "النيجيريا"
+   ],
+   "NIC": [
+    "نيكاراغوا",
+    "نيكارغوا"
+   ],
+   "NLD": [
+    "هولندا",
+    "المملكة الهولندية"
+   ],
+   "NOR": [
+    "النرويج",
+    "نرويج"
+   ],
+   "NPL": [
+    "نيبال",
+    "النيبال"
+   ],
+   "NRU": [
+    "ناورو"
+   ],
+   "NZL": [
+    "نيوزيلندا",
+    "نيوزيلانديا"
+   ],
+   "OMN": [
+    "عمان",
+    "سلطنة عمان"
+   ],
+   "PAK": [
+    "باكستان"
+   ],
+   "PAN": [
+    "بنما",
+    "البنما"
+   ],
+   "PER": [
+    "بيرو",
+    "البيرو"
+   ],
+   "PHL": [
+    "الفلبين",
+    "فلبين"
+   ],
+   "PLW": [
+    "بالاو"
+   ],
+   "PNG": [
+    "بابوا غينيا الجديدة",
+    "بابوا غينيا"
+   ],
+   "POL": [
+    "بولندا"
+   ],
+   "PRI": [
+    "بورتوريكو",
+    "بورتو ريكو"
+   ],
+   "PRK": [
+    "كوريا الشمالية",
+    "جمهورية كوريا الشعبية",
+    "كوريا"
+   ],
+   "PRT": [
+    "البرتغال",
+    "برتغال"
+   ],
+   "PRY": [
+    "باراغواي",
+    "باراجواي",
+    "الباراغواي"
+   ],
+   "PSE": [
+    "فلسطين",
+    "الضفة وغزة"
+   ],
+   "PYF": [
+    "بولينيزيا الفرنسية",
+    "بولينيزيا"
+   ],
+   "QAT": [
+    "قطر",
+    "دولة قطر"
+   ],
+   "ROU": [
+    "رومانيا"
+   ],
+   "RUS": [
+    "روسيا",
+    "روسيا الاتحادية",
+    "الاتحاد الروسي"
+   ],
+   "RWA": [
+    "رواندا"
+   ],
+   "SAU": [
+    "السعودية",
+    "المملكة العربية السعودية",
+    "السعوديه"
+   ],
+   "SDN": [
+    "السودان",
+    "سودان",
+    "sudan"
+   ],
+   "SEN": [
+    "السنغال",
+    "سنغال",
+    "senegal"
+   ],
+   "SGP": [
+    "سنغافورة",
+    "سنجافورة",
+    "singapore"
+   ],
+   "SLB": [
+    "جزر سليمان",
+    "سليمان",
+    "solomon islands"
+   ],
+   "SLE": [
+    "سيراليون",
+    "sierra leone"
+   ],
+   "SLV": [
+    "السلفادور",
+    "إلسلفادور",
+    "سلفادور",
+    "el salvador"
+   ],
+   "SMR": [
+    "سان مارينو",
+    "مارينو",
+    "san marino"
+   ],
+   "SOM": [
+    "الصومال",
+    "صومال",
+    "somalia"
+   ],
+   "SRB": [
+    "صربيا",
+    "serbia"
+   ],
+   "SSD": [
+    "جنوب السودان",
+    "south sudan"
+   ],
+   "STP": [
+    "ساو تومي وبرينسيب",
+    "ساو تومي",
+    "sao tome"
+   ],
+   "SUR": [
+    "سورينام",
+    "suriname"
+   ],
+   "SVK": [
+    "سلوفاكيا",
+    "جمهورية سلوفاكيا",
+    "slovakia"
+   ],
+   "SVN": [
+    "سلوفينيا",
+    "slovenia"
+   ],
+   "SWE": [
+    "السويد",
+    "سويد",
+    "sweden"
+   ],
+   "SWZ": [
+    "إسواتيني",
+    "سوازيلاند",
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "سينت مارتن",
+    "سانت مارتن",
+    "sint maarten"
+   ],
+   "SYC": [
+    "سيشل",
+    "جزر سيشل",
+    "seychelles"
+   ],
+   "SYR": [
+    "سوريا",
+    "الجمهورية العربية السورية",
+    "syria"
+   ],
+   "TCA": [
+    "جزر تركس وكايكوس",
+    "تركس وكايكوس",
+    "turks and caicos"
+   ],
+   "TCD": [
+    "تشاد",
+    "chad"
+   ],
+   "TGO": [
+    "توغو",
+    "togo"
+   ],
+   "THA": [
+    "تايلاند",
+    "thailand"
+   ],
+   "TJK": [
+    "طاجيكستان",
+    "تاجيكستان",
+    "tajikistan"
+   ],
+   "TKM": [
+    "تركمانستان",
+    "turkmenistan"
+   ],
+   "TLS": [
+    "تيمور الشرقية",
+    "تيمور لستي",
+    "timor leste"
+   ],
+   "TON": [
+    "تونغا",
+    "tonga"
+   ],
+   "TTO": [
+    "ترينيداد وتوباغو",
+    "ترينيداد",
+    "trinidad and tobago"
+   ],
+   "TUN": [
+    "تونس",
+    "الجمهورية التونسية"
+   ],
+   "TUR": [
+    "تركيا",
+    "التركية",
+    "تـركيا"
+   ],
+   "TUV": [
+    "توفالو",
+    "جزر توفالو"
+   ],
+   "TZA": [
+    "تنزانيا",
+    "جمهورية تنزانيا المتحدة"
+   ],
+   "UGA": [
+    "أوغندا",
+    "اوغندا"
+   ],
+   "UKR": [
+    "أوكرانيا",
+    "اوكرانيا"
+   ],
+   "URY": [
+    "أوروغواي",
+    "اوروغواي"
+   ],
+   "USA": [
+    "الولايات المتحدة",
+    "أمريكا",
+    "امريكا",
+    "الولايات المتحدة الأمريكية"
+   ],
+   "UZB": [
+    "أوزبكستان",
+    "اوزبكستان"
+   ],
+   "VCT": [
+    "سانت فينسنت والغرينادين",
+    "سانت فينسنت"
+   ],
+   "VEN": [
+    "فنزويلا",
+    "جمهورية فنزويلا"
+   ],
+   "VGB": [
+    "جزر فيرجن البريطانية",
+    "فيرجن البريطانية"
+   ],
+   "VIR": [
+    "جزر فيرجن الأمريكية",
+    "فيرجن الأمريكية"
+   ],
+   "VNM": [
+    "فيتنام",
+    "فيت نام"
+   ],
+   "VUT": [
+    "فانواتو"
+   ],
+   "WSM": [
+    "ساموا",
+    "دولة ساموا"
+   ],
+   "XKX": [
+    "كوسوفو",
+    "جمهورية كوسوفو"
+   ],
+   "YEM": [
+    "اليمن",
+    "الجمهورية اليمنية",
+    "يمن"
+   ],
+   "ZAF": [
+    "جنوب أفريقيا",
+    "جنوب افريقيا",
+    "جمهورية جنوب أفريقيا"
+   ],
+   "ZMB": [
+    "زامبيا",
+    "جمهورية زامبيا"
+   ],
+   "ZWE": [
+    "زيمبابوي",
+    "جمهورية زيمبابوي"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "شرق وجنوب أفريقيا",
+    "أفريقيا الشرقية والجنوبية",
+    "شرق وجنوب افريقيا"
+   ],
+   "AFR": [
+    "أفريقيا",
+    "افريقيا",
+    "القارة الأفريقية",
+    "القارة الافريقية"
+   ],
+   "AFW": [
+    "غرب ووسط أفريقيا",
+    "أفريقيا الغربية والوسطى",
+    "غرب ووسط افريقيا"
+   ],
+   "ARB": [
+    "العالم العربي",
+    "الوطن العربي",
+    "البلاد العربية",
+    "عالم العرب"
+   ],
+   "CME": [
+    "الشرق الأوسط وشمال أفريقيا",
+    "الشرق الاوسط وشمال افريقيا",
+    "مينا",
+    "mena"
+   ],
+   "CSS": [
+    "دول الكاريبي الصغيرة",
+    "صغرى دول الكاريبي",
+    "جزر الكاريبي الصغيرة",
+    "دول الكاريبي"
+   ],
+   "EAS": [
+    "شرق آسيا والمحيط الهادئ",
+    "شرق اسيا والمحيط الهادئ",
+    "اسيا الشرقية والهادئ",
+    "شرق آسيا"
+   ],
+   "ECS": [
+    "أوروبا وآسيا الوسطى",
+    "اوروبا واسيا الوسطى",
+    "أوروبا ووسط آسيا",
+    "اوروبا ووسط اسيا"
+   ],
+   "EMU": [
+    "منطقة اليورو",
+    "منطقة الاورو",
+    "دول اليورو",
+    "منطقة النقد الأوروبية"
+   ],
+   "EUU": [
+    "الاتحاد الأوروبي",
+    "الاتحاد الاوروبي",
+    "الاي يو"
+   ],
+   "HPC": [
+    "البلدان الفقيرة المثقلة بالديون",
+    "الدول الفقيرة المثقلة بالديون",
+    "البلدان المثقلة بالديون",
+    "الدول المثقلة بالديون"
+   ],
+   "LCN": [
+    "أمريكا اللاتينية والكاريبي",
+    "امريكا اللاتينية والكاريبي",
+    "اللاتينية والكاريبي",
+    "أمريكا اللاتينية"
+   ],
+   "LDC": [
+    "أقل البلدان نموا",
+    "اقل الدول نموا",
+    "أقل الدول نموا",
+    "الدول الاقل نموا"
+   ],
+   "MEA": [
+    "الشرق الأوسط وشمال أفريقيا وأفغانستان وباكستان",
+    "الشرق الاوسط وشمال افريقيا وافغانستان وباكستان",
+    "منطقة الشرق الاوسط وافغانستان"
+   ],
+   "NAC": [
+    "أمريكا الشمالية",
+    "امريكا الشمالية",
+    "شمال أمريكا",
+    "شمال امريكا"
+   ],
+   "NAF": [
+    "شمال أفريقيا",
+    "شمال افريقيا",
+    "أفريقيا الشمالية",
+    "north africa"
+   ],
+   "OED": [
+    "دول منظمة التعاون الاقتصادي والتنمية",
+    "منظمة التعاون الاقتصادي والتنمية",
+    "دول oecd",
+    "oecd"
+   ],
+   "PSS": [
+    "الدول الجزرية الصغيرة في المحيط الهادئ",
+    "جزر المحيط الهادئ الصغيرة",
+    "دول الهادئ الصغيرة",
+    "pacific islands"
+   ],
+   "SAS": [
+    "جنوب آسيا",
+    "جنوب اسيا",
+    "south asia"
+   ],
+   "SSF": [
+    "أفريقيا جنوب الصحراء",
+    "أفريقيا جنوب الصحراء الكبرى",
+    "جنوب الصحراء",
+    "افريقيا جنوب الصحراء"
+   ],
+   "SST": [
+    "الدول الصغيرة",
+    "الدول الصغرى",
+    "small states"
+   ],
+   "HIC": [
+    "الدول عالية الدخل",
+    "عالية الدخل",
+    "high income"
+   ],
+   "LIC": [
+    "الدول منخفضة الدخل",
+    "منخفضة الدخل",
+    "low income"
+   ],
+   "LMC": [
+    "الدول متوسطة الدخل الدنيا",
+    "متوسطة الدخل الدنيا",
+    "lower middle income"
+   ],
+   "LMY": [
+    "الدول منخفضة ومتوسطة الدخل",
+    "منخفضة ومتوسطة الدخل",
+    "low and middle income"
+   ],
+   "MIC": [
+    "الدول متوسطة الدخل",
+    "متوسطة الدخل",
+    "middle income"
+   ],
+   "UMC": [
+    "الدول متوسطة الدخل العليا",
+    "متوسطة الدخل العليا",
+    "upper middle income"
+   ],
+   "SAHEL_G5": [
+    "دول الساحل",
+    "الساحل",
+    "مجموعة الساحل",
+    "sahel"
+   ],
+   "HORN": [
+    "القرن الأفريقي",
+    "القرن الافريقي",
+    "horn of africa"
+   ],
+   "G7": [
+    "مجموعة السبع",
+    "السبعة الكبار",
+    "جي 7",
+    "g7"
+   ],
+   "BRICS": [
+    "بريكس",
+    "مجموعة بريكس",
+    "دول البريكس"
+   ],
+   "ASEAN": [
+    "آسيان",
+    "رابطة آسيان",
+    "منظمة آسيان"
+   ],
+   "EAC": [
+    "جماعة شرق أفريقيا",
+    "إي كيه",
+    "شرق أفريقيا"
+   ],
+   "SADC": [
+    "سادك",
+    "مجموعة التنمية الجنوبية الأفريقية",
+    "مجتمع تنمية جنوب أفريقيا"
+   ],
+   "ECOWAS": [
+    "إيكواس",
+    "إيكوسواس",
+    "المجموعة الاقتصادية لدول غرب أفريقيا"
+   ],
+   "CENTRAL_ASIA": [
+    "آسيا الوسطى",
+    "وسط آسيا",
+    "دول آسيا الوسطى"
+   ],
+   "SOUTHEAST_ASIA": [
+    "جنوب شرق آسيا",
+    "شرق جنوب آسيا"
+   ],
+   "CARIBBEAN": [
+    "الكاريبي",
+    "منطقة الكاريبي",
+    "جزر الكاريبي",
+    "كاريبيان"
+   ],
+   "PACIFIC_ISLANDS": [
+    "جزر المحيط الهادئ",
+    "جزر الهادئ",
+    "المحيط الهادئ"
+   ],
+   "MAGHREB": [
+    "المغرب العربي",
+    "المغرب",
+    "المغرب الكبير"
+   ],
+   "GCC": [
+    "مجلس التعاون الخليجي",
+    "دول الخليج",
+    "الخليج",
+    "مجلس التعاون"
+   ],
+   "BALKANS": [
+    "البلقان",
+    "منطقة البلقان",
+    "دول البلقان"
+   ],
+   "ANDEAN": [
+    "دول الأنديز",
+    "منطقة الأنديز",
+    "الأنديز"
+   ],
+   "CENTRAL_AMERICA": [
+    "أمريكا الوسطى",
+    "وسط أمريكا"
+   ],
+   "LAKE_CHAD": [
+    "حوض بحيرة تشاد",
+    "بحيرة تشاد",
+    "تشاد"
    ]
   }
  },
@@ -1528,6 +4676,1107 @@
     "西中非",
     "西非和中非"
    ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "阿鲁巴",
+    "aruba"
+   ],
+   "AFG": [
+    "阿富汗",
+    "阿富汗伊斯兰共和国",
+    "afghanistan"
+   ],
+   "AGO": [
+    "安哥拉",
+    "angola"
+   ],
+   "ALB": [
+    "阿尔巴尼亚",
+    "albania"
+   ],
+   "AND": [
+    "安道尔",
+    "andorra"
+   ],
+   "ARE": [
+    "阿拉伯联合酋长国",
+    "阿联酋",
+    "uae"
+   ],
+   "ARG": [
+    "阿根廷",
+    "argentina"
+   ],
+   "ARM": [
+    "亚美尼亚",
+    "armenia"
+   ],
+   "ASM": [
+    "美属萨摩亚",
+    "american samoa"
+   ],
+   "ATG": [
+    "安提瓜和巴布达",
+    "安提瓜",
+    "antigua"
+   ],
+   "AUS": [
+    "澳大利亚",
+    "澳洲",
+    "澳",
+    "australia",
+    "aus"
+   ],
+   "AUT": [
+    "奥地利",
+    "austria"
+   ],
+   "AZE": [
+    "阿塞拜疆",
+    "azerbaijan"
+   ],
+   "BDI": [
+    "布隆迪",
+    "burundi"
+   ],
+   "BEL": [
+    "比利时",
+    "belgium"
+   ],
+   "BEN": [
+    "贝宁",
+    "benin"
+   ],
+   "BFA": [
+    "布基纳法索",
+    "burkina faso"
+   ],
+   "BGD": [
+    "孟加拉国",
+    "孟加拉",
+    "bangladesh"
+   ],
+   "BGR": [
+    "保加利亚",
+    "bulgaria"
+   ],
+   "BHR": [
+    "巴林",
+    "bahrain"
+   ],
+   "BHS": [
+    "巴哈马",
+    "bahamas"
+   ],
+   "BIH": [
+    "波斯尼亚和黑塞哥维那",
+    "波黑",
+    "bosnia"
+   ],
+   "BLR": [
+    "白俄罗斯",
+    "belarus"
+   ],
+   "BLZ": [
+    "伯利兹",
+    "belize"
+   ],
+   "BMU": [
+    "百慕大",
+    "bermuda"
+   ],
+   "BOL": [
+    "玻利维亚",
+    "bolivia"
+   ],
+   "BRA": [
+    "巴西",
+    "brazil"
+   ],
+   "BRB": [
+    "巴巴多斯",
+    "barbados"
+   ],
+   "BRN": [
+    "文莱",
+    "文莱达鲁萨兰国"
+   ],
+   "BTN": [
+    "不丹"
+   ],
+   "BWA": [
+    "博茨瓦纳",
+    "博茨瓦纳共和国"
+   ],
+   "CAF": [
+    "中非",
+    "中非共和国"
+   ],
+   "CAN": [
+    "加拿大",
+    "加国"
+   ],
+   "CHE": [
+    "瑞士"
+   ],
+   "CHI": [
+    "海峡群岛",
+    "根西岛",
+    "泽西岛"
+   ],
+   "CHL": [
+    "智利"
+   ],
+   "CHN": [
+    "中国",
+    "中国大陆"
+   ],
+   "CIV": [
+    "科特迪瓦",
+    "象牙海岸"
+   ],
+   "CMR": [
+    "喀麦隆"
+   ],
+   "COD": [
+    "刚果金",
+    "刚果民主共和国"
+   ],
+   "COG": [
+    "刚果布",
+    "刚果共和国"
+   ],
+   "COL": [
+    "哥伦比亚"
+   ],
+   "COM": [
+    "科摩罗"
+   ],
+   "CPV": [
+    "佛得角"
+   ],
+   "CRI": [
+    "哥斯达黎加",
+    "哥斯达"
+   ],
+   "CUB": [
+    "古巴"
+   ],
+   "CUW": [
+    "库拉索"
+   ],
+   "CYM": [
+    "开曼群岛",
+    "开曼"
+   ],
+   "CYP": [
+    "塞浦路斯",
+    "赛普路斯"
+   ],
+   "CZE": [
+    "捷克",
+    "捷克共和国"
+   ],
+   "DEU": [
+    "德国",
+    "德意志"
+   ],
+   "DJI": [
+    "吉布提"
+   ],
+   "DMA": [
+    "多米尼克"
+   ],
+   "DNK": [
+    "丹麦"
+   ],
+   "DOM": [
+    "多米尼加",
+    "多米尼加共和国"
+   ],
+   "DZA": [
+    "阿尔及利亚",
+    "阿尔及利亚民主共和国"
+   ],
+   "ECU": [
+    "厄瓜多尔",
+    "厄瓜多"
+   ],
+   "EGY": [
+    "埃及",
+    "阿拉伯埃及共和国"
+   ],
+   "ERI": [
+    "厄立特里亚",
+    "厄立特里"
+   ],
+   "ESP": [
+    "西班牙",
+    "西国",
+    "西邦"
+   ],
+   "EST": [
+    "爱沙尼亚",
+    "爱沙"
+   ],
+   "ETH": [
+    "埃塞俄比亚",
+    "埃塞"
+   ],
+   "FIN": [
+    "芬兰",
+    "芬"
+   ],
+   "FJI": [
+    "斐济"
+   ],
+   "FRA": [
+    "法国",
+    "法兰西",
+    "法国共和国",
+    "法"
+   ],
+   "FRO": [
+    "法罗群岛",
+    "法罗"
+   ],
+   "FSM": [
+    "密克罗尼西亚",
+    "密克罗尼西亚联邦",
+    "密克罗"
+   ],
+   "GAB": [
+    "加蓬"
+   ],
+   "GBR": [
+    "英国",
+    "联合王国",
+    "英吉利",
+    "英"
+   ],
+   "GEO": [
+    "格鲁吉亚",
+    "乔治亚"
+   ],
+   "GHA": [
+    "加纳"
+   ],
+   "GIB": [
+    "直布罗陀"
+   ],
+   "GIN": [
+    "几内亚"
+   ],
+   "GMB": [
+    "冈比亚"
+   ],
+   "GNB": [
+    "几内亚比绍"
+   ],
+   "GNQ": [
+    "赤道几内亚"
+   ],
+   "GRC": [
+    "希腊"
+   ],
+   "GRD": [
+    "格林纳达"
+   ],
+   "GRL": [
+    "格陵兰",
+    "格陵兰岛"
+   ],
+   "GTM": [
+    "危地马拉"
+   ],
+   "GUM": [
+    "关岛"
+   ],
+   "GUY": [
+    "圭亚那"
+   ],
+   "HKG": [
+    "香港",
+    "香港特别行政区",
+    "香港特区",
+    "hk"
+   ],
+   "HND": [
+    "洪都拉斯"
+   ],
+   "HRV": [
+    "克罗地亚",
+    "克国",
+    "克罗"
+   ],
+   "HTI": [
+    "海地"
+   ],
+   "HUN": [
+    "匈牙利",
+    "匈国",
+    "匈牙"
+   ],
+   "IDN": [
+    "印度尼西亚",
+    "印尼"
+   ],
+   "IMN": [
+    "马恩岛"
+   ],
+   "IND": [
+    "印度"
+   ],
+   "IRL": [
+    "爱尔兰"
+   ],
+   "IRN": [
+    "伊朗"
+   ],
+   "IRQ": [
+    "伊拉克"
+   ],
+   "ISL": [
+    "冰岛"
+   ],
+   "ISR": [
+    "以色列",
+    "以国"
+   ],
+   "ITA": [
+    "意大利",
+    "意国"
+   ],
+   "JAM": [
+    "牙买加"
+   ],
+   "JOR": [
+    "约旦"
+   ],
+   "JPN": [
+    "日本"
+   ],
+   "KAZ": [
+    "哈萨克斯坦",
+    "哈国",
+    "哈萨克"
+   ],
+   "KEN": [
+    "肯尼亚"
+   ],
+   "KGZ": [
+    "吉尔吉斯斯坦",
+    "吉国",
+    "吉尔吉斯"
+   ],
+   "KHM": [
+    "柬埔寨",
+    "柬国",
+    "柬埔"
+   ],
+   "KIR": [
+    "基里巴斯"
+   ],
+   "KNA": [
+    "圣基茨和尼维斯",
+    "圣基茨"
+   ],
+   "KOR": [
+    "韩国",
+    "大韩民国"
+   ],
+   "KWT": [
+    "科威特"
+   ],
+   "LAO": [
+    "老挝",
+    "寮国",
+    "老挝民主共和国"
+   ],
+   "LBN": [
+    "黎巴嫩"
+   ],
+   "LBR": [
+    "利比里亚"
+   ],
+   "LBY": [
+    "利比亚"
+   ],
+   "LCA": [
+    "圣卢西亚"
+   ],
+   "LIE": [
+    "列支敦士登",
+    "列支敦"
+   ],
+   "LKA": [
+    "斯里兰卡",
+    "锡兰"
+   ],
+   "LSO": [
+    "莱索托"
+   ],
+   "LTU": [
+    "立陶宛"
+   ],
+   "LUX": [
+    "卢森堡"
+   ],
+   "LVA": [
+    "拉脱维亚",
+    "拉脱"
+   ],
+   "MAC": [
+    "澳门",
+    "澳門",
+    "澳门特别行政区"
+   ],
+   "MAF": [
+    "圣马丁",
+    "法属圣马丁"
+   ],
+   "MAR": [
+    "摩洛哥"
+   ],
+   "MCO": [
+    "摩纳哥"
+   ],
+   "MDA": [
+    "摩尔多瓦",
+    "莫尔多瓦"
+   ],
+   "MDG": [
+    "马达加斯加"
+   ],
+   "MDV": [
+    "马尔代夫",
+    "马代"
+   ],
+   "MEX": [
+    "墨西哥"
+   ],
+   "MHL": [
+    "马绍尔群岛",
+    "马绍尔"
+   ],
+   "MKD": [
+    "北马其顿",
+    "马其顿"
+   ],
+   "MLI": [
+    "马里"
+   ],
+   "MLT": [
+    "马耳他"
+   ],
+   "MMR": [
+    "缅甸",
+    "缅甸共和国"
+   ],
+   "MNE": [
+    "黑山",
+    "黑山共和国"
+   ],
+   "MNG": [
+    "蒙古",
+    "蒙古国"
+   ],
+   "MNP": [
+    "北马里亚纳群岛",
+    "北马里亚纳"
+   ],
+   "MOZ": [
+    "莫桑比克"
+   ],
+   "MRT": [
+    "毛里塔尼亚"
+   ],
+   "MUS": [
+    "毛里求斯"
+   ],
+   "MWI": [
+    "马拉维"
+   ],
+   "MYS": [
+    "马来西亚",
+    "马来"
+   ],
+   "NAM": [
+    "纳米比亚"
+   ],
+   "NCL": [
+    "新喀里多尼亚",
+    "新喀里多尼亚属地",
+    "新喀",
+    "caledonie"
+   ],
+   "NER": [
+    "尼日尔",
+    "尼日尔共和国"
+   ],
+   "NGA": [
+    "尼日利亚",
+    "尼日利亚联邦共和国",
+    "尼日"
+   ],
+   "NIC": [
+    "尼加拉瓜",
+    "尼加拉瓜共和国"
+   ],
+   "NLD": [
+    "荷兰",
+    "荷兰王国",
+    "荷"
+   ],
+   "NOR": [
+    "挪威",
+    "挪威王国",
+    "挪"
+   ],
+   "NPL": [
+    "尼泊尔",
+    "尼泊尔联邦民主共和国",
+    "尼泊"
+   ],
+   "NRU": [
+    "瑙鲁",
+    "瑙鲁共和国"
+   ],
+   "NZL": [
+    "新西兰",
+    "纽西兰",
+    "新西兰国",
+    "nz"
+   ],
+   "OMN": [
+    "阿曼",
+    "阿曼苏丹国"
+   ],
+   "PAK": [
+    "巴基斯坦",
+    "巴基斯坦伊斯兰共和国",
+    "巴基"
+   ],
+   "PAN": [
+    "巴拿马",
+    "巴拿马共和国"
+   ],
+   "PER": [
+    "秘鲁",
+    "秘鲁共和国",
+    "秘鲁国"
+   ],
+   "PHL": [
+    "菲律宾",
+    "菲律宾共和国",
+    "菲",
+    "菲国"
+   ],
+   "PLW": [
+    "帛琉",
+    "帕劳",
+    "帕劳共和国"
+   ],
+   "PNG": [
+    "巴布亚新几内亚",
+    "巴新",
+    "png"
+   ],
+   "POL": [
+    "波兰",
+    "波兰共和国",
+    "波兰国"
+   ],
+   "PRI": [
+    "波多黎各",
+    "波多黎各自由邦",
+    "波多黎"
+   ],
+   "PRK": [
+    "朝鲜",
+    "朝鲜民主主义人民共和国",
+    "北韩",
+    "北朝鲜"
+   ],
+   "PRT": [
+    "葡萄牙",
+    "葡萄牙共和国",
+    "葡"
+   ],
+   "PRY": [
+    "巴拉圭",
+    "巴拉圭共和国"
+   ],
+   "PSE": [
+    "巴勒斯坦",
+    "西岸",
+    "加沙"
+   ],
+   "PYF": [
+    "法属波利尼西亚",
+    "波利尼西亚"
+   ],
+   "QAT": [
+    "卡塔尔",
+    "卡塔尔国",
+    "卡特尔"
+   ],
+   "ROU": [
+    "罗马尼亚",
+    "罗马尼亚共和国"
+   ],
+   "RUS": [
+    "俄罗斯",
+    "俄罗斯联邦",
+    "俄",
+    "俄国",
+    "俄罗斯国"
+   ],
+   "RWA": [
+    "卢旺达",
+    "卢旺达共和国"
+   ],
+   "SAU": [
+    "沙特",
+    "沙特阿拉伯",
+    "沙特阿拉伯王国",
+    "沙特国"
+   ],
+   "SDN": [
+    "苏丹",
+    "sudan"
+   ],
+   "SEN": [
+    "塞内加尔",
+    "塞内",
+    "senegal"
+   ],
+   "SGP": [
+    "新加坡",
+    "新加波",
+    "新加坡共和国",
+    "sgp",
+    "singapore"
+   ],
+   "SLB": [
+    "所罗门群岛",
+    "所罗门",
+    "solomon islands"
+   ],
+   "SLE": [
+    "塞拉利昂",
+    "sierra leone"
+   ],
+   "SLV": [
+    "萨尔瓦多",
+    "el salvador"
+   ],
+   "SMR": [
+    "圣马力诺",
+    "san marino"
+   ],
+   "SOM": [
+    "索马里",
+    "索马里共和国",
+    "somalia"
+   ],
+   "SRB": [
+    "塞尔维亚",
+    "塞尔维亚共和国",
+    "serbia"
+   ],
+   "SSD": [
+    "南苏丹",
+    "south sudan"
+   ],
+   "STP": [
+    "圣多美和普林西比",
+    "圣多美",
+    "sao tome"
+   ],
+   "SUR": [
+    "苏里南",
+    "suriname"
+   ],
+   "SVK": [
+    "斯洛伐克",
+    "slovakia"
+   ],
+   "SVN": [
+    "斯洛文尼亚",
+    "slovenia"
+   ],
+   "SWE": [
+    "瑞典",
+    "sweden"
+   ],
+   "SWZ": [
+    "斯威士兰",
+    "埃斯瓦蒂尼",
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "圣马丁",
+    "sint maarten"
+   ],
+   "SYC": [
+    "塞舌尔",
+    "seychelles"
+   ],
+   "SYR": [
+    "叙利亚",
+    "叙利亚阿拉伯共和国",
+    "syria"
+   ],
+   "TCA": [
+    "特克斯和凯科斯群岛",
+    "tca",
+    "turks and caicos"
+   ],
+   "TCD": [
+    "乍得",
+    "chad"
+   ],
+   "TGO": [
+    "多哥",
+    "togo"
+   ],
+   "THA": [
+    "泰国",
+    "泰",
+    "thailand"
+   ],
+   "TJK": [
+    "塔吉克斯坦",
+    "塔吉克",
+    "tajikistan"
+   ],
+   "TKM": [
+    "土库曼斯坦",
+    "土库曼",
+    "turkmenistan"
+   ],
+   "TLS": [
+    "东帝汶",
+    "帝汶",
+    "timor-leste"
+   ],
+   "TON": [
+    "汤加",
+    "tonga"
+   ],
+   "TTO": [
+    "特立尼达和多巴哥",
+    "特多",
+    "trinidad and tobago"
+   ],
+   "TUN": [
+    "突尼斯",
+    "突尼斯共和国"
+   ],
+   "TUR": [
+    "土耳其",
+    "土尔其",
+    "türkiye"
+   ],
+   "TUV": [
+    "图瓦卢"
+   ],
+   "TZA": [
+    "坦桑尼亚",
+    "坦桑"
+   ],
+   "UGA": [
+    "乌干达"
+   ],
+   "UKR": [
+    "乌克兰"
+   ],
+   "URY": [
+    "乌拉圭"
+   ],
+   "USA": [
+    "美国",
+    "美利坚合众国",
+    "美国共和国"
+   ],
+   "UZB": [
+    "乌兹别克斯坦",
+    "乌兹别克",
+    "乌兹别"
+   ],
+   "VCT": [
+    "圣文森特和格林纳丁斯",
+    "圣文森特"
+   ],
+   "VEN": [
+    "委内瑞拉",
+    "委内瑞拉玻利瓦共和国"
+   ],
+   "VGB": [
+    "英属维尔京群岛",
+    "英维",
+    "bvi"
+   ],
+   "VIR": [
+    "美属维尔京群岛",
+    "美维",
+    "usvi"
+   ],
+   "VNM": [
+    "越南"
+   ],
+   "VUT": [
+    "瓦努阿图"
+   ],
+   "WSM": [
+    "萨摩亚",
+    "西萨摩亚"
+   ],
+   "XKX": [
+    "科索沃"
+   ],
+   "YEM": [
+    "也门"
+   ],
+   "ZAF": [
+    "南非",
+    "南非共和国"
+   ],
+   "ZMB": [
+    "赞比亚"
+   ],
+   "ZWE": [
+    "津巴布韦"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "东非和南非",
+    "东南非",
+    "东非南非"
+   ],
+   "AFR": [
+    "非洲",
+    "africa"
+   ],
+   "AFW": [
+    "西非和中非",
+    "西中非",
+    "西非中非"
+   ],
+   "ARB": [
+    "阿拉伯世界",
+    "阿拉伯国家",
+    "阿拉伯地区"
+   ],
+   "CME": [
+    "中东和北非",
+    "中北非",
+    "mena"
+   ],
+   "CSS": [
+    "加勒比小岛国家",
+    "加勒比小国",
+    "加勒比小岛"
+   ],
+   "EAS": [
+    "东亚和太平洋",
+    "东亚太",
+    "东亚太平洋"
+   ],
+   "ECS": [
+    "欧洲和中亚",
+    "欧中亚",
+    "欧洲中亚"
+   ],
+   "EMU": [
+    "欧元区",
+    "euro area"
+   ],
+   "EUU": [
+    "欧盟",
+    "european union",
+    "eu"
+   ],
+   "HPC": [
+    "重债穷国",
+    "高度负债穷国",
+    "hipc"
+   ],
+   "LCN": [
+    "拉丁美洲和加勒比地区",
+    "拉加",
+    "拉美加勒比"
+   ],
+   "LDC": [
+    "最不发达国家",
+    "最贫穷国家",
+    "ldc"
+   ],
+   "MEA": [
+    "中东北非阿巴",
+    "中东北非",
+    "mea"
+   ],
+   "NAC": [
+    "北美",
+    "北美洲",
+    "north america"
+   ],
+   "NAF": [
+    "北非",
+    "北非地区"
+   ],
+   "OED": [
+    "经合组织成员国",
+    "oced成员",
+    "经合组织国家",
+    "oecd国家"
+   ],
+   "PSS": [
+    "太平洋岛国",
+    "太平洋小岛国家",
+    "太平洋小岛屿国家"
+   ],
+   "SAS": [
+    "南亚",
+    "南亚地区"
+   ],
+   "SSF": [
+    "撒哈拉以南非洲",
+    "撒以南非洲",
+    "撒哈拉以南"
+   ],
+   "SST": [
+    "小国",
+    "小型国家",
+    "小规模国家"
+   ],
+   "HIC": [
+    "高收入国家",
+    "高收入经济体",
+    "高收入"
+   ],
+   "LIC": [
+    "低收入国家",
+    "低收入经济体",
+    "低收入"
+   ],
+   "LMC": [
+    "中低收入国家",
+    "中低收入经济体",
+    "中低收入"
+   ],
+   "LMY": [
+    "中低收入国家",
+    "中低收入群体",
+    "中低收入经济体"
+   ],
+   "MIC": [
+    "中等收入国家",
+    "中等收入经济体",
+    "中等收入"
+   ],
+   "UMC": [
+    "中高收入国家",
+    "中高收入经济体",
+    "中高收入"
+   ],
+   "SAHEL_G5": [
+    "萨赫勒",
+    "萨赫勒地区",
+    "萨赫勒五国"
+   ],
+   "HORN": [
+    "非洲之角",
+    "非洲之角地区"
+   ],
+   "G7": [
+    "g7",
+    "七国集团",
+    "七国组"
+   ],
+   "BRICS": [
+    "金砖国家",
+    "金砖",
+    "brics"
+   ],
+   "ASEAN": [
+    "东盟",
+    "东南亚国家联盟",
+    "asean"
+   ],
+   "EAC": [
+    "东非共同体",
+    "东非共同体联盟",
+    "eac"
+   ],
+   "SADC": [
+    "南部非洲发展共同体",
+    "南非发共体",
+    "sadc"
+   ],
+   "ECOWAS": [
+    "西非国家经济共同体",
+    "西共体",
+    "ecowas"
+   ],
+   "CENTRAL_ASIA": [
+    "中亚",
+    "中亚地区",
+    "central asia"
+   ],
+   "SOUTHEAST_ASIA": [
+    "东南亚",
+    "东南亚地区",
+    "southeast asia"
+   ],
+   "CARIBBEAN": [
+    "加勒比",
+    "加勒比地区",
+    "加勒比海",
+    "caribbean"
+   ],
+   "PACIFIC_ISLANDS": [
+    "太平洋岛国",
+    "太平洋岛屿",
+    "太平洋岛民",
+    "pacific islands"
+   ],
+   "MAGHREB": [
+    "马格里布",
+    "马格里布地区",
+    "maghreb"
+   ],
+   "GCC": [
+    "海湾合作委员会",
+    "海合会",
+    "gcc"
+   ],
+   "BALKANS": [
+    "巴尔干",
+    "西巴尔干",
+    "巴尔干半岛",
+    "balkans"
+   ],
+   "ANDEAN": [
+    "安第斯国家",
+    "安第斯共同体",
+    "andean"
+   ],
+   "CENTRAL_AMERICA": [
+    "中美",
+    "中美洲",
+    "central america"
+   ],
+   "LAKE_CHAD": [
+    "查德湖盆地",
+    "查德湖地区",
+    "lake chad"
+   ]
   }
  },
  "Russian": {
@@ -1901,6 +6150,1398 @@
    ],
    "Western and Central Africa": [
     "западная и центральная африка"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "аруба",
+    "арубы",
+    "арубе"
+   ],
+   "AFG": [
+    "афганистан",
+    "афганистана",
+    "афганистану",
+    "афганистане"
+   ],
+   "AGO": [
+    "ангола",
+    "анголы",
+    "анголе"
+   ],
+   "ALB": [
+    "албания",
+    "албании"
+   ],
+   "AND": [
+    "андорра",
+    "андорры",
+    "андорре"
+   ],
+   "ARE": [
+    "оаэ",
+    "объединенные арабские эмираты",
+    "эмираты"
+   ],
+   "ARG": [
+    "аргентина",
+    "аргентины",
+    "аргентине"
+   ],
+   "ARM": [
+    "армения",
+    "армении"
+   ],
+   "ASM": [
+    "американское самоа",
+    "самоа"
+   ],
+   "ATG": [
+    "антигуа и барбуда",
+    "антигуа"
+   ],
+   "AUS": [
+    "австралия",
+    "австралии"
+   ],
+   "AUT": [
+    "австрия",
+    "австрии"
+   ],
+   "AZE": [
+    "азербайджан",
+    "азербайджана",
+    "азербайджану",
+    "азербайджане"
+   ],
+   "BDI": [
+    "бурунди"
+   ],
+   "BEL": [
+    "бельгия",
+    "бельгии"
+   ],
+   "BEN": [
+    "бенин",
+    "бенина",
+    "бенину",
+    "бенине"
+   ],
+   "BFA": [
+    "буркина-фасо",
+    "буркина"
+   ],
+   "BGD": [
+    "бангладеш",
+    "бангладеша",
+    "бангладешу",
+    "бангладеше"
+   ],
+   "BGR": [
+    "болгария",
+    "болгарии"
+   ],
+   "BHR": [
+    "бахрейн",
+    "бахрейна",
+    "бахрейну",
+    "бахрейне"
+   ],
+   "BHS": [
+    "багамские острова",
+    "багамы",
+    "багам",
+    "багамам",
+    "багамах"
+   ],
+   "BIH": [
+    "босния и герцеговина",
+    "босния",
+    "боснии"
+   ],
+   "BLR": [
+    "беларусь",
+    "белоруссия",
+    "беларуси",
+    "белоруссии"
+   ],
+   "BLZ": [
+    "белиз",
+    "белиза",
+    "белизу",
+    "белизе"
+   ],
+   "BMU": [
+    "бермуды",
+    "бермуд",
+    "бермудам",
+    "бермудах"
+   ],
+   "BOL": [
+    "боливия",
+    "боливии"
+   ],
+   "BRA": [
+    "бразилия",
+    "бразилии"
+   ],
+   "BRB": [
+    "барбадос",
+    "барбадоса",
+    "барбадосу",
+    "барбадосе"
+   ],
+   "BRN": [
+    "бруней",
+    "бруней-даруссалам",
+    "брунея",
+    "брунею",
+    "брунее"
+   ],
+   "BTN": [
+    "бутан",
+    "бутана",
+    "бутану",
+    "бутане"
+   ],
+   "BWA": [
+    "ботсвана",
+    "ботсваны",
+    "ботсване"
+   ],
+   "CAF": [
+    "цсаре",
+    "ццентральноафриканская республика",
+    "цар",
+    "центральноафриканской республики",
+    "центральноафриканской республике"
+   ],
+   "CAN": [
+    "канада",
+    "канады",
+    "канаде"
+   ],
+   "CHE": [
+    "швейцария",
+    "швейцарии"
+   ],
+   "CHI": [
+    "норманнские острова",
+    "острова ла-манш",
+    "норманнских островов",
+    "норманнскими островами",
+    "норманнских островах"
+   ],
+   "CHL": [
+    "чили"
+   ],
+   "CHN": [
+    "китай",
+    "кнр",
+    "китая",
+    "китаю",
+    "китае"
+   ],
+   "CIV": [
+    "кдюар",
+    "берег слоновой кости",
+    "コートディブワール",
+    "берега слоновой кости",
+    "берегу слоновой кости",
+    "береге слоновой кости"
+   ],
+   "CMR": [
+    "камерун",
+    "камеруна",
+    "камеруну",
+    "камеруне"
+   ],
+   "COD": [
+    "дрко",
+    "дреспублика конго",
+    "конго дрэ"
+   ],
+   "COG": [
+    "конго",
+    "республика конго"
+   ],
+   "COL": [
+    "колумбия",
+    "колумбии"
+   ],
+   "COM": [
+    "коморы",
+    "коморских островов",
+    "коморам",
+    "коморах"
+   ],
+   "CPV": [
+    "кабо-верде",
+    "кабоверде"
+   ],
+   "CRI": [
+    "коста-рика",
+    "костарика",
+    "коста-рики",
+    "коста-рике"
+   ],
+   "CUB": [
+    "куба",
+    "кубы",
+    "кубе"
+   ],
+   "CUW": [
+    "кюрасао"
+   ],
+   "CYM": [
+    "каймановы острова",
+    "каймановых островов",
+    "каймановым островам",
+    "каймановых островах"
+   ],
+   "CYP": [
+    "кипр",
+    "кипра",
+    "кипру",
+    "кипре"
+   ],
+   "CZE": [
+    "чехия",
+    "чешская республика",
+    "чехии"
+   ],
+   "DEU": [
+    "германия",
+    "немка",
+    "германии"
+   ],
+   "DJI": [
+    "джибути"
+   ],
+   "DMA": [
+    "доминика",
+    "доминики",
+    "доминике"
+   ],
+   "DNK": [
+    "дания",
+    "дании"
+   ],
+   "DOM": [
+    "доминиканская республика",
+    "доминикана",
+    "доминиканской республики",
+    "доминиканской республике"
+   ],
+   "DZA": [
+    "алжир",
+    "алжира",
+    "алжиру",
+    "алжире"
+   ],
+   "ECU": [
+    "эквадор",
+    "эквадора",
+    "эквадору",
+    "эквадоре"
+   ],
+   "EGY": [
+    "египет",
+    "египта",
+    "египту",
+    "египте"
+   ],
+   "ERI": [
+    "эритрея",
+    "эритреи",
+    "эритрее"
+   ],
+   "ESP": [
+    "испания",
+    "испании"
+   ],
+   "EST": [
+    "эстония",
+    "эстонии"
+   ],
+   "ETH": [
+    "эфиопия",
+    "эфиопии"
+   ],
+   "FIN": [
+    "финляндия",
+    "финляндии"
+   ],
+   "FJI": [
+    "фиджи"
+   ],
+   "FRA": [
+    "франция",
+    "франции"
+   ],
+   "FRO": [
+    "фарерские острова",
+    "фарерских островов",
+    "фарерским островам",
+    "фарерских островах"
+   ],
+   "FSM": [
+    "микронезия",
+    "микронезии"
+   ],
+   "GAB": [
+    "габон",
+    "габона",
+    "габону",
+    "габоне"
+   ],
+   "GBR": [
+    "великобритания",
+    "британия",
+    "великобритании",
+    "британии"
+   ],
+   "GEO": [
+    "грузия",
+    "грузии"
+   ],
+   "GHA": [
+    "гана",
+    "ганы",
+    "гане"
+   ],
+   "GIB": [
+    "гибралтар",
+    "гибралтара",
+    "гибралтару",
+    "гибралтаре"
+   ],
+   "GIN": [
+    "гвинея",
+    "гвинеи",
+    "гвинее"
+   ],
+   "GMB": [
+    "гамбия",
+    "гамбии"
+   ],
+   "GNB": [
+    "гвинея-бисау",
+    "гвинеи-бисау",
+    "гвинее-бисау"
+   ],
+   "GNQ": [
+    "экваториальная гвинея",
+    "экваториальной гвинеи",
+    "экваториальной гвинее"
+   ],
+   "GRC": [
+    "греция",
+    "греции"
+   ],
+   "GRD": [
+    "гренада",
+    "гренады",
+    "гренаде"
+   ],
+   "GRL": [
+    "гренландия",
+    "гренландии"
+   ],
+   "GTM": [
+    "гватемала",
+    "гватемалы",
+    "гватемале"
+   ],
+   "GUM": [
+    "гуам",
+    "гуама",
+    "гуаму",
+    "гуаме"
+   ],
+   "GUY": [
+    "гайана",
+    "гайаны",
+    "гайане"
+   ],
+   "HKG": [
+    "гонконг",
+    "гонконга",
+    "гонконгу",
+    "гонконге"
+   ],
+   "HND": [
+    "ондурас",
+    "ондураса",
+    "ондурасу",
+    "ондурасе"
+   ],
+   "HRV": [
+    "хорватия",
+    "хорватии",
+    "хорватию"
+   ],
+   "HTI": [
+    "гаити"
+   ],
+   "HUN": [
+    "венгрия",
+    "венгрии",
+    "венгрию"
+   ],
+   "IDN": [
+    "индонезия",
+    "индонезии",
+    "индонезию"
+   ],
+   "IMN": [
+    "остров мэн",
+    "мэн",
+    "мэна",
+    "мэну",
+    "мэне"
+   ],
+   "IND": [
+    "индия",
+    "индии",
+    "индию"
+   ],
+   "IRL": [
+    "ирландия",
+    "ирландии",
+    "ирландию"
+   ],
+   "IRN": [
+    "иран",
+    "ирана",
+    "ирану",
+    "иране"
+   ],
+   "IRQ": [
+    "ирак",
+    "ирака",
+    "ираку",
+    "ираке"
+   ],
+   "ISL": [
+    "исландия",
+    "исландии",
+    "исландию"
+   ],
+   "ISR": [
+    "израиль",
+    "израиля",
+    "израилю",
+    "израиле"
+   ],
+   "ITA": [
+    "италия",
+    "италии",
+    "италию"
+   ],
+   "JAM": [
+    "ямайка",
+    "ямайки",
+    "ямайку",
+    "ямайке"
+   ],
+   "JOR": [
+    "иордания",
+    "иордании",
+    "иорданию"
+   ],
+   "JPN": [
+    "япония",
+    "японии",
+    "японию"
+   ],
+   "KAZ": [
+    "казахстан",
+    "казахстана",
+    "казахстану",
+    "казахстане",
+    "кз"
+   ],
+   "KEN": [
+    "кения",
+    "кении",
+    "кению"
+   ],
+   "KGZ": [
+    "кыргизия",
+    "кыргизии",
+    "кыргизию",
+    "киргизия",
+    "киргизии",
+    "киргизию"
+   ],
+   "KHM": [
+    "камбоджа",
+    "камбоджи",
+    "камбоджу",
+    "камбодже"
+   ],
+   "KIR": [
+    "кирибати"
+   ],
+   "KNA": [
+    "сент-китс и невис",
+    "китс и невис",
+    "сент-китс"
+   ],
+   "KOR": [
+    "корея",
+    "корее",
+    "корею",
+    "южная корея",
+    "южной корее"
+   ],
+   "KWT": [
+    "кувейт",
+    "кувейта",
+    "кувейту",
+    "кувейте"
+   ],
+   "LAO": [
+    "лаос",
+    "лаоса",
+    "лаосу",
+    "лаосе"
+   ],
+   "LBN": [
+    "ливан",
+    "ливана",
+    "ливану",
+    "ливане"
+   ],
+   "LBR": [
+    "либерия",
+    "либерии",
+    "либерию"
+   ],
+   "LBY": [
+    "ливия",
+    "ливии",
+    "ливию"
+   ],
+   "LCA": [
+    "сент-люсия",
+    "люсия",
+    "люсии",
+    "люсию"
+   ],
+   "LIE": [
+    "лихтенштейн",
+    "лихтенштейна",
+    "лихтенштейну",
+    "лихтенштейне"
+   ],
+   "LKA": [
+    "шри-ланка",
+    "шри ланка",
+    "ланка",
+    "шри-ланки",
+    "шри-ланке"
+   ],
+   "LSO": [
+    "лесото"
+   ],
+   "LTU": [
+    "литовская республика",
+    "литовская"
+   ],
+   "LUX": [
+    "люксембург",
+    "люксембурга",
+    "люксембургу",
+    "люксембурге"
+   ],
+   "LVA": [
+    "латвия",
+    "латвии"
+   ],
+   "MAC": [
+    "макао"
+   ],
+   "MAF": [
+    "сан-мартен",
+    "сан мартен",
+    "сан-мартена",
+    "сан-мартине"
+   ],
+   "MAR": [
+    "марокко"
+   ],
+   "MCO": [
+    "монако"
+   ],
+   "MDA": [
+    "молдова",
+    "молдовы",
+    "молдове"
+   ],
+   "MDG": [
+    "мадагаскар",
+    "мадагаскара",
+    "мадагаскару",
+    "мадагаскаре"
+   ],
+   "MDV": [
+    "мальдивы",
+    "мальдив",
+    "мальдивам",
+    "мальдивах"
+   ],
+   "MEX": [
+    "мексика",
+    "мексики",
+    "мексике"
+   ],
+   "MHL": [
+    "маршалловы острова",
+    "маршалловых островов",
+    "маршалловым островам",
+    "маршалловых островах"
+   ],
+   "MKD": [
+    "северная македония",
+    "македония",
+    "северной македонии"
+   ],
+   "MLI": [
+    "мали"
+   ],
+   "MLT": [
+    "мальта",
+    "мальты",
+    "мальте"
+   ],
+   "MMR": [
+    "мьянма",
+    "бирма",
+    "мьянмы",
+    "мьянме"
+   ],
+   "MNE": [
+    "черногория",
+    "черногории"
+   ],
+   "MNG": [
+    "монголия",
+    "монголии"
+   ],
+   "MNP": [
+    "северные марианские острова",
+    "северных марианских островов",
+    "северным марианским островам",
+    "северных марианских островах"
+   ],
+   "MOZ": [
+    "мозамбик",
+    "мозамбика",
+    "мозамбику",
+    "мозамбике"
+   ],
+   "MRT": [
+    "мавритания",
+    "мавритании"
+   ],
+   "MUS": [
+    "маврикий",
+    "маврикия",
+    "маврикию",
+    "маврикии"
+   ],
+   "MWI": [
+    "малави"
+   ],
+   "MYS": [
+    "малайзия",
+    "малайзии"
+   ],
+   "NAM": [
+    "намибия",
+    "намибии"
+   ],
+   "NCL": [
+    "новая каледония",
+    "новой каледонии"
+   ],
+   "NER": [
+    "нигер",
+    "нигера",
+    "нигеру",
+    "нигере"
+   ],
+   "NGA": [
+    "нигерия",
+    "нигерии"
+   ],
+   "NIC": [
+    "никарагуа"
+   ],
+   "NLD": [
+    "нидерланды",
+    "нидерландов",
+    "нидерландам",
+    "нидерландах",
+    "голландия",
+    "голландии"
+   ],
+   "NOR": [
+    "норвегия",
+    "норвегии"
+   ],
+   "NPL": [
+    "непал",
+    "непала",
+    "непалу",
+    "непале"
+   ],
+   "NRU": [
+    "науру"
+   ],
+   "NZL": [
+    "новая зеландия",
+    "новой зеландии"
+   ],
+   "OMN": [
+    "оман",
+    "омана",
+    "оману",
+    "омане"
+   ],
+   "PAK": [
+    "пакистан",
+    "пакистана",
+    "пакистану",
+    "пакистане"
+   ],
+   "PAN": [
+    "панама",
+    "панамы",
+    "панаме"
+   ],
+   "PER": [
+    "перу"
+   ],
+   "PHL": [
+    "филиппины",
+    "филиппин",
+    "филиппинам",
+    "филиппинах"
+   ],
+   "PLW": [
+    "палау"
+   ],
+   "PNG": [
+    "папуа новая гвинея",
+    "папуа новой гвинеи",
+    "папуа новой гвинее"
+   ],
+   "POL": [
+    "польша",
+    "польши",
+    "польше"
+   ],
+   "PRI": [
+    "пуэрто-рико"
+   ],
+   "PRK": [
+    "кндр",
+    "кн др",
+    "северная корея",
+    "северной кореи",
+    "северной корее"
+   ],
+   "PRT": [
+    "португалия",
+    "португалии"
+   ],
+   "PRY": [
+    "парагвай",
+    "парагвая",
+    "парагваю",
+    "парагвае"
+   ],
+   "PSE": [
+    "палестина",
+    "палестины",
+    "палестине",
+    "западный берег",
+    "газа"
+   ],
+   "PYF": [
+    "французская полинезия",
+    "французской полинезии"
+   ],
+   "QAT": [
+    "катар",
+    "катара",
+    "катару",
+    "катаре"
+   ],
+   "ROU": [
+    "румыния",
+    "румынии"
+   ],
+   "RUS": [
+    "россия",
+    "рф",
+    "россии"
+   ],
+   "RWA": [
+    "руанда",
+    "руанды",
+    "руанде"
+   ],
+   "SAU": [
+    "саудовская аравия",
+    "саудовской аравии"
+   ],
+   "SDN": [
+    "судан",
+    "судана",
+    "судану",
+    "судане"
+   ],
+   "SEN": [
+    "сенегал",
+    "сенегала",
+    "сенегалу",
+    "сенегале"
+   ],
+   "SGP": [
+    "сингапур",
+    "сингапура",
+    "сингапуру",
+    "сингапуре"
+   ],
+   "SLB": [
+    "соломоновы острова",
+    "соломоновых островов",
+    "соломоновым островам",
+    "соломоновых островах"
+   ],
+   "SLE": [
+    "сьерра-леоне"
+   ],
+   "SLV": [
+    "эль-сальвадор",
+    "сальвадор",
+    "эль-сальвадора",
+    "сальвадора",
+    "эль-сальвадору",
+    "сальвадору",
+    "эль-сальвадоре",
+    "сальвадоре"
+   ],
+   "SMR": [
+    "сан-марино"
+   ],
+   "SOM": [
+    "сомали"
+   ],
+   "SRB": [
+    "сербия",
+    "сербии"
+   ],
+   "SSD": [
+    "южный судан",
+    "южного судана",
+    "южному судану",
+    "южном судане"
+   ],
+   "STP": [
+    "сао-томе и prinsipe"
+   ],
+   "SUR": [
+    "суринам",
+    "суринама",
+    "суринаму",
+    "суринаме"
+   ],
+   "SVK": [
+    "словакия",
+    "словакии"
+   ],
+   "SVN": [
+    "словения",
+    "словении"
+   ],
+   "SWE": [
+    "швеция",
+    "швеции"
+   ],
+   "SWZ": [
+    "эсватини",
+    "свазиленд",
+    "свазиленда",
+    "свазиленду",
+    "свазиленде"
+   ],
+   "SXM": [
+    "синт-мартен",
+    "синт-мартена",
+    "синт-мартену",
+    "синт-мартене"
+   ],
+   "SYC": [
+    "сейшелы",
+    "сейшел",
+    "сейшелам",
+    "сейшелах"
+   ],
+   "SYR": [
+    "сирия",
+    "сирии"
+   ],
+   "TCA": [
+    "туркс и кайкос",
+    "турксовых и кайкосовых островов",
+    "туркс и кайкосу",
+    "туркс и кайкосе"
+   ],
+   "TCD": [
+    "чад",
+    "чада",
+    "чаду",
+    "чаде"
+   ],
+   "TGO": [
+    "того"
+   ],
+   "THA": [
+    "таиланд",
+    "таиланда",
+    "таиланду",
+    "таиланде"
+   ],
+   "TJK": [
+    "таджикистан",
+    "таджикистана",
+    "таджикистану",
+    "таджикистане"
+   ],
+   "TKM": [
+    "туркменистан",
+    "туркменистана",
+    "туркменистану",
+    "туркменистане"
+   ],
+   "TLS": [
+    "тимор-лесте",
+    "восточный тимор",
+    "восточного тимора",
+    "восточному тимору",
+    "восточном тиморе"
+   ],
+   "TON": [
+    "тонга",
+    "тонги",
+    "тонге"
+   ],
+   "TTO": [
+    "тринидад и тобаго",
+    "тринидада и тобаго",
+    "тринидаду и тобаго",
+    "тринидаде и тобаго"
+   ],
+   "TUN": [
+    "тунис",
+    "туниса",
+    "тунису",
+    "тунисе"
+   ],
+   "TUR": [
+    "турция",
+    "турции",
+    "туркии"
+   ],
+   "TUV": [
+    "тувалу"
+   ],
+   "TZA": [
+    "танзания",
+    "танзании"
+   ],
+   "UGA": [
+    "уганда",
+    "уганды",
+    "уганде"
+   ],
+   "UKR": [
+    "украина",
+    "украины",
+    "украине",
+    "укр"
+   ],
+   "URY": [
+    "уругвай",
+    "уругвая",
+    "уругваю",
+    "уругвае"
+   ],
+   "USA": [
+    "сша",
+    "соединенные штаты",
+    "америка"
+   ],
+   "UZB": [
+    "узбекистан",
+    "узбекистана",
+    "узбекистану",
+    "узбекистане",
+    "узб"
+   ],
+   "VCT": [
+    "сент-винсент",
+    "сент-винсента",
+    "сент-винсенту",
+    "сент-винсенте"
+   ],
+   "VEN": [
+    "венесуэла",
+    "венесуэлы",
+    "венесуэле"
+   ],
+   "VGB": [
+    "британские виргинские острова",
+    "брит. виргинских островов",
+    "брит. виргинским островам",
+    "брит. виргинских островах"
+   ],
+   "VIR": [
+    "виргинские острова",
+    "виргинских островов",
+    "виргинским островам",
+    "виргинских островах"
+   ],
+   "VNM": [
+    "вьетнам",
+    "вьетнама",
+    "вьетнаму",
+    "вьетнаме"
+   ],
+   "VUT": [
+    "вануату"
+   ],
+   "WSM": [
+    "самоа"
+   ],
+   "XKX": [
+    "косово"
+   ],
+   "YEM": [
+    "йемен",
+    "йемена",
+    "йемену",
+    "йемене"
+   ],
+   "ZAF": [
+    "юар",
+    "южно-африканская республика"
+   ],
+   "ZMB": [
+    "замбия",
+    "замбии"
+   ],
+   "ZWE": [
+    "зимбабве"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "восточная и южная африка",
+    "в. и юж. африка",
+    "восточная африка",
+    "южная африка",
+    "восточной и южной африки",
+    "восточной и южной африке"
+   ],
+   "AFR": [
+    "африка",
+    "афр",
+    "африки",
+    "африке",
+    "африкой"
+   ],
+   "AFW": [
+    "западная и центральная африка",
+    "з. и ц. африка",
+    "западная африка",
+    "центральная африка",
+    "западной и центральной африки",
+    "западной и центральной африке"
+   ],
+   "ARB": [
+    "арабский мир",
+    "арабские страны",
+    "арабского мира",
+    "арабскому миру",
+    "арабском мире"
+   ],
+   "CME": [
+    "ближний восток и северная африка",
+    "бвса",
+    "бена",
+    "ближнего востока и северной африки",
+    "ближнему востоку и северной африке",
+    "ближнем востоке и северной африке"
+   ],
+   "CSS": [
+    "малые государства карибского бассейна",
+    "карибские острова",
+    "малых государств карибского бассейна",
+    "малым государствам карибского бассейна",
+    "малых государствах карибского бассейна"
+   ],
+   "EAS": [
+    "восточная азия и тихоокеанский регион",
+    "в. азия и тихоокеанский регион",
+    "восточная азия",
+    "восточной азии и тихоокеанского региона",
+    "восточной азии и тихоокеанскому региону",
+    "восточной азии и тихоокеанском регионе"
+   ],
+   "ECS": [
+    "европа и центральная азия",
+    "еца",
+    "европы и центральной азии",
+    "европе и центральной азии"
+   ],
+   "EMU": [
+    "еврозона",
+    "зона евро",
+    "еврозоны",
+    "еврозоне"
+   ],
+   "EUU": [
+    "евросоюз",
+    "ес",
+    "европейский союз",
+    "евросоюза",
+    "евросоюзу",
+    "евросоюзе"
+   ],
+   "HPC": [
+    "бедные страны с высоким уровнем задолженности",
+    "бсвз",
+    "бедных стран с высоким уровнем задолженности",
+    "бедным странам с высоким уровнем задолженности",
+    "бедных странах с высоким уровнем задолженности"
+   ],
+   "LCN": [
+    "латинская америка и карибский бассейн",
+    "латинская америка",
+    "латинской америки и карибского бассейна",
+    "латинской америке и карибскому бассейну",
+    "латинской америке и карибском бассейне"
+   ],
+   "LDC": [
+    "наименее развитые страны",
+    "нрс",
+    "наименее развитых стран",
+    "наименее развитым странам",
+    "наименее развитых странах"
+   ],
+   "MEA": [
+    "ближний восток, северная африка, афганистан и пакистан",
+    "бвсап",
+    "ближнего востока, северной африки, афганистана и пакистана",
+    "ближнему востоку, северной африке, афганистану и пакистану",
+    "ближнем востоке, северной африке, афганистане и пакистане"
+   ],
+   "NAC": [
+    "северная америка",
+    "с. америка",
+    "северной америки",
+    "северной америке"
+   ],
+   "NAF": [
+    "северная африка",
+    "с. африка",
+    "северной африки",
+    "северной африке"
+   ],
+   "OED": [
+    "оэср",
+    "страны оэср",
+    "члены оэср"
+   ],
+   "PSS": [
+    "малые островные государства тихого океана",
+    "острова тихого океана",
+    "тихоокеанские острова",
+    "тихоокеанских островов",
+    "тихоокеанским островам",
+    "тихоокеанских островах"
+   ],
+   "SAS": [
+    "южная азия",
+    "юж. азия",
+    "южной азии"
+   ],
+   "SSF": [
+    "субсахарская африка",
+    "тропическая африка",
+    "субсахарской африки",
+    "субсахарской африке"
+   ],
+   "SST": [
+    "малые государства",
+    "малые страны",
+    "малых государств",
+    "малым государствам",
+    "малых государствах"
+   ],
+   "HIC": [
+    "страны с высоким доходом",
+    "высокий доход",
+    "высокодоходные страны",
+    "высокого дохода",
+    "высокому доходу",
+    "высоком доходе"
+   ],
+   "LIC": [
+    "страны с низким доходом",
+    "низкий доход",
+    "низкодоходные страны",
+    "низкого дохода",
+    "низкому доходу",
+    "низком доходе"
+   ],
+   "LMC": [
+    "страны с низким уровнем среднего дохода",
+    "нижний средний доход",
+    "низкого среднего дохода",
+    "низкому среднему доходу",
+    "низком среднем доходе"
+   ],
+   "LMY": [
+    "страны с низким и средним доходом",
+    "низкий и средний доход",
+    "низкого и среднего дохода",
+    "низкому и среднему доходу",
+    "низком и среднем доходе"
+   ],
+   "MIC": [
+    "страны со средним доходом",
+    "средний доход",
+    "среднедоходные страны",
+    "среднего дохода",
+    "среднему доходу",
+    "среднем доходе"
+   ],
+   "UMC": [
+    "страны с высоким уровнем среднего дохода",
+    "верхний средний доход",
+    "высокого среднего дохода",
+    "высокому среднему доходу",
+    "высоком среднем доходе"
+   ],
+   "SAHEL_G5": [
+    "сахель",
+    "регион сахель",
+    "сахеля",
+    "сахелю",
+    "сахеле"
+   ],
+   "HORN": [
+    "рог африки",
+    "африканский рог",
+    "рога африки",
+    "рогу африки",
+    "роге африки"
+   ],
+   "G7": [
+    "g7",
+    "ж7",
+    "группа семи"
+   ],
+   "BRICS": [
+    "брикс",
+    "бриксы"
+   ],
+   "ASEAN": [
+    "асеан",
+    "асеанн"
+   ],
+   "EAC": [
+    "всо",
+    "восточноафриканское сообщество",
+    "восточно-африканское сообщество"
+   ],
+   "SADC": [
+    "садок",
+    "садк",
+    "сообщество развития юга африки"
+   ],
+   "ECOWAS": [
+    "эковас"
+   ],
+   "CENTRAL_ASIA": [
+    "центральная азия",
+    "центральной азии",
+    "центр азии",
+    "ца"
+   ],
+   "SOUTHEAST_ASIA": [
+    "юго-восточная азия",
+    "юговосточная азия",
+    "юго-восточной азии",
+    "юва"
+   ],
+   "CARIBBEAN": [
+    "карибы",
+    "карибский бассейн",
+    "карибов",
+    "карибам",
+    "карибах"
+   ],
+   "PACIFIC_ISLANDS": [
+    "острова тихого океана",
+    "тихоокеанские острова",
+    "островов тихого океана",
+    "островам тихого океана",
+    "островах тихого океана"
+   ],
+   "MAGHREB": [
+    "магриб",
+    "магриба",
+    "магрибу",
+    "магрибе"
+   ],
+   "GCC": [
+    "ссгпз",
+    "совет сотрудничества арабских государств залива",
+    "страны залива"
+   ],
+   "BALKANS": [
+    "балканы",
+    "балкан",
+    "балканам",
+    "балканах",
+    "западные балканы"
+   ],
+   "ANDEAN": [
+    "андийские страны",
+    "анды",
+    "андийских стран",
+    "андийским странам",
+    "андийских странах"
+   ],
+   "CENTRAL_AMERICA": [
+    "центральная америка",
+    "центральной америки",
+    "центральной америке"
+   ],
+   "LAKE_CHAD": [
+    "бассейн озера чад",
+    "озеро чад",
+    "бассейна озера чад",
+    "бассейну озера чад",
+    "бассейне озера чад"
    ]
   }
  },
@@ -2279,6 +7920,1270 @@
    "Western and Central Africa": [
     "पश्चिमी और मध्य अफ्रीका"
    ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "अरूबा",
+    "aruba"
+   ],
+   "AFG": [
+    "अफ़गानिस्तान",
+    "अफगानिस्तान",
+    "afghanistan",
+    "afganistan"
+   ],
+   "AGO": [
+    "अंगोला",
+    "angola"
+   ],
+   "ALB": [
+    "अल्बानिया",
+    "albania"
+   ],
+   "AND": [
+    "अंडोरा",
+    "andorra"
+   ],
+   "ARE": [
+    "संयुक्त अरब अमीरात",
+    "यूएई",
+    "uae",
+    "united arab emirates",
+    "arab emirates"
+   ],
+   "ARG": [
+    "अर्जेंटीना",
+    "अर्जेंटिना",
+    "argentina"
+   ],
+   "ARM": [
+    "आर्मेनिया",
+    "armenia"
+   ],
+   "ASM": [
+    "अमेरिकी समोआ",
+    "american samoa"
+   ],
+   "ATG": [
+    "एंटीगुआ और बारबुडा",
+    "antigua and barbuda"
+   ],
+   "AUS": [
+    "ऑस्ट्रेलिया",
+    "australia"
+   ],
+   "AUT": [
+    "ऑस्ट्रिया",
+    "austria"
+   ],
+   "AZE": [
+    "अज़रबैजान",
+    "अजरबैजान",
+    "azerbaijan"
+   ],
+   "BDI": [
+    "बुरुंडी",
+    "burundi"
+   ],
+   "BEL": [
+    "बेल्जियम",
+    "belgium"
+   ],
+   "BEN": [
+    "बेनिन",
+    "benin"
+   ],
+   "BFA": [
+    "बुर्किना फासो",
+    "burkina faso"
+   ],
+   "BGD": [
+    "बांग्लादेश",
+    "bangladesh"
+   ],
+   "BGR": [
+    "बुल्गारिया",
+    "bulgaria"
+   ],
+   "BHR": [
+    "बहरीन",
+    "bahrain"
+   ],
+   "BHS": [
+    "बहामास",
+    "bahamas"
+   ],
+   "BIH": [
+    "बोस्निया और हर्ज़ेगोविना",
+    "bosnia and herzegovina",
+    "bosnia"
+   ],
+   "BLR": [
+    "बेलारूस",
+    "belarus"
+   ],
+   "BLZ": [
+    "बेलीज़",
+    "belize"
+   ],
+   "BMU": [
+    "बरमूडा",
+    "bermuda"
+   ],
+   "BOL": [
+    "बोलीविया",
+    "bolivia"
+   ],
+   "BRA": [
+    "ब्राजील",
+    "ब्राज़ील",
+    "brazil"
+   ],
+   "BRB": [
+    "बारबाडोस",
+    "barbados"
+   ],
+   "BRN": [
+    "ब्रुनेई",
+    "ब्रुनेई दारुस्सलाम",
+    "brunei",
+    "brunei darussalam"
+   ],
+   "BTN": [
+    "भूटान",
+    "bhutan"
+   ],
+   "BWA": [
+    "बोत्सवाना",
+    "botswana"
+   ],
+   "CAF": [
+    "मध्य अफ्रीकी गणराज्य",
+    "central african republic",
+    "car"
+   ],
+   "CAN": [
+    "कनाडा",
+    "canada"
+   ],
+   "CHE": [
+    "स्विट्जरलैंड",
+    "switzerland",
+    "swiss"
+   ],
+   "CHI": [
+    "चैनल द्वीप",
+    "channel islands"
+   ],
+   "CHL": [
+    "चिली",
+    "chile"
+   ],
+   "CHN": [
+    "चीन",
+    "china"
+   ],
+   "CIV": [
+    "आइवरी कोस्ट",
+    "कोट डी आइवर",
+    "cote d'ivoire",
+    "ivory coast"
+   ],
+   "CMR": [
+    "कैमरून",
+    "cameroon"
+   ],
+   "COD": [
+    "कांगो लोकतांत्रिक गणराज्य",
+    "कांगो",
+    "dr congo",
+    "congo dr"
+   ],
+   "COG": [
+    "कांगो गणराज्य",
+    "कांगो",
+    "republic of congo",
+    "congo"
+   ],
+   "COL": [
+    "कोलंबिया",
+    "colombia"
+   ],
+   "COM": [
+    "कोमोरोस",
+    "comoros"
+   ],
+   "CPV": [
+    "केप वर्डे",
+    "cabo verde",
+    "cape verde"
+   ],
+   "CRI": [
+    "कोस्टा रिका",
+    "costa rica"
+   ],
+   "CUB": [
+    "क्यूबा",
+    "cuba"
+   ],
+   "CUW": [
+    "कुराकाओ",
+    "curacao"
+   ],
+   "CYM": [
+    "केमैन द्वीप",
+    "cayman islands"
+   ],
+   "CYP": [
+    "साइप्रस",
+    "cyprus"
+   ],
+   "CZE": [
+    "चेकिया",
+    "चेक गणराज्य",
+    "czechia",
+    "czech republic"
+   ],
+   "DEU": [
+    "जर्मनी",
+    "germany"
+   ],
+   "DJI": [
+    "जिबूती",
+    "djibouti"
+   ],
+   "DMA": [
+    "डोमिनिका",
+    "dominica"
+   ],
+   "DNK": [
+    "डेनमार्क",
+    "denmark"
+   ],
+   "DOM": [
+    "डोमिनिकन गणराज्य",
+    "dominican republic"
+   ],
+   "DZA": [
+    "अल्जीरिया",
+    "algeria"
+   ],
+   "ECU": [
+    "ecuador",
+    "इक्वाडोर",
+    "इक्वाडोर देश"
+   ],
+   "EGY": [
+    "egypt",
+    "मिस्र",
+    "misr",
+    "इजिप्ट"
+   ],
+   "ERI": [
+    "eritrea",
+    "इरिट्रिया",
+    "इरिट्रिया देश"
+   ],
+   "ESP": [
+    "spain",
+    "['स्पेन', 'spain country']"
+   ],
+   "EST": [
+    "estonia",
+    "एस्टोनिया",
+    "एस्टोनिया देश"
+   ],
+   "ETH": [
+    "ethiopia",
+    "इथियोपिया",
+    "इथियोपिया देश"
+   ],
+   "FIN": [
+    "finland",
+    "फिनलैंड",
+    "finland country"
+   ],
+   "FJI": [
+    "fiji",
+    "फिजी",
+    "fiji islands"
+   ],
+   "FRA": [
+    "france",
+    "फ्रांस",
+    "france country"
+   ],
+   "FRO": [
+    "faroe islands",
+    "फेरो आइलैंड्स",
+    "फेरो द्वीप"
+   ],
+   "FSM": [
+    "micronesia",
+    "माइक्रोनेशिया",
+    "micronesia country"
+   ],
+   "GAB": [
+    "gabon",
+    "गैबॉन",
+    "गैबॉन देश"
+   ],
+   "GBR": [
+    "united kingdom",
+    "uk",
+    "यूनाइटेड किंगडम",
+    "ब्रिटेन",
+    "uk country"
+   ],
+   "GEO": [
+    "georgia",
+    "जॉर्जिया",
+    "georgia country"
+   ],
+   "GHA": [
+    "ghana",
+    "घाना",
+    "ghana country"
+   ],
+   "GIB": [
+    "gibraltar",
+    "जिब्राल्टर",
+    "gibraltar country"
+   ],
+   "GIN": [
+    "guinea",
+    "गिनी",
+    "guinea country"
+   ],
+   "GMB": [
+    "gambia",
+    "गाम्बिया",
+    "gambia country"
+   ],
+   "GNB": [
+    "guinea-bissau",
+    "गिनी-बिसाऊ",
+    "guinea bissau"
+   ],
+   "GNQ": [
+    "equatorial guinea",
+    "इक्वेटोरियल गिनी",
+    "equatorial guinea country"
+   ],
+   "GRC": [
+    "greece",
+    "ग्रीस",
+    "greece country"
+   ],
+   "GRD": [
+    "grenada",
+    "ग्रेनाडा",
+    "grenada country"
+   ],
+   "GRL": [
+    "greenland",
+    "ग्रीनलैंड",
+    "greenland country"
+   ],
+   "GTM": [
+    "guatemala",
+    "ग्वाटेमाला",
+    "guatemala country"
+   ],
+   "GUM": [
+    "guam",
+    "गुआम",
+    "guam island"
+   ],
+   "GUY": [
+    "guyana",
+    "गुयाना",
+    "guyana country"
+   ],
+   "HKG": [
+    "hong kong",
+    "हांगकांग",
+    "hong kong sar",
+    "hong kong china"
+   ],
+   "HND": [
+    "honduras",
+    "होंडुरास",
+    "honduras country"
+   ],
+   "HRV": [
+    "क्रोएशिया",
+    "croatia",
+    "क्रोएशिया देश"
+   ],
+   "HTI": [
+    "हैती",
+    "haiti"
+   ],
+   "HUN": [
+    "हंगरी",
+    "hungary",
+    "हंगरी देश"
+   ],
+   "IDN": [
+    "इंडोनेशिया",
+    "indonesia",
+    "इंडोनेसिया"
+   ],
+   "IMN": [
+    "आइल ऑफ मैन",
+    "isle of man",
+    "मैन द्वीप"
+   ],
+   "IND": [
+    "भारत",
+    "इंडिया",
+    "india",
+    "bharat"
+   ],
+   "IRL": [
+    "आयरलैंड",
+    "ireland",
+    "आयरलैंड देश"
+   ],
+   "IRN": [
+    "ईरान",
+    "iran",
+    "ईरान देश"
+   ],
+   "IRQ": [
+    "इराक",
+    "iraq",
+    "इराक देश"
+   ],
+   "ISL": [
+    "आइसलैंड",
+    "iceland",
+    "आइसलैंड देश"
+   ],
+   "ISR": [
+    "इजरायल",
+    "israel",
+    "इज़राइल"
+   ],
+   "ITA": [
+    "इटली",
+    "italy",
+    "इटली देश"
+   ],
+   "JAM": [
+    "जमैका",
+    "jamaica"
+   ],
+   "JOR": [
+    "जॉर्डन",
+    "jordan",
+    "जॉर्डन देश"
+   ],
+   "JPN": [
+    "जापान",
+    "japan",
+    "जापान देश"
+   ],
+   "KAZ": [
+    "कजाकिस्तान",
+    "kazakhstan",
+    "कजाकिस्तान देश"
+   ],
+   "KEN": [
+    "केन्या",
+    "kenya"
+   ],
+   "KGZ": [
+    "किर्गिस्तान",
+    "kyrgyzstan",
+    "किर्गिज़ रिपब्लिक"
+   ],
+   "KHM": [
+    "कंबोडिया",
+    "cambodia",
+    "कम्बोडिया"
+   ],
+   "KIR": [
+    "किरिबाती",
+    "kiribati"
+   ],
+   "KNA": [
+    "सेंट किट्स और नेविस",
+    "st kits and nevis"
+   ],
+   "KOR": [
+    "दक्षिण कोरिया",
+    "south korea",
+    "कोरिया"
+   ],
+   "KWT": [
+    "कुवैत",
+    "kuwait"
+   ],
+   "LAO": [
+    "लाओस",
+    "laos",
+    "लाओ पीडीआर"
+   ],
+   "LBN": [
+    "लेबनान",
+    "lebanon"
+   ],
+   "LBR": [
+    "लाइबेरिया",
+    "liberia"
+   ],
+   "LBY": [
+    "लीबिया",
+    "libya"
+   ],
+   "LCA": [
+    "सेंट लूसिया",
+    "st lucia"
+   ],
+   "LIE": [
+    "लिकटेंस्टीन",
+    "liechtenstein",
+    "liktenstein"
+   ],
+   "LKA": [
+    "श्रीलंका",
+    "sri lanka",
+    "lanka",
+    "shrilanka"
+   ],
+   "LSO": [
+    "लेसोथो",
+    "lesotho"
+   ],
+   "LTU": [
+    "लिथुआनिया",
+    "lithuania",
+    "lithuaniia"
+   ],
+   "LUX": [
+    "लक्ज़मबर्ग",
+    "luxembourg",
+    "luxemburg",
+    "लक्समबर्ग"
+   ],
+   "LVA": [
+    "लातविया",
+    "latvia"
+   ],
+   "MAC": [
+    "मकाऊ",
+    "macau",
+    "macao"
+   ],
+   "MAF": [
+    "सेंट मार्टिन",
+    "st martin",
+    "saint martin"
+   ],
+   "MAR": [
+    "मोरक्को",
+    "morocco",
+    "morokko"
+   ],
+   "MCO": [
+    "मोनाको",
+    "monaco"
+   ],
+   "MDA": [
+    "मोल्दोवा",
+    "moldova",
+    "moldovaa"
+   ],
+   "MDG": [
+    "मेडागास्कर",
+    "madagascar"
+   ],
+   "MDV": [
+    "मालदीव",
+    "maldives",
+    "maaldive"
+   ],
+   "MEX": [
+    "मेक्सिको",
+    "mexico"
+   ],
+   "MHL": [
+    "मार्शल द्वीप समूह",
+    "marshall islands"
+   ],
+   "MKD": [
+    "उत्तर मैसेडोनिया",
+    "north macedonia",
+    "macedonia",
+    "मैसेडोनिया"
+   ],
+   "MLI": [
+    "माली",
+    "mali"
+   ],
+   "MLT": [
+    "माल्टा",
+    "malta"
+   ],
+   "MMR": [
+    "म्यांमार",
+    "myanmar",
+    "burma",
+    "बर्मा"
+   ],
+   "MNE": [
+    "मोंटेनेग्रो",
+    "montenegro"
+   ],
+   "MNG": [
+    "मंगोलिया",
+    "mongolia"
+   ],
+   "MNP": [
+    "उत्तरी मारियाना द्वीप",
+    "northern mariana islands",
+    "mariana islands"
+   ],
+   "MOZ": [
+    "मोजाम्बिक",
+    "mozambique",
+    "mozambik"
+   ],
+   "MRT": [
+    "मॉरिटानिया",
+    "mauritania"
+   ],
+   "MUS": [
+    "मॉरिशस",
+    "mauritius"
+   ],
+   "MWI": [
+    "मलावी",
+    "malawi"
+   ],
+   "MYS": [
+    "मलेशिया",
+    "malaysia"
+   ],
+   "NAM": [
+    "नामीबिया",
+    "namibia"
+   ],
+   "NCL": [
+    "न्यू कैलेडोनिया",
+    "new caledonia",
+    "न्यू कैलेडोनिया द्वीप"
+   ],
+   "NER": [
+    "नाइजर",
+    "niger",
+    "नाइजर देश"
+   ],
+   "NGA": [
+    "नाइजीरिया",
+    "nigeria",
+    "नाइजीरिया देश"
+   ],
+   "NIC": [
+    "निकारागुआ",
+    "nicaragua",
+    "निकारागुआ देश"
+   ],
+   "NLD": [
+    "नीदरलैंड",
+    "netherlands",
+    "नीदरलैंड्स",
+    "डच"
+   ],
+   "NOR": [
+    "नार्वे",
+    "norway",
+    "नारवे"
+   ],
+   "NPL": [
+    "नेपाल",
+    "nepal"
+   ],
+   "NRU": [
+    "नाउरू",
+    "nauru",
+    "नाउरु"
+   ],
+   "NZL": [
+    "न्यूजीलैंड",
+    "new zealand",
+    "न्यू ज़ीलैंड"
+   ],
+   "OMN": [
+    "ओमान",
+    "oman"
+   ],
+   "PAK": [
+    "पाकिस्तान",
+    "pakistan",
+    "पाक"
+   ],
+   "PAN": [
+    "पनामा",
+    "panama"
+   ],
+   "PER": [
+    "पेरू",
+    "peru",
+    "पेरु"
+   ],
+   "PHL": [
+    "फिलीपींस",
+    "philippines",
+    "फिलीपीन्स"
+   ],
+   "PLW": [
+    "पलाऊ",
+    "palau",
+    "पलाउ"
+   ],
+   "PNG": [
+    "पापुआ न्यू गिनी",
+    "papua new guinea",
+    "पापुआ गिनी"
+   ],
+   "POL": [
+    "पोलैंड",
+    "poland",
+    "पोलैंड देश"
+   ],
+   "PRI": [
+    "प्यूर्टो रिको",
+    "puerto rico",
+    "प्युर्टो रिको"
+   ],
+   "PRK": [
+    "उत्तर कोरिया",
+    "north korea",
+    "उत्तर कोरिया देश"
+   ],
+   "PRT": [
+    "पुर्तगाल",
+    "portugal",
+    "पुर्तगाल देश"
+   ],
+   "PRY": [
+    "पराग्वे",
+    "paraguay",
+    "पराग्वे देश"
+   ],
+   "PSE": [
+    "वेस्ट बैंक और गाजा",
+    "west bank and gaza",
+    "फिलिस्तीन",
+    "palestine"
+   ],
+   "PYF": [
+    "फ्रेंच पोलिनेशिया",
+    "french polynesia"
+   ],
+   "QAT": [
+    "कतर",
+    "qatar"
+   ],
+   "ROU": [
+    "रोमानिया",
+    "romania"
+   ],
+   "RUS": [
+    "रूस",
+    "russia",
+    "रशियन फेडरेशन",
+    "russian federation"
+   ],
+   "RWA": [
+    "रवांडा",
+    "rwanda"
+   ],
+   "SAU": [
+    "सऊदी अरब",
+    "saudi arabia",
+    "सऊदी"
+   ],
+   "SDN": [
+    "सूडान",
+    "sudan",
+    "sudaan"
+   ],
+   "SEN": [
+    "सेनेगल",
+    "senegal"
+   ],
+   "SGP": [
+    "सिंगापुर",
+    "singapore",
+    "singapur"
+   ],
+   "SLB": [
+    "सोलोमन द्वीप",
+    "solomon islands"
+   ],
+   "SLE": [
+    "सिएरा लियोन",
+    "sierra leone",
+    "sierra leon"
+   ],
+   "SLV": [
+    "अल साल्वाडोर",
+    "el salvador",
+    "salvador"
+   ],
+   "SMR": [
+    "सैन मैरिनो",
+    "san marino"
+   ],
+   "SOM": [
+    "सोमालिया",
+    "somalia",
+    "somaliya"
+   ],
+   "SRB": [
+    "सर्बिया",
+    "serbia",
+    "serbiya"
+   ],
+   "SSD": [
+    "दक्षिण सूडान",
+    "south sudan",
+    "dakshin sudan"
+   ],
+   "STP": [
+    "साओ टोमे और प्रिंसिपे",
+    "sao tome and principe",
+    "sao tome"
+   ],
+   "SUR": [
+    "सूरीनाम",
+    "suriname",
+    "surinam"
+   ],
+   "SVK": [
+    "स्लोवाकिया",
+    "slovakia",
+    "slovak republic"
+   ],
+   "SVN": [
+    "स्लोवेनिया",
+    "slovenia",
+    "sloveniya"
+   ],
+   "SWE": [
+    "स्वीडन",
+    "sweden"
+   ],
+   "SWZ": [
+    "इस्वातिनी",
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "सिंट मार्टन",
+    "sint maarten",
+    "st maarten"
+   ],
+   "SYC": [
+    "सेशेल्स",
+    "seychelles"
+   ],
+   "SYR": [
+    "सीरिया",
+    "syria",
+    "syrian arab republic"
+   ],
+   "TCA": [
+    "टर्क्स और कैकोस द्वीप",
+    "turks and caicos islands",
+    "turks caicos"
+   ],
+   "TCD": [
+    "चाड",
+    "chad",
+    "chaad"
+   ],
+   "TGO": [
+    "टोगो",
+    "togo"
+   ],
+   "THA": [
+    "थाईलैंड",
+    "thailand"
+   ],
+   "TJK": [
+    "ताजिकिस्तान",
+    "tajikistan"
+   ],
+   "TKM": [
+    "तुर्कमेनिस्तान",
+    "turkmenistan"
+   ],
+   "TLS": [
+    "तिमोर-लेस्ते",
+    "timor-leste",
+    "east timor"
+   ],
+   "TON": [
+    "टोंगा",
+    "tonga"
+   ],
+   "TTO": [
+    "त्रिनिदाद और टोबैगो",
+    "trinidad and tobago",
+    "trinidad tobago"
+   ],
+   "TUN": [
+    "ट्यूनीशिया",
+    "tunisia",
+    "tyunishia"
+   ],
+   "TUR": [
+    "तुर्की",
+    "turkiye",
+    "turkey",
+    "तुर्किये"
+   ],
+   "TUV": [
+    "तुवालु",
+    "tuvalu"
+   ],
+   "TZA": [
+    "तंजानिया",
+    "tanzania"
+   ],
+   "UGA": [
+    "युगांडा",
+    "uganda"
+   ],
+   "UKR": [
+    "यूक्रेन",
+    "ukraine"
+   ],
+   "URY": [
+    "उरुग्वे",
+    "uruguay"
+   ],
+   "USA": [
+    "अमेरिका",
+    "यूएसए",
+    "usa",
+    "united states",
+    "united states of america"
+   ],
+   "UZB": [
+    "उज्बेकिस्तान",
+    "uzbekistan",
+    "उज़बेकिस्तान"
+   ],
+   "VCT": [
+    "सेंट विंसेंट और ग्रेनेडाइंस",
+    "st vincent",
+    "st vincent and the grenadines"
+   ],
+   "VEN": [
+    "वेनेजुएला",
+    "venezuela"
+   ],
+   "VGB": [
+    "ब्रिटिश वर्जिन आइलैंड्स",
+    "british virgin islands",
+    "bvi"
+   ],
+   "VIR": [
+    "वर्जिन आइलैंड्स",
+    "virgin islands",
+    "us virgin islands"
+   ],
+   "VNM": [
+    "वियतनाम",
+    "vietnam",
+    "viet nam"
+   ],
+   "VUT": [
+    "वानुअतु",
+    "vanuatu"
+   ],
+   "WSM": [
+    "सामोआ",
+    "samoa"
+   ],
+   "XKX": [
+    "कोसोवो",
+    "kosovo"
+   ],
+   "YEM": [
+    "यमन",
+    "yemen"
+   ],
+   "ZAF": [
+    "दक्षिण अफ्रीका",
+    "south africa"
+   ],
+   "ZMB": [
+    "जाम्बिया",
+    "zambia"
+   ],
+   "ZWE": [
+    "जिम्बाब्वे",
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "पूर्वी और दक्षिणी अफ्रीका",
+    "east and south africa",
+    "eastern southern africa",
+    "पूर्वी दक्षिणी अफ्रीका"
+   ],
+   "AFR": [
+    "अफ्रीका",
+    "africa",
+    "afrika"
+   ],
+   "AFW": [
+    "पश्चिमी और मध्य अफ्रीका",
+    "west and central africa",
+    "western central africa",
+    "पश्चिमी मध्य अफ्रीका"
+   ],
+   "ARB": [
+    "अरब जगत",
+    "arab world",
+    "अरब दुनिया",
+    "arab"
+   ],
+   "CME": [
+    "मध्य पूर्व और उत्तरी अफ्रीका",
+    "middle east and north africa",
+    "mena",
+    "मिडल ईस्ट और नॉर्थ अफ्रीका"
+   ],
+   "CSS": [
+    "कैरिबियन छोटे राज्य",
+    "caribbean small states",
+    "caribbean states"
+   ],
+   "EAS": [
+    "पूर्वी एशिया और प्रशांत",
+    "east asia & pacific",
+    "east asia pacific",
+    "पूर्वी एशिया प्रशांत"
+   ],
+   "ECS": [
+    "यूरोप और मध्य एशिया",
+    "europe & central asia",
+    "europe central asia",
+    "यूरोप मध्य एशिया"
+   ],
+   "EMU": [
+    "यूरो क्षेत्र",
+    "euro area",
+    "eurozone",
+    "यूरो जोन"
+   ],
+   "EUU": [
+    "यूरोपीय संघ",
+    "european union",
+    "eu",
+    "यूरोपीय यूनियन"
+   ],
+   "HPC": [
+    "अत्यधिक ऋणग्रस्त गरीब देश",
+    "heavily indebted poor countries",
+    "hipc"
+   ],
+   "LCN": [
+    "लैटिन अमेरिका और कैरिबियन",
+    "latin america & caribbean",
+    "latin america caribbean",
+    "लैटिन अमेरिका कैरिबियन"
+   ],
+   "LDC": [
+    "अल्पविकसित देश",
+    "least developed countries",
+    "ldc"
+   ],
+   "MEA": [
+    "मध्य पूर्व, उत्तरी अफ्रीका, अफगानिस्तान और पाकिस्तान",
+    "middle east north africa afghanistan pakistan",
+    "mea"
+   ],
+   "NAC": [
+    "उत्तरी अमेरिका",
+    "north america",
+    "नॉर्थ अमेरिका"
+   ],
+   "NAF": [
+    "उत्तर अफ्रीका",
+    "north africa",
+    "uttar africa",
+    "उत्तरी अफ्रीका"
+   ],
+   "OED": [
+    "oecd",
+    "ओईसीडी",
+    "oecd members",
+    "oecd देश"
+   ],
+   "PSS": [
+    "प्रशांत द्वीप राज्य",
+    "pacific islands",
+    "pacific island states",
+    "प्रशांत द्वीप समूह"
+   ],
+   "SAS": [
+    "दक्षिण एशिया",
+    "south asia",
+    "dakshin asia",
+    "द. एशिया"
+   ],
+   "SSF": [
+    "उप-सहारा अफ्रीका",
+    "sub-saharan africa",
+    "sub sahara",
+    "सब-सहारा अफ्रीका"
+   ],
+   "SST": [
+    "छोटे राज्य",
+    "small states",
+    "chhote rajya"
+   ],
+   "HIC": [
+    "उच्च आय",
+    "high income",
+    "high income countries",
+    "उच्च आय वाले देश"
+   ],
+   "LIC": [
+    "निम्न आय",
+    "low income",
+    "low income countries",
+    "कम आय वाले देश"
+   ],
+   "LMC": [
+    "निम्न मध्यम आय",
+    "lower middle income",
+    "lower middle income countries"
+   ],
+   "LMY": [
+    "कम और मध्यम आय",
+    "low and middle income",
+    "low middle income"
+   ],
+   "MIC": [
+    "मध्यम आय",
+    "middle income",
+    "middle income countries",
+    "मध्यम आय वाले देश"
+   ],
+   "UMC": [
+    "उच्च मध्यम आय",
+    "upper middle income",
+    "upper middle income countries"
+   ],
+   "SAHEL_G5": [
+    "साहेल",
+    "sahel",
+    "sahel region",
+    "साहेल क्षेत्र"
+   ],
+   "HORN": [
+    "हॉर्न ऑफ अफ्रीका",
+    "horn of africa",
+    "africa ka horn"
+   ],
+   "G7": [
+    "g7",
+    "जी7",
+    "g7 countries",
+    "जी7 देश"
+   ],
+   "BRICS": [
+    "brics",
+    "ब्रिक्स",
+    "brics summit"
+   ],
+   "ASEAN": [
+    "asean",
+    "आसियान",
+    "asean countries"
+   ],
+   "EAC": [
+    "eac",
+    "ईएसी",
+    "east african community",
+    "ईस्ट अफ्रीकन कम्युनिटी"
+   ],
+   "SADC": [
+    "sadc",
+    "साडक",
+    "southern african development community"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "इकोवास",
+    "economic community of west african states"
+   ],
+   "CENTRAL_ASIA": [
+    "central asia",
+    "मध्य एशिया",
+    "madhya asia",
+    "central asian countries"
+   ],
+   "SOUTHEAST_ASIA": [
+    "southeast asia",
+    "दक्षिण पूर्व एशिया",
+    "dakshin purv asia",
+    "southeast asian"
+   ],
+   "CARIBBEAN": [
+    "caribbean",
+    "कैरिबियन",
+    "caribbean islands"
+   ],
+   "PACIFIC_ISLANDS": [
+    "pacific islands",
+    "प्रशांत द्वीप समूह",
+    "pacific islands countries"
+   ],
+   "MAGHREB": [
+    "maghreb",
+    "मगरेब",
+    "maghreb region"
+   ],
+   "GCC": [
+    "gcc",
+    "जीसीसी",
+    "gulf cooperation council",
+    "गल्फ कोऑपरेशन काउंसिल"
+   ],
+   "BALKANS": [
+    "balkans",
+    "बाल्कन",
+    "western balkans",
+    "बाल्कन देश"
+   ],
+   "ANDEAN": [
+    "andean",
+    "एंडियन",
+    "andean countries",
+    "andean region"
+   ],
+   "CENTRAL_AMERICA": [
+    "central america",
+    "मध्य अमेरिका",
+    "madhya america",
+    "central american"
+   ],
+   "LAKE_CHAD": [
+    "lake chad",
+    "['लेक चाड', 'lake chad basin', 'चाड झील']"
+   ]
   }
  },
  "Turkish": {
@@ -2631,6 +9536,1401 @@
    ],
    "Western and Central Africa": [
     "batı ve orta afrika"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba",
+    "aruba'da",
+    "aruba'nın"
+   ],
+   "AFG": [
+    "afganistan",
+    "afganistan'da",
+    "afganistan'ın"
+   ],
+   "AGO": [
+    "angola",
+    "angola'da",
+    "angola'nın"
+   ],
+   "ALB": [
+    "albanya",
+    "albanya'da",
+    "albanya'nın",
+    "arnavutluk",
+    "arnavutluk'ta",
+    "arnavutluk'un"
+   ],
+   "AND": [
+    "andorra",
+    "andorra'da",
+    "andorra'nın"
+   ],
+   "ARE": [
+    "birleşikarapemirlikleri",
+    "bae",
+    "bae'de",
+    "bae'nin",
+    "arap emirlikleri"
+   ],
+   "ARG": [
+    "arjantin",
+    "arjantin'de",
+    "arjantin'in"
+   ],
+   "ARM": [
+    "ermenistan",
+    "ermenistan'da",
+    "ermenistan'ın"
+   ],
+   "ASM": [
+    "amerikasamoası",
+    "amerika samoası'nda",
+    "amerika samoası'nın"
+   ],
+   "ATG": [
+    "antigua ve barbuda",
+    "antigua'da",
+    "antigua'nın"
+   ],
+   "AUS": [
+    "avustralya",
+    "avustralya'da",
+    "avustralya'nın",
+    "ozzy"
+   ],
+   "AUT": [
+    "avusturya",
+    "avusturya'da",
+    "avusturya'nın"
+   ],
+   "AZE": [
+    "azerbaycan",
+    "azerbaycan'da",
+    "azerbaycan'ın"
+   ],
+   "BDI": [
+    "burundi",
+    "burundi'de",
+    "burundi'nin"
+   ],
+   "BEL": [
+    "belçika",
+    "belçika'da",
+    "belçika'nın"
+   ],
+   "BEN": [
+    "benin",
+    "benin'de",
+    "benin'in"
+   ],
+   "BFA": [
+    "burkina faso",
+    "burkina faso'da",
+    "burkina faso'nun"
+   ],
+   "BGD": [
+    "bangladeş",
+    "bangladeş'te",
+    "bangladeş'in"
+   ],
+   "BGR": [
+    "bulgaristan",
+    "bulgaristan'da",
+    "bulgaristan'ın"
+   ],
+   "BHR": [
+    "bahreyn",
+    "bahreyn'de",
+    "bahreyn'in"
+   ],
+   "BHS": [
+    "bahamalar",
+    "bahamalar'da",
+    "bahamalar'ın"
+   ],
+   "BIH": [
+    "bosna hersek",
+    "bosna hersek'te",
+    "bosna hersek'in",
+    "bosna'da",
+    "bosna'nın"
+   ],
+   "BLR": [
+    "beyaz rusya",
+    "belarus",
+    "belarus'ta",
+    "belarus'un",
+    "beyaz rusya'da"
+   ],
+   "BLZ": [
+    "belize",
+    "belize'de",
+    "belize'nin"
+   ],
+   "BMU": [
+    "bermuda",
+    "bermuda'da",
+    "bermuda'nın"
+   ],
+   "BOL": [
+    "bolivya",
+    "bolivya'da",
+    "bolivya'nın"
+   ],
+   "BRA": [
+    "brezilya",
+    "brezilya'da",
+    "brezilya'nın"
+   ],
+   "BRB": [
+    "barbados",
+    "barbados'ta",
+    "barbados'un"
+   ],
+   "BRN": [
+    "brunei",
+    "brunei darussalam",
+    "brunei'de",
+    "brunei'nin"
+   ],
+   "BTN": [
+    "bhutan",
+    "bhutan'da",
+    "bhutan'ın"
+   ],
+   "BWA": [
+    "botswana",
+    "botswana'da",
+    "botswana'nın"
+   ],
+   "CAF": [
+    "orta afrika cumhuriyeti",
+    "orta afrika",
+    "orta afrika cumhuriyeti'nde",
+    "oac"
+   ],
+   "CAN": [
+    "kanada",
+    "kanada'da",
+    "kanada'nın"
+   ],
+   "CHE": [
+    "isviçre",
+    "isviçre'de",
+    "isviçre'nin"
+   ],
+   "CHI": [
+    "manş adaları",
+    "manş adaları'nda",
+    "manş adaları'nın"
+   ],
+   "CHL": [
+    "şili",
+    "şili'de",
+    "şili'nin"
+   ],
+   "CHN": [
+    "çin",
+    "çin'de",
+    "çin'in"
+   ],
+   "CIV": [
+    "fildişi sahili",
+    "fildişi sahili'nde",
+    "fildişi sahili'nin"
+   ],
+   "CMR": [
+    "kamerun",
+    "kamerun'da",
+    "kamerun'un"
+   ],
+   "COD": [
+    "kongo demokratik cumhuriyeti",
+    "demokratik kongo",
+    "kongo'da",
+    "dkc"
+   ],
+   "COG": [
+    "kongo cumhuriyeti",
+    "kongo",
+    "kongo'da",
+    "kongo'nun"
+   ],
+   "COL": [
+    "kolombiya",
+    "kolombiya'da",
+    "kolombiya'nın"
+   ],
+   "COM": [
+    "komorlar",
+    "komorlar'da",
+    "komorlar'ın"
+   ],
+   "CPV": [
+    "cape verde",
+    "yeşil burun adaları",
+    "cape verde'de",
+    "yeşil burun'da"
+   ],
+   "CRI": [
+    "kosta rika",
+    "kosta rika'da",
+    "kosta rika'nın"
+   ],
+   "CUB": [
+    "küba",
+    "küba'da",
+    "küba'nın"
+   ],
+   "CUW": [
+    "curacao",
+    "curacao'da",
+    "curacao'nun"
+   ],
+   "CYM": [
+    "cayman adaları",
+    "cayman adaları'nda",
+    "cayman adaları'nın"
+   ],
+   "CYP": [
+    "kıbrıs",
+    "kıbrıs'ta",
+    "kıbrıs'ın"
+   ],
+   "CZE": [
+    "çekya",
+    "çek cumhuriyeti",
+    "çekya'da",
+    "çek cumhuriyeti'nde"
+   ],
+   "DEU": [
+    "almanya",
+    "almanya'da",
+    "almanya'nın"
+   ],
+   "DJI": [
+    "cibuti",
+    "cibuti'de",
+    "cibuti'nin"
+   ],
+   "DMA": [
+    "dominika",
+    "dominika'da",
+    "dominika'nın"
+   ],
+   "DNK": [
+    "danimarka",
+    "danimarka'da",
+    "danimarka'nın"
+   ],
+   "DOM": [
+    "dominik cumhuriyeti",
+    "dominik cumhuriyeti'nde",
+    "dominik'te"
+   ],
+   "DZA": [
+    "cezalir",
+    "cezayir'de",
+    "cezayir'in"
+   ],
+   "ECU": [
+    "ekvador",
+    "ekvador'da",
+    "ekvador'un"
+   ],
+   "EGY": [
+    "mısır",
+    "mısır'da",
+    "mısır'ın"
+   ],
+   "ERI": [
+    "eritre",
+    "eritre'de",
+    "eritre'nin"
+   ],
+   "ESP": [
+    "ispanya",
+    "ispanya'da",
+    "ispanya'nın",
+    "espanya"
+   ],
+   "EST": [
+    "estonya",
+    "estonya'da",
+    "estonya'nın"
+   ],
+   "ETH": [
+    "etyopya",
+    "etyopya'da",
+    "etyopya'nın",
+    "etiyopya"
+   ],
+   "FIN": [
+    "finlandiya",
+    "finlandiya'da",
+    "finlandiya'nın",
+    "finlandiya'ya"
+   ],
+   "FJI": [
+    "fiji",
+    "fiji'de",
+    "fiji'nin"
+   ],
+   "FRA": [
+    "fransa",
+    "fransa'da",
+    "fransa'nın"
+   ],
+   "FRO": [
+    "faroe adaları",
+    "faroe adaları'nda",
+    "faroe'de"
+   ],
+   "FSM": [
+    "mikronezya",
+    "mikronezya'da",
+    "mikronezya'nın"
+   ],
+   "GAB": [
+    "gabon",
+    "gabon'da",
+    "gabon'un"
+   ],
+   "GBR": [
+    "birleşik krallık",
+    "ingiltere",
+    "ingiltere'de",
+    "ingiltere'nin",
+    "bk"
+   ],
+   "GEO": [
+    "gürcistan",
+    "gürcistan'da",
+    "gürcistan'ın"
+   ],
+   "GHA": [
+    "ghana",
+    "ghana'da",
+    "ghana'nın",
+    "gana"
+   ],
+   "GIB": [
+    "cebelitarık",
+    "cebelitarık'ta",
+    "cebelitarık'ın"
+   ],
+   "GIN": [
+    "gine",
+    "gine'de",
+    "gine'nin"
+   ],
+   "GMB": [
+    "gambiya",
+    "gambiya'da",
+    "gambiya'nın"
+   ],
+   "GNB": [
+    "gine bissau",
+    "gine bissau'da",
+    "gine bissau'nun"
+   ],
+   "GNQ": [
+    "ekvator ginesi",
+    "ekvator ginesi'nde",
+    "ekvator ginesi'nin"
+   ],
+   "GRC": [
+    "yunanistan",
+    "yunanistan'da",
+    "yunanistan'ın"
+   ],
+   "GRD": [
+    "grenada",
+    "grenada'da",
+    "grenada'nın"
+   ],
+   "GRL": [
+    "grönland",
+    "grönland'da",
+    "grönland'ın"
+   ],
+   "GTM": [
+    "guatemala",
+    "guatemala'da",
+    "guatemala'nın"
+   ],
+   "GUM": [
+    "guam",
+    "guam'da",
+    "guam'ın"
+   ],
+   "GUY": [
+    "guyana",
+    "guyana'da",
+    "guyana'nın"
+   ],
+   "HKG": [
+    "hong kong",
+    "hong kong'da",
+    "hong kong'un"
+   ],
+   "HND": [
+    "honduras",
+    "honduras'ta",
+    "honduras'ın"
+   ],
+   "HRV": [
+    "hırvatistan",
+    "hırvatistan'da",
+    "hırvatistan'ın"
+   ],
+   "HTI": [
+    "haiti",
+    "haiti'de",
+    "haiti'nin"
+   ],
+   "HUN": [
+    "macaristan",
+    "macaristan'da",
+    "macaristan'ın"
+   ],
+   "IDN": [
+    "endonezya",
+    "endonezya'da",
+    "endonezya'nın"
+   ],
+   "IMN": [
+    "man adası",
+    "man adası'nda",
+    "man adası'nın"
+   ],
+   "IND": [
+    "hindistan",
+    "hindistan'da",
+    "hindistan'ın"
+   ],
+   "IRL": [
+    "irlanda",
+    "irlanda'da",
+    "irlanda'nın"
+   ],
+   "IRN": [
+    "iran",
+    "iran'da",
+    "iran'ın"
+   ],
+   "IRQ": [
+    "irak",
+    "irak'ta",
+    "irak'ın"
+   ],
+   "ISL": [
+    "izlanda",
+    "izlanda'da",
+    "izlanda'nın"
+   ],
+   "ISR": [
+    "israil",
+    "israil'de",
+    "israil'in"
+   ],
+   "ITA": [
+    "italya",
+    "italya'da",
+    "italya'nın"
+   ],
+   "JAM": [
+    "jamaika",
+    "jamaika'da",
+    "jamaika'nın"
+   ],
+   "JOR": [
+    "ürdün",
+    "ürdün'de",
+    "ürdün'ün"
+   ],
+   "JPN": [
+    "japonya",
+    "japonya'da",
+    "japonya'nın"
+   ],
+   "KAZ": [
+    "kazakistan",
+    "kazakistan'da",
+    "kazakistan'ın"
+   ],
+   "KEN": [
+    "kenya",
+    "kenya'da",
+    "kenya'nın"
+   ],
+   "KGZ": [
+    "kırgızistan",
+    "kırgızistan'da",
+    "kırgızistan'ın"
+   ],
+   "KHM": [
+    "kamboçya",
+    "kamboçya'da",
+    "kamboçya'nın"
+   ],
+   "KIR": [
+    "kiribati",
+    "kiribati'de",
+    "kiribati'nin"
+   ],
+   "KNA": [
+    "st kitts ve nevis",
+    "st kitts'te",
+    "kitts ve nevis'te"
+   ],
+   "KOR": [
+    "güney kore",
+    "güney kore'de",
+    "güney kore'nin",
+    "kore"
+   ],
+   "KWT": [
+    "kuveyt",
+    "kuveyt'te",
+    "kuveyt'in"
+   ],
+   "LAO": [
+    "laos",
+    "laos'ta",
+    "laos'un"
+   ],
+   "LBN": [
+    "lübnan",
+    "lübnan'da",
+    "lübnan'ın"
+   ],
+   "LBR": [
+    "liberya",
+    "liberya'da",
+    "liberya'nın"
+   ],
+   "LBY": [
+    "libya",
+    "libya'da",
+    "libya'nın"
+   ],
+   "LCA": [
+    "st lucia",
+    "st lucia'da",
+    "st lucia'nın"
+   ],
+   "LIE": [
+    "liechtenstein",
+    "liechtenstein'de",
+    "liechtenstein'in"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka",
+    "sri lanka'da",
+    "sri lanka'nın"
+   ],
+   "LSO": [
+    "lesotho",
+    "lesotho'da",
+    "lesotho'nun"
+   ],
+   "LTU": [
+    "litvanya",
+    "litvanya'da",
+    "litvanya'nın"
+   ],
+   "LUX": [
+    "lüksemburg",
+    "lüksemburg'da",
+    "lüksemburg'un"
+   ],
+   "LVA": [
+    "letonya",
+    "letonya'da",
+    "letonya'nın"
+   ],
+   "MAC": [
+    "makao",
+    "macao",
+    "makao'da",
+    "makao'nun"
+   ],
+   "MAF": [
+    "st. martin",
+    "saint martin",
+    "saint martin'de"
+   ],
+   "MAR": [
+    "fas",
+    "fas'ta",
+    "fas'ın"
+   ],
+   "MCO": [
+    "monako",
+    "monaco",
+    "monako'da",
+    "monako'nun"
+   ],
+   "MDA": [
+    "moldova",
+    "moldova'da",
+    "moldova'nın"
+   ],
+   "MDG": [
+    "madagaskar",
+    "madagaskar'da",
+    "madagaskar'ın"
+   ],
+   "MDV": [
+    "maldivler",
+    "maldivler'de",
+    "maldivler'in"
+   ],
+   "MEX": [
+    "meksiika",
+    "meksika",
+    "meksika'da",
+    "meksika'nın"
+   ],
+   "MHL": [
+    "marshall adaları",
+    "marshall adaları'nda",
+    "marshall adaları'nın"
+   ],
+   "MKD": [
+    "kuzey makonya",
+    "makonya",
+    "kuzey makonya'da",
+    "makonya'nın"
+   ],
+   "MLI": [
+    "mali",
+    "mali'de",
+    "mali'nin"
+   ],
+   "MLT": [
+    "malta",
+    "malta'da",
+    "malta'nın"
+   ],
+   "MMR": [
+    "myanmar",
+    "burma",
+    "myanmar'da",
+    "myanmar'ın"
+   ],
+   "MNE": [
+    "karadağ",
+    "montenegro",
+    "karadağ'da",
+    "karadağ'ın"
+   ],
+   "MNG": [
+    "moğolistan",
+    "moğolistan'da",
+    "moğolistan'ın"
+   ],
+   "MNP": [
+    "kuzey mariana adaları",
+    "mariana adaları",
+    "mariana adaları'nda"
+   ],
+   "MOZ": [
+    "mozambik",
+    "mozambik'te",
+    "mozambik'in"
+   ],
+   "MRT": [
+    "moritanya",
+    "moritanya'da",
+    "moritanya'nın"
+   ],
+   "MUS": [
+    "mauritius",
+    "mauritius'ta",
+    "mauritius'un"
+   ],
+   "MWI": [
+    "malavi",
+    "malawi",
+    "malavi'de",
+    "malavi'nin"
+   ],
+   "MYS": [
+    "malezya",
+    "malezya'da",
+    "malezya'nın"
+   ],
+   "NAM": [
+    "namibya",
+    "namibya'da",
+    "namibya'nın"
+   ],
+   "NCL": [
+    "yeni kaledonya",
+    "yeni kaledonya'da",
+    "yeni kaledonya'nın"
+   ],
+   "NER": [
+    "nijer",
+    "nijer'de",
+    "nijer'in"
+   ],
+   "NGA": [
+    "nijerya",
+    "nijerya'da",
+    "nijerya'nın"
+   ],
+   "NIC": [
+    "nikaragua",
+    "nikaragua'da",
+    "nikaragua'nın",
+    "nikaragua'ya"
+   ],
+   "NLD": [
+    "hollanda",
+    "hollanda'da",
+    "hollanda'nın",
+    "hollandalı"
+   ],
+   "NOR": [
+    "norveç",
+    "norveç'te",
+    "norveç'in",
+    "norveç'e"
+   ],
+   "NPL": [
+    "nepal",
+    "nepal'de",
+    "nepal'in"
+   ],
+   "NRU": [
+    "nauru",
+    "nauru'da",
+    "nauru'nun"
+   ],
+   "NZL": [
+    "yeni zelanda",
+    "yeni zelanda'da",
+    "yeni zelanda'nın"
+   ],
+   "OMN": [
+    "oman",
+    "oman'da",
+    "oman'ın"
+   ],
+   "PAK": [
+    "pakistan",
+    "pakistan'da",
+    "pakistan'ın"
+   ],
+   "PAN": [
+    "panama",
+    "panama'da",
+    "panama'nın"
+   ],
+   "PER": [
+    "peru",
+    "peru'da",
+    "peru'nun"
+   ],
+   "PHL": [
+    "filipinler",
+    "filipinler'de",
+    "filipinler'in"
+   ],
+   "PLW": [
+    "palau",
+    "palau'da",
+    "palau'nun"
+   ],
+   "PNG": [
+    "papua yeni gine",
+    "papua yeni gine'de",
+    "papua yeni gine'nin"
+   ],
+   "POL": [
+    "polonya",
+    "polonya'da",
+    "polonya'nın"
+   ],
+   "PRI": [
+    "puerto rico",
+    "puerto rico'da",
+    "puerto rico'nun"
+   ],
+   "PRK": [
+    "kuzey kore",
+    "kuzey kore'de",
+    "kuzey kore'nin",
+    "kore halk cumhuriyeti"
+   ],
+   "PRT": [
+    "portekiz",
+    "portekiz'de",
+    "portekiz'in"
+   ],
+   "PRY": [
+    "paraguay",
+    "paraguay'da",
+    "paraguay'ın"
+   ],
+   "PSE": [
+    "batı şeria",
+    "gazze",
+    "filistin",
+    "filistin'de",
+    "filistin'in"
+   ],
+   "PYF": [
+    "fransız polinezyası",
+    "fransız polinezyası'nda",
+    "fransız polinezyası'nın"
+   ],
+   "QAT": [
+    "katar",
+    "katar'da",
+    "katar'ın"
+   ],
+   "ROU": [
+    "romanya",
+    "romanya'da",
+    "romanya'nın"
+   ],
+   "RUS": [
+    "rusya",
+    "rusya'da",
+    "rusya'nın",
+    "rusya federasyonu"
+   ],
+   "RWA": [
+    "ruanda",
+    "ruanda'da",
+    "ruanda'nın"
+   ],
+   "SAU": [
+    "suudi arabistan",
+    "suudi arabistan'da",
+    "suudi arabistan'ın"
+   ],
+   "SDN": [
+    "sudan",
+    "sudan'da",
+    "sudan'ın"
+   ],
+   "SEN": [
+    "senegal",
+    "senegal'de",
+    "senegal'in"
+   ],
+   "SGP": [
+    "singapur",
+    "singapur'da",
+    "singapur'un"
+   ],
+   "SLB": [
+    "solomon adaları",
+    "solomon adaları'nda",
+    "solomonlar"
+   ],
+   "SLE": [
+    "sierra leone",
+    "sierra leone'de",
+    "sierra leone'nin"
+   ],
+   "SLV": [
+    "el salvador",
+    "el salvador'da",
+    "salvador"
+   ],
+   "SMR": [
+    "san marino",
+    "san marino'da",
+    "san marino'nun"
+   ],
+   "SOM": [
+    "somali",
+    "somali'de",
+    "somali'nin"
+   ],
+   "SRB": [
+    "sırbistan",
+    "sırbistan'da",
+    "sırbistan'ın"
+   ],
+   "SSD": [
+    "güney sudan",
+    "güney sudan'da",
+    "güney sudan'ın"
+   ],
+   "STP": [
+    "sao tome ve prinsipe",
+    "sao tome'de"
+   ],
+   "SUR": [
+    "surinam",
+    "surinam'da",
+    "surinam'ın"
+   ],
+   "SVK": [
+    "slovakya",
+    "slovakya'da",
+    "slovakya'nın"
+   ],
+   "SVN": [
+    "slovenya",
+    "slovenya'da",
+    "slovenya'nın"
+   ],
+   "SWE": [
+    "isveç",
+    "isveç'te",
+    "isveç'in"
+   ],
+   "SWZ": [
+    "esvatini",
+    "esvatini'de",
+    "svaziland",
+    "svaziland'da"
+   ],
+   "SXM": [
+    "sint maarten",
+    "st maarten",
+    "sint maarten'da"
+   ],
+   "SYC": [
+    "seyşeller",
+    "seyşeller'de",
+    "seyşeller'in"
+   ],
+   "SYR": [
+    "suriye",
+    "suriye'de",
+    "suriye'nin"
+   ],
+   "TCA": [
+    "türks ve caicos adaları",
+    "türks ve caicos'ta"
+   ],
+   "TCD": [
+    "çad",
+    "çad'da",
+    "çad'ın"
+   ],
+   "TGO": [
+    "togo",
+    "togo'da",
+    "togo'nun"
+   ],
+   "THA": [
+    "tayland",
+    "tayland'da",
+    "tayland'ın"
+   ],
+   "TJK": [
+    "tacikistan",
+    "tacikistan'da",
+    "tacikistan'ın"
+   ],
+   "TKM": [
+    "türkmenistan",
+    "türkmenistan'da",
+    "türkmenistan'ın"
+   ],
+   "TLS": [
+    "doğu timor",
+    "doğu timor'da",
+    "timor leste"
+   ],
+   "TON": [
+    "tonga",
+    "tonga'da",
+    "tonga'nın"
+   ],
+   "TTO": [
+    "trinidad ve tobago",
+    "trinidad ve tobago'da"
+   ],
+   "TUN": [
+    "tunus",
+    "tunus'ta",
+    "tunus'un"
+   ],
+   "TUR": [
+    "türkiye",
+    "türkiye'de",
+    "türkiye'nin",
+    "tr"
+   ],
+   "TUV": [
+    "tuvalu",
+    "tuvalu'da",
+    "tuvalu'nun"
+   ],
+   "TZA": [
+    "tanzanya",
+    "tanzanya'da",
+    "tanzanya'nın"
+   ],
+   "UGA": [
+    "uganda",
+    "uganda'da",
+    "uganda'nın"
+   ],
+   "UKR": [
+    "ukrayna",
+    "ukrayna'da",
+    "ukrayna'nın"
+   ],
+   "URY": [
+    "uruguay",
+    "uruguay'da",
+    "uruguay'ın"
+   ],
+   "USA": [
+    "usa",
+    "abd",
+    "amerika",
+    "amerika'da",
+    "amerika'nın",
+    "abdp"
+   ],
+   "UZB": [
+    "özbekistan",
+    "özbekistan'da",
+    "özbekistan'ın"
+   ],
+   "VCT": [
+    "st. vincent",
+    "st. vincent ve grenadinler",
+    "vincent'te"
+   ],
+   "VEN": [
+    "venezuela",
+    "venezuela'da",
+    "venezuela'nın"
+   ],
+   "VGB": [
+    "britanya virgin adaları",
+    "virgin adaları"
+   ],
+   "VIR": [
+    "virgin adaları",
+    "amerika virgin adaları"
+   ],
+   "VNM": [
+    "vietnam",
+    "vietnam'da",
+    "vietnam'ın",
+    "viet nam"
+   ],
+   "VUT": [
+    "vanuatu",
+    "vanuatu'da",
+    "vanuatu'nun"
+   ],
+   "WSM": [
+    "samoa",
+    "samoa'da",
+    "samoa'nın"
+   ],
+   "XKX": [
+    "kosova",
+    "kosova'da",
+    "kosova'nın",
+    "kosovo"
+   ],
+   "YEM": [
+    "yemen",
+    "yemen'de",
+    "yemen'in"
+   ],
+   "ZAF": [
+    "güney afrika",
+    "güney afrika'da",
+    "güney afrika'nın",
+    "gaf"
+   ],
+   "ZMB": [
+    "zambiya",
+    "zambiya'da",
+    "zambiya'nın"
+   ],
+   "ZWE": [
+    "zimbabve",
+    "zimbabve'de",
+    "zimbabve'nin"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "doğu ve güney afrika",
+    "doğu güney afrika",
+    "doğu ve güney afrika'da",
+    "doğu ve güney afrika'nın"
+   ],
+   "AFR": [
+    "afrika",
+    "afrika'da",
+    "afrika'nın",
+    "afrika'ya"
+   ],
+   "AFW": [
+    "batı ve orta afrika",
+    "batı orta afrika",
+    "batı ve orta afrika'da",
+    "batı ve orta afrika'nın"
+   ],
+   "ARB": [
+    "arap dünyası",
+    "arap dünyası'nda",
+    "arap dünyası'nın",
+    "arap ülkeleri"
+   ],
+   "CME": [
+    "orta doğu ve kuzey afrika",
+    "mena",
+    "orta doğu ve kuzey afrika'da",
+    "orta doğu ve kuzey afrika'nın"
+   ],
+   "CSS": [
+    "karayip küçük devletleri",
+    "karayip adaları",
+    "karayip küçük devletleri'nde",
+    "karayip küçük devletleri'nin"
+   ],
+   "EAS": [
+    "doğu asya ve pasifik",
+    "doğu asya pasifik",
+    "doğu asya ve pasifik'te",
+    "doğu asya ve pasifik'in"
+   ],
+   "ECS": [
+    "avrupa ve orta asya",
+    "avrupa orta asya",
+    "avrupa ve orta asya'da",
+    "avrupa ve orta asya'nın"
+   ],
+   "EMU": [
+    "euro bölgesi",
+    "euro alanı",
+    "euro bölgesi'nde",
+    "euro bölgesi'nin"
+   ],
+   "EUU": [
+    "avrupa birliği",
+    "ab",
+    "ab'de",
+    "ab'nin",
+    "avrupa birliği'nde",
+    "avrupa birliği'nin"
+   ],
+   "HPC": [
+    "ağır borç yükü altındaki fakir ülkeler",
+    "hipc",
+    "fakir ülkeler"
+   ],
+   "LCN": [
+    "latin amerika ve karayipler",
+    "latin amerika karayipler",
+    "latin amerika ve karayipler'de",
+    "latin amerika ve karayipler'in"
+   ],
+   "LDC": [
+    "en az gelişmiş ülkeler",
+    "egü",
+    "en az gelişmiş ülkeler'de",
+    "en az gelişmiş ülkeler'in"
+   ],
+   "MEA": [
+    "orta doğu kuzey afrika afganistan ve pakistan",
+    "mea",
+    "orta doğu ve kuzey afrika"
+   ],
+   "NAC": [
+    "kuzey amerika",
+    "kuzey amerika'da",
+    "kuzey amerika'nın",
+    "kuzey amerika'ya"
+   ],
+   "NAF": [
+    "kuzey afrika",
+    "k. afrika",
+    "kuzey afrika'da",
+    "kuzey afrika'nın"
+   ],
+   "OED": [
+    "oecd ülkeleri",
+    "oecd",
+    "oecd'de",
+    "oecd'nin",
+    "ekonomik işbirliği ve kalkınma örgütü"
+   ],
+   "PSS": [
+    "pasifik ada devletleri",
+    "pasifik adaları",
+    "pasifik ada devletleri'nde",
+    "pasifik'te"
+   ],
+   "SAS": [
+    "güney asya",
+    "g. asya",
+    "güney asya'da",
+    "güney asya'nın"
+   ],
+   "SSF": [
+    "sahra altı afrika",
+    "sahra altı",
+    "sahra altı afrika'da",
+    "sahra altı'nın"
+   ],
+   "SST": [
+    "küçük devletler",
+    "küçük ada devletleri",
+    "küçük devletler'de"
+   ],
+   "HIC": [
+    "yüksek gelirli ülkeler",
+    "yüksek gelir grubu",
+    "yüksek gelirli'lerin"
+   ],
+   "LIC": [
+    "düşük gelirli ülkeler",
+    "düşük gelir grubu",
+    "düşük gelirli'lerin"
+   ],
+   "LMC": [
+    "alt orta gelirli ülkeler",
+    "alt orta gelir",
+    "alt orta gelirli'lerin"
+   ],
+   "LMY": [
+    "düşük ve orta gelirli ülkeler",
+    "düşük orta gelir",
+    "düşük ve orta gelirli'lerin"
+   ],
+   "MIC": [
+    "orta gelirli ülkeler",
+    "orta gelir grubu",
+    "orta gelirli'lerin"
+   ],
+   "UMC": [
+    "üst orta gelirli ülkeler",
+    "üst orta gelir",
+    "üst orta gelirli'lerin"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "sahel bölgesi",
+    "sahel'de",
+    "sahel'in"
+   ],
+   "HORN": [
+    "afrika boynuzu",
+    "afrika boynuzu'nda",
+    "afrika boynuzu'nun"
+   ],
+   "G7": [
+    "g7",
+    "g7 ülkeleri",
+    "g7'de",
+    "g7'nin"
+   ],
+   "BRICS": [
+    "brics",
+    "brics ülkeleri",
+    "brics'te",
+    "brics'in"
+   ],
+   "ASEAN": [
+    "asean",
+    "güneydoğu asya uluslar birliği",
+    "asean'da",
+    "asean'ın"
+   ],
+   "EAC": [
+    "eac",
+    "doğu afrika topluluğu",
+    "doğu afrika ülkeleri",
+    "eac'de"
+   ],
+   "SADC": [
+    "sadc",
+    "güney afrika kalkınma topluluğu",
+    "sadc'de",
+    "sadc'nin"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "batı afrika devletleri ekonomik topluluğu",
+    "ecowas'ta",
+    "ecowas'ın"
+   ],
+   "CENTRAL_ASIA": [
+    "orta asya",
+    "orta asya ülkeleri",
+    "orta asya'da",
+    "orta asya'nın",
+    "ortaasya"
+   ],
+   "SOUTHEAST_ASIA": [
+    "güneydoğu asya",
+    "g.doğu asya",
+    "güneydoğu asya'da",
+    "güneydoğu asya'nın"
+   ],
+   "CARIBBEAN": [
+    "karayipler",
+    "karayip",
+    "karayipler'de",
+    "karayipler'in"
+   ],
+   "PACIFIC_ISLANDS": [
+    "pasifik adaları",
+    "pasifik adaları'nda",
+    "pasifik adaları'nın",
+    "pasifik ülkeleri"
+   ],
+   "MAGHREB": [
+    "mağrip",
+    "mağrip ülkeleri",
+    "mağrip'te",
+    "mağrip'in"
+   ],
+   "GCC": [
+    "gcc",
+    "körfez işbirliği konseyi",
+    "körfez ülkeleri",
+    "gcc'de",
+    "gcc'nin"
+   ],
+   "BALKANS": [
+    "balkanlar",
+    "batı balkanlar",
+    "balkanlar'da",
+    "balkanlar'ın"
+   ],
+   "ANDEAN": [
+    "ande ülkeleri",
+    "ande topluluğu",
+    "and dağları ülkeleri",
+    "ande'de"
+   ],
+   "CENTRAL_AMERICA": [
+    "orta amerika",
+    "orta amerika ülkeleri",
+    "orta amerika'da",
+    "orta amerika'nın"
+   ],
+   "LAKE_CHAD": [
+    "çad gölü",
+    "çad gölü havzası",
+    "çad gölü'nde",
+    "çad gölü'nün"
    ]
   }
  },
@@ -3006,6 +11306,976 @@
    "Western and Central Africa": [
     "afrique occidentale et centrale",
     "aoc"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afghanistan"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albanie"
+   ],
+   "AND": [
+    "andorre"
+   ],
+   "ARE": [
+    "émirats arabes unis",
+    "éau",
+    "emirats"
+   ],
+   "ARG": [
+    "argentine"
+   ],
+   "ARM": [
+    "arménie"
+   ],
+   "ASM": [
+    "samoa américaines"
+   ],
+   "ATG": [
+    "antigua-et-barbuda",
+    "antigua et barbuda"
+   ],
+   "AUS": [
+    "australie"
+   ],
+   "AUT": [
+    "autriche"
+   ],
+   "AZE": [
+    "azerbaïdjan",
+    "azerbaidjan"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "belgique"
+   ],
+   "BEN": [
+    "bénin",
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladesh"
+   ],
+   "BGR": [
+    "bulgarie"
+   ],
+   "BHR": [
+    "bahreïn",
+    "bahrein"
+   ],
+   "BHS": [
+    "bahamas",
+    "les bahamas"
+   ],
+   "BIH": [
+    "bosnie-herzegovine",
+    "bosnie et herzegovine",
+    "bosnie"
+   ],
+   "BLR": [
+    "biélorussie",
+    "belarus"
+   ],
+   "BLZ": [
+    "belize"
+   ],
+   "BMU": [
+    "bermudes"
+   ],
+   "BOL": [
+    "bolivie"
+   ],
+   "BRA": [
+    "brésil"
+   ],
+   "BRB": [
+    "barbade"
+   ],
+   "BRN": [
+    "brunei",
+    "brunei darussalam"
+   ],
+   "BTN": [
+    "bhoutan"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "république centrafricaine",
+    "centrafrique",
+    "rca"
+   ],
+   "CAN": [
+    "canada"
+   ],
+   "CHE": [
+    "suisse"
+   ],
+   "CHI": [
+    "îles anglo-normandes",
+    "îles du canal"
+   ],
+   "CHL": [
+    "chili"
+   ],
+   "CHN": [
+    "chine"
+   ],
+   "CIV": [
+    "côte d'ivoire",
+    "cote d'ivoire",
+    "ci"
+   ],
+   "CMR": [
+    "cameroun"
+   ],
+   "COD": [
+    "république démocratique du congo",
+    "rdc",
+    "congo kinshasa",
+    "congo-kinshasa"
+   ],
+   "COG": [
+    "république du congo",
+    "congo brazzaville",
+    "congo-brazzaville"
+   ],
+   "COL": [
+    "colombie"
+   ],
+   "COM": [
+    "comores"
+   ],
+   "CPV": [
+    "cap-vert",
+    "cape verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "cuba"
+   ],
+   "CUW": [
+    "curaçao",
+    "curacao"
+   ],
+   "CYM": [
+    "îles caïmans",
+    "iles caimans"
+   ],
+   "CYP": [
+    "chypre"
+   ],
+   "CZE": [
+    "tchéquie",
+    "république tchèque",
+    "tchequie"
+   ],
+   "DEU": [
+    "allemagne"
+   ],
+   "DJI": [
+    "djibouti"
+   ],
+   "DMA": [
+    "dominique"
+   ],
+   "DNK": [
+    "danemark"
+   ],
+   "DOM": [
+    "république dominicaine",
+    "dominicaine"
+   ],
+   "DZA": [
+    "algérie",
+    "algerie"
+   ],
+   "ECU": [
+    "équateur"
+   ],
+   "EGY": [
+    "égypte",
+    "république arabe d'égypte"
+   ],
+   "ERI": [
+    "érithrée"
+   ],
+   "ESP": [
+    "espagne",
+    "esp"
+   ],
+   "EST": [
+    "estonie"
+   ],
+   "ETH": [
+    "éthiopie"
+   ],
+   "FIN": [
+    "finlande"
+   ],
+   "FJI": [
+    "fidji",
+    "fiji"
+   ],
+   "FRA": [
+    "france",
+    "fra"
+   ],
+   "FRO": [
+    "îles féroé",
+    "féroé"
+   ],
+   "FSM": [
+    "micronésie",
+    "états fédérés de micronésie"
+   ],
+   "GAB": [
+    "gabon"
+   ],
+   "GBR": [
+    "royaume-uni",
+    "angleterre",
+    "uk",
+    "grande-bretagne"
+   ],
+   "GEO": [
+    "géorgie"
+   ],
+   "GHA": [
+    "ghana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guinée",
+    "guinée-conakry"
+   ],
+   "GMB": [
+    "gambie"
+   ],
+   "GNB": [
+    "guinée-bissau"
+   ],
+   "GNQ": [
+    "guinée équatoriale"
+   ],
+   "GRC": [
+    "grèce"
+   ],
+   "GRD": [
+    "grenade"
+   ],
+   "GRL": [
+    "groenland"
+   ],
+   "GTM": [
+    "guatemala"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guyana",
+    "guyane"
+   ],
+   "HKG": [
+    "hong kong"
+   ],
+   "HND": [
+    "honduras"
+   ],
+   "HRV": [
+    "croatie"
+   ],
+   "HTI": [
+    "haïti",
+    "haiti"
+   ],
+   "HUN": [
+    "hongrie"
+   ],
+   "IDN": [
+    "indonésie",
+    "indonesie"
+   ],
+   "IMN": [
+    "île de man",
+    "ile de man",
+    "man"
+   ],
+   "IND": [
+    "inde"
+   ],
+   "IRL": [
+    "irlande"
+   ],
+   "IRN": [
+    "iran"
+   ],
+   "IRQ": [
+    "iraq"
+   ],
+   "ISL": [
+    "islande"
+   ],
+   "ISR": [
+    "israël",
+    "israel"
+   ],
+   "ITA": [
+    "italie"
+   ],
+   "JAM": [
+    "jamaïque",
+    "jamaique"
+   ],
+   "JOR": [
+    "jordanie"
+   ],
+   "JPN": [
+    "japon"
+   ],
+   "KAZ": [
+    "kazakhstan"
+   ],
+   "KEN": [
+    "kenya"
+   ],
+   "KGZ": [
+    "kirghizistan",
+    "kirghizie"
+   ],
+   "KHM": [
+    "cambodge"
+   ],
+   "KIR": [
+    "kiribati"
+   ],
+   "KNA": [
+    "saint-christophe-et-névis",
+    "st christophe et nevis",
+    "saint christophe"
+   ],
+   "KOR": [
+    "corée du sud",
+    "corée sud",
+    "corée"
+   ],
+   "KWT": [
+    "koweït",
+    "koweit"
+   ],
+   "LAO": [
+    "laos"
+   ],
+   "LBN": [
+    "liban"
+   ],
+   "LBR": [
+    "libéria",
+    "liberia"
+   ],
+   "LBY": [
+    "lybie"
+   ],
+   "LCA": [
+    "sainte-lucie",
+    "ste lucie",
+    "saint lucie"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesotho"
+   ],
+   "LTU": [
+    "lituanie"
+   ],
+   "LUX": [
+    "luxembourg",
+    "lux"
+   ],
+   "LVA": [
+    "lettonie"
+   ],
+   "MAC": [
+    "macao",
+    "macau"
+   ],
+   "MAF": [
+    "saint-martin",
+    "st martin"
+   ],
+   "MAR": [
+    "maroc"
+   ],
+   "MCO": [
+    "monaco"
+   ],
+   "MDA": [
+    "moldavie",
+    "moldovie"
+   ],
+   "MDG": [
+    "madagascar"
+   ],
+   "MDV": [
+    "maldives"
+   ],
+   "MEX": [
+    "mexique"
+   ],
+   "MHL": [
+    "îles marshall",
+    "marshall"
+   ],
+   "MKD": [
+    "macédoine du nord",
+    "macédoine"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malte"
+   ],
+   "MMR": [
+    "myanmar",
+    "birmanie"
+   ],
+   "MNE": [
+    "monténégro",
+    "montenegro"
+   ],
+   "MNG": [
+    "mongolie"
+   ],
+   "MNP": [
+    "îles mariannes du nord",
+    "mariannes du nord"
+   ],
+   "MOZ": [
+    "mozambique"
+   ],
+   "MRT": [
+    "mauritanie"
+   ],
+   "MUS": [
+    "maurice",
+    "île maurice"
+   ],
+   "MWI": [
+    "malawi"
+   ],
+   "MYS": [
+    "malaisie"
+   ],
+   "NAM": [
+    "namibie"
+   ],
+   "NCL": [
+    "nouvelle-calédonie",
+    "calédonie",
+    "nc"
+   ],
+   "NER": [
+    "niger"
+   ],
+   "NGA": [
+    "nigéria",
+    "nigeria"
+   ],
+   "NIC": [
+    "nicaragua"
+   ],
+   "NLD": [
+    "pays-bas",
+    "hollande"
+   ],
+   "NOR": [
+    "norvège"
+   ],
+   "NPL": [
+    "népal",
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "nouvelle-zélande",
+    "nz"
+   ],
+   "OMN": [
+    "oman"
+   ],
+   "PAK": [
+    "pakistan"
+   ],
+   "PAN": [
+    "panama"
+   ],
+   "PER": [
+    "pérou",
+    "peru"
+   ],
+   "PHL": [
+    "philippines"
+   ],
+   "PLW": [
+    "palaos",
+    "palau"
+   ],
+   "PNG": [
+    "papouasie-nouvelle-guinée",
+    "papouasie"
+   ],
+   "POL": [
+    "pologne"
+   ],
+   "PRI": [
+    "portorico",
+    "porto rico"
+   ],
+   "PRK": [
+    "corée du nord",
+    "rpdc"
+   ],
+   "PRT": [
+    "portugal"
+   ],
+   "PRY": [
+    "paraguay"
+   ],
+   "PSE": [
+    "cisjordanie",
+    "gaza",
+    "palestine"
+   ],
+   "PYF": [
+    "polynésie française",
+    "tahiti",
+    "pf"
+   ],
+   "QAT": [
+    "qatar"
+   ],
+   "ROU": [
+    "roumanie"
+   ],
+   "RUS": [
+    "russie",
+    "fédération de russie"
+   ],
+   "RWA": [
+    "rwanda"
+   ],
+   "SAU": [
+    "arabie saoudite",
+    "saoudite"
+   ],
+   "SDN": [
+    "soudan",
+    "république du soudan"
+   ],
+   "SEN": [
+    "sénégal",
+    "senegal"
+   ],
+   "SGP": [
+    "singapour",
+    "singapore"
+   ],
+   "SLB": [
+    "îles salomon",
+    "salomon"
+   ],
+   "SLE": [
+    "sierra leone"
+   ],
+   "SLV": [
+    "el salvador",
+    "salvador"
+   ],
+   "SMR": [
+    "saint-marin",
+    "san marino"
+   ],
+   "SOM": [
+    "somalie",
+    "somalia"
+   ],
+   "SRB": [
+    "serbie",
+    "serbia"
+   ],
+   "SSD": [
+    "soudan du sud",
+    "sud-soudan"
+   ],
+   "STP": [
+    "sao tomé-et-principe",
+    "sao tome",
+    "principe"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "slovaquie",
+    "république slovaque"
+   ],
+   "SVN": [
+    "slovénie",
+    "slovenie"
+   ],
+   "SWE": [
+    "suède",
+    "suede"
+   ],
+   "SWZ": [
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "saint-martin",
+    "sint maarten"
+   ],
+   "SYC": [
+    "seychelles"
+   ],
+   "SYR": [
+    "syrie",
+    "république arabe syrienne"
+   ],
+   "TCA": [
+    "îles turques-et-caïques",
+    "turques et caïques"
+   ],
+   "TCD": [
+    "tchad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "thaïlande",
+    "thailande"
+   ],
+   "TJK": [
+    "tadjikistan"
+   ],
+   "TKM": [
+    "turkménistan",
+    "turkmenistan"
+   ],
+   "TLS": [
+    "timor oriental",
+    "timor-leste"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinité-et-tobago",
+    "trinité et tobago"
+   ],
+   "TUN": [
+    "tunisie"
+   ],
+   "TUR": [
+    "turquie",
+    "turkiye"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzanie"
+   ],
+   "UGA": [
+    "ouganda"
+   ],
+   "UKR": [
+    "ukraine"
+   ],
+   "URY": [
+    "uruguay"
+   ],
+   "USA": [
+    "états-unis",
+    "usa",
+    "éé-uu"
+   ],
+   "UZB": [
+    "ouzbékistan",
+    "uzbekistan"
+   ],
+   "VCT": [
+    "saint-vincent-et-les-grenadines",
+    "st vincent"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "îles vierges britanniques",
+    "ivb"
+   ],
+   "VIR": [
+    "îles vierges américaines",
+    "iva"
+   ],
+   "VNM": [
+    "vietnam"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "yémen",
+    "yemen"
+   ],
+   "ZAF": [
+    "afrique du sud",
+    "afrique sud"
+   ],
+   "ZMB": [
+    "zambie"
+   ],
+   "ZWE": [
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "afrique orientale et australe",
+    "afrique de l'est et du sud",
+    "afe"
+   ],
+   "AFR": [
+    "afrique",
+    "continent africain",
+    "afr"
+   ],
+   "AFW": [
+    "afrique occidentale et centrale",
+    "afrique de l'ouest et centrale",
+    "afw"
+   ],
+   "ARB": [
+    "monde arabe",
+    "pays arabes",
+    "arb"
+   ],
+   "CME": [
+    "moyen-orient et nord afrique",
+    "mena",
+    "cme"
+   ],
+   "CSS": [
+    "petits états des caraïbes",
+    "caraïbes",
+    "css"
+   ],
+   "EAS": [
+    "asie orientale et pacifique",
+    "asie-pacifique",
+    "eas"
+   ],
+   "ECS": [
+    "europe et asie centrale",
+    "ecs"
+   ],
+   "EMU": [
+    "zone euro",
+    "eurozone",
+    "emu"
+   ],
+   "EUU": [
+    "union européenne",
+    "ue",
+    "euu"
+   ],
+   "HPC": [
+    "pays pauvres très endettés",
+    "ppte",
+    "hpc"
+   ],
+   "LCN": [
+    "amérique latine et caraïbes",
+    "alca",
+    "lcn"
+   ],
+   "LDC": [
+    "pays les moins avancés",
+    "pma",
+    "ldc"
+   ],
+   "MEA": [
+    "moyen-orient, nord afrique, afghanistan et pakistan",
+    "mena",
+    "mea"
+   ],
+   "NAC": [
+    "amerique du nord",
+    "nord americain",
+    "nac"
+   ],
+   "NAF": [
+    "afrique du nord",
+    "nord afrique",
+    "maghreb"
+   ],
+   "OED": [
+    "pays de l'ocde",
+    "membres ocde",
+    "ocde"
+   ],
+   "PSS": [
+    "petits états du pacifique",
+    "îles du pacifique",
+    "états insulaires du pacifique"
+   ],
+   "SAS": [
+    "asie du sud",
+    "sud asie"
+   ],
+   "SSF": [
+    "afrique subsaharienne",
+    "afrique au sud du sahara",
+    "ass"
+   ],
+   "SST": [
+    "petits états",
+    "petits pays"
+   ],
+   "HIC": [
+    "pays à revenu élevé",
+    "haut revenu",
+    "pays riches"
+   ],
+   "LIC": [
+    "pays à faible revenu",
+    "bas revenu",
+    "pays pauvres"
+   ],
+   "LMC": [
+    "pays à revenu intermédiaire de la tranche inférieure",
+    "revenu intermédiaire bas"
+   ],
+   "LMY": [
+    "pays à revenu faible et intermédiaire",
+    "revenus faibles et moyens"
+   ],
+   "MIC": [
+    "pays à revenu intermédiaire",
+    "revenu moyen"
+   ],
+   "UMC": [
+    "pays à revenu intermédiaire de la tranche supérieure",
+    "revenu intermédiaire haut"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "g5 sahel",
+    "zone sahélienne"
+   ],
+   "HORN": [
+    "corne de l'afrique",
+    "corne africaine"
+   ],
+   "G7": [
+    "g7",
+    "groupe des sept"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "ASEAN": [
+    "asean"
+   ],
+   "EAC": [
+    "eac",
+    "communauté d'afrique de l'est"
+   ],
+   "SADC": [
+    "sadc",
+    "communauté de développement d'afrique australe"
+   ],
+   "ECOWAS": [
+    "cedea",
+    "ecowas"
+   ],
+   "CENTRAL_ASIA": [
+    "asie centrale"
+   ],
+   "SOUTHEAST_ASIA": [
+    "asie du sud-est",
+    "sud-est asiatique"
+   ],
+   "CARIBBEAN": [
+    "caraïbes",
+    "les caraïbes",
+    "caribéen"
+   ],
+   "PACIFIC_ISLANDS": [
+    "îles du pacifique",
+    "pacifique",
+    "océanie"
+   ],
+   "MAGHREB": [
+    "maghreb",
+    "le maghreb"
+   ],
+   "GCC": [
+    "ccg",
+    "conseil de coopération du golfe",
+    "gcc"
+   ],
+   "BALKANS": [
+    "balkans",
+    "les balkans",
+    "balkans occidentaux"
+   ],
+   "ANDEAN": [
+    "pays andins",
+    "région andine",
+    "andean"
+   ],
+   "CENTRAL_AMERICA": [
+    "amérique centrale"
+   ],
+   "LAKE_CHAD": [
+    "lac tchad",
+    "bassin du lac tchad"
    ]
   }
  },
@@ -3384,6 +12654,1014 @@
    "Western and Central Africa": [
     "áfrica occidental y central"
    ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afganistán",
+    "afganistan"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albania"
+   ],
+   "AND": [
+    "andorra"
+   ],
+   "ARE": [
+    "emiratos árabes unidos",
+    "emiratos árabes",
+    "emiratos",
+    "eau"
+   ],
+   "ARG": [
+    "argentina",
+    "arg"
+   ],
+   "ARM": [
+    "armenia"
+   ],
+   "ASM": [
+    "samoa americana"
+   ],
+   "ATG": [
+    "antigua y barbuda",
+    "antigua"
+   ],
+   "AUS": [
+    "australia"
+   ],
+   "AUT": [
+    "austria"
+   ],
+   "AZE": [
+    "azerbaiyán",
+    "azerbaijan",
+    "azerbayán"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "bélgica",
+    "belgica"
+   ],
+   "BEN": [
+    "benín",
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladés",
+    "bangladesh",
+    "banglades"
+   ],
+   "BGR": [
+    "bulgaria"
+   ],
+   "BHR": [
+    "baréin",
+    "bahrein",
+    "bahrain"
+   ],
+   "BHS": [
+    "bahamas",
+    "las bahamas"
+   ],
+   "BIH": [
+    "bosnia y herzegovina",
+    "bosnia"
+   ],
+   "BLR": [
+    "belarús",
+    "bielorrusia",
+    "belarus"
+   ],
+   "BLZ": [
+    "belice"
+   ],
+   "BMU": [
+    "bermudas",
+    "bermuda"
+   ],
+   "BOL": [
+    "bolivia",
+    "bol"
+   ],
+   "BRA": [
+    "brasil",
+    "brazil"
+   ],
+   "BRB": [
+    "barbados"
+   ],
+   "BRN": [
+    "brunei",
+    "brunei darussalam"
+   ],
+   "BTN": [
+    "bután",
+    "bhutan"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "república centroafricana",
+    "centroafricana",
+    "rca"
+   ],
+   "CAN": [
+    "canadá"
+   ],
+   "CHE": [
+    "suiza"
+   ],
+   "CHI": [
+    "islas del canal",
+    "islas canal"
+   ],
+   "CHL": [
+    "chile"
+   ],
+   "CHN": [
+    "china"
+   ],
+   "CIV": [
+    "costa de marfil",
+    "cote d'ivoire"
+   ],
+   "CMR": [
+    "camerún"
+   ],
+   "COD": [
+    "república democrática del congo",
+    "rd congo",
+    "congo democrático",
+    "rdc"
+   ],
+   "COG": [
+    "república del congo",
+    "congo",
+    "congo brazzaville"
+   ],
+   "COL": [
+    "colombia"
+   ],
+   "COM": [
+    "comoras"
+   ],
+   "CPV": [
+    "cabo verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "cuba"
+   ],
+   "CUW": [
+    "curazao",
+    "curacao"
+   ],
+   "CYM": [
+    "islas cayman",
+    "cayman"
+   ],
+   "CYP": [
+    "chipre"
+   ],
+   "CZE": [
+    "chequia",
+    "república checa",
+    "checoslovaquia"
+   ],
+   "DEU": [
+    "alemania"
+   ],
+   "DJI": [
+    "yibuti",
+    "djibouti"
+   ],
+   "DMA": [
+    "dominica"
+   ],
+   "DNK": [
+    "dinamarca"
+   ],
+   "DOM": [
+    "república dominicana",
+    "dominicana",
+    "rd"
+   ],
+   "DZA": [
+    "argelia"
+   ],
+   "ECU": [
+    "ecuador",
+    "ecu"
+   ],
+   "EGY": [
+    "egipto",
+    "república árabe de egipto"
+   ],
+   "ERI": [
+    "eritrea"
+   ],
+   "ESP": [
+    "españa",
+    "esp"
+   ],
+   "EST": [
+    "estonia"
+   ],
+   "ETH": [
+    "etiopía",
+    "etiopia"
+   ],
+   "FIN": [
+    "finlandia"
+   ],
+   "FJI": [
+    "fiyi",
+    "fiji"
+   ],
+   "FRA": [
+    "francia",
+    "fra"
+   ],
+   "FRO": [
+    "islas faroe",
+    "faroe"
+   ],
+   "FSM": [
+    "micronesia",
+    "estados federados de micronesia"
+   ],
+   "GAB": [
+    "gabón",
+    "gabon"
+   ],
+   "GBR": [
+    "reino unido",
+    "gran bretaña",
+    "uk",
+    "inglaterra"
+   ],
+   "GEO": [
+    "georgia"
+   ],
+   "GHA": [
+    "ghana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guinea",
+    "guinea conakry"
+   ],
+   "GMB": [
+    "gambia",
+    "la gambia"
+   ],
+   "GNB": [
+    "guinea bisau",
+    "guinea-bisau"
+   ],
+   "GNQ": [
+    "guinea ecuatorial"
+   ],
+   "GRC": [
+    "grecia"
+   ],
+   "GRD": [
+    "granada"
+   ],
+   "GRL": [
+    "groenlandia",
+    "greenlandia"
+   ],
+   "GTM": [
+    "guatemala",
+    "gt"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guyana"
+   ],
+   "HKG": [
+    "hong kong"
+   ],
+   "HND": [
+    "honduras",
+    "hn"
+   ],
+   "HRV": [
+    "croacia"
+   ],
+   "HTI": [
+    "haití",
+    "haiti"
+   ],
+   "HUN": [
+    "hungría"
+   ],
+   "IDN": [
+    "indonesia"
+   ],
+   "IMN": [
+    "isla de man"
+   ],
+   "IND": [
+    "india"
+   ],
+   "IRL": [
+    "irlanda"
+   ],
+   "IRN": [
+    "irán",
+    "iran"
+   ],
+   "IRQ": [
+    "iraq"
+   ],
+   "ISL": [
+    "islandia"
+   ],
+   "ISR": [
+    "israel"
+   ],
+   "ITA": [
+    "italia"
+   ],
+   "JAM": [
+    "jamaica"
+   ],
+   "JOR": [
+    "jordania"
+   ],
+   "JPN": [
+    "japón",
+    "japon"
+   ],
+   "KAZ": [
+    "kazajistán",
+    "kazajistan"
+   ],
+   "KEN": [
+    "kenia"
+   ],
+   "KGZ": [
+    "kirguistán",
+    "kirguizstán",
+    "kirguizia"
+   ],
+   "KHM": [
+    "camboya"
+   ],
+   "KIR": [
+    "kiribati"
+   ],
+   "KNA": [
+    "san cristóbal y nevis",
+    "san cristobal y nevis",
+    "st kitts y nevis"
+   ],
+   "KOR": [
+    "corea del sur",
+    "corea sur",
+    "república de corea"
+   ],
+   "KWT": [
+    "kuwait"
+   ],
+   "LAO": [
+    "laos"
+   ],
+   "LBN": [
+    "líbano",
+    "libano"
+   ],
+   "LBR": [
+    "liberia"
+   ],
+   "LBY": [
+    "libia"
+   ],
+   "LCA": [
+    "santa lucía",
+    "santa lucia"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesotho"
+   ],
+   "LTU": [
+    "lituania"
+   ],
+   "LUX": [
+    "luxemburgo",
+    "luxemburg"
+   ],
+   "LVA": [
+    "letonia"
+   ],
+   "MAC": [
+    "macao",
+    "macao sar",
+    "macao china"
+   ],
+   "MAF": [
+    "san martín",
+    "san martin",
+    "san martin francés"
+   ],
+   "MAR": [
+    "marruecos"
+   ],
+   "MCO": [
+    "mónaco",
+    "monaco"
+   ],
+   "MDA": [
+    "moldavia",
+    "moldova"
+   ],
+   "MDG": [
+    "madagascar"
+   ],
+   "MDV": [
+    "maldivas"
+   ],
+   "MEX": [
+    "méxico",
+    "mexico"
+   ],
+   "MHL": [
+    "islas marshall",
+    "marshall"
+   ],
+   "MKD": [
+    "macedonia del norte",
+    "macedonia",
+    "macedonia norte"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malta"
+   ],
+   "MMR": [
+    "myanmar",
+    "birmania"
+   ],
+   "MNE": [
+    "montenegro"
+   ],
+   "MNG": [
+    "mongolia"
+   ],
+   "MNP": [
+    "islas marianas del norte",
+    "marianas del norte"
+   ],
+   "MOZ": [
+    "mozambique"
+   ],
+   "MRT": [
+    "mauritania"
+   ],
+   "MUS": [
+    "mauricio"
+   ],
+   "MWI": [
+    "malawi"
+   ],
+   "MYS": [
+    "malasia"
+   ],
+   "NAM": [
+    "namibia"
+   ],
+   "NCL": [
+    "nueva caledonia"
+   ],
+   "NER": [
+    "níger"
+   ],
+   "NGA": [
+    "nigeria"
+   ],
+   "NIC": [
+    "nicaragua",
+    "nica"
+   ],
+   "NLD": [
+    "países bajos",
+    "holanda",
+    "holandés"
+   ],
+   "NOR": [
+    "noruega"
+   ],
+   "NPL": [
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "nueva zelanda"
+   ],
+   "OMN": [
+    "omán",
+    "oman"
+   ],
+   "PAK": [
+    "pakistán",
+    "pakistan"
+   ],
+   "PAN": [
+    "panamá",
+    "panama"
+   ],
+   "PER": [
+    "perú",
+    "peru"
+   ],
+   "PHL": [
+    "filipinas"
+   ],
+   "PLW": [
+    "palaos",
+    "palau"
+   ],
+   "PNG": [
+    "papúa nueva guinea",
+    "papua nueva guinea"
+   ],
+   "POL": [
+    "polonia"
+   ],
+   "PRI": [
+    "puerto rico"
+   ],
+   "PRK": [
+    "corea del norte",
+    "rpdc",
+    "corea norte"
+   ],
+   "PRT": [
+    "portugal"
+   ],
+   "PRY": [
+    "paraguay"
+   ],
+   "PSE": [
+    "cisjordania",
+    "gaza",
+    "palestina"
+   ],
+   "PYF": [
+    "polinesia francesa"
+   ],
+   "QAT": [
+    "catar",
+    "qatar"
+   ],
+   "ROU": [
+    "rumania"
+   ],
+   "RUS": [
+    "rusia",
+    "federación rusa"
+   ],
+   "RWA": [
+    "ruanda"
+   ],
+   "SAU": [
+    "arabia saudita",
+    "saudita"
+   ],
+   "SDN": [
+    "sudán",
+    "sudan"
+   ],
+   "SEN": [
+    "senegal"
+   ],
+   "SGP": [
+    "singapur",
+    "singapura"
+   ],
+   "SLB": [
+    "islas salomón",
+    "salomón"
+   ],
+   "SLE": [
+    "sierra leona"
+   ],
+   "SLV": [
+    "el salvador",
+    "salvador"
+   ],
+   "SMR": [
+    "san marino"
+   ],
+   "SOM": [
+    "somalia"
+   ],
+   "SRB": [
+    "serbia"
+   ],
+   "SSD": [
+    "sudán del sur",
+    "sudán sur"
+   ],
+   "STP": [
+    "sao tome y príncipe",
+    "sao tome",
+    "sao tomé"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "eslovaquia",
+    "república eslovaca"
+   ],
+   "SVN": [
+    "eslovenia"
+   ],
+   "SWE": [
+    "suecia"
+   ],
+   "SWZ": [
+    "eswatini",
+    "suazilandia"
+   ],
+   "SXM": [
+    "sint maarten",
+    "san martín"
+   ],
+   "SYC": [
+    "seychelles",
+    "seychellas"
+   ],
+   "SYR": [
+    "siria",
+    "república árabe siria"
+   ],
+   "TCA": [
+    "turcas y caicos",
+    "islas turcas y caicos"
+   ],
+   "TCD": [
+    "chad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "tailandia"
+   ],
+   "TJK": [
+    "tayikistán",
+    "tayikistan",
+    "tadjikistán"
+   ],
+   "TKM": [
+    "turkmenistán",
+    "turkmenistan",
+    "turcomanistán"
+   ],
+   "TLS": [
+    "timor leste",
+    "timor oriental"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinidad y tobago"
+   ],
+   "TUN": [
+    "túnez"
+   ],
+   "TUR": [
+    "turquía",
+    "turquia"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzania"
+   ],
+   "UGA": [
+    "uganda"
+   ],
+   "UKR": [
+    "ucrania"
+   ],
+   "URY": [
+    "uruguay"
+   ],
+   "USA": [
+    "estados unidos",
+    "eeuu",
+    "ee. uu.",
+    "usa",
+    "estadios unidos"
+   ],
+   "UZB": [
+    "uzbekistán",
+    "uzbekistan"
+   ],
+   "VCT": [
+    "san vicente y las granadinas",
+    "san vicente"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "islas vírgenes británicas",
+    "islas vírgenes britisnicas",
+    "islas vírgenes"
+   ],
+   "VIR": [
+    "islas vírgenes estadounidenses",
+    "islas vírgenes americanas",
+    "islas vírgenes"
+   ],
+   "VNM": [
+    "vietnam",
+    "viet nam"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "yemen"
+   ],
+   "ZAF": [
+    "sudáfrica",
+    "sudafrica"
+   ],
+   "ZMB": [
+    "zambia"
+   ],
+   "ZWE": [
+    "zimbabue",
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "áfrica oriental y meridional",
+    "áfrica este y sur",
+    "áfrica subsahariana oriental",
+    "afe"
+   ],
+   "AFR": [
+    "áfrica",
+    "continente africano",
+    "afr"
+   ],
+   "AFW": [
+    "áfrica occidental y central",
+    "áfrica oeste y centro",
+    "afw"
+   ],
+   "ARB": [
+    "mundo árabe",
+    "países árabes",
+    "región árabe",
+    "arb"
+   ],
+   "CME": [
+    "medio oriente y norte de áfrica",
+    "mena",
+    "mide y norte de áfrica",
+    "cme"
+   ],
+   "CSS": [
+    "pequeños estados del caribe",
+    "estados pequeños del caribe",
+    "css"
+   ],
+   "EAS": [
+    "asia oriental y pacífico",
+    "este de asia y pacífico",
+    "eas"
+   ],
+   "ECS": [
+    "europa y asia central",
+    "europa y centro de asia",
+    "ecs"
+   ],
+   "EMU": [
+    "zona euro",
+    "eurozona",
+    "emu"
+   ],
+   "EUU": [
+    "unión europea",
+    "ue",
+    "u.e.",
+    "euu"
+   ],
+   "HPC": [
+    "países pobres muy endeudados",
+    "ppme",
+    "hpc"
+   ],
+   "LCN": [
+    "américa latina y el caribe",
+    "latinoamérica y caribe",
+    "alc",
+    "lcn"
+   ],
+   "LDC": [
+    "países menos adelantados",
+    "pma",
+    "países menos desarrollados",
+    "ldc"
+   ],
+   "MEA": [
+    "medio oriente, norte de áfrica, afganistán y pakistán",
+    "mena",
+    "mea"
+   ],
+   "NAC": [
+    "américa del norte",
+    "norteamérica",
+    "nac"
+   ],
+   "NAF": [
+    "norte de áfrica",
+    "norteáfrica",
+    "áfrica del norte"
+   ],
+   "OED": [
+    "ocde",
+    "miembros de la ocde",
+    "países ocde"
+   ],
+   "PSS": [
+    "pequeños estados del pacífico",
+    "islas del pacífico",
+    "estados insulares del pacífico"
+   ],
+   "SAS": [
+    "asia del sur",
+    "sur de asia"
+   ],
+   "SSF": [
+    "áfrica subsahariana",
+    "subsahariana",
+    "áfrica sub-sahariana"
+   ],
+   "SST": [
+    "pequeños estados",
+    "estados pequeños"
+   ],
+   "HIC": [
+    "ingresos altos",
+    "renta alta",
+    "países de ingresos altos"
+   ],
+   "LIC": [
+    "ingresos bajos",
+    "renta baja",
+    "países de ingresos bajos"
+   ],
+   "LMC": [
+    "ingresos medios bajos",
+    "renta media baja",
+    "ingresos medio bajos"
+   ],
+   "LMY": [
+    "ingresos bajos y medios",
+    "renta baja y media",
+    "países de renta baja y media"
+   ],
+   "MIC": [
+    "ingresos medios",
+    "renta media",
+    "países de ingresos medios"
+   ],
+   "UMC": [
+    "ingresos medios altos",
+    "renta media alta",
+    "ingresos medio altos"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "g5 sahel",
+    "región del sahel"
+   ],
+   "HORN": [
+    "cuerno de áfrica",
+    "el cuerno de áfrica"
+   ],
+   "G7": [
+    "g7",
+    "grupo de los siete",
+    "grupo g7"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "ASEAN": [
+    "asean",
+    "asociación de naciones del sudeste asiático"
+   ],
+   "EAC": [
+    "eac",
+    "comunidad del este africano",
+    "comunidad este africana"
+   ],
+   "SADC": [
+    "sadc",
+    "comunidad de desarrollo de áfrica austral"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "cedea",
+    "comunidad económica de estados de áfrica occidental"
+   ],
+   "CENTRAL_ASIA": [
+    "asia central"
+   ],
+   "SOUTHEAST_ASIA": [
+    "sudeste asiático",
+    "sureste asiático",
+    "asia sudeste",
+    "asia sureste"
+   ],
+   "CARIBBEAN": [
+    "caribe",
+    "el caribe",
+    "región caribeña"
+   ],
+   "PACIFIC_ISLANDS": [
+    "islas del pacífico",
+    "oceanía",
+    "islas pacíficas"
+   ],
+   "MAGHREB": [
+    "magreb",
+    "el magreb"
+   ],
+   "GCC": [
+    "gcc",
+    "ccg",
+    "consejo de cooperación del golfo",
+    "consejo de cooperación del golfo árabe"
+   ],
+   "BALKANS": [
+    "balcanes",
+    "los balcanes",
+    "balcanes occidentales"
+   ],
+   "ANDEAN": [
+    "países andinos",
+    "región andina",
+    "comunidad andina",
+    "can"
+   ],
+   "CENTRAL_AMERICA": [
+    "centroamérica",
+    "américa central"
+   ],
+   "LAKE_CHAD": [
+    "cuenca del lago chad",
+    "lago chad"
+   ]
   }
  },
  "Indonesian": {
@@ -3736,6 +14014,985 @@
    "Western and Central Africa": [
     "afrika barat dan tengah",
     "wca"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afghanistan"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albania"
+   ],
+   "AND": [
+    "andorra"
+   ],
+   "ARE": [
+    "uni emirat arab",
+    "uea",
+    "emirat arab bersatu"
+   ],
+   "ARG": [
+    "argentina"
+   ],
+   "ARM": [
+    "armenia"
+   ],
+   "ASM": [
+    "samoa amerika"
+   ],
+   "ATG": [
+    "antigua dan barbuda"
+   ],
+   "AUS": [
+    "australia",
+    "oz"
+   ],
+   "AUT": [
+    "austria"
+   ],
+   "AZE": [
+    "azerbaijan"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "belgia"
+   ],
+   "BEN": [
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladesh"
+   ],
+   "BGR": [
+    "bulgaria"
+   ],
+   "BHR": [
+    "bahrain"
+   ],
+   "BHS": [
+    "bahama",
+    "bahamas"
+   ],
+   "BIH": [
+    "bosnia dan herzegovina",
+    "bosnia"
+   ],
+   "BLR": [
+    "belarus",
+    "belarusia"
+   ],
+   "BLZ": [
+    "belize"
+   ],
+   "BMU": [
+    "bermuda"
+   ],
+   "BOL": [
+    "bolivia"
+   ],
+   "BRA": [
+    "brasil",
+    "brazil"
+   ],
+   "BRB": [
+    "barbados"
+   ],
+   "BRN": [
+    "brunei darussalam",
+    "brunei"
+   ],
+   "BTN": [
+    "bhutan"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "republik afrika tengah",
+    "afrika tengah"
+   ],
+   "CAN": [
+    "kanada"
+   ],
+   "CHE": [
+    "switzerland",
+    "swiss",
+    "swis"
+   ],
+   "CHI": [
+    "kepulauan channel",
+    "channel islands"
+   ],
+   "CHL": [
+    "chile"
+   ],
+   "CHN": [
+    "china",
+    "cina",
+    "tiongkok",
+    "rkc"
+   ],
+   "CIV": [
+    "cote d'ivoire",
+    "pantai gading"
+   ],
+   "CMR": [
+    "kamerun"
+   ],
+   "COD": [
+    "republik demokratik kongo",
+    "kongo demokratik",
+    "rd kongo",
+    "kongo"
+   ],
+   "COG": [
+    "republik kongo",
+    "kongo"
+   ],
+   "COL": [
+    "kolombia"
+   ],
+   "COM": [
+    "komoro"
+   ],
+   "CPV": [
+    "cabo verde",
+    "tanjung verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "kuba"
+   ],
+   "CUW": [
+    "curacao"
+   ],
+   "CYM": [
+    "kepulauan cayman",
+    "cayman islands"
+   ],
+   "CYP": [
+    "siprus",
+    "cyprus"
+   ],
+   "CZE": [
+    "czechia",
+    "cekia",
+    "republik ceko",
+    "ceko"
+   ],
+   "DEU": [
+    "jerman"
+   ],
+   "DJI": [
+    "djibouti",
+    "jibuti"
+   ],
+   "DMA": [
+    "dominika"
+   ],
+   "DNK": [
+    "denmark"
+   ],
+   "DOM": [
+    "republik dominika",
+    "dominika"
+   ],
+   "DZA": [
+    "aljazair",
+    "algeria"
+   ],
+   "ECU": [
+    "ekuador"
+   ],
+   "EGY": [
+    "mesir",
+    "republik arab mesir"
+   ],
+   "ERI": [
+    "eritrea"
+   ],
+   "ESP": [
+    "spanyol"
+   ],
+   "EST": [
+    "estonia"
+   ],
+   "ETH": [
+    "etiopia"
+   ],
+   "FIN": [
+    "finlandia"
+   ],
+   "FJI": [
+    "fiji"
+   ],
+   "FRA": [
+    "perancis",
+    "prancis"
+   ],
+   "FRO": [
+    "kepulauan faroe",
+    "faroe"
+   ],
+   "FSM": [
+    "mikronesia",
+    "negara federasi mikronesia"
+   ],
+   "GAB": [
+    "gabon"
+   ],
+   "GBR": [
+    "inggris",
+    "united kingdom",
+    "uk",
+    "britania raya"
+   ],
+   "GEO": [
+    "georgia"
+   ],
+   "GHA": [
+    "ghana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guinea"
+   ],
+   "GMB": [
+    "gambia"
+   ],
+   "GNB": [
+    "guinea-bissau"
+   ],
+   "GNQ": [
+    "guinea khatulistiwa",
+    "guinea ekuatorial"
+   ],
+   "GRC": [
+    "yunani"
+   ],
+   "GRD": [
+    "grenada"
+   ],
+   "GRL": [
+    "greenland"
+   ],
+   "GTM": [
+    "guatemala"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guyana"
+   ],
+   "HKG": [
+    "hong kong"
+   ],
+   "HND": [
+    "honduras"
+   ],
+   "HRV": [
+    "kroasia"
+   ],
+   "HTI": [
+    "haiti"
+   ],
+   "HUN": [
+    "hungaria"
+   ],
+   "IDN": [
+    "indonesia",
+    "indo"
+   ],
+   "IMN": [
+    "pulau man",
+    "isle of man"
+   ],
+   "IND": [
+    "india"
+   ],
+   "IRL": [
+    "irlandia"
+   ],
+   "IRN": [
+    "iran"
+   ],
+   "IRQ": [
+    "iraq",
+    "irak"
+   ],
+   "ISL": [
+    "islandia"
+   ],
+   "ISR": [
+    "israel"
+   ],
+   "ITA": [
+    "italia",
+    "italy"
+   ],
+   "JAM": [
+    "jamaika"
+   ],
+   "JOR": [
+    "yordania"
+   ],
+   "JPN": [
+    "jepang"
+   ],
+   "KAZ": [
+    "kazakhstan"
+   ],
+   "KEN": [
+    "kenya"
+   ],
+   "KGZ": [
+    "kirgistan",
+    "kyrgyzstan"
+   ],
+   "KHM": [
+    "kamboja"
+   ],
+   "KIR": [
+    "kiribati"
+   ],
+   "KNA": [
+    "st kitts and nevis",
+    "saint kitts dan nevis"
+   ],
+   "KOR": [
+    "korea selatan",
+    "korsel"
+   ],
+   "KWT": [
+    "kuwait"
+   ],
+   "LAO": [
+    "laos"
+   ],
+   "LBN": [
+    "lebanon",
+    "libanon"
+   ],
+   "LBR": [
+    "liberia"
+   ],
+   "LBY": [
+    "libya",
+    "libia"
+   ],
+   "LCA": [
+    "st lucia",
+    "saint lucia"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesotho"
+   ],
+   "LTU": [
+    "lituania",
+    "lithuania"
+   ],
+   "LUX": [
+    "luksemburg",
+    "luxembourg"
+   ],
+   "LVA": [
+    "latvia"
+   ],
+   "MAC": [
+    "makau",
+    "macau",
+    "macao"
+   ],
+   "MAF": [
+    "st martin",
+    "saint martin"
+   ],
+   "MAR": [
+    "maroko",
+    "morocco"
+   ],
+   "MCO": [
+    "monako",
+    "monaco"
+   ],
+   "MDA": [
+    "moldova"
+   ],
+   "MDG": [
+    "madagaskar",
+    "madagascar"
+   ],
+   "MDV": [
+    "maladewa",
+    "maldives"
+   ],
+   "MEX": [
+    "meksiko",
+    "mexico"
+   ],
+   "MHL": [
+    "kepulauan marshall",
+    "marshall islands"
+   ],
+   "MKD": [
+    "makedonia utara",
+    "makedonia",
+    "north macedonia"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malta"
+   ],
+   "MMR": [
+    "myanmar",
+    "burma"
+   ],
+   "MNE": [
+    "montenegro"
+   ],
+   "MNG": [
+    "mongolia"
+   ],
+   "MNP": [
+    "kepulauan mariana utara",
+    "northern mariana islands"
+   ],
+   "MOZ": [
+    "mozambik",
+    "mozambique"
+   ],
+   "MRT": [
+    "mauritania"
+   ],
+   "MUS": [
+    "mauritius"
+   ],
+   "MWI": [
+    "malawi"
+   ],
+   "MYS": [
+    "malaysia"
+   ],
+   "NAM": [
+    "namibia"
+   ],
+   "NCL": [
+    "kaledonia baru",
+    "nouvelle-calédonie"
+   ],
+   "NER": [
+    "niger"
+   ],
+   "NGA": [
+    "nigeria"
+   ],
+   "NIC": [
+    "nikaragua",
+    "nicaragua"
+   ],
+   "NLD": [
+    "belanda",
+    "netherlands",
+    "holland",
+    "hollandia"
+   ],
+   "NOR": [
+    "norwegia",
+    "norway"
+   ],
+   "NPL": [
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "selandia baru",
+    "new zealand",
+    "nz"
+   ],
+   "OMN": [
+    "oman"
+   ],
+   "PAK": [
+    "pakistan"
+   ],
+   "PAN": [
+    "panama"
+   ],
+   "PER": [
+    "peru"
+   ],
+   "PHL": [
+    "filipina",
+    "philippines",
+    "pilipinas"
+   ],
+   "PLW": [
+    "palau"
+   ],
+   "PNG": [
+    "papua nugini",
+    "papua new guinea",
+    "png"
+   ],
+   "POL": [
+    "polandia",
+    "poland"
+   ],
+   "PRI": [
+    "puerto rico"
+   ],
+   "PRK": [
+    "korea utara",
+    "republik demokratik rakyat korea",
+    "north korea"
+   ],
+   "PRT": [
+    "portugal"
+   ],
+   "PRY": [
+    "paraguay"
+   ],
+   "PSE": [
+    "tepi barat",
+    "gaza",
+    "palestina"
+   ],
+   "PYF": [
+    "polinesia prancis",
+    "french polynesia"
+   ],
+   "QAT": [
+    "qatar"
+   ],
+   "ROU": [
+    "romania"
+   ],
+   "RUS": [
+    "rusia",
+    "russia",
+    "federasi rusia"
+   ],
+   "RWA": [
+    "rwanda"
+   ],
+   "SAU": [
+    "arab saudi",
+    "arabia saudi",
+    "saudi arabia",
+    "ksa"
+   ],
+   "SDN": [
+    "sudan"
+   ],
+   "SEN": [
+    "senegal"
+   ],
+   "SGP": [
+    "singapura",
+    "singapore",
+    "sg"
+   ],
+   "SLB": [
+    "kepulauan solomon",
+    "solomon islands"
+   ],
+   "SLE": [
+    "sierra leone"
+   ],
+   "SLV": [
+    "el salvador"
+   ],
+   "SMR": [
+    "san marino"
+   ],
+   "SOM": [
+    "somalia"
+   ],
+   "SRB": [
+    "serbia"
+   ],
+   "SSD": [
+    "sudan selatan",
+    "south sudan"
+   ],
+   "STP": [
+    "sao tome dan principe",
+    "sao tome and principe"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "slovakia",
+    "republik slovakia"
+   ],
+   "SVN": [
+    "slovenia"
+   ],
+   "SWE": [
+    "swedia",
+    "sweden"
+   ],
+   "SWZ": [
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "sint maarten"
+   ],
+   "SYC": [
+    "seychelles",
+    "seychel"
+   ],
+   "SYR": [
+    "suriah",
+    "syria"
+   ],
+   "TCA": [
+    "kepulauan turks dan caicos",
+    "turks and caicos"
+   ],
+   "TCD": [
+    "chad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "thailand",
+    "thailandia"
+   ],
+   "TJK": [
+    "tadjikistan",
+    "tajikistan"
+   ],
+   "TKM": [
+    "turkmenistan"
+   ],
+   "TLS": [
+    "timor leste",
+    "timor timur"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinidad dan tobago",
+    "trinidad and tobago"
+   ],
+   "TUN": [
+    "tunisia"
+   ],
+   "TUR": [
+    "turki",
+    "türkiye",
+    "turkiye"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzania"
+   ],
+   "UGA": [
+    "uganda"
+   ],
+   "UKR": [
+    "ukraina"
+   ],
+   "URY": [
+    "uruguay"
+   ],
+   "USA": [
+    "amerika serikat",
+    "amerika",
+    "as",
+    "usa"
+   ],
+   "UZB": [
+    "uzbekistan"
+   ],
+   "VCT": [
+    "st vincent dan grenadines",
+    "st vincent",
+    "saint vincent"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "kepulauan virgin britania",
+    "british virgin islands",
+    "bvi"
+   ],
+   "VIR": [
+    "kepulauan virgin amerika serikat",
+    "us virgin islands",
+    "usvi"
+   ],
+   "VNM": [
+    "vietnam"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "yaman"
+   ],
+   "ZAF": [
+    "afrika selatan",
+    "south africa"
+   ],
+   "ZMB": [
+    "zambia"
+   ],
+   "ZWE": [
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "afrika timur dan selatan",
+    "afrika timur selatan",
+    "afrika timur",
+    "afrika selatan"
+   ],
+   "AFR": [
+    "afrika",
+    "benua afrika"
+   ],
+   "AFW": [
+    "afrika barat dan tengah",
+    "afrika barat tengah",
+    "afrika barat",
+    "afrika tengah"
+   ],
+   "ARB": [
+    "dunia arab",
+    "negara arab",
+    "arab"
+   ],
+   "CME": [
+    "timur tengah dan afrika utara",
+    "timur tengah afrika utara",
+    "mena",
+    "mena region"
+   ],
+   "CSS": [
+    "negara kecil karibia",
+    "negara kepulauan karibia",
+    "karibia"
+   ],
+   "EAS": [
+    "asia timur dan pasifik",
+    "asia timur pasifik",
+    "asia timur",
+    "pasifik"
+   ],
+   "ECS": [
+    "eropa dan asia tengah",
+    "eropa asia tengah",
+    "eropa",
+    "asia tengah"
+   ],
+   "EMU": [
+    "zona euro",
+    "kawasan euro",
+    "euro area",
+    "euro"
+   ],
+   "EUU": [
+    "uni eropa",
+    "ue",
+    "european union"
+   ],
+   "HPC": [
+    "negara miskin berhutang besar",
+    "negara miskin terutang",
+    "hipc"
+   ],
+   "LCN": [
+    "amerika latin dan karibia",
+    "amerika latin karibia",
+    "latam",
+    "amerika latin"
+   ],
+   "LDC": [
+    "negara kurang berkembang",
+    "negara tertinggal",
+    "ldc"
+   ],
+   "MEA": [
+    "timur tengah afrika utara afganistan pakistan",
+    "mena",
+    "timur tengah",
+    "afrika utara"
+   ],
+   "NAC": [
+    "amerika utara",
+    "north america"
+   ],
+   "NAF": [
+    "afrika utara",
+    "utara afrika"
+   ],
+   "OED": [
+    "negara oecd",
+    "anggota oecd",
+    "oecd"
+   ],
+   "PSS": [
+    "negara kepulauan pasifik",
+    "negara kecil pasifik",
+    "pasifik"
+   ],
+   "SAS": [
+    "asia selatan",
+    "selatan asia"
+   ],
+   "SSF": [
+    "afrika sub-sahara",
+    "sub sahara afrika",
+    "afrika bawah sahara"
+   ],
+   "SST": [
+    "negara kecil",
+    "negara mikro"
+   ],
+   "HIC": [
+    "pendapatan tinggi",
+    "negara kaya",
+    "high income"
+   ],
+   "LIC": [
+    "pendapatan rendah",
+    "negara miskin",
+    "low income"
+   ],
+   "LMC": [
+    "pendapatan menengah bawah",
+    "lower middle income"
+   ],
+   "LMY": [
+    "pendapatan rendah dan menengah",
+    "low middle income"
+   ],
+   "MIC": [
+    "pendapatan menengah",
+    "middle income"
+   ],
+   "UMC": [
+    "pendapatan menengah atas",
+    "upper middle income"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "wilayah sahel",
+    "g5 sahel"
+   ],
+   "HORN": [
+    "tanduk afrika",
+    "horn of africa"
+   ],
+   "G7": [
+    "g7",
+    "negara g7",
+    "group of seven"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "ASEAN": [
+    "asean",
+    "perhimpunan bangsa-bangsa asia tenggara"
+   ],
+   "EAC": [
+    "eac",
+    "komunitas afrika timur",
+    "east african community"
+   ],
+   "SADC": [
+    "sadc",
+    "komunitas pembangunan afrika selatan"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "komunitas ekonomi negara-negara afrika barat"
+   ],
+   "CENTRAL_ASIA": [
+    "asia tengah"
+   ],
+   "SOUTHEAST_ASIA": [
+    "asia tenggara",
+    "asean"
+   ],
+   "CARIBBEAN": [
+    "karibia",
+    "caribbean"
+   ],
+   "PACIFIC_ISLANDS": [
+    "kepulauan pasifik",
+    "pasifik",
+    "pulau pasifik"
+   ],
+   "MAGHREB": [
+    "maghreb",
+    "magrib"
+   ],
+   "GCC": [
+    "gcc",
+    "dewan kerja sama teluk",
+    "gulf cooperation council"
+   ],
+   "BALKANS": [
+    "balkan",
+    "balkans",
+    "balkan barat"
+   ],
+   "ANDEAN": [
+    "andean",
+    "negara andes",
+    "pegunungan andes"
+   ],
+   "CENTRAL_AMERICA": [
+    "amerika tengah"
+   ],
+   "LAKE_CHAD": [
+    "danau chad",
+    "cekungan danau chad"
    ]
   }
  },
@@ -4108,6 +15365,1022 @@
    ],
    "Western and Central Africa": [
     "afrika magharibi na kati"
+   ]
+  },
+  "country_aliases": {
+   "ABW": [
+    "aruba"
+   ],
+   "AFG": [
+    "afghanistan"
+   ],
+   "AGO": [
+    "angola"
+   ],
+   "ALB": [
+    "albania"
+   ],
+   "AND": [
+    "andorra"
+   ],
+   "ARE": [
+    "emirates",
+    "imarati",
+    "falme za kiarabu",
+    "uae"
+   ],
+   "ARG": [
+    "argentina"
+   ],
+   "ARM": [
+    "armenia"
+   ],
+   "ASM": [
+    "samoa ya amerika",
+    "american samoa"
+   ],
+   "ATG": [
+    "antigua na barbuda",
+    "antigua"
+   ],
+   "AUS": [
+    "australia"
+   ],
+   "AUT": [
+    "austria"
+   ],
+   "AZE": [
+    "azerbaijan",
+    "azeribaijani"
+   ],
+   "BDI": [
+    "burundi"
+   ],
+   "BEL": [
+    "belgiji",
+    "belgium"
+   ],
+   "BEN": [
+    "benin"
+   ],
+   "BFA": [
+    "burkina faso"
+   ],
+   "BGD": [
+    "bangladesh"
+   ],
+   "BGR": [
+    "bulgaria"
+   ],
+   "BHR": [
+    "bahrein",
+    "bahrain"
+   ],
+   "BHS": [
+    "bahamas"
+   ],
+   "BIH": [
+    "bosnia na herzegovina",
+    "bosnia"
+   ],
+   "BLR": [
+    "belarusi",
+    "belarus"
+   ],
+   "BLZ": [
+    "belize"
+   ],
+   "BMU": [
+    "bermuda"
+   ],
+   "BOL": [
+    "bolivia"
+   ],
+   "BRA": [
+    "brazili",
+    "brazil"
+   ],
+   "BRB": [
+    "barbados"
+   ],
+   "BRN": [
+    "brunei",
+    "brunei darussalam"
+   ],
+   "BTN": [
+    "bhutan"
+   ],
+   "BWA": [
+    "botswana"
+   ],
+   "CAF": [
+    "jamhuri ya afrika ya kati",
+    "afrika ya kati",
+    "car"
+   ],
+   "CAN": [
+    "kanada"
+   ],
+   "CHE": [
+    "swizerland",
+    "swiseland",
+    "uiswisi",
+    "swis"
+   ],
+   "CHI": [
+    "visiwa vya channel",
+    "channel islands"
+   ],
+   "CHL": [
+    "chile"
+   ],
+   "CHN": [
+    "china",
+    "uchina"
+   ],
+   "CIV": [
+    "cote d'ivoire",
+    "ivoria",
+    "elivoria"
+   ],
+   "CMR": [
+    "kamerun",
+    "cameroon"
+   ],
+   "COD": [
+    "kongo",
+    "jamhuri ya kidemokrasia ya kongo",
+    "drc",
+    "kongo drc"
+   ],
+   "COG": [
+    "kongo",
+    "jamhuri ya kongo",
+    "rc"
+   ],
+   "COL": [
+    "colombia"
+   ],
+   "COM": [
+    "komoro",
+    "comoros"
+   ],
+   "CPV": [
+    "cabo verde",
+    "cape verde"
+   ],
+   "CRI": [
+    "costa rica"
+   ],
+   "CUB": [
+    "cuba"
+   ],
+   "CUW": [
+    "curacao"
+   ],
+   "CYM": [
+    "visiwa vya cayman",
+    "cayman islands"
+   ],
+   "CYP": [
+    "cyprus",
+    "kipros"
+   ],
+   "CZE": [
+    "czechia",
+    "jamhuri ya cheki",
+    "czech republic"
+   ],
+   "DEU": [
+    "ujermani",
+    "jermani",
+    "germany"
+   ],
+   "DJI": [
+    "djibouti"
+   ],
+   "DMA": [
+    "dominica"
+   ],
+   "DNK": [
+    "denmark",
+    "denmaki"
+   ],
+   "DOM": [
+    "jamhuri ya dominika",
+    "dominican republic"
+   ],
+   "DZA": [
+    "algeria",
+    "aljeria"
+   ],
+   "ECU": [
+    "ecuador"
+   ],
+   "EGY": [
+    "misri",
+    "misiri",
+    "egypt"
+   ],
+   "ERI": [
+    "eritrea"
+   ],
+   "ESP": [
+    "hispania",
+    "spania",
+    "spain"
+   ],
+   "EST": [
+    "estonia"
+   ],
+   "ETH": [
+    "ethiopia"
+   ],
+   "FIN": [
+    "finlandi",
+    "finland"
+   ],
+   "FJI": [
+    "fiji"
+   ],
+   "FRA": [
+    "urefa",
+    "ufransa",
+    "faransa",
+    "france"
+   ],
+   "FRO": [
+    "visiu za faroe",
+    "faroe islands"
+   ],
+   "FSM": [
+    "micronesia"
+   ],
+   "GAB": [
+    "gaboni",
+    "gabon"
+   ],
+   "GBR": [
+    "ingilanda",
+    "uingereza",
+    "uk",
+    "united kingdom"
+   ],
+   "GEO": [
+    "georgia"
+   ],
+   "GHA": [
+    "ghana"
+   ],
+   "GIB": [
+    "gibraltar"
+   ],
+   "GIN": [
+    "guinea"
+   ],
+   "GMB": [
+    "gambia"
+   ],
+   "GNB": [
+    "guinea-bissau"
+   ],
+   "GNQ": [
+    "guinea ya equatorial",
+    "equatorial guinea"
+   ],
+   "GRC": [
+    "ugirisi",
+    "ugiriki",
+    "greece"
+   ],
+   "GRD": [
+    "grenada"
+   ],
+   "GRL": [
+    "greenland"
+   ],
+   "GTM": [
+    "guatemala"
+   ],
+   "GUM": [
+    "guam"
+   ],
+   "GUY": [
+    "guyana"
+   ],
+   "HKG": [
+    "hong kong"
+   ],
+   "HND": [
+    "honduras"
+   ],
+   "HRV": [
+    "croatia",
+    "kroatia",
+    "kroatshia"
+   ],
+   "HTI": [
+    "haiti"
+   ],
+   "HUN": [
+    "hungary",
+    "hungaria"
+   ],
+   "IDN": [
+    "indonesia"
+   ],
+   "IMN": [
+    "isle of man",
+    "jisla ya man"
+   ],
+   "IND": [
+    "india"
+   ],
+   "IRL": [
+    "ireland",
+    "irelandi"
+   ],
+   "IRN": [
+    "iran"
+   ],
+   "IRQ": [
+    "iraq"
+   ],
+   "ISL": [
+    "iceland",
+    "aislandi"
+   ],
+   "ISR": [
+    "israel"
+   ],
+   "ITA": [
+    "italy",
+    "italia"
+   ],
+   "JAM": [
+    "jamaica",
+    "jamayka"
+   ],
+   "JOR": [
+    "jordan"
+   ],
+   "JPN": [
+    "japan",
+    "japani"
+   ],
+   "KAZ": [
+    "kazakhstan"
+   ],
+   "KEN": [
+    "kenya"
+   ],
+   "KGZ": [
+    "kyrgyzstan",
+    "kirghizistan"
+   ],
+   "KHM": [
+    "cambodia",
+    "kambodia"
+   ],
+   "KIR": [
+    "kiribati"
+   ],
+   "KNA": [
+    "st kitts and nevis",
+    "st kitts"
+   ],
+   "KOR": [
+    "korea",
+    "korea kusini",
+    "south korea"
+   ],
+   "KWT": [
+    "kuwait"
+   ],
+   "LAO": [
+    "laos",
+    "lao"
+   ],
+   "LBN": [
+    "lebanon",
+    "libanon"
+   ],
+   "LBR": [
+    "liberia"
+   ],
+   "LBY": [
+    "libya"
+   ],
+   "LCA": [
+    "st lucia",
+    "santa lucia"
+   ],
+   "LIE": [
+    "liechtenstein"
+   ],
+   "LKA": [
+    "sri lanka",
+    "lanka"
+   ],
+   "LSO": [
+    "lesotho"
+   ],
+   "LTU": [
+    "lithuania",
+    "lituania"
+   ],
+   "LUX": [
+    "luxembourg",
+    "luksemburg"
+   ],
+   "LVA": [
+    "latvia"
+   ],
+   "MAC": [
+    "macao",
+    "macau"
+   ],
+   "MAF": [
+    "st martin",
+    "saint martin"
+   ],
+   "MAR": [
+    "morocco",
+    "moroko",
+    "maroko"
+   ],
+   "MCO": [
+    "monaco"
+   ],
+   "MDA": [
+    "moldova",
+    "moldavia"
+   ],
+   "MDG": [
+    "madagascar"
+   ],
+   "MDV": [
+    "maldives",
+    "maldive"
+   ],
+   "MEX": [
+    "mexico",
+    "meksiiko"
+   ],
+   "MHL": [
+    "marshall islands",
+    "visiwa vya marshall"
+   ],
+   "MKD": [
+    "north macedonia",
+    "['macedonia', 'masedonia', 'masedonia ya kaskazini']",
+    "masedonia"
+   ],
+   "MLI": [
+    "mali"
+   ],
+   "MLT": [
+    "malta"
+   ],
+   "MMR": [
+    "myanmar",
+    "burma",
+    "bama"
+   ],
+   "MNE": [
+    "montenegro"
+   ],
+   "MNG": [
+    "mongolia"
+   ],
+   "MNP": [
+    "northern mariana islands",
+    "visiwa vya mariana ya kaskazini"
+   ],
+   "MOZ": [
+    "mozambique",
+    "mosambiki"
+   ],
+   "MRT": [
+    "mauritania",
+    "mouritania"
+   ],
+   "MUS": [
+    "mauritius",
+    "mouritius"
+   ],
+   "MWI": [
+    "malawi"
+   ],
+   "MYS": [
+    "malaysia",
+    "malasia"
+   ],
+   "NAM": [
+    "namibia"
+   ],
+   "NCL": [
+    "kaledonia mpya",
+    "new caledonia"
+   ],
+   "NER": [
+    "niger"
+   ],
+   "NGA": [
+    "nigeria"
+   ],
+   "NIC": [
+    "nikaragua",
+    "nicaragua"
+   ],
+   "NLD": [
+    "ulaya",
+    "netherlands",
+    "uholanzi"
+   ],
+   "NOR": [
+    "norwei",
+    "norway"
+   ],
+   "NPL": [
+    "nepali",
+    "nepal"
+   ],
+   "NRU": [
+    "nauru"
+   ],
+   "NZL": [
+    "new zealand"
+   ],
+   "OMN": [
+    "oman"
+   ],
+   "PAK": [
+    "pakistani",
+    "pakistan"
+   ],
+   "PAN": [
+    "panama"
+   ],
+   "PER": [
+    "peru"
+   ],
+   "PHL": [
+    "filipino",
+    "filipini",
+    "philippines"
+   ],
+   "PLW": [
+    "palau"
+   ],
+   "PNG": [
+    "papua new guinea",
+    "papua guinea"
+   ],
+   "POL": [
+    "polandi",
+    "poland"
+   ],
+   "PRI": [
+    "puerto rico"
+   ],
+   "PRK": [
+    "korea kaskazini",
+    "north korea"
+   ],
+   "PRT": [
+    "ureno",
+    "portugal"
+   ],
+   "PRY": [
+    "paraguay"
+   ],
+   "PSE": [
+    "uwest bank",
+    "gaza",
+    "palestina"
+   ],
+   "PYF": [
+    "polinesia ya kifaransa",
+    "french polynesia"
+   ],
+   "QAT": [
+    "katar",
+    "qatar"
+   ],
+   "ROU": [
+    "romania"
+   ],
+   "RUS": [
+    "urusi",
+    "russia"
+   ],
+   "RWA": [
+    "rwanda"
+   ],
+   "SAU": [
+    "saudi arabia",
+    "arabia saudi"
+   ],
+   "SDN": [
+    "sudan",
+    "jamhuri ya sudan"
+   ],
+   "SEN": [
+    "senegal"
+   ],
+   "SGP": [
+    "singapura",
+    "singapore"
+   ],
+   "SLB": [
+    "visiwa solomon",
+    "solomon islands"
+   ],
+   "SLE": [
+    "sierra leone"
+   ],
+   "SLV": [
+    "el salvador"
+   ],
+   "SMR": [
+    "san marino"
+   ],
+   "SOM": [
+    "somalia",
+    "jamhuri ya somalia"
+   ],
+   "SRB": [
+    "serbia"
+   ],
+   "SSD": [
+    "sudan kusini",
+    "south sudan"
+   ],
+   "STP": [
+    "sao tome na principe",
+    "sao tome"
+   ],
+   "SUR": [
+    "suriname"
+   ],
+   "SVK": [
+    "slovakia",
+    "jamhuri ya slovakia"
+   ],
+   "SVN": [
+    "slovenia"
+   ],
+   "SWE": [
+    "sweden",
+    "swidi"
+   ],
+   "SWZ": [
+    "eswatini",
+    "swaziland"
+   ],
+   "SXM": [
+    "sint maarten",
+    "st maarten"
+   ],
+   "SYC": [
+    "seychelles"
+   ],
+   "SYR": [
+    "syria",
+    "jamhuri ya arabia ya syria"
+   ],
+   "TCA": [
+    "turks na caicos",
+    "turks and caicos"
+   ],
+   "TCD": [
+    "chad"
+   ],
+   "TGO": [
+    "togo"
+   ],
+   "THA": [
+    "thailand"
+   ],
+   "TJK": [
+    "tajikistan"
+   ],
+   "TKM": [
+    "turkmenistan"
+   ],
+   "TLS": [
+    "timor-leste",
+    "timor mashariki"
+   ],
+   "TON": [
+    "tonga"
+   ],
+   "TTO": [
+    "trinidad na tobago",
+    "trinidad and tobago"
+   ],
+   "TUN": [
+    "tunisia",
+    "tunisii"
+   ],
+   "TUR": [
+    "turukiye",
+    "turkia",
+    "turkiy",
+    "turkey"
+   ],
+   "TUV": [
+    "tuvalu"
+   ],
+   "TZA": [
+    "tanzania",
+    "tanzania jamhuri ya umoja",
+    "tza"
+   ],
+   "UGA": [
+    "uganda"
+   ],
+   "UKR": [
+    "ukraine",
+    "ukreini"
+   ],
+   "URY": [
+    "uruguay"
+   ],
+   "USA": [
+    "marekabu",
+    "marekabu ya amerika",
+    "amerika",
+    "usa",
+    "united states"
+   ],
+   "UZB": [
+    "uzbekistan"
+   ],
+   "VCT": [
+    "st vincent",
+    "st vincent na grenadines"
+   ],
+   "VEN": [
+    "venezuela"
+   ],
+   "VGB": [
+    "vijiwe vya bvr",
+    "british virgin islands",
+    "bvi"
+   ],
+   "VIR": [
+    "vijiwe vya vir",
+    "us virgin islands",
+    "virgin islands"
+   ],
+   "VNM": [
+    "vietnam",
+    "viet nam"
+   ],
+   "VUT": [
+    "vanuatu"
+   ],
+   "WSM": [
+    "samoa"
+   ],
+   "XKX": [
+    "kosovo"
+   ],
+   "YEM": [
+    "yemen"
+   ],
+   "ZAF": [
+    "afrika kusini",
+    "south africa",
+    "za"
+   ],
+   "ZMB": [
+    "zambia"
+   ],
+   "ZWE": [
+    "zimbabwe"
+   ]
+  },
+  "group_aliases": {
+   "AFE": [
+    "mashariki na kusini mwa afrika",
+    "afrika mashariki na kusini",
+    "afrika kusini na mashariki"
+   ],
+   "AFR": [
+    "afrika",
+    "bara la afrika",
+    "africa"
+   ],
+   "AFW": [
+    "afrika magharibi na kati",
+    "mashariki na kati mwa afrika",
+    "afrika magharibi"
+   ],
+   "ARB": [
+    "ulimwengu wa kiarabu",
+    "nchi za kiarabu",
+    "arab world"
+   ],
+   "CME": [
+    "mashariki ya kati na kaskazini mwa afrika",
+    "mena",
+    "middle east and north africa"
+   ],
+   "CSS": [
+    "nchi ndogo za caribiani",
+    "caribbean small states",
+    "caribiani"
+   ],
+   "EAS": [
+    "mashariki mwa asia na pasifiki",
+    "asia mashariki na pasifiki",
+    "east asia & pacific"
+   ],
+   "ECS": [
+    "ulaya na asia ya kati",
+    "europe & central asia",
+    "ulaya na asia kati"
+   ],
+   "EMU": [
+    "eneo la euro",
+    "euro area",
+    "eneo la sarafu ya euro"
+   ],
+   "EUU": [
+    "muungano wa ulaya",
+    "european union",
+    "eu"
+   ],
+   "HPC": [
+    "nchi maskini zenye madeni makubwa",
+    "heavily indebted poor countries",
+    "hipc"
+   ],
+   "LCN": [
+    "amerika ya latini na caribiani",
+    "latin america & caribbean",
+    "latino na caribiani"
+   ],
+   "LDC": [
+    "nchi duni zaidi",
+    "least developed countries",
+    "ldcs"
+   ],
+   "MEA": [
+    "mashariki ya kati na kaskazini mwa afrika",
+    "mea",
+    "middle east north africa"
+   ],
+   "NAC": [
+    "amerika ya kaskazini",
+    "north america"
+   ],
+   "NAF": [
+    "afrika kaskazini",
+    "kaskazini mwa afrika",
+    "north africa"
+   ],
+   "OED": [
+    "wanachama wa oecd",
+    "oecd",
+    "nchi za oecd"
+   ],
+   "PSS": [
+    "nchi ndogo za pasifiki",
+    "vijiwe vya pasifiki",
+    "pacific island small states"
+   ],
+   "SAS": [
+    "asia kusini",
+    "kusini mwa asia",
+    "south asia"
+   ],
+   "SSF": [
+    "afrika kusini mwa sahara",
+    "sahara kusini",
+    "sub-saharan africa",
+    "ssf"
+   ],
+   "SST": [
+    "nchi ndogo",
+    "mataifa madogo",
+    "small states"
+   ],
+   "HIC": [
+    "kipato cha juu",
+    "nchi za kipato cha juu",
+    "high income"
+   ],
+   "LIC": [
+    "kipato cha chini",
+    "nchi za kipato cha chini",
+    "low income"
+   ],
+   "LMC": [
+    "kipato cha kati cha chini",
+    "low middle income",
+    "lmc"
+   ],
+   "LMY": [
+    "kipato cha chini na kati",
+    "low and middle income",
+    "lmy"
+   ],
+   "MIC": [
+    "kipato cha kati",
+    "nchi za kipato cha kati",
+    "middle income"
+   ],
+   "UMC": [
+    "kipato cha kati cha juu",
+    "upper middle income",
+    "umc"
+   ],
+   "SAHEL_G5": [
+    "sahel",
+    "kanda ya sahel",
+    "sahel g5"
+   ],
+   "HORN": [
+    "pembe ya afrika",
+    "horn of africa",
+    "horn"
+   ],
+   "G7": [
+    "g7",
+    "kikundi cha saba",
+    "group of seven"
+   ],
+   "BRICS": [
+    "brics",
+    "muungano wa brics"
+   ],
+   "ASEAN": [
+    "asean",
+    "muungano wa asean"
+   ],
+   "EAC": [
+    "eac",
+    "jumuiya ya afrika mashariki",
+    "jamii ya afrika mashariki",
+    "east african community"
+   ],
+   "SADC": [
+    "sadc",
+    "jumuiya ya maendeleo kusini mwa afrika",
+    "southern african development community"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "ecos"
+   ],
+   "CENTRAL_ASIA": [
+    "asia ya kati",
+    "central asia"
+   ],
+   "SOUTHEAST_ASIA": [
+    "asia ya kusini mashariki",
+    "southeast asia"
+   ],
+   "CARIBBEAN": [
+    "karibiani",
+    "caribbean"
+   ],
+   "PACIFIC_ISLANDS": [
+    "visiwa vya pasifiki",
+    "pacific islands"
+   ],
+   "MAGHREB": [
+    "maghreb",
+    "maghrib",
+    "afrika kaskazini"
+   ],
+   "GCC": [
+    "gcc",
+    "baraza la ushirikiano la ghuba",
+    "gulf cooperation council"
+   ],
+   "BALKANS": [
+    "balkani",
+    "balkans",
+    "western balkans"
+   ],
+   "ANDEAN": [
+    "nchi za andean",
+    "milima ya andes",
+    "andean countries"
+   ],
+   "CENTRAL_AMERICA": [
+    "amerika ya kati",
+    "central america"
+   ],
+   "LAKE_CHAD": [
+    "bonde la ziwa chadi",
+    "ziwa chadi",
+    "lake chad basin"
    ]
   }
  }
