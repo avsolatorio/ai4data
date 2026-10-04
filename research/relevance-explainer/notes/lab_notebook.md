@@ -654,3 +654,27 @@ Commit: the milestone scripts at the commit following 26915dc (`synth/realistic.
 - Generation pace: 4,900 to 5,500 narrated pairs per chunk, 26 to 30 minutes per chunk with both GPUs saturated. Coverage after two chunks: all 217 countries mentioned; verdicts 68% irrelevant, 24% partly relevant, 8% relevant, which led to the retrieval-rank change and relation weights; a labelling rule (typed wrong place counts as partly relevant) was tested and removed because the first rounds label a failed country filter irrelevant in 96% of 61,717 cases.
 
 **Implication.** Training on realistic searches with the query-understanding and check lines gives 77.9 to 79.4% on unseen realistic searches, against 72.4% for the current deployed setup, from a quarter of the training data and without DPO. The deterministic preprocessing is worth 4 points over the minimal format, mostly on place and time mismatches. Item-first ordering is as good or slightly better (significant on the unanimous subset only), so it is the default for the next milestone, with the full format trained alongside for confirmation. Single seed per format.
+
+## 2026-10-04 17:20 UTC — Realistic narratives: continued training from the best model, then DPO
+
+Commit: the scripts at the commit after c94e456 (`scripts/continue_train.sh`, `scripts/dpo_run.sh`, `scripts/judge_tag.sh`). Test: the unseen realistic set (`data/eval_real`, 1,495 pairs, 1,098 unanimous); judges: teacher and Gemma 4 on the seeded 800, every narrative judged against the full-format input of its example (so that the same facts are available to the judge for every model).
+
+**Question/Context.** Milestone A's item-first model, trained from the pretrained base on 47,804 examples, wins on verdicts but its narratives look weak. How does it compare with the deployed model on the same realistic searches, and does starting from the deployed model help?
+
+**What was done.**
+1. Judged `runs/v2a-itemfirst` and the deployed `runs/f6-dpo` (its first-round-format generations) on the same 800 realistic examples.
+2. `runs/v2a-cont-itemfirst`: `runs/f6-dpo` trained further on `data/v2_a_itemfirst` (lr 3e-4, 3 epochs, verdict weight 5).
+3. `runs/v2a-cont-itemfirst-dpo`: on-policy DPO with the round settings (8,000 inputs x 4 samples, 5,702 pairs: 3,450 chosen from the student, 2,252 from the teacher; beta 0.3, lr 2e-5, 2 epochs, supervised weight 0.5).
+
+**Result.**
+| Model | Verdict (teacher) | Unanimous | Faithful teacher / Gemma 4 | At 4 or more (Gemma 4) | Coherent (Gemma 4) |
+|---|---|---|---|---|---|
+| f6-dpo, first-round format (deployed) | 72.4% | 79.1% | 3.57 / 3.78 | 60.8% | 4.42 |
+| v2a-itemfirst (from base) | 79.4% | 85.9% | 3.17 / 3.51 | 50.0% | 4.29 |
+| v2a-cont-itemfirst | 81.3% | 88.0% | 3.58 / 3.85 | 62.0% | 4.51 |
+| v2a-cont-itemfirst + DPO | 81.2% | 87.4% | 3.86 / 4.12 | 70.9% | 4.65 |
+
+- The deployed model scores 4.54 / 4.62 on the first-round test set and 3.57 / 3.78 on realistic searches: realistic searches cost about one faithfulness point.
+- Low-scoring narratives of the from-base model show garbled words (Hindi "लैटीन अमेलिका" for Latin America) and misread items, as in the first data rounds at 25k examples.
+
+**Implication.** Narrative quality on realistic searches needs the large first-round training; continuing from the deployed model keeps it while the new format raises the verdict by 9 points. DPO then adds 0.27 to 0.28 faithfulness under both judges with no verdict change, as in the first rounds. `runs/v2a-cont-itemfirst-dpo` (21.59 MB INT8) is the best model on realistic searches; it needs the query-understanding preprocessor for its input. Milestone B repeats the recipe at 20 chunks. Single seed each.
