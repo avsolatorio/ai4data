@@ -627,3 +627,30 @@ Commit: 724d6e0 (`synth/realistic.py`, `synth/realistic_eval.py`; `synth/underst
 - Generator issues seen in samples: the teacher sometimes drops or replaces a required element (a Guinea spec written as Senegal), writes in the wrong language (a "Swahili" search in Spanish), and two-keyword searches cannot carry four elements; near-uniform country draws over-represent small territories. An Indonesian "lima tahun terakhir" (last five years) was read as the city of Lima. Teacher-flagged "missed" constraints are mostly topic terms, so that field needs a narrower instruction.
 
 **Implication.** The standard test set overstates real-world accuracy by about 15 points because its searches are unrealistically structured. A deterministic understanding step recovers 3.6 points with no retraining, mostly where a requested place or period is not covered (47% to 86% and 54% to 71%). Training on realistic searches in the new input format is the next step, after fixing the extractor's weak spots (Arabic, Hindi, Russian and Chinese place names, groupings, relative time) and the generator issues above. "Fully answers" searches are the weakest relation (58%): realistic searches that a record does answer are often judged not relevant by a model trained on structured ones.
+
+## 2026-10-04 14:16 UTC — Realistic data, milestone A: the full format beats the minimal one; item-first ordering is slightly better still
+
+Commit: the milestone scripts at the commit following 26915dc (`synth/realistic.py`, `synth/assemble_v2.py`, `synth/eval_sets.py`, `synth/score_real.py`, `scripts/milestone_v2.sh`). Generation: chunks of 2,000 theme searches and 2,500 record-anchored searches (seeds 101 to 110), searches written by Qwen3.8-27B (chunk 1) and from chunk 2 by Qwen (about 60%) and Gemma 4 (about 40%), narration by Qwen with the fit-then-gaps order, coverage-steered sampling after chunk 2, retrieval ranks 1, 2-8 and 9-30 for chunks 1-3 and ranks 1-2 plus one of 3-10 from chunk 4.
+
+**Question/Context.** With realistic searches as training data, does the input need the query-understanding and check lines (full format), or does the model do as well from the search and the record alone (minimal format)? Does putting the item first (cacheable per item) change accuracy?
+
+**What was done.**
+1. Unseen realistic test set (`data/real_test`): 1,495 pairs on the 208 reserved themes (689 theme searches, 634 anchored), narrated by the teacher from the full format; the teacher's thinking mode and Gemma 4 labelled each pair with the same prompt. Agreement with the stored label: thinking 81.1%, Gemma 4 86.3%; all three agree on 1,098 (73.4%).
+2. Training data at 5 chunks (`data/v2_a`): 19,122 realistic training pairs plus 28,682 first-round examples (old share capped at 60%), the first-round searches rendered with their filters as facets. Three variants of the same rows: full (Understood and Checks lines after the search), minimal (no Understood or Checks), item-first (the same lines as full with the item block first). Each trained from `runs/pre-wide-full2` with the round recipe (8 epochs, lr 1e-3, verdict weight 5), no DPO.
+3. Scored on the unseen realistic test set (INT8, script constraint) against the teacher label, the majority of three labels, and the unanimous subset; paired McNemar tests between formats.
+
+**Result.**
+| Model | Teacher label | Majority | Unanimous (1,098) |
+|---|---|---|---|
+| f6-dpo, first-round format, facets only (as deployed today) | 72.4% | 72.4% | 79.1% |
+| f6-dpo, first-round format, extracted constraints as filters | 74.7% | 74.3% | 81.3% |
+| v2a minimal | 73.7% | 74.1% | 80.7% |
+| v2a full | 77.9% | 77.8% | 83.8% |
+| v2a item-first | 79.4% | 79.0% | 85.9% |
+
+- Paired tests: full vs minimal p < 0.001 (all) and 0.010 (unanimous); item-first vs full p = 0.10 (109 against 86 discordant) and 0.030 (unanimous, 68 against 45); item-first vs minimal p < 0.001 on both.
+- By relation (full / minimal / item-first): fully answers 72 / 64 / 73%; wrong place 85 / 61 / 82%; wrong time 79 / 70 / 88%; related concept 64 / 64 / 68%; unrelated 91 / 96 / 93%. By style (item-first): two keywords 71%, keyword string 82%, phrase 80%, question 84%, long 81%.
+- On the mixed in-domain test split (91% first-round examples) the three score 81.9%, 79.9% and 82.0%.
+- Generation pace: 4,900 to 5,500 narrated pairs per chunk, 26 to 30 minutes per chunk with both GPUs saturated. Coverage after two chunks: all 217 countries mentioned; verdicts 68% irrelevant, 24% partly relevant, 8% relevant, which led to the retrieval-rank change and relation weights; a labelling rule (typed wrong place counts as partly relevant) was tested and removed because the first rounds label a failed country filter irrelevant in 96% of 61,717 cases.
+
+**Implication.** Training on realistic searches with the query-understanding and check lines gives 77.9 to 79.4% on unseen realistic searches, against 72.4% for the current deployed setup, from a quarter of the training data and without DPO. The deterministic preprocessing is worth 4 points over the minimal format, mostly on place and time mismatches. Item-first ordering is as good or slightly better (significant on the unanimous subset only), so it is the default for the next milestone, with the full format trained alongside for confirmation. Single seed per format.
