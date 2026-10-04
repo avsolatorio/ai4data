@@ -678,3 +678,15 @@ Commit: the scripts at the commit after c94e456 (`scripts/continue_train.sh`, `s
 - Low-scoring narratives of the from-base model show garbled words (Hindi "लैटीन अमेलिका" for Latin America) and misread items, as in the first data rounds at 25k examples.
 
 **Implication.** Narrative quality on realistic searches needs the large first-round training; continuing from the deployed model keeps it while the new format raises the verdict by 9 points. DPO then adds 0.27 to 0.28 faithfulness under both judges with no verdict change, as in the first rounds. `runs/v2a-cont-itemfirst-dpo` (21.59 MB INT8) is the best model on realistic searches; it needs the query-understanding preprocessor for its input. Milestone B repeats the recipe at 20 chunks. Single seed each.
+
+## 2026-10-04 17:42 UTC — Bug: typo-tolerant country matching matched common words; small effect on generated data
+
+Commit: fix at 7a21ad9 (`synth/understand.py`: no typo matching for words that occur in 20 or more training searches, list in `resources/common_tokens.json`); re-rendering at assembly and for the evaluation sets at f31b806.
+
+**Question/Context.** A search edited in the app ("malaria data Kenya 2015") produced the place Malaysia. The typo-tolerant country matcher (added at 74f2c01, before the realistic chunks were generated) matched "malaria" to "malasia", the Spanish alias of Malaysia, within one edit.
+
+**What was done.** Typo matching was restricted to words that are not common in the 201,401 first-round training searches (4,192 such words of six or more letters, place names excluded). All 89,049 generated realistic examples (chunks and the test set) were re-parsed with the fixed extractor and compared with their stored parse; assembly now re-renders realistic inputs with the current extractor and drops examples whose narrative names a place only the earlier parse found; the evaluation sets were re-rendered and the best realistic model re-scored.
+
+**Result.** 241 of 89,049 examples (0.27%) had a spurious place; 54 narratives name it. Most frequent: malaria to Malaysia 93, island to Iceland 34, Spanish compras to Comoros 27, Indonesian belanja to Netherlands 21, Indonesian bahasa to Bahamas 20, venezuelan to Venezuela 14. A few removed matches were genuine misspellings (south afrika, doniminican republic) that the stricter rule now misses. `runs/v2a-cont-itemfirst-dpo` on the re-rendered test inputs: 81.2% (teacher label) and 87.4% (unanimous), unchanged from the earlier scoring.
+
+**Implication.** No reported number changes. Typo tolerance for place names must be limited to strings that are not ordinary words; the gate costs a few real misspellings.
