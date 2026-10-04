@@ -403,7 +403,8 @@ def cmd_retrieve(a) -> None:
     def one(q):
         src = SOURCES[q["source"]]
         hits = list(enumerate(src.search(q["search_en"], 30), 1))
-        chosen = hits[:1] + rng.sample(hits[1:8], min(1, len(hits[1:8]))) + rng.sample(hits[8:], min(1, len(hits[8:])))
+        # the results a person sees: ranks 1-2 and one of ranks 3-10 (ranks 9-30 gave almost only irrelevant pairs)
+        chosen = hits[:2] + rng.sample(hits[2:10], min(1, len(hits[2:10])))
         res = []
         for rank, h in chosen:
             rec = src.hydrate(h, q["search_en"])
