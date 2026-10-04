@@ -464,7 +464,15 @@ def cmd_render(a) -> None:
     print(f"rendered: {len(rows)}")
 
 
+ORDER_RULE = (
+    "- Order: first say what the item offers that fits the search (its topic, place, period or group, as far as they "
+    "match), then the gaps or mismatches. For a relevant item, the fit is the whole narrative, with any minor caveat last. "
+    "For an irrelevant item, say briefly what the item actually contains, then why it does not answer the search; do not "
+    "invent a fit that is not there.")
 NARRATE_V2 = G.NARRATE_SYSTEM.replace(
+    "- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
+    ORDER_RULE + "\n- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
+).replace(
     "- Trust the \"Filter check\" line: do not contradict it.",
     "- The \"Understood\" line lists the place, time, group and data-type constraints found in the search and the facets; the \"Checks\" line gives each one's status against the record. Trust the checks: do not contradict them. Refer to constraints as the user expressed them (\"your search mentions 2015\"), not as filters, unless they came from a facet.\n- If the search contains a constraint that the Understood line missed, judge it from the metadata yourself.",
 ).replace('Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "..."}',
