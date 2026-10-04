@@ -436,6 +436,17 @@ def render_v2(p: dict, u: Understander, parsed: dict, sim: float) -> str:
     return "\n".join(lines)
 
 
+def item_first(v2: str) -> str:
+    """Reorder a full-format input: the item block first (cacheable per item), then the search and facets, then the
+    query understanding, checks and similarity that depend on both. Same lines, different order."""
+    lines = v2.split("\n")
+    head_keys = ("Respond in:", "Item type:", "Search:", "Facets:", "Understood:", "Checks:", "Retrieval similarity:")
+    head = {l.split(":", 1)[0] + ":": l for l in lines if l.startswith(head_keys)}
+    item = [l for l in lines if not l.startswith(head_keys)]
+    order = [head.get(k) for k in ("Item type:",)] + item + [head.get(k) for k in ("Respond in:", "Search:", "Facets:", "Understood:", "Checks:", "Retrieval similarity:")]
+    return "\n".join(l for l in order if l)
+
+
 def render_v2min(p: dict, sim: float) -> str:
     """Minimal format: the search, facets, similarity and the record, with no query understanding or checks."""
     src = SOURCES[p["record"]["kind"]]

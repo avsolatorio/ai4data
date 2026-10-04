@@ -20,7 +20,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from . import generate as G
-from .realistic import render_v2, render_v2min
+from .realistic import item_first, render_v2, render_v2min
 
 ROUNDS = [f"data/v{i}" for i in range(1, 8)]
 _U = None
@@ -99,13 +99,15 @@ def main() -> None:
     rng.shuffle(olds)
     splits["train"] = [r for r in tr if r["origin"] == "real"] + olds[:keep_old]
     rng.shuffle(splits["train"])
-    for variant, key in (("", "input"), ("_min", "input_min")):
+    for r in rows:
+        r["input_itemfirst"] = item_first(r["input"])
+    for variant, key in (("", "input"), ("_min", "input_min"), ("_itemfirst", "input_itemfirst")):
         d = Path(str(out) + variant)
         d.mkdir(parents=True, exist_ok=True)
         for name, rs in splits.items():
             with (d / f"{name}.jsonl").open("w") as f:
                 for r in rs:
-                    f.write(json.dumps({**{k: v for k, v in r.items() if k not in ("input", "input_min")}, "input": r[key]}, ensure_ascii=False) + "\n")
+                    f.write(json.dumps({**{k: v for k, v in r.items() if k not in ("input", "input_min", "input_itemfirst")}, "input": r[key]}, ensure_ascii=False) + "\n")
     for name, rs in splits.items():
         print(name, len(rs), dict(Counter(r["origin"] for r in rs)), dict(Counter(r["verdict"] for r in rs)))
 
