@@ -15,8 +15,9 @@ See docs/design_realistic.md.
 from __future__ import annotations
 
 import argparse
-import math
 import json
+import math
+import os
 import random
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -51,6 +52,20 @@ RELATION_TEXT = {
     "other_topic": "a search on a clearly different topic, for the place given below that the record covers",
     "unrelated": "a search on a topic unrelated to the record",
 }
+
+
+# Search writers: several models give more varied searches. QUERY_WRITERS='{"model": {"urls": [...], "share": 0.6}, ...}'.
+# Narratives and labels stay with one teacher (NARRATE_MODEL) for consistent verdicts.
+WRITERS = json.loads(os.environ.get("QUERY_WRITERS") or (Path("data/real/writers.json").read_text() if Path("data/real/writers.json").exists() else "{}"))
+
+
+def writer(key: str) -> tuple[str, list[str] | None]:
+    """Model and server list for one search, drawn by its id so reruns pick the same writer."""
+    if not WRITERS:
+        return G.QUERY_MODEL, None
+    names = list(WRITERS)
+    m = random.Random(f"writer-{key}").choices(names, weights=[WRITERS[n].get("share", 1.0) for n in names])[0]
+    return m, WRITERS[m].get("urls")
 
 
 SCRIPT = {"Arabic": r"[؀-ۿ]", "Chinese": r"[一-鿿]", "Hindi": r"[ऀ-ॿ]", "Russian": r"[Ѐ-ӿ]"}
@@ -273,12 +288,13 @@ def cmd_queries(a) -> None:
     def one(s: dict) -> dict | None:
         rng = random.Random(s["id"])
         for _ in range(3):  # retry searches written in the wrong language
-            text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, QUERY_PROMPT.format(topic=s["topic"], language=s["language"], style=STYLE[s["style"]][1],
-                                                                                surface=SURFACE_TEXT[s["surface"]], must=must_lines(s)), temperature=0.9, max_tokens=400)
+            wm, wurls = writer(s["id"])
+            text, _ = llm.chat(wm, G.QUERY_SYSTEM, QUERY_PROMPT.format(topic=s["topic"], language=s["language"], style=STYLE[s["style"]][1],
+                                                                     surface=SURFACE_TEXT[s["surface"]], must=must_lines(s)), temperature=0.9, max_tokens=400, base_urls=wurls)
             j = llm.parse_json(text)
             q = str(j["query"]).strip()
             if q and language_ok(q, s["language"]):
-                return {**s, "query": recase(q, rng), "query_written": q, "search_en": str(j.get("search_en") or s["topic"]), "expressed": j.get("expressed", [])}
+                return {**s, "writer": wm, "query": recase(q, rng), "query_written": q, "search_en": str(j.get("search_en") or s["topic"]), "expressed": j.get("expressed", [])}
         return None
 
     with ThreadPoolExecutor(a.workers) as ex:
@@ -343,15 +359,16 @@ def cmd_anchored(a) -> None:
         item = "\n".join(src.render(rec))
         must = must_lines(s)
         for _ in range(3):  # retry searches written in the wrong language
-            text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=RELATION_TEXT[rel], label=src.label, item=item[:2500],
+            wm, wurls = writer(s["id"])
+            text, _ = llm.chat(wm, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=RELATION_TEXT[rel], label=src.label, item=item[:2500],
                                                                                  language=s["language"], style=STYLE[s["style"]][1],
                                                                                  surface=SURFACE_TEXT[s["surface"]],
                                                                                  must=("The search must express:\n" + must) if (s.get("geo") or s.get("time") or s.get("group")) else "Do not mention a place, year or population group unless the relation requires it."),
-                               temperature=0.9, max_tokens=400)
+                               temperature=0.9, max_tokens=400, base_urls=wurls)
             j = llm.parse_json(text)
             q = str(j["query"]).strip()
             if q and language_ok(q, s["language"]):
-                return {**s, "query": recase(q, r), "query_written": q, "expressed": j.get("expressed", []), "record": rec, "rank": 0}
+                return {**s, "writer": wm, "query": recase(q, r), "query_written": q, "expressed": j.get("expressed", []), "record": rec, "rank": 0}
         return None
 
     with ThreadPoolExecutor(a.retrieve_workers) as ex:

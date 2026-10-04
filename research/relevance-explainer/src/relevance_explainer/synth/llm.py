@@ -33,8 +33,9 @@ def load_key() -> str:
 
 
 def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
-         max_tokens: int = 1500, retries: int = 4) -> tuple[str, dict]:
-    """Return (text, usage). Raises after exhausting retries."""
+         max_tokens: int = 1500, retries: int = 4, base_urls: list[str] | None = None) -> tuple[str, dict]:
+    """Return (text, usage). Raises after exhausting retries. `base_urls` overrides LLM_BASE_URL for this call (to send
+    a request to the server that hosts `model`)."""
     body = json.dumps({
         "model": model,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -48,7 +49,8 @@ def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            url = BASE_URLS[next(_counter) % len(BASE_URLS)].rstrip("/") + "/chat/completions"
+            urls = base_urls or BASE_URLS
+            url = urls[next(_counter) % len(urls)].rstrip("/") + "/chat/completions"
             req = urllib.request.Request(url, body, headers)
             with urllib.request.urlopen(req, timeout=120) as r:
                 data = json.load(r)
