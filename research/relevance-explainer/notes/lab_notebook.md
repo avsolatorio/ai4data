@@ -581,3 +581,29 @@ Commit: 3067443 (`synth/fresh.py`, `scripts/build_fresh.sh`). Models as in the a
 - Best model's narratives on the fresh set: faithfulness 4.13 (teacher judge; 74% at 4 or more) and 4.33 (Gemma 4; 77%), coherence 4.30 and 4.73. On the held-out set the same model scores 4.54 and 4.62.
 
 **Implication.** The standard test set measures generalization to new searches over mostly familiar items. On unseen items the verdict holds at the same level (85 to 86% against the teacher label, 88 to 93% where the labels agree), while narrative faithfulness drops by about 0.3 to 0.4. With 100 examples and a different source mix (documents and HDX datasets dominate) the size of that drop is uncertain, but its direction matches the error analysis: the remaining errors are in describing what an item contains, which is harder for items never seen in training. The fresh set is now the second example set in the app and a candidate standard for future comparisons.
+
+## 2026-10-04 05:37 UTC — Reranker score as input (with DPO), input-token loss, and tightened labels
+
+Commit: 12ad6a9 (`synth/rerankscore.py`, `train.py --prompt-loss`, `distill/relabel.py`). Judges and test sample as before; INT8 without the script constraint. Verdicts are scored against the stored labels (7,056 test examples) and, on the 793 judged examples with all labels, against the 640 unanimous labels, the majority of three (stored, thinking mode, Gemma 4), Gemma 4 alone, and the tightened-definition labels from `data/f2/tight_test_800.jsonl`.
+
+**Question/Context.** Three levers from the previous round of ideas: the cross-encoder reranker score as an input line (the probe gave +2.9 points to a feature classifier), a language-model loss on the input tokens (weight 0.1; inputs are about 400 tokens, outputs 77), and training labels re-written under the tightened partly-relevant definition.
+
+**What was done.**
+1. `runs/f6-rr-sft`: round recipe on `data/f6rr` (round-7 data with "Reranker score: x.xx" from `BAAI/bge-reranker-v2-m3`, test inputs likewise in `data/f2rr`); then on-policy DPO with the round settings (`runs/f6-rr-dpo`).
+2. `runs/f6-pl-sft`: round recipe on `data/f6` with `--prompt-loss 0.1`.
+3. `runs/tight50k-sft`: the 50,000 inputs of `data/old50k` relabelled and re-narrated by the teacher under the tightened definition (2,589 labels changed: partly to irrelevant 1,529, irrelevant to partly 606, relevant to partly 342, other 112; 12 failures kept the original), compared with `runs/old50k-sft` on the original labels.
+
+**Result.**
+| Run | Verdict (stored) | Macro-F1 | Unanimous | Majority | Gemma 4 | Tight labels | Faithful teacher / Gemma 4 |
+|---|---|---|---|---|---|---|---|
+| f6-sft (reference) | 85.9% | 0.811 | 90.9% | 85.5% | 85.5% | 86.0% | 4.36 / 4.47 |
+| f6-pl-sft | 86.0% | 0.813 | 89.4% | 84.4% | 84.1% | 85.2% | 4.34 / 4.44 |
+| f6-dpo (best so far) | 86.1% | 0.815 | 90.8% | 85.2% | 85.1% | 85.8% | 4.54 / 4.62 |
+| f6-rr-sft | 87.1% | 0.828 | 91.6% | n/a | 85.9% | n/a | 4.46 / 4.55 |
+| f6-rr-dpo | 87.2% | 0.830 | 91.7% | 86.5% | 85.8% | 86.9% | 4.53 / 4.63 |
+| old50k-sft | 83.9% | 0.786 | 89.2% | 83.4% | 81.7% | 84.4% | 3.92 / 4.06 |
+| tight50k-sft | 83.8% | 0.783 | 87.5% | 82.3% | 81.2% | 82.8% | 3.88 / 4.06 |
+
+Paired faithfulness: f6-rr-dpo against f6-dpo teacher -0.010 [-0.083, +0.061], Gemma 4 +0.005 [-0.058, +0.071]; pairwise usefulness 345 to 344. f6-pl-sft against f6-sft teacher -0.020, Gemma 4 -0.030 (intervals include 0); pairwise 333 to 366 for the baseline. tight50k against old50k teacher -0.034, Gemma 4 0.000; pairwise 372 to 376.
+
+**Implication.** The reranker score is the one input that moves the verdict at a fixed model size: +1.1 points on the stored labels and +0.9 to +1.3 on the consensus labels after DPO, with unchanged narratives. It requires a 568M cross-encoder upstream of the 20 MB model, as the retrieval similarity requires the 97M retriever. The input-token loss does not help. The tightened labels lower verdict accuracy against every label set by 1.0 to 1.7 points, including the tightened labels themselves, so re-labelling with a changed rubric and fresh narratives did not produce more learnable targets (one seed at 50k; the drop is consistent across label sets but small). The partly-relevant boundary is left to the original rubric.
