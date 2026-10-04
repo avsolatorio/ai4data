@@ -1,0 +1,4114 @@
+{
+ "English": {
+  "time": {
+   "latest": [
+    "latest",
+    "most recent",
+    "current",
+    "newest",
+    "up to date"
+   ],
+   "recent": [
+    "recent",
+    "last few years",
+    "recent years",
+    "lately"
+   ],
+   "since": [
+    "since",
+    "from",
+    "after",
+    "starting",
+    "onwards"
+   ],
+   "before": [
+    "before",
+    "until",
+    "up to",
+    "prior to",
+    "pre"
+   ],
+   "between": [
+    "to",
+    "through",
+    "and",
+    "between",
+    "thru"
+   ],
+   "last": [
+    "last",
+    "past",
+    "previous"
+   ],
+   "years_word": [
+    "year",
+    "years",
+    "yr",
+    "yrs"
+   ],
+   "pre_covid": [
+    "pre covid",
+    "before covid",
+    "pre-pandemic",
+    "before pandemic"
+   ],
+   "post_covid": [
+    "post covid",
+    "after covid",
+    "since covid",
+    "post-pandemic"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "annual",
+    "yearly",
+    "per year",
+    "annually"
+   ],
+   "quarterly": [
+    "quarterly",
+    "per quarter",
+    "qtrly"
+   ],
+   "monthly": [
+    "monthly",
+    "per month",
+    "mo"
+   ],
+   "weekly": [
+    "weekly",
+    "per week",
+    "wkly"
+   ],
+   "daily": [
+    "daily",
+    "per day",
+    "dayly"
+   ]
+  },
+  "group": {
+   "female": [
+    "female",
+    "women",
+    "woman",
+    "girls",
+    "girl"
+   ],
+   "male": [
+    "male",
+    "men",
+    "man",
+    "boys",
+    "boy"
+   ],
+   "children": [
+    "children",
+    "child",
+    "kids",
+    "infants",
+    "under 5",
+    "under-5"
+   ],
+   "youth": [
+    "youth",
+    "adolescents",
+    "young people",
+    "teens",
+    "teenagers"
+   ],
+   "elderly": [
+    "elderly",
+    "older people",
+    "senior",
+    "seniors",
+    "aged 65",
+    "65 plus"
+   ],
+   "urban": [
+    "urban",
+    "city",
+    "cities",
+    "town",
+    "towns"
+   ],
+   "rural": [
+    "rural",
+    "village",
+    "villages",
+    "countryside",
+    "remote"
+   ],
+   "poorest": [
+    "poor",
+    "poorest",
+    "low income",
+    "bottom quintile",
+    "impoverished"
+   ],
+   "displaced": [
+    "displaced",
+    "refugees",
+    "refugee",
+    "idp",
+    "idps",
+    "migrants"
+   ],
+   "disability": [
+    "disability",
+    "disabled",
+    "people with disabilities",
+    "pwd"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "indicator",
+    "time series",
+    "statistics",
+    "stats",
+    "metrics"
+   ],
+   "microdata": [
+    "microdata",
+    "survey data",
+    "census",
+    "household survey",
+    "unit level"
+   ],
+   "document": [
+    "paper",
+    "report",
+    "working paper",
+    "study",
+    "publication",
+    "pdf"
+   ],
+   "dataset": [
+    "dataset",
+    "data file",
+    "csv",
+    "spreadsheet",
+    "database",
+    "xlsx"
+   ]
+  },
+  "scope": {
+   "global": [
+    "global",
+    "worldwide",
+    "all countries",
+    "international",
+    "world"
+   ],
+   "developing": [
+    "developing",
+    "developing countries",
+    "global south",
+    "emerging economies",
+    "lmics"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "southeast asia",
+    "sea"
+   ],
+   "Africa": [
+    "africa",
+    "african region",
+    "ssa",
+    "mena"
+   ],
+   "Andean countries": [
+    "andean countries",
+    "andean region",
+    "andes"
+   ],
+   "Arab World": [
+    "arab world",
+    "arab states",
+    "mena",
+    "arab region"
+   ],
+   "BRICS": [
+    "brics",
+    "brics nations",
+    "brics countries"
+   ],
+   "Caribbean": [
+    "caribbean",
+    "caribbeans",
+    "lac"
+   ],
+   "Caribbean small states": [
+    "caribbean small states",
+    "small island developing states",
+    "sids",
+    "css"
+   ],
+   "Central America": [
+    "central america",
+    "central american countries",
+    "lac"
+   ],
+   "Central Asia": [
+    "central asia",
+    "central asian republics"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "west africa",
+    "west african states"
+   ],
+   "East African Community": [
+    "east african community",
+    "eac",
+    "east africa"
+   ],
+   "East Asia & Pacific": [
+    "east asia & pacific",
+    "east asia and pacific",
+    "eap",
+    "east asia pacific"
+   ],
+   "Eastern and Southern Africa": [
+    "eastern and southern africa",
+    "esa"
+   ],
+   "Euro area": [
+    "euro area",
+    "eurozone",
+    "ea"
+   ],
+   "Europe & Central Asia": [
+    "europe & central asia",
+    "europe and central asia",
+    "eca"
+   ],
+   "European Union": [
+    "european union",
+    "eu"
+   ],
+   "G7": [
+    "g7",
+    "group of seven"
+   ],
+   "Gulf Cooperation Council": [
+    "gulf cooperation council",
+    "gcc",
+    "gulf states"
+   ],
+   "Heavily indebted poor countries": [
+    "heavily indebted poor countries",
+    "hipc"
+   ],
+   "High income": [
+    "high income",
+    "hi",
+    "high income countries",
+    "hic"
+   ],
+   "Horn of Africa": [
+    "horn of africa",
+    "hoa"
+   ],
+   "Lake Chad Basin": [
+    "lake chad basin",
+    "lcb"
+   ],
+   "Latin America & Caribbean": [
+    "latin america & caribbean",
+    "latin america and caribbean",
+    "lac"
+   ],
+   "Least developed countries": [
+    "least developed countries",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "low and middle income",
+    "lmi"
+   ],
+   "Low income": [
+    "low income",
+    "li"
+   ],
+   "Lower middle income": [
+    "lower middle income",
+    "lmi"
+   ],
+   "Maghreb": [
+    "maghreb",
+    "northwest africa"
+   ],
+   "Middle East and North Africa": [
+    "middle east and north africa",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "mena+ap",
+    "mena and afghanistan and pakistan"
+   ],
+   "Middle income": [
+    "middle income",
+    "mi"
+   ],
+   "North Africa": [
+    "north africa"
+   ],
+   "North America": [
+    "north america",
+    "na"
+   ],
+   "OECD members": [
+    "oecd",
+    "oecd countries",
+    "oecd members"
+   ],
+   "Pacific Islands": [
+    "pacific islands",
+    "pacific region"
+   ],
+   "Pacific island small states": [
+    "piss",
+    "psids",
+    "pacific small island developing states"
+   ],
+   "SADC": [
+    "sadc",
+    "southern african development community",
+    "southern africa"
+   ],
+   "Sahel": [
+    "sahel",
+    "sahel region",
+    "sahelian"
+   ],
+   "Small states": [
+    "small states",
+    "sids",
+    "small island developing states",
+    "small nations"
+   ],
+   "South Asia": [
+    "south asia",
+    "southern asia",
+    "south asian"
+   ],
+   "Southeast Asia": [
+    "southeast asia",
+    "sea",
+    "south east asia"
+   ],
+   "Sub-Saharan Africa": [
+    "sub-saharan africa",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "upper middle income",
+    "umi",
+    "upper-middle income countries",
+    "umics"
+   ],
+   "Western Balkans": [
+    "western balkans",
+    "wb"
+   ],
+   "Western and Central Africa": [
+    "western and central africa",
+    "wca"
+   ]
+  }
+ },
+ "Portuguese": {
+  "time": {
+   "latest": [
+    "mais recente",
+    "atual",
+    "ultimo",
+    "último",
+    "atualizado"
+   ],
+   "recent": [
+    "recentes",
+    "ultimos anos",
+    "últimos anos",
+    "recentemente"
+   ],
+   "since": [
+    "desde",
+    "a partir de",
+    "depois de",
+    "pos"
+   ],
+   "before": [
+    "antes de",
+    "até",
+    "anterior a",
+    "pre"
+   ],
+   "between": [
+    "entre",
+    "a",
+    "até",
+    "e"
+   ],
+   "last": [
+    "ultimos",
+    "últimos",
+    "passados",
+    "passadas"
+   ],
+   "years_word": [
+    "anos",
+    "ano"
+   ],
+   "pre_covid": [
+    "antes da covid",
+    "pre covid",
+    "antes da pandemia"
+   ],
+   "post_covid": [
+    "pos covid",
+    "pós covid",
+    "depois da covid",
+    "depois da pandemia"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "anual",
+    "anuais",
+    "por ano"
+   ],
+   "quarterly": [
+    "trimestral",
+    "trimestrais",
+    "por trimestre"
+   ],
+   "monthly": [
+    "mensal",
+    "mensais",
+    "por mes",
+    "por mês"
+   ],
+   "weekly": [
+    "semanal",
+    "semanais",
+    "por semana"
+   ],
+   "daily": [
+    "diario",
+    "diário",
+    "diarias",
+    "diárias",
+    "por dia"
+   ]
+  },
+  "group": {
+   "female": [
+    "mulheres",
+    "feminino",
+    "meninas"
+   ],
+   "male": [
+    "homens",
+    "masculino",
+    "meninos"
+   ],
+   "children": [
+    "crianças",
+    "infantil",
+    "menores de 5 anos",
+    "bebês",
+    "bebes"
+   ],
+   "youth": [
+    "jovens",
+    "adolescentes",
+    "juventude"
+   ],
+   "elderly": [
+    "idosos",
+    "terceira idade",
+    "velhos",
+    "65 anos ou mais"
+   ],
+   "urban": [
+    "urbano",
+    "urbana",
+    "cidades",
+    "zona urbana"
+   ],
+   "rural": [
+    "rural",
+    "campo",
+    "zona rural",
+    "interior"
+   ],
+   "poorest": [
+    "pobres",
+    "baixa renda",
+    "renda baixa",
+    "mais pobres"
+   ],
+   "displaced": [
+    "refugiados",
+    "deslocados",
+    "migrantes",
+    "campos de refugiados"
+   ],
+   "disability": [
+    "deficientes",
+    "pcd",
+    "pessoa com deficiência",
+    "deficiência"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "indicador",
+    "indicadores",
+    "serie temporal",
+    "série temporal",
+    "estatisticas",
+    "estatísticas"
+   ],
+   "microdata": [
+    "microdados",
+    "censo",
+    "pesquisa domiciliar",
+    "dados unitarios",
+    "dados unitários"
+   ],
+   "document": [
+    "artigo",
+    "relatorio",
+    "relatório",
+    "estudo",
+    "publicacao",
+    "publicação",
+    "paper"
+   ],
+   "dataset": [
+    "dataset",
+    "base de dados",
+    "planilha",
+    "csv",
+    "dados",
+    "arquivo de dados"
+   ]
+  },
+  "scope": {
+   "global": [
+    "global",
+    "mundial",
+    "todos os paises",
+    "todos os países",
+    "worldwide"
+   ],
+   "developing": [
+    "paises em desenvolvimento",
+    "países em desenvolvimento",
+    "sul global",
+    "economias emergentes"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "ass",
+    "sudeste asiático"
+   ],
+   "Africa": [
+    "áfrica",
+    "ssa",
+    "ssa (áfrica subsariana)"
+   ],
+   "Andean countries": [
+    "países andinos",
+    "região andina"
+   ],
+   "Arab World": [
+    "mundo árabe",
+    "países árabes",
+    "mena"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "Caribbean": [
+    "caribe",
+    "caribenho"
+   ],
+   "Caribbean small states": [
+    "pequenos estados do caribe",
+    "pequenas nações caribenhas"
+   ],
+   "Central America": [
+    "américa central"
+   ],
+   "Central Asia": [
+    "ásia central"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "cedeaos"
+   ],
+   "East African Community": [
+    "comunidade da áfrica oriental",
+    "cao"
+   ],
+   "East Asia & Pacific": [
+    "ásia oriental e pacífico",
+    "leste asiático e pacífico"
+   ],
+   "Eastern and Southern Africa": [
+    "áfrica oriental e austral",
+    "está e sul da áfrica"
+   ],
+   "Euro area": [
+    "zona do euro",
+    "eurozona"
+   ],
+   "Europe & Central Asia": [
+    "europa e ásia central",
+    "eurásia"
+   ],
+   "European Union": [
+    "união europeia",
+    "ue"
+   ],
+   "G7": [
+    "g7",
+    "grupo dos sete"
+   ],
+   "Gulf Cooperation Council": [
+    "conselho de cooperação do golfo",
+    "ccg"
+   ],
+   "Heavily indebted poor countries": [
+    "países pobres fortemente endividados",
+    "ppfe"
+   ],
+   "High income": [
+    "renda alta",
+    "alta renda"
+   ],
+   "Horn of Africa": [
+    "corno da áfrica"
+   ],
+   "Lake Chad Basin": [
+    "bacia do lago chade"
+   ],
+   "Latin America & Caribbean": [
+    "américa latina e caribe",
+    "alc",
+    "lac"
+   ],
+   "Least developed countries": [
+    "países menos desenvolvidos",
+    "pmd",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "renda baixa e média",
+    "países de renda baixa e média"
+   ],
+   "Low income": [
+    "renda baixa",
+    "países de renda baixa"
+   ],
+   "Lower middle income": [
+    "renda média-baixa",
+    "países de renda média-baixa"
+   ],
+   "Maghreb": [
+    "magrebe"
+   ],
+   "Middle East and North Africa": [
+    "mena",
+    "oriente médio e norte da áfrica"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "mena+ap"
+   ],
+   "Middle income": [
+    "renda média",
+    "países de renda média"
+   ],
+   "North Africa": [
+    "norte da áfrica",
+    "áfrica do norte"
+   ],
+   "North America": [
+    "américa do norte"
+   ],
+   "OECD members": [
+    "membros da ocde",
+    "países da ocde"
+   ],
+   "Pacific Islands": [
+    "ilhas do pacífico"
+   ],
+   "Pacific island small states": [
+    "pequenos estados insulares do pacífico",
+    "psis"
+   ],
+   "SADC": [
+    "sadc",
+    "comunidade de desenvolvimento da áfrica austral"
+   ],
+   "Sahel": [
+    "sahel"
+   ],
+   "Small states": [
+    "pequenos estados"
+   ],
+   "South Asia": [
+    "sul da ásia",
+    "ásia meridional"
+   ],
+   "Southeast Asia": [
+    "sudeste asiático",
+    "sudeste da ásia"
+   ],
+   "Sub-Saharan Africa": [
+    "áfrica subsaariana",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "renda média alta"
+   ],
+   "Western Balkans": [
+    "bálcãs ocidentais",
+    "bálcãs do oeste"
+   ],
+   "Western and Central Africa": [
+    "áfrica ocidental e central"
+   ]
+  }
+ },
+ "Arabic": {
+  "time": {
+   "latest": [
+    "احدث",
+    "اخر تحديث",
+    "الحالية",
+    "current",
+    "جديد"
+   ],
+   "recent": [
+    "اخيرة",
+    "حديثة",
+    "السنوات الاخيرة",
+    "مؤخراً"
+   ],
+   "since": [
+    "منذ",
+    "من",
+    "بعد",
+    "ابتداء من"
+   ],
+   "before": [
+    "قبل",
+    "حتى",
+    "لغاية",
+    "سابق"
+   ],
+   "between": [
+    "بين",
+    "إلى",
+    "و"
+   ],
+   "last": [
+    "الماضية",
+    "السابقة",
+    "اخر"
+   ],
+   "years_word": [
+    "سنة",
+    "سنوات",
+    "عام",
+    "اعوام"
+   ],
+   "pre_covid": [
+    "قبل كورونا",
+    "قبل جائحة",
+    "pre-covid"
+   ],
+   "post_covid": [
+    "بعد كورونا",
+    "بعد الجائحة",
+    "post-covid"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "سنوي",
+    "كل سنة",
+    "annual"
+   ],
+   "quarterly": [
+    "ربع سنوي",
+    "كل ربع سنة",
+    "quarterly"
+   ],
+   "monthly": [
+    "شهري",
+    "كل شهر",
+    "monthly"
+   ],
+   "weekly": [
+    "اسبوعي",
+    "كل اسبوع",
+    "weekly"
+   ],
+   "daily": [
+    "يومي",
+    "كل يوم",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "نساء",
+    "سيدات",
+    "إناث",
+    "بنات"
+   ],
+   "male": [
+    "رجال",
+    "ذكور",
+    "شباب"
+   ],
+   "children": [
+    "اطفال",
+    "أطفال",
+    "رضع",
+    "دون الخامسة"
+   ],
+   "youth": [
+    "شباب",
+    "يافعين",
+    "مراهقين"
+   ],
+   "elderly": [
+    "كبار السن",
+    "مسنين",
+    "شيخوخة"
+   ],
+   "urban": [
+    "حضر",
+    "مدن",
+    "مناطق حضرية"
+   ],
+   "rural": [
+    "ريف",
+    "قرى",
+    "مناطق ريفية"
+   ],
+   "poorest": [
+    "فقراء",
+    "الفقر",
+    "دخل منخفض",
+    "الطبقة الفقيرة"
+   ],
+   "displaced": [
+    "نازحين",
+    "لاجئين",
+    "مهاجرين",
+    "مخيمات"
+   ],
+   "disability": [
+    "ذوي الاحتياجات الخاصة",
+    "ذوي الإعاقة",
+    "معاقين"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "مؤشر",
+    "مؤشرات",
+    "سلاسل زمنية",
+    "احصائيات"
+   ],
+   "microdata": [
+    "بيانات مجهولة",
+    "مسح",
+    "تعداد",
+    "بيانات منزلية",
+    "microdata"
+   ],
+   "document": [
+    "تقرير",
+    "ورقة عمل",
+    "دراسة",
+    "بحث",
+    "منشور"
+   ],
+   "dataset": [
+    "مجموعة بيانات",
+    "قاعدة بيانات",
+    "ملف بيانات",
+    "dataset",
+    "csv"
+   ]
+  },
+  "scope": {
+   "global": [
+    "عالمي",
+    "عالميا",
+    "كل الدول",
+    "global"
+   ],
+   "developing": [
+    "دول نامية",
+    "الجنوب العالمي",
+    "اقتصاديات ناشئة",
+    "developing"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "آسيان",
+    "رابطة دول جنوب شرق آسيا"
+   ],
+   "Africa": [
+    "أفريقيا",
+    "إفريقيا"
+   ],
+   "Andean countries": [
+    "دول الأنديز"
+   ],
+   "Arab World": [
+    "العالم العربي",
+    "الدول العربية",
+    "الوطن العربي"
+   ],
+   "BRICS": [
+    "بريكس"
+   ],
+   "Caribbean": [
+    "الكاريبي",
+    "منطقة الكاريبي"
+   ],
+   "Caribbean small states": [
+    "دول الكاريبي الصغيرة",
+    "جزر الكاريبي"
+   ],
+   "Central America": [
+    "أمريكا الوسطى"
+   ],
+   "Central Asia": [
+    "آسيا الوسطى"
+   ],
+   "ECOWAS": [
+    "إيكواس",
+    "المجموعة الاقتصادية لدول غرب أفريقيا"
+   ],
+   "East African Community": [
+    "جماعة شرق أفريقيا"
+   ],
+   "East Asia & Pacific": [
+    "شرق آسيا والمحيط الهادئ"
+   ],
+   "Eastern and Southern Africa": [
+    "شرق وجنوب أفريقيا",
+    "أفريقيا الشرقية والجنوبية"
+   ],
+   "Euro area": [
+    "منطقة اليورو",
+    "دول اليورو"
+   ],
+   "Europe & Central Asia": [
+    "أوروبا وآسيا الوسطى"
+   ],
+   "European Union": [
+    "الاتحاد الأوروبي",
+    "الاي يو"
+   ],
+   "G7": [
+    "مجموعة السبع",
+    "جي 7"
+   ],
+   "Gulf Cooperation Council": [
+    "مجلس التعاون الخليجي",
+    "دول الخليج",
+    "gcc"
+   ],
+   "Heavily indebted poor countries": [
+    "الدول الفقيرة المثقلة بالديون",
+    "البلدان الفقيرة المثقلة بالديون"
+   ],
+   "High income": [
+    "الدخل المرتفع",
+    "عالية الدخل"
+   ],
+   "Horn of Africa": [
+    "القرن الأفريقي"
+   ],
+   "Lake Chad Basin": [
+    "حوض بحيرة تشاد"
+   ],
+   "Latin America & Caribbean": [
+    "أمريكا اللاتينية والكاريبي",
+    "اللاتينية والكاريبي",
+    "lac"
+   ],
+   "Least developed countries": [
+    "أقل البلدان نمواً",
+    "أقل الدول نمواً",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "الدخل المنخفض والمتوسط",
+    "بلدان الدخل المنخفض والمتوسط"
+   ],
+   "Low income": [
+    "الدخل المنخفض",
+    "بلدان الدخل المنخفض"
+   ],
+   "Lower middle income": [
+    "الدخل المتوسط الأدنى",
+    "بلدان الدخل المتوسط الأدنى"
+   ],
+   "Maghreb": [
+    "المغرب العربي",
+    "المغرب",
+    "دول المغرب العربي"
+   ],
+   "Middle East and North Africa": [
+    "الشرق الأوسط وشمال أفريقيا",
+    "مينا",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "الشرق الأوسط وشمال أفريقيا وأفغانستان وباكستان"
+   ],
+   "Middle income": [
+    "الدخل المتوسط",
+    "بلدان الدخل المتوسط"
+   ],
+   "North Africa": [
+    "شمال أفريقيا",
+    "دول شمال أفريقيا"
+   ],
+   "North America": [
+    "أمريكا الشمالية",
+    "شمال أمريكا"
+   ],
+   "OECD members": [
+    "أعضاء منظمة التعاون الاقتصادي والتنمية",
+    "دول منظمة التعاون الاقتصادي والتنمية",
+    "oecd"
+   ],
+   "Pacific Islands": [
+    "جزر المحيط الهادئ",
+    "جزر الباسيفيك"
+   ],
+   "Pacific island small states": [
+    "الدول الجزرية الصغيرة في المحيط الهادئ",
+    "صغار دول جزر المحيط الهادئ"
+   ],
+   "SADC": [
+    "سادك",
+    "مجموعة التنمية الجنوبية الأفريقية",
+    "دول سادك"
+   ],
+   "Sahel": [
+    "الساحل",
+    "منطقة الساحل",
+    "دول الساحل"
+   ],
+   "Small states": [
+    "الدول الصغيرة",
+    "الدول الجزرية الصغيرة",
+    "الدول الصغيرة النامية"
+   ],
+   "South Asia": [
+    "جنوب آسيا",
+    "دول جنوب آسيا"
+   ],
+   "Southeast Asia": [
+    "جنوب شرق آسيا",
+    "دول جنوب شرق آسيا"
+   ],
+   "Sub-Saharan Africa": [
+    "أفريقيا جنوب الصحراء",
+    "أفريقيا جنوب الصحراء الكبرى",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "الدخل المتوسط الأعلى",
+    "دول الدخل المتوسط الأعلى"
+   ],
+   "Western Balkans": [
+    "غرب البلقان",
+    "دول غرب البلقان"
+   ],
+   "Western and Central Africa": [
+    "غرب ووسط أفريقيا",
+    "أفريقيا الغربية والوسطى"
+   ]
+  }
+ },
+ "Chinese": {
+  "time": {
+   "latest": [
+    "最新",
+    "当前",
+    "最近",
+    "latest"
+   ],
+   "recent": [
+    "近期",
+    "最近",
+    "近几年",
+    "近几年来"
+   ],
+   "since": [
+    "自",
+    "从",
+    "以来",
+    "之后",
+    "since"
+   ],
+   "before": [
+    "之前",
+    "以前",
+    "至",
+    "before"
+   ],
+   "between": [
+    "至",
+    "到",
+    "之间",
+    "-"
+   ],
+   "last": [
+    "过去",
+    "前",
+    "最近的"
+   ],
+   "years_word": [
+    "年",
+    "年度",
+    "years"
+   ],
+   "pre_covid": [
+    "疫情前",
+    "新冠前",
+    "covid前"
+   ],
+   "post_covid": [
+    "疫情后",
+    "新冠后",
+    "covid后"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "年度",
+    "每年",
+    "年报",
+    "annual"
+   ],
+   "quarterly": [
+    "季度",
+    "每季度",
+    "季报",
+    "quarterly"
+   ],
+   "monthly": [
+    "月度",
+    "每月",
+    "月报",
+    "monthly"
+   ],
+   "weekly": [
+    "周度",
+    "每周",
+    "周报",
+    "weekly"
+   ],
+   "daily": [
+    "日度",
+    "每日",
+    "日报",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "女性",
+    "女人",
+    "女生",
+    "女"
+   ],
+   "male": [
+    "男性",
+    "男人",
+    "男生",
+    "男"
+   ],
+   "children": [
+    "儿童",
+    "小孩",
+    "幼儿",
+    "孩子"
+   ],
+   "youth": [
+    "青年",
+    "青少年",
+    "年轻人"
+   ],
+   "elderly": [
+    "老年人",
+    "老人",
+    "高龄",
+    "老年"
+   ],
+   "urban": [
+    "城市",
+    "城镇",
+    "市区",
+    "urban"
+   ],
+   "rural": [
+    "农村",
+    "乡村",
+    "乡下",
+    "rural"
+   ],
+   "poorest": [
+    "贫困",
+    "低收入",
+    "最穷",
+    "贫困人口"
+   ],
+   "displaced": [
+    "难民",
+    "流离失所",
+    "移民",
+    "idp"
+   ],
+   "disability": [
+    "残疾人",
+    "障碍人士",
+    "残障"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "指标",
+    "时间序列",
+    "统计数据",
+    "indicator"
+   ],
+   "microdata": [
+    "微观数据",
+    "调查数据",
+    "普查",
+    "户级数据",
+    "microdata"
+   ],
+   "document": [
+    "论文",
+    "报告",
+    "研究",
+    "文献",
+    "publication"
+   ],
+   "dataset": [
+    "数据集",
+    "数据文件",
+    "数据库",
+    "csv",
+    "dataset"
+   ]
+  },
+  "scope": {
+   "global": [
+    "全球",
+    "全世界",
+    "全球范围",
+    "global"
+   ],
+   "developing": [
+    "发展中国家",
+    "全球南方",
+    "新兴经济体",
+    "developing"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "东盟",
+    "东协"
+   ],
+   "Africa": [
+    "非洲"
+   ],
+   "Andean countries": [
+    "安第斯国家",
+    "安第斯共同体"
+   ],
+   "Arab World": [
+    "阿拉伯世界",
+    "阿拉伯国家"
+   ],
+   "BRICS": [
+    "金砖国家",
+    "金砖"
+   ],
+   "Caribbean": [
+    "加勒比地区",
+    "加勒比"
+   ],
+   "Caribbean small states": [
+    "加勒比小岛国家",
+    "加勒比小国"
+   ],
+   "Central America": [
+    "中美洲"
+   ],
+   "Central Asia": [
+    "中亚"
+   ],
+   "ECOWAS": [
+    "西共体",
+    "西非国家经济共同体"
+   ],
+   "East African Community": [
+    "东共体",
+    "东非共同体"
+   ],
+   "East Asia & Pacific": [
+    "东亚太",
+    "东亚与太平洋"
+   ],
+   "Eastern and Southern Africa": [
+    "东非和南非",
+    "东南部非洲"
+   ],
+   "Euro area": [
+    "欧元区"
+   ],
+   "Europe & Central Asia": [
+    "欧洲和中亚",
+    "欧亚"
+   ],
+   "European Union": [
+    "欧盟",
+    "eu"
+   ],
+   "G7": [
+    "七国集团",
+    "g7"
+   ],
+   "Gulf Cooperation Council": [
+    "海湾合作委员会",
+    "海合会",
+    "gcc"
+   ],
+   "Heavily indebted poor countries": [
+    "重债穷国",
+    "hipc"
+   ],
+   "High income": [
+    "高收入",
+    "高收入国家",
+    "高收入经济体"
+   ],
+   "Horn of Africa": [
+    "非洲之角"
+   ],
+   "Lake Chad Basin": [
+    "乍得湖盆地"
+   ],
+   "Latin America & Caribbean": [
+    "拉美和加勒比",
+    "拉加",
+    "lac"
+   ],
+   "Least developed countries": [
+    "最不发达国家",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "中低收入",
+    "中低收入国家",
+    "lmics"
+   ],
+   "Low income": [
+    "低收入",
+    "低收入国家",
+    "lics"
+   ],
+   "Lower middle income": [
+    "中低收入",
+    "中低收入国家",
+    "lmics"
+   ],
+   "Maghreb": [
+    "马格里布",
+    "马格里布地区"
+   ],
+   "Middle East and North Africa": [
+    "中东和北非",
+    "中东北非",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "中东北非阿富汗巴基斯坦",
+    "mena-ap"
+   ],
+   "Middle income": [
+    "中等收入",
+    "中等收入国家",
+    "mics"
+   ],
+   "North Africa": [
+    "北非"
+   ],
+   "North America": [
+    "北美",
+    "北美洲"
+   ],
+   "OECD members": [
+    "经合组织成员",
+    "oecd成员",
+    "oecd"
+   ],
+   "Pacific Islands": [
+    "太平洋岛国",
+    "太平洋群岛"
+   ],
+   "Pacific island small states": [
+    "太平洋小岛国",
+    "太平洋岛屿小国",
+    "piss"
+   ],
+   "SADC": [
+    "南部非洲发展共同体",
+    "sadc"
+   ],
+   "Sahel": [
+    "萨赫勒",
+    "萨赫勒地区"
+   ],
+   "Small states": [
+    "小岛国",
+    "小国家",
+    "小型国家"
+   ],
+   "South Asia": [
+    "南亚"
+   ],
+   "Southeast Asia": [
+    "东南亚"
+   ],
+   "Sub-Saharan Africa": [
+    "撒哈拉以南非洲",
+    "撒以南非洲",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "中高收入",
+    "中高收入国家",
+    "umic"
+   ],
+   "Western Balkans": [
+    "西巴尔干"
+   ],
+   "Western and Central Africa": [
+    "西中非",
+    "西非和中非"
+   ]
+  }
+ },
+ "Russian": {
+  "time": {
+   "latest": [
+    "последний",
+    "актуальный",
+    "свежий",
+    "текущий",
+    "latest"
+   ],
+   "recent": [
+    "последние годы",
+    "недавний",
+    "за последнее время",
+    "свежие данные"
+   ],
+   "since": [
+    "с",
+    "после",
+    "начиная с",
+    "от"
+   ],
+   "before": [
+    "до",
+    "перед",
+    "ранее",
+    "до того как"
+   ],
+   "between": [
+    "и",
+    "между",
+    "с...по",
+    "в период"
+   ],
+   "last": [
+    "последние",
+    "прошлые",
+    "за последние"
+   ],
+   "years_word": [
+    "год",
+    "года",
+    "лет",
+    "годы",
+    "гг"
+   ],
+   "pre_covid": [
+    "до ковида",
+    "до пандемии",
+    "до covid"
+   ],
+   "post_covid": [
+    "после ковида",
+    "после пандемии",
+    "постковид"
+   ],
+   "frequency.annual": [
+    "ежегодный",
+    "за год",
+    "ежегодно",
+    "annual"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "ежегодный",
+    "за год",
+    "ежегодно",
+    "annual"
+   ],
+   "quarterly": [
+    "ежеквартальный",
+    "по кварталам",
+    "квартальный",
+    "quarterly"
+   ],
+   "monthly": [
+    "ежемесячный",
+    "по месяцам",
+    "месячный",
+    "monthly"
+   ],
+   "weekly": [
+    "еженедельный",
+    "по неделям",
+    "weekly"
+   ],
+   "daily": [
+    "ежедневный",
+    "по дням",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "женщины",
+    "женский",
+    "девушки",
+    "female"
+   ],
+   "male": [
+    "мужчины",
+    "мужской",
+    "парни",
+    "male"
+   ],
+   "children": [
+    "дети",
+    "детский",
+    "младенцы",
+    "до 5 лет"
+   ],
+   "youth": [
+    "молодежь",
+    "подростки",
+    "молодые люди",
+    "youth"
+   ],
+   "elderly": [
+    "пожилые",
+    "пенсионеры",
+    "старики",
+    "65 плюс"
+   ],
+   "urban": [
+    "город",
+    "городской",
+    "городские",
+    "urban"
+   ],
+   "rural": [
+    "село",
+    "сельский",
+    "деревня",
+    "rural"
+   ],
+   "poorest": [
+    "бедные",
+    "малоимущие",
+    "низкий доход",
+    "беднейшие"
+   ],
+   "displaced": [
+    "беженцы",
+    "переселенцы",
+    "впл",
+    "мигранты"
+   ],
+   "disability": [
+    "инвалиды",
+    "инвалидность",
+    "овз",
+    "disability"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "индикатор",
+    "показатель",
+    "статистика",
+    "временной ряд"
+   ],
+   "microdata": [
+    "микроданные",
+    "опрос",
+    "перепись",
+    "анкеты",
+    "microdata"
+   ],
+   "document": [
+    "отчет",
+    "статья",
+    "доклад",
+    "публикация",
+    "paper"
+   ],
+   "dataset": [
+    "датасет",
+    "набор данных",
+    "база данных",
+    "csv",
+    "dataset"
+   ]
+  },
+  "scope": {
+   "global": [
+    "глобальный",
+    "мир",
+    "все страны",
+    "worldwide",
+    "global"
+   ],
+   "developing": [
+    "развивающиеся страны",
+    "глобальный юг",
+    "emerging markets"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "асеан",
+    "асеан-регион"
+   ],
+   "Africa": [
+    "африка",
+    "страны африки"
+   ],
+   "Andean countries": [
+    "андийские страны",
+    "страны андского региона"
+   ],
+   "Arab World": [
+    "арабский мир",
+    "арабские страны"
+   ],
+   "BRICS": [
+    "брикс",
+    "бpикс+"
+   ],
+   "Caribbean": [
+    "карибы",
+    "карибский бассейн",
+    "карибский регион"
+   ],
+   "Caribbean small states": [
+    "малые островные государства карибского бассейна",
+    "малые страны карибского бассейна",
+    "мосгкб"
+   ],
+   "Central America": [
+    "центральная америка",
+    "страны центральной америки"
+   ],
+   "Central Asia": [
+    "центральная азия",
+    "центрально-азиатский регион",
+    "цаа"
+   ],
+   "ECOWAS": [
+    "эковас"
+   ],
+   "East African Community": [
+    "восточноафриканское сообщество",
+    "вас"
+   ],
+   "East Asia & Pacific": [
+    "восточная азия и тихоокеанский регион",
+    "вап"
+   ],
+   "Eastern and Southern Africa": [
+    "восточная и южная африка",
+    "вюа"
+   ],
+   "Euro area": [
+    "еврозона",
+    "зона евро"
+   ],
+   "Europe & Central Asia": [
+    "европа и центральная азия",
+    "еца"
+   ],
+   "European Union": [
+    "европейский союз",
+    "ес"
+   ],
+   "G7": [
+    "g7",
+    "группа семи"
+   ],
+   "Gulf Cooperation Council": [
+    "ссгпз",
+    "совет сотрудничества арабских государств залива"
+   ],
+   "Heavily indebted poor countries": [
+    "бедные страны с высоким уровнем задолженности",
+    "бсвз"
+   ],
+   "High income": [
+    "страны с высоким уровнем дохода",
+    "высокий доход"
+   ],
+   "Horn of Africa": [
+    "рог африки"
+   ],
+   "Lake Chad Basin": [
+    "бассейн озера чад"
+   ],
+   "Latin America & Caribbean": [
+    "латинская америка и карибский бассейн",
+    "лак"
+   ],
+   "Least developed countries": [
+    "наименее развитые страны",
+    "нрс"
+   ],
+   "Low & middle income": [
+    "страны с низким и средним уровнем дохода",
+    "нсд",
+    "низкий и средний доход"
+   ],
+   "Low income": [
+    "страны с низким уровнем дохода",
+    "бедные страны"
+   ],
+   "Lower middle income": [
+    "страны с нижним средним уровнем дохода"
+   ],
+   "Maghreb": [
+    "магриб"
+   ],
+   "Middle East and North Africa": [
+    "блежний восток и северная африка",
+    "бена",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "блежний восток, северная африка, афганистан и пакистан"
+   ],
+   "Middle income": [
+    "страны со средним уровнем дохода",
+    "средний доход"
+   ],
+   "North Africa": [
+    "северная африка"
+   ],
+   "North America": [
+    "северная америка"
+   ],
+   "OECD members": [
+    "страны оэср",
+    "члены оэср"
+   ],
+   "Pacific Islands": [
+    "острова тихого океана",
+    "тихоокеанские острова"
+   ],
+   "Pacific island small states": [
+    "малые островные государства тихого океана"
+   ],
+   "SADC": [
+    "садок",
+    "садка",
+    "сообщество развития юга африки"
+   ],
+   "Sahel": [
+    "сахель",
+    "зона сахеля"
+   ],
+   "Small states": [
+    "малые государства"
+   ],
+   "South Asia": [
+    "южная азия"
+   ],
+   "Southeast Asia": [
+    "юго-восточная азия",
+    "юва"
+   ],
+   "Sub-Saharan Africa": [
+    "субсахарская африка",
+    "сса",
+    "африка к югу от сахары"
+   ],
+   "Upper middle income": [
+    "верхний средний уровень дохода",
+    "страны с верхним средним уровнем дохода"
+   ],
+   "Western Balkans": [
+    "западные балканы"
+   ],
+   "Western and Central Africa": [
+    "западная и центральная африка"
+   ]
+  }
+ },
+ "Hindi": {
+  "time": {
+   "latest": [
+    "नवीनतम",
+    "लेटेस्ट",
+    "सबसे नया",
+    "ताजा",
+    "current"
+   ],
+   "recent": [
+    "हाल का",
+    "हालिया",
+    "recent",
+    "पिछले कुछ सालों का"
+   ],
+   "since": [
+    "से",
+    "के बाद",
+    "since",
+    "from"
+   ],
+   "before": [
+    "से पहले",
+    "तक",
+    "before",
+    "पूर्व"
+   ],
+   "between": [
+    "के बीच",
+    "से",
+    "to",
+    "और"
+   ],
+   "last": [
+    "पिछला",
+    "पिछले",
+    "last",
+    "बीता हुआ"
+   ],
+   "years_word": [
+    "साल",
+    "वर्ष",
+    "सालों",
+    "वर्षों"
+   ],
+   "pre_covid": [
+    "कोविड से पहले",
+    "कोरोना से पहले",
+    "pre covid"
+   ],
+   "post_covid": [
+    "कोविड के बाद",
+    "कोरोना के बाद",
+    "post covid"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "वार्षिक",
+    "हर साल",
+    "annual",
+    "yearly"
+   ],
+   "quarterly": [
+    "त्रैमासिक",
+    "हर तीन महीने",
+    "quarterly"
+   ],
+   "monthly": [
+    "मासिक",
+    "हर महीने",
+    "monthly"
+   ],
+   "weekly": [
+    "साप्ताहिक",
+    "हर हफ्ते",
+    "weekly"
+   ],
+   "daily": [
+    "दैनिक",
+    "रोजाना",
+    "हर दिन",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "महिला",
+    "महिलाएं",
+    "लड़कियां",
+    "स्त्री",
+    "female",
+    "women"
+   ],
+   "male": [
+    "पुरुष",
+    "मर्द",
+    "लड़के",
+    "male",
+    "men"
+   ],
+   "children": [
+    "बच्चे",
+    "बालक",
+    "शिशु",
+    "children"
+   ],
+   "youth": [
+    "युवा",
+    "नौजवान",
+    "youth"
+   ],
+   "elderly": [
+    "बुजुर्ग",
+    "वृद्ध",
+    "old age",
+    "elderly"
+   ],
+   "urban": [
+    "शहरी",
+    "शहर",
+    "urban",
+    "city"
+   ],
+   "rural": [
+    "ग्रामीण",
+    "गांव",
+    "देहात",
+    "rural"
+   ],
+   "poorest": [
+    "गरीब",
+    "सबसे गरीब",
+    "कम आय",
+    "poor"
+   ],
+   "displaced": [
+    "शरणार्थी",
+    "विस्थापित",
+    "migrants",
+    "refugees"
+   ],
+   "disability": [
+    "दिव्यांग",
+    "विकलांग",
+    "disability"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "सूचकांक",
+    "इंडिकेटर",
+    "सांख्यिकी",
+    "statistics",
+    "indicator"
+   ],
+   "microdata": [
+    "माइक्रोडाटा",
+    "सर्वेक्षण",
+    "जनगणना",
+    "survey",
+    "microdata"
+   ],
+   "document": [
+    "रिपोर्ट",
+    "दस्तावेज",
+    "पेपर",
+    "study",
+    "report",
+    "document"
+   ],
+   "dataset": [
+    "डाटासेट",
+    "डाटा फाइल",
+    "csv",
+    "database",
+    "dataset"
+   ]
+  },
+  "scope": {
+   "global": [
+    "वैश्विक",
+    "दुनिया भर में",
+    "global",
+    "worldwide"
+   ],
+   "developing": [
+    "विकासशील देश",
+    "developing countries",
+    "global south"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "आसियान",
+    "asean"
+   ],
+   "Africa": [
+    "अफ्रीका",
+    "africa"
+   ],
+   "Andean countries": [
+    "एंडियन देश",
+    "andean countries"
+   ],
+   "Arab World": [
+    "अरब दुनिया",
+    "अरब जगत",
+    "arab world"
+   ],
+   "BRICS": [
+    "ब्रिक्स",
+    "brics"
+   ],
+   "Caribbean": [
+    "कैरिबियन",
+    "caribbean"
+   ],
+   "Caribbean small states": [
+    "कैरिबियन छोटे देश",
+    "caribbean small states"
+   ],
+   "Central America": [
+    "मध्य अमेरिका",
+    "central america"
+   ],
+   "Central Asia": [
+    "मध्य एशिया",
+    "central asia"
+   ],
+   "ECOWAS": [
+    "इकोवास",
+    "ecowas"
+   ],
+   "East African Community": [
+    "पूर्वी अफ्रीकी समुदाय",
+    "east african community",
+    "eac"
+   ],
+   "East Asia & Pacific": [
+    "पूर्वी एशिया और प्रशांत",
+    "east asia & pacific",
+    "eap"
+   ],
+   "Eastern and Southern Africa": [
+    "पूर्वी और दक्षिणी अफ्रीका",
+    "ईस्टर्न एंड सदर्न अफ्रीका"
+   ],
+   "Euro area": [
+    "यूरो क्षेत्र",
+    "यूरो एरिया",
+    "euro area"
+   ],
+   "Europe & Central Asia": [
+    "यूरोप और मध्य एशिया",
+    "यूरोप एंड सेंट्रल एशिया"
+   ],
+   "European Union": [
+    "यूरोपीय संघ",
+    "यूरोपीय यूनियन",
+    "eu"
+   ],
+   "G7": [
+    "जी7",
+    "g7"
+   ],
+   "Gulf Cooperation Council": [
+    "खाड़ी सहयोग परिषद",
+    "जीसीसी",
+    "gcc"
+   ],
+   "Heavily indebted poor countries": [
+    "अत्यधिक ऋणग्रस्त गरीब देश",
+    "hipc"
+   ],
+   "High income": [
+    "उच्च आय",
+    "हाई इनकम"
+   ],
+   "Horn of Africa": [
+    "हॉर्न ऑफ अफ्रीका"
+   ],
+   "Lake Chad Basin": [
+    "चाड झील बेसिन",
+    "लेक चाड बेसिन"
+   ],
+   "Latin America & Caribbean": [
+    "लैटिन अमेरिका और कैरिबियन",
+    "lac"
+   ],
+   "Least developed countries": [
+    "अल्प विकसित देश",
+    "सबसे कम विकसित देश",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "कम और मध्यम आय",
+    "निम्न और मध्यम आय",
+    "lmi"
+   ],
+   "Low income": [
+    "कम आय",
+    "निम्न आय"
+   ],
+   "Lower middle income": [
+    "निम्न मध्यम आय"
+   ],
+   "Maghreb": [
+    "मगरेब"
+   ],
+   "Middle East and North Africa": [
+    "मध्य पूर्व और उत्तरी अफ्रीका",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "मध्य पूर्व, उत्तरी अफ्रीका, अफगानिस्तान और पाकिस्तान",
+    "mena-ap"
+   ],
+   "Middle income": [
+    "मध्यम आय"
+   ],
+   "North Africa": [
+    "उत्तरी अफ्रीका"
+   ],
+   "North America": [
+    "उत्तरी अमेरिका"
+   ],
+   "OECD members": [
+    "ओईसीडी सदस्य",
+    "oecd"
+   ],
+   "Pacific Islands": [
+    "प्रशांत द्वीप समूह"
+   ],
+   "Pacific island small states": [
+    "प्रशांत द्वीप छोटे राज्य",
+    "pics"
+   ],
+   "SADC": [
+    "साडक",
+    "सदक",
+    "दक्षिणी अफ्रीकी विकास समुदाय"
+   ],
+   "Sahel": [
+    "साहेल",
+    "साहेल क्षेत्र"
+   ],
+   "Small states": [
+    "छोटे देश",
+    "लघु राज्य"
+   ],
+   "South Asia": [
+    "दक्षिण एशिया",
+    "दक्षिन एशिया"
+   ],
+   "Southeast Asia": [
+    "दक्षिण पूर्व एशिया",
+    "दक्षिण-पूर्वी एशिया"
+   ],
+   "Sub-Saharan Africa": [
+    "उप-सहारा अफ्रीका",
+    "सब-सहारा अफ्रीका",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "उच्च मध्य आय",
+    "अपर मिडिल इनकम"
+   ],
+   "Western Balkans": [
+    "पश्चिमी बाल्कन",
+    "वेस्टर्न बाल्कन"
+   ],
+   "Western and Central Africa": [
+    "पश्चिमी और मध्य अफ्रीका"
+   ]
+  }
+ },
+ "Turkish": {
+  "time": {
+   "latest": [
+    "güncel",
+    "en yeni",
+    "son",
+    "latest",
+    "en son"
+   ],
+   "recent": [
+    "yakın dönem",
+    "son zamanlar",
+    "son yıllar",
+    "recent"
+   ],
+   "since": [
+    "den beri",
+    "den sonra",
+    "itibaren",
+    "sonrası"
+   ],
+   "before": [
+    "öncesi",
+    "den önce",
+    "kadar",
+    "evvel"
+   ],
+   "between": [
+    "arasında",
+    "ve",
+    "ile"
+   ],
+   "last": [
+    "son",
+    "geçen",
+    "geriye dönük"
+   ],
+   "years_word": [
+    "yıl",
+    "yıllık",
+    "yılları",
+    "sene",
+    "seneleri"
+   ],
+   "pre_covid": [
+    "covid öncesi",
+    "pandemi öncesi",
+    "korona öncesi"
+   ],
+   "post_covid": [
+    "covid sonrası",
+    "pandemi sonrası",
+    "korona sonrası"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "yıllık",
+    "her yıl",
+    "annual"
+   ],
+   "quarterly": [
+    "çeyreklik",
+    "üç aylık",
+    "quarterly"
+   ],
+   "monthly": [
+    "aylık",
+    "her ay",
+    "monthly"
+   ],
+   "weekly": [
+    "haftalık",
+    "her hafta",
+    "weekly"
+   ],
+   "daily": [
+    "günlük",
+    "her gün",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "kadın",
+    "kadınlar",
+    "kız",
+    "kadın cinsiyeti"
+   ],
+   "male": [
+    "erkek",
+    "erkekler",
+    "erkek cinsiyeti"
+   ],
+   "children": [
+    "çocuk",
+    "çocuklar",
+    "bebek",
+    "çocuk nüfusu"
+   ],
+   "youth": [
+    "genç",
+    "gençler",
+    "gençlik",
+    "ergen"
+   ],
+   "elderly": [
+    "yaşlı",
+    "yaşlılar",
+    "yaşlı nüfus",
+    "65 yaş üstü"
+   ],
+   "urban": [
+    "kent",
+    "şehir",
+    "kentsel",
+    "şehirleşme"
+   ],
+   "rural": [
+    "kırsal",
+    "köy",
+    "köyler",
+    "kasaba"
+   ],
+   "poorest": [
+    "fakir",
+    "yoksul",
+    "düşük gelirli",
+    "dar gelirli"
+   ],
+   "displaced": [
+    "mülteci",
+    "sığınmacı",
+    "yerinden edilmiş",
+    "göçmen"
+   ],
+   "disability": [
+    "engelli",
+    "engelliler",
+    "bedensel engelli"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "gösterge",
+    "indikatör",
+    "istatistik",
+    "zaman serisi"
+   ],
+   "microdata": [
+    "mikro veri",
+    "anket verisi",
+    "sayım",
+    "hanehalkı anketi"
+   ],
+   "document": [
+    "rapor",
+    "makale",
+    "çalışma",
+    "yayın",
+    "belge",
+    "paper"
+   ],
+   "dataset": [
+    "veri seti",
+    "dataset",
+    "veri dosyası",
+    "csv",
+    "veritabanı"
+   ]
+  },
+  "scope": {
+   "global": [
+    "küresel",
+    "dünya",
+    "global",
+    "tüm ülkeler"
+   ],
+   "developing": [
+    "gelişmekte olan",
+    "az gelişmiş",
+    "global south",
+    "gelişen ekonomiler"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "güneydoğu asya uluslar birliği"
+   ],
+   "Africa": [
+    "afrika"
+   ],
+   "Andean countries": [
+    "ande ülkeleri",
+    "ande topluluğu"
+   ],
+   "Arab World": [
+    "arap dünyası",
+    "arap ülkeleri"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "Caribbean": [
+    "karayipler",
+    "karayip ülkeleri"
+   ],
+   "Caribbean small states": [
+    "karayip küçük ada devletleri",
+    "karayip küçük devletleri"
+   ],
+   "Central America": [
+    "orta amerika"
+   ],
+   "Central Asia": [
+    "orta asya"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "batı afrika devletleri ekonomik topluluğu"
+   ],
+   "East African Community": [
+    "doğu afrika topluluğu",
+    "eac"
+   ],
+   "East Asia & Pacific": [
+    "doğu asya ve pasifik"
+   ],
+   "Eastern and Southern Africa": [
+    "doğu ve güney afrika"
+   ],
+   "Euro area": [
+    "euro bölgesi",
+    "euro alanı"
+   ],
+   "Europe & Central Asia": [
+    "avrupa ve orta asya",
+    "eca"
+   ],
+   "European Union": [
+    "avrupa birliği",
+    "ab"
+   ],
+   "G7": [
+    "g7",
+    "g7 ülkeleri"
+   ],
+   "Gulf Cooperation Council": [
+    "körfez işbirliği konseyi",
+    "kig"
+   ],
+   "Heavily indebted poor countries": [
+    "ağır borç yükü altındaki fakir ülkeler",
+    "hipc"
+   ],
+   "High income": [
+    "yüksek gelirli",
+    "yüksek gelir grubu"
+   ],
+   "Horn of Africa": [
+    "afrika boynuzu"
+   ],
+   "Lake Chad Basin": [
+    "çad gölü havzası"
+   ],
+   "Latin America & Caribbean": [
+    "latin amerika ve karayipler",
+    "lac"
+   ],
+   "Least developed countries": [
+    "en az gelişmiş ülkeler",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "düşük ve orta gelirli",
+    "düşük ve orta gelir grubu"
+   ],
+   "Low income": [
+    "düşük gelirli",
+    "düşük gelir grubu"
+   ],
+   "Lower middle income": [
+    "alt orta gelirli",
+    "alt orta gelir grubu"
+   ],
+   "Maghreb": [
+    "mağrip",
+    "mağrip ülkeleri"
+   ],
+   "Middle East and North Africa": [
+    "orta doğu ve kuzey afrika",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "orta doğu, kuzey afrika, afganistan ve pakistan",
+    "mena-ap"
+   ],
+   "Middle income": [
+    "orta gelirli",
+    "orta gelir grubu"
+   ],
+   "North Africa": [
+    "kuzey afrika"
+   ],
+   "North America": [
+    "kuzey amerika"
+   ],
+   "OECD members": [
+    "oecd üyeleri",
+    "oecd ülkeleri"
+   ],
+   "Pacific Islands": [
+    "pasifik adaları"
+   ],
+   "Pacific island small states": [
+    "pasifik ada küçük devletleri",
+    "pasifik küçük ada devletleri"
+   ],
+   "SADC": [
+    "sadc",
+    "güney afrika kalkınma topluluğu"
+   ],
+   "Sahel": [
+    "sahel",
+    "sahel bölgesi"
+   ],
+   "Small states": [
+    "küçük devletler",
+    "ada devletleri"
+   ],
+   "South Asia": [
+    "güney asya"
+   ],
+   "Southeast Asia": [
+    "güneydoğu asya"
+   ],
+   "Sub-Saharan Africa": [
+    "sahra altı afrika",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "üst orta gelir",
+    "üst orta gelir grubu"
+   ],
+   "Western Balkans": [
+    "batı balkanlar"
+   ],
+   "Western and Central Africa": [
+    "batı ve orta afrika"
+   ]
+  }
+ },
+ "French": {
+  "time": {
+   "latest": [
+    "dernier",
+    "derniere",
+    "actuel",
+    "recent",
+    "plus recent",
+    "a jour",
+    "latest"
+   ],
+   "recent": [
+    "recent",
+    "recents",
+    "derniers",
+    "dernières",
+    "de recents"
+   ],
+   "since": [
+    "depuis",
+    "a partir de",
+    "apres",
+    "since"
+   ],
+   "before": [
+    "avant",
+    "jusqu'a",
+    "prioritaire a",
+    "avant le"
+   ],
+   "between": [
+    "entre",
+    "a",
+    "au",
+    "jusqu'a"
+   ],
+   "last": [
+    "dernier",
+    "derniers",
+    "passé",
+    "passés",
+    "last"
+   ],
+   "years_word": [
+    "an",
+    "ans",
+    "année",
+    "années"
+   ],
+   "pre_covid": [
+    "avant covid",
+    "pre-covid",
+    "avant la pandemie"
+   ],
+   "post_covid": [
+    "apres covid",
+    "post-covid",
+    "depuis la pandemie"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "annuel",
+    "annuelle",
+    "chaque an",
+    "par an"
+   ],
+   "quarterly": [
+    "trimestriel",
+    "trimestrielle",
+    "par trimestre"
+   ],
+   "monthly": [
+    "mensuel",
+    "mensuelle",
+    "par mois"
+   ],
+   "weekly": [
+    "hebdomadaire",
+    "par semaine"
+   ],
+   "daily": [
+    "quotidien",
+    "quotidienne",
+    "par jour"
+   ]
+  },
+  "group": {
+   "female": [
+    "femme",
+    "femmes",
+    "fille",
+    "filles",
+    "feminin"
+   ],
+   "male": [
+    "homme",
+    "hommes",
+    "garcon",
+    "garçons",
+    "masculin"
+   ],
+   "children": [
+    "enfant",
+    "enfants",
+    "bébé",
+    "bebes",
+    "moins de 5 ans"
+   ],
+   "youth": [
+    "jeune",
+    "jeunes",
+    "adolescent",
+    "ados",
+    "jeunesse"
+   ],
+   "elderly": [
+    "personne agee",
+    "seniors",
+    "vieillesse",
+    "plus de 65 ans"
+   ],
+   "urban": [
+    "urbain",
+    "urbaine",
+    "ville",
+    "villes",
+    "centre ville"
+   ],
+   "rural": [
+    "rural",
+    "rurale",
+    "campagne",
+    "village",
+    "villages"
+   ],
+   "poorest": [
+    "pauvre",
+    "pauvres",
+    "bas revenus",
+    "indigent",
+    "precaires"
+   ],
+   "displaced": [
+    "refugie",
+    "refugies",
+    "deplace",
+    "deplaces",
+    "migrant"
+   ],
+   "disability": [
+    "handicap",
+    "handicapés",
+    "personne handicapee",
+    "pmr"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "indicateur",
+    "indicateurs",
+    "serie temporelle",
+    "stats",
+    "statistiques"
+   ],
+   "microdata": [
+    "microdonnees",
+    "micro-données",
+    "recensement",
+    "enquete",
+    "donnees individuelles"
+   ],
+   "document": [
+    "rapport",
+    "etude",
+    "publication",
+    "papier",
+    "document",
+    "working paper"
+   ],
+   "dataset": [
+    "jeu de donnees",
+    "dataset",
+    "fichier",
+    "csv",
+    "base de donnees",
+    "tableau"
+   ]
+  },
+  "scope": {
+   "global": [
+    "mondial",
+    "mondiale",
+    "global",
+    "globale",
+    "monde",
+    "worldwide"
+   ],
+   "developing": [
+    "pays en voie de development",
+    "pays en development",
+    "sud global",
+    "pays emergents"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "anase"
+   ],
+   "Africa": [
+    "afrique",
+    "afrique subsaharienne",
+    "ssa"
+   ],
+   "Andean countries": [
+    "pays andins",
+    "région andine"
+   ],
+   "Arab World": [
+    "monde arabe",
+    "pays arabes",
+    "mena"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "Caribbean": [
+    "caraïbes",
+    "région caraïbes"
+   ],
+   "Caribbean small states": [
+    "petits états insulaires",
+    "peis",
+    "petits états des caraïbes"
+   ],
+   "Central America": [
+    "amérique centrale"
+   ],
+   "Central Asia": [
+    "asie centrale"
+   ],
+   "ECOWAS": [
+    "cedeao"
+   ],
+   "East African Community": [
+    "ceac",
+    "communauté d'afrique de l'est"
+   ],
+   "East Asia & Pacific": [
+    "asie orientale et pacifique",
+    "asie-pacifique"
+   ],
+   "Eastern and Southern Africa": [
+    "afrique orientale et australe",
+    "aoa"
+   ],
+   "Euro area": [
+    "zone euro"
+   ],
+   "Europe & Central Asia": [
+    "europe et asie centrale",
+    "eac"
+   ],
+   "European Union": [
+    "union européenne",
+    "ue"
+   ],
+   "G7": [
+    "g7"
+   ],
+   "Gulf Cooperation Council": [
+    "conseil de coopération du golfe",
+    "ccg"
+   ],
+   "Heavily indebted poor countries": [
+    "pays pauvres très endettés",
+    "ppte"
+   ],
+   "High income": [
+    "hauts revenus"
+   ],
+   "Horn of Africa": [
+    "corne de l'afrique"
+   ],
+   "Lake Chad Basin": [
+    "bassin du lac tchad",
+    "blt"
+   ],
+   "Latin America & Caribbean": [
+    "amerique latine et caraïbes",
+    "alc",
+    "lac"
+   ],
+   "Least developed countries": [
+    "pays les moins avancés",
+    "pma",
+    "pmas"
+   ],
+   "Low & middle income": [
+    "pays à revenu faible et intermédiaire",
+    "prfi"
+   ],
+   "Low income": [
+    "pays à faible revenu",
+    "pfr"
+   ],
+   "Lower middle income": [
+    "pays à revenu intermédiaire de la tranche inférieure"
+   ],
+   "Maghreb": [
+    "maghreb"
+   ],
+   "Middle East and North Africa": [
+    "moyen-orient et afrique du nord",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "moyen-orient, afrique du nord, afghanistan et pakistan",
+    "mena+ap"
+   ],
+   "Middle income": [
+    "pays à revenu intermédiaire",
+    "pri"
+   ],
+   "North Africa": [
+    "afrique du nord"
+   ],
+   "North America": [
+    "amerique du nord"
+   ],
+   "OECD members": [
+    "membres de l'ocde",
+    "pays de l'ocde"
+   ],
+   "Pacific Islands": [
+    "îles du pacifique"
+   ],
+   "Pacific island small states": [
+    "petits états insulaires du pacifique",
+    "peip"
+   ],
+   "SADC": [
+    "sadc",
+    "communauté de développement d'afrique australe"
+   ],
+   "Sahel": [
+    "sahel"
+   ],
+   "Small states": [
+    "petits états",
+    "petits pays"
+   ],
+   "South Asia": [
+    "asie du sud"
+   ],
+   "Southeast Asia": [
+    "asie du sud-est"
+   ],
+   "Sub-Saharan Africa": [
+    "afrique subsaharienne",
+    "ass"
+   ],
+   "Upper middle income": [
+    "revenu intermédiaire supérieur"
+   ],
+   "Western Balkans": [
+    "balkans occidentaux"
+   ],
+   "Western and Central Africa": [
+    "afrique occidentale et centrale",
+    "aoc"
+   ]
+  }
+ },
+ "Spanish": {
+  "time": {
+   "latest": [
+    "más reciente",
+    "actual",
+    "ultimo",
+    "último",
+    "actualizado",
+    "latest"
+   ],
+   "recent": [
+    "reciente",
+    "recientes",
+    "de los últimos años",
+    "actuales"
+   ],
+   "since": [
+    "desde",
+    "a partir de",
+    "despues de",
+    "después de"
+   ],
+   "before": [
+    "antes de",
+    "hasta",
+    "previo a",
+    "anterior a"
+   ],
+   "between": [
+    "al",
+    "entre",
+    "y",
+    "hasta el"
+   ],
+   "last": [
+    "últimos",
+    "ultimos",
+    "pasados",
+    "last"
+   ],
+   "years_word": [
+    "años",
+    "anos",
+    "year",
+    "years"
+   ],
+   "pre_covid": [
+    "antes del covid",
+    "pre covid",
+    "antes de la pandemia"
+   ],
+   "post_covid": [
+    "despues del covid",
+    "después del covid",
+    "post covid",
+    "post-covid"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "anual",
+    "anualmente",
+    "cada año",
+    "yearly"
+   ],
+   "quarterly": [
+    "trimestral",
+    "trimestralmente",
+    "cada trimestre"
+   ],
+   "monthly": [
+    "mensual",
+    "mensualmente",
+    "cada mes"
+   ],
+   "weekly": [
+    "semanal",
+    "semanalmente",
+    "cada semana"
+   ],
+   "daily": [
+    "diario",
+    "diariamente",
+    "cada dia",
+    "cada día"
+   ]
+  },
+  "group": {
+   "female": [
+    "mujeres",
+    "femenino",
+    "niñas",
+    "mujer"
+   ],
+   "male": [
+    "hombres",
+    "masculino",
+    "niños",
+    "hombre"
+   ],
+   "children": [
+    "niños",
+    "ninos",
+    "infantes",
+    "menores de 5",
+    "infancia"
+   ],
+   "youth": [
+    "jóvenes",
+    "jovenes",
+    "adolescentes",
+    "juventud"
+   ],
+   "elderly": [
+    "ancianos",
+    "adultos mayores",
+    "tercera edad",
+    "vejez"
+   ],
+   "urban": [
+    "urbano",
+    "urbana",
+    "ciudades",
+    "ciudad"
+   ],
+   "rural": [
+    "rural",
+    "campo",
+    "aldeas",
+    "zonas rurales"
+   ],
+   "poorest": [
+    "pobres",
+    "pobreza",
+    "ingresos bajos",
+    "estrato bajo",
+    "más pobres"
+   ],
+   "displaced": [
+    "desplazados",
+    "refugiados",
+    "migrantes",
+    "idp"
+   ],
+   "disability": [
+    "discapacidad",
+    "discapacitados",
+    "personas con discapacidad"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "indicador",
+    "indicadores",
+    "series temporales",
+    "estadisticas",
+    "estadísticas"
+   ],
+   "microdata": [
+    "microdatos",
+    "encuesta",
+    "censo",
+    "datos a nivel de hogar",
+    "microdata"
+   ],
+   "document": [
+    "documento",
+    "informe",
+    "estudio",
+    "publicacion",
+    "publicación",
+    "paper"
+   ],
+   "dataset": [
+    "dataset",
+    "conjunto de datos",
+    "base de datos",
+    "csv",
+    "planilla",
+    "excel"
+   ]
+  },
+  "scope": {
+   "global": [
+    "global",
+    "mundial",
+    "todo el mundo",
+    "worldwide",
+    "internacional"
+   ],
+   "developing": [
+    "paises en desarrollo",
+    "países en desarrollo",
+    "sur global",
+    "economias emergentes",
+    "economías emergentes"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "anase"
+   ],
+   "Africa": [
+    "áfrica",
+    "ssa",
+    "áfrica subsahariana"
+   ],
+   "Andean countries": [
+    "países andinos",
+    "región andina"
+   ],
+   "Arab World": [
+    "mundo árabe",
+    "países árabes",
+    "mena"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "Caribbean": [
+    "caribe",
+    "el caribe"
+   ],
+   "Caribbean small states": [
+    "pequeños estados del caribe",
+    "psec"
+   ],
+   "Central America": [
+    "centroamérica",
+    "américa central"
+   ],
+   "Central Asia": [
+    "asia central"
+   ],
+   "ECOWAS": [
+    "cedea",
+    "ecowas"
+   ],
+   "East African Community": [
+    "comunidad de áfrica oriental",
+    "cao"
+   ],
+   "East Asia & Pacific": [
+    "asia oriental y el pacífico",
+    "asia-pacífico"
+   ],
+   "Eastern and Southern Africa": [
+    "áfrica oriental y meridional",
+    "este y sur de áfrica"
+   ],
+   "Euro area": [
+    "zona euro",
+    "eurozona"
+   ],
+   "Europe & Central Asia": [
+    "europa y asia central"
+   ],
+   "European Union": [
+    "unión europea",
+    "ue"
+   ],
+   "G7": [
+    "g7",
+    "grupo de los siete"
+   ],
+   "Gulf Cooperation Council": [
+    "consejo de cooperación del golfo",
+    "ccg"
+   ],
+   "Heavily indebted poor countries": [
+    "países pobres muy endeudados",
+    "ppme"
+   ],
+   "High income": [
+    "ingresos altos",
+    "renta alta"
+   ],
+   "Horn of Africa": [
+    "cuerno de áfrica"
+   ],
+   "Lake Chad Basin": [
+    "cuenca del lago chád"
+   ],
+   "Latin America & Caribbean": [
+    "américa latina y el caribe",
+    "lac",
+    "alc"
+   ],
+   "Least developed countries": [
+    "países menos adelantados",
+    "pma"
+   ],
+   "Low & middle income": [
+    "ingresos bajos y medios",
+    "países de ingresos bajos y medios",
+    "pib bajo y medio"
+   ],
+   "Low income": [
+    "ingresos bajos",
+    "países de ingresos bajos"
+   ],
+   "Lower middle income": [
+    "ingresos medios bajos",
+    "países de ingresos medios bajos"
+   ],
+   "Maghreb": [
+    "magreb"
+   ],
+   "Middle East and North Africa": [
+    "mena",
+    "medio oriente y norte de áfrica",
+    "oriental medio y norte de áfrica"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "menaap",
+    "medio oriente, norte de áfrica, afganistán y pakistán"
+   ],
+   "Middle income": [
+    "ingresos medios",
+    "países de ingresos medios"
+   ],
+   "North Africa": [
+    "norte de áfrica",
+    "áfrica del norte"
+   ],
+   "North America": [
+    "américa del norte",
+    "norteamérica"
+   ],
+   "OECD members": [
+    "miembros de la ocde",
+    "países ocde",
+    "ocde"
+   ],
+   "Pacific Islands": [
+    "islas del pacífico"
+   ],
+   "Pacific island small states": [
+    "pequeños estados insulares del pacífico",
+    "peis pacífico"
+   ],
+   "SADC": [
+    "sadc",
+    "comunidad de desarrollo de áfrica austral"
+   ],
+   "Sahel": [
+    "sahel"
+   ],
+   "Small states": [
+    "pequeños estados",
+    "pequeñas economías"
+   ],
+   "South Asia": [
+    "asia meridional",
+    "sur de asia"
+   ],
+   "Southeast Asia": [
+    "sudeste asiático",
+    "sureste asiático"
+   ],
+   "Sub-Saharan Africa": [
+    "áfrica subsahariana",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "ingresos medianos altos",
+    "renta media alta"
+   ],
+   "Western Balkans": [
+    "balcanes occidentales"
+   ],
+   "Western and Central Africa": [
+    "áfrica occidental y central"
+   ]
+  }
+ },
+ "Indonesian": {
+  "time": {
+   "latest": [
+    "terbaru",
+    "terakhir",
+    "terkini",
+    "update",
+    "paling baru"
+   ],
+   "recent": [
+    "terbaru",
+    "terakhir",
+    "beberapa tahun terakhir",
+    "baru-baru ini"
+   ],
+   "since": [
+    "sejak",
+    "mulai",
+    "dari tahun",
+    "setelah"
+   ],
+   "before": [
+    "sebelum",
+    "sampai",
+    "hingga",
+    "sebelum tahun"
+   ],
+   "between": [
+    "sampai",
+    "hingga",
+    "dan",
+    "antara",
+    "s/d"
+   ],
+   "last": [
+    "terakhir",
+    "lalu",
+    "lampau",
+    "past"
+   ],
+   "years_word": [
+    "tahun",
+    "thn",
+    "ta"
+   ],
+   "pre_covid": [
+    "sebelum covid",
+    "pra covid",
+    "sebelum pandemi"
+   ],
+   "post_covid": [
+    "setelah covid",
+    "pasca covid",
+    "setelah pandemi"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "tahunan",
+    "per tahun",
+    "annual"
+   ],
+   "quarterly": [
+    "triwulan",
+    "per kuartal",
+    "per tiga bulan"
+   ],
+   "monthly": [
+    "bulanan",
+    "per bulan",
+    "monthly"
+   ],
+   "weekly": [
+    "mingguan",
+    "per minggu",
+    "weekly"
+   ],
+   "daily": [
+    "harian",
+    "per hari",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "perempuan",
+    "wanita",
+    "puan",
+    "female"
+   ],
+   "male": [
+    "laki-laki",
+    "pria",
+    "male"
+   ],
+   "children": [
+    "anak",
+    "anak-anak",
+    "balita",
+    "children"
+   ],
+   "youth": [
+    "pemuda",
+    "remaja",
+    "pemudi",
+    "youth"
+   ],
+   "elderly": [
+    "lansia",
+    "lanjut usia",
+    "orang tua",
+    "elderly"
+   ],
+   "urban": [
+    "perkotaan",
+    "kota",
+    "urban"
+   ],
+   "rural": [
+    "perdesaan",
+    "desa",
+    "rural"
+   ],
+   "poorest": [
+    "miskin",
+    "termiskin",
+    "pendapatan rendah",
+    "mbp"
+   ],
+   "displaced": [
+    "pengungsi",
+    "idp",
+    "migran",
+    "tergusur"
+   ],
+   "disability": [
+    "disabilitas",
+    "difabel",
+    "cacat",
+    "disability"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "indikator",
+    "statistik",
+    "time series",
+    "angka"
+   ],
+   "microdata": [
+    "mikrodata",
+    "sensus",
+    "survei",
+    "data rumah tangga"
+   ],
+   "document": [
+    "laporan",
+    "makalah",
+    "studi",
+    "publikasi",
+    "paper",
+    "report"
+   ],
+   "dataset": [
+    "dataset",
+    "data",
+    "csv",
+    "spreadsheet",
+    "database"
+   ]
+  },
+  "scope": {
+   "global": [
+    "global",
+    "dunia",
+    "seluruh dunia",
+    "worldwide"
+   ],
+   "developing": [
+    "negara berkembang",
+    "global south",
+    "developing countries"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "asia tenggara"
+   ],
+   "Africa": [
+    "afrika"
+   ],
+   "Andean countries": [
+    "negara andes"
+   ],
+   "Arab World": [
+    "dunia arab",
+    "negara arab"
+   ],
+   "BRICS": [
+    "brics"
+   ],
+   "Caribbean": [
+    "karibia"
+   ],
+   "Caribbean small states": [
+    "negara kecil karibia"
+   ],
+   "Central America": [
+    "amerika tengah"
+   ],
+   "Central Asia": [
+    "asia tengah"
+   ],
+   "ECOWAS": [
+    "ecowas"
+   ],
+   "East African Community": [
+    "komunitas afrika timur",
+    "eac"
+   ],
+   "East Asia & Pacific": [
+    "asia timur & pasifik",
+    "asia timur dan pasifik"
+   ],
+   "Eastern and Southern Africa": [
+    "afrika timur dan selatan",
+    "esa"
+   ],
+   "Euro area": [
+    "kawasan euro",
+    "zona euro",
+    "euro area"
+   ],
+   "Europe & Central Asia": [
+    "eropa dan asia tengah",
+    "eca"
+   ],
+   "European Union": [
+    "uni eropa",
+    "ue"
+   ],
+   "G7": [
+    "g7",
+    "kelompok tujuh"
+   ],
+   "Gulf Cooperation Council": [
+    "dewan kerja sama teluk",
+    "gcc"
+   ],
+   "Heavily indebted poor countries": [
+    "negara miskin berutang tinggi",
+    "hipc"
+   ],
+   "High income": [
+    "pendapatan tinggi",
+    "high income"
+   ],
+   "Horn of Africa": [
+    "tanduk afrika"
+   ],
+   "Lake Chad Basin": [
+    "cekungan danau chad"
+   ],
+   "Latin America & Caribbean": [
+    "amerika latin dan karibia",
+    "lac"
+   ],
+   "Least developed countries": [
+    "negara kurang berkembang",
+    "ldcs",
+    "ldc"
+   ],
+   "Low & middle income": [
+    "pendapatan rendah dan menengah",
+    "lmic"
+   ],
+   "Low income": [
+    "pendapatan rendah",
+    "negara miskin"
+   ],
+   "Lower middle income": [
+    "pendapatan menengah ke bawah"
+   ],
+   "Maghreb": [
+    "maghreb",
+    "afrika utara barat"
+   ],
+   "Middle East and North Africa": [
+    "timur tengah dan afrika utara",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "menaap",
+    "timur tengah, afrika utara, afganistan dan pakistan"
+   ],
+   "Middle income": [
+    "pendapatan menengah",
+    "mic"
+   ],
+   "North Africa": [
+    "afrika utara"
+   ],
+   "North America": [
+    "amerika utara"
+   ],
+   "OECD members": [
+    "anggota oecd",
+    "negara oecd"
+   ],
+   "Pacific Islands": [
+    "kepulauan pasifik",
+    "negara kepulauan pasifik"
+   ],
+   "Pacific island small states": [
+    "negara kepulauan kecil pasifik",
+    "piss"
+   ],
+   "SADC": [
+    "sadc",
+    "komunitas pembangunan afrika selatan"
+   ],
+   "Sahel": [
+    "sahel",
+    "wilayah sahel"
+   ],
+   "Small states": [
+    "negara kecil"
+   ],
+   "South Asia": [
+    "asia selatan"
+   ],
+   "Southeast Asia": [
+    "asia tenggara",
+    "asean"
+   ],
+   "Sub-Saharan Africa": [
+    "afrika sub-sahara",
+    "ssa"
+   ],
+   "Upper middle income": [
+    "pendapatan menengah atas",
+    "umi"
+   ],
+   "Western Balkans": [
+    "balkan barat"
+   ],
+   "Western and Central Africa": [
+    "afrika barat dan tengah",
+    "wca"
+   ]
+  }
+ },
+ "Swahili": {
+  "time": {
+   "latest": [
+    "ya hivi punde",
+    "ya sasa",
+    "mpya kabisa",
+    "ya mwisho",
+    "latest"
+   ],
+   "recent": [
+    "za hivi karibuni",
+    "za hivi punde",
+    "za sasa",
+    "recent"
+   ],
+   "since": [
+    "tangu",
+    "kuanzia",
+    "baada ya",
+    "since"
+   ],
+   "before": [
+    "kabla ya",
+    "hadi",
+    "mpaka",
+    "before"
+   ],
+   "between": [
+    "kati ya",
+    "mpaka",
+    "na",
+    "to"
+   ],
+   "last": [
+    "zilizopita",
+    "za nyuma",
+    "last"
+   ],
+   "years_word": [
+    "miaka",
+    "mwaka"
+   ],
+   "pre_covid": [
+    "kabla ya covid",
+    "kabla ya janga"
+   ],
+   "post_covid": [
+    "baada ya covid",
+    "tangu covid"
+   ],
+   "frequency.annual": [
+    "ya kila mwaka",
+    "kila mwaka",
+    "annual"
+   ],
+   "frequency.quarterly": [
+    "kila robo",
+    "robo mwaka",
+    "quarterly"
+   ],
+   "frequency.monthly": [
+    "kila mwezi",
+    "ya mwezi",
+    "monthly"
+   ],
+   "frequency.weekly": [
+    "kila wiki",
+    "ya wiki",
+    "weekly"
+   ],
+   "frequency.daily": [
+    "kila siku",
+    "ya kila siku",
+    "daily"
+   ]
+  },
+  "frequency": {
+   "annual": [
+    "ya kila mwaka",
+    "kila mwaka",
+    "annual"
+   ],
+   "quarterly": [
+    "kila robo",
+    "robo mwaka",
+    "quarterly"
+   ],
+   "monthly": [
+    "kila mwezi",
+    "ya mwezi",
+    "monthly"
+   ],
+   "weekly": [
+    "kila wiki",
+    "ya wiki",
+    "weekly"
+   ],
+   "daily": [
+    "kila siku",
+    "ya kila siku",
+    "daily"
+   ]
+  },
+  "group": {
+   "female": [
+    "wanawake",
+    "wasichana",
+    "ke",
+    "female"
+   ],
+   "male": [
+    "wanaume",
+    "wavulana",
+    "me",
+    "male"
+   ],
+   "children": [
+    "watoto",
+    "chini ya miaka 5",
+    "children"
+   ],
+   "youth": [
+    "vijana",
+    "youth"
+   ],
+   "elderly": [
+    "wazee",
+    "wenye umri mkubwa",
+    "elderly"
+   ],
+   "urban": [
+    "mjini",
+    "miji",
+    "urban"
+   ],
+   "rural": [
+    "vijijini",
+    "vijiji",
+    "rural"
+   ],
+   "poorest": [
+    "maskini",
+    "maskini zaidi",
+    "kipato cha chini",
+    "poor"
+   ],
+   "displaced": [
+    "wakimbizi",
+    "waliohamishwa",
+    "idps",
+    "refugees"
+   ],
+   "disability": [
+    "walemavu",
+    "wenye ulemavu",
+    "disability"
+   ]
+  },
+  "datatype": {
+   "indicator": [
+    "kiashiria",
+    "takwimu",
+    "indicators"
+   ],
+   "microdata": [
+    "data ghafi",
+    "sensus",
+    "microdata",
+    "survey"
+   ],
+   "document": [
+    "ripoti",
+    "makala",
+    "taarifa",
+    "document",
+    "paper"
+   ],
+   "dataset": [
+    "dataset",
+    "faili la data",
+    "data",
+    "csv",
+    "database"
+   ]
+  },
+  "scope": {
+   "global": [
+    "duniani",
+    "ulimwengu",
+    "global",
+    "worldwide"
+   ],
+   "developing": [
+    "nchi zinazoendelea",
+    "global south",
+    "developing"
+   ]
+  },
+  "groupings": {
+   "ASEAN": [
+    "asean",
+    "nchi za asean"
+   ],
+   "Africa": [
+    "afrika",
+    "bara la afrika"
+   ],
+   "Andean countries": [
+    "nchi za andes",
+    "nchi za milima ya andes"
+   ],
+   "Arab World": [
+    "ulimwengu wa kiarabu",
+    "nchi za kiarabu",
+    "arabia"
+   ],
+   "BRICS": [
+    "brics",
+    "nchi za brics"
+   ],
+   "Caribbean": [
+    "karibiani",
+    "visiwa vya karibiani"
+   ],
+   "Caribbean small states": [
+    "nchi ndogo za karibiani",
+    "dola ndogo za karibiani"
+   ],
+   "Central America": [
+    "amerika ya kati"
+   ],
+   "Central Asia": [
+    "asia ya kati"
+   ],
+   "ECOWAS": [
+    "ecowas",
+    "jumuiya ya ecowas"
+   ],
+   "East African Community": [
+    "eac",
+    "jumuiya ya afrika mashariki"
+   ],
+   "East Asia & Pacific": [
+    "asia mashariki na pasifiki"
+   ],
+   "Eastern and Southern Africa": [
+    "mashariki na kusini mwa afrika",
+    "esa"
+   ],
+   "Euro area": [
+    "eneo la euro",
+    "eurozone"
+   ],
+   "Europe & Central Asia": [
+    "ulaya na asia ya kati",
+    "eca"
+   ],
+   "European Union": [
+    "muungano wa ulaya",
+    "eu"
+   ],
+   "G7": [
+    "g7",
+    "nchi saba tajiri"
+   ],
+   "Gulf Cooperation Council": [
+    "baraza la ushirikiano la ghuba",
+    "gcc"
+   ],
+   "Heavily indebted poor countries": [
+    "nchi maskini zenye madeni makubwa",
+    "hipc"
+   ],
+   "High income": [
+    "kipato cha juu"
+   ],
+   "Horn of Africa": [
+    "pembe ya afrika"
+   ],
+   "Lake Chad Basin": [
+    "bonde la ziwa chadi"
+   ],
+   "Latin America & Caribbean": [
+    "amerika ya latini na karibiani",
+    "lac"
+   ],
+   "Least developed countries": [
+    "nchi duni zaidi",
+    "ldcs"
+   ],
+   "Low & middle income": [
+    "kipato cha chini na cha kati",
+    "nchi za kipato cha chini na kati"
+   ],
+   "Low income": [
+    "kipato cha chini",
+    "nchi za kipato cha chini"
+   ],
+   "Lower middle income": [
+    "kipato cha chini cha kati",
+    "nchi za kipato cha chini cha kati"
+   ],
+   "Maghreb": [
+    "maghreb",
+    "maghrib"
+   ],
+   "Middle East and North Africa": [
+    "mashariki ya kati na kaskazini mwa afrika",
+    "mena"
+   ],
+   "Middle East, North Africa, Afghanistan & Pakistan": [
+    "mashariki ya kati, kaskazini mwa afrika, afghanistan na pakistan",
+    "mena+ap"
+   ],
+   "Middle income": [
+    "kipato cha kati",
+    "nchi za kipato cha kati"
+   ],
+   "North Africa": [
+    "kaskazini mwa afrika",
+    "afrika kaskazini"
+   ],
+   "North America": [
+    "amerika kaskazini",
+    "ameriki ya kaskazini"
+   ],
+   "OECD members": [
+    "wanachama wa oecd",
+    "oecd"
+   ],
+   "Pacific Islands": [
+    "visiwa vya pasifiki",
+    "visiwa vya bahari ya pasifiki"
+   ],
+   "Pacific island small states": [
+    "nchi ndogo za visiwa vya pasifiki",
+    "piss"
+   ],
+   "SADC": [
+    "sadc",
+    "jumuiya ya maendeleo ya kusini afrika"
+   ],
+   "Sahel": [
+    "sahel",
+    "ukanda wa sahel"
+   ],
+   "Small states": [
+    "nchi ndogo",
+    "dola ndogo"
+   ],
+   "South Asia": [
+    "asia ya kusini"
+   ],
+   "Southeast Asia": [
+    "asia ya kusini mashariki"
+   ],
+   "Sub-Saharan Africa": [
+    "ssa",
+    "afrika kusini mwa sahara",
+    "afrika chini ya sahara"
+   ],
+   "Upper middle income": [
+    "kipato cha kati cha juu"
+   ],
+   "Western Balkans": [
+    "balkani za magharibi"
+   ],
+   "Western and Central Africa": [
+    "afrika magharibi na kati"
+   ]
+  }
+ }
+}
