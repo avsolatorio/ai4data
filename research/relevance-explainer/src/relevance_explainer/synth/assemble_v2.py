@@ -75,7 +75,7 @@ def main() -> None:
              "source": r["source"], "language": r["language"], "seed": r["seed"], "origin": "old"}
             for r, (v2, vm) in zip(old, rendered)]
 
-    real_dirs = a.real if a.real is not None else sorted(str(p) for p in Path("data/real").glob("c*") if (p / "examples.jsonl").exists())
+    real_dirs = a.real if a.real is not None else sorted(str(p) for g in ("c*", "t*") for p in Path("data/real").glob(g) if (p / "examples.jsonl").exists())
     seen = set()
     for d in real_dirs:
         for line in (Path(d) / "examples.jsonl").read_text().splitlines():
@@ -86,18 +86,18 @@ def main() -> None:
             seen.add(key)
             rows.append({"input": r["input_v2"], "input_min": r["input_v2min"], "output": f"{r['verdict']}\n{r['narrative']}",
                          "verdict": r["verdict"], "source": r["record"]["kind"], "language": r["language"], "seed": r["topic"],
-                         "origin": "real", "style": r.get("style"), "writer": r.get("writer", "qwen3.8-27b"), "mode": r.get("mode")})
+                         "origin": "translated" if r.get("mode") == "translated" else "real", "style": r.get("style"), "writer": r.get("writer", "qwen3.8-27b"), "mode": r.get("mode")})
 
     splits = {"train": [], "val": [], "test": []}
     for r in rows:
         splits[G.split_of(r["seed"])].append(r)
     tr = splits["train"]
-    n_real = sum(r["origin"] == "real" for r in tr)
+    n_real = sum(r["origin"] != "old" for r in tr)
     n_old = sum(r["origin"] == "old" for r in tr)
     keep_old = min(n_old, int(n_real * a.old_share / max(1e-9, 1 - a.old_share))) if n_real else n_old
     olds = [r for r in tr if r["origin"] == "old"]
     rng.shuffle(olds)
-    splits["train"] = [r for r in tr if r["origin"] == "real"] + olds[:keep_old]
+    splits["train"] = [r for r in tr if r["origin"] != "old"] + olds[:keep_old]
     rng.shuffle(splits["train"])
     for r in rows:
         r["input_itemfirst"] = item_first(r["input"])
