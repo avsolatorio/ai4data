@@ -29,12 +29,15 @@ SEP = "\n\n### Judgment\n"
 EOS = 1
 VERDICTS = ["relevant", "partly_relevant", "irrelevant"]
 MODELS = {
+    "Realistic + DPO (item-first)": "runs/v2a-cont-itemfirst-dpo/explainer-int8.pt",
     "Round 7 + DPO (best)": "runs/f6-dpo/explainer-int8.pt",
     "Round 7 + DPO + copy head": "runs/f6-copy-dpo/explainer-int8.pt",
     "Round 7, fine-tuned only": "runs/f6-sft/explainer-int8.pt",
     "Round 6 + DPO": "runs/f5-dpo/explainer-int8.pt",
 }
 RTL = {"Arabic"}
+# Input format per model: "itemfirst" models read the item-first realistic format with query understanding and checks.
+MODEL_FORMAT = {"Realistic + DPO (item-first)": "itemfirst"}
 
 
 # ----------------------------------------------------------------------------------------------- examples

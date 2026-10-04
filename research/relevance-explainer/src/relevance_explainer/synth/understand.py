@@ -243,6 +243,8 @@ class Understander:
                 ctry = {c["iso3"] for c in v if c["kind"] == "country"}
                 if any(c["kind"] in ("admin1", "city") and c["iso3"] not in ctry for c in v):
                     self.names[k] = [c for c in v if c["kind"] != "country"]
+        cw = Path("data/geo/common_tokens.json") if Path("data/geo/common_tokens.json").exists() else _RES / "common_tokens.json"
+        self.common_words = set(json.loads(cw.read_text())) if cw.exists() else set()
         self.latin_countries: dict[tuple, list[tuple[str, list]]] = {}  # (word count, first letter) -> country names
         for k, v in self.names.items():
             if all(t.isascii() for t in k) and len(" ".join(k)) >= 6 and any(c["kind"] == "country" for c in v):
@@ -298,7 +300,7 @@ class Understander:
         """Countries spelled with one wrong, missing or extra letter (two for names of 10+ letters), same first letter:
         indonesi, kazanakhstan, phillipines. Names under 6 letters are matched exactly only."""
         s = " ".join(key)
-        if len(s) < 6:
+        if len(s) < 6 or any(t in self.common_words for t in key):  # real words (malaria) are not misspelt countries
             return None
         for name, cands in self.latin_countries.get((len(key), s[0]), []):
             limit = 2 if len(name) >= 10 else 1

@@ -151,8 +151,9 @@ textarea.editor{width:100%;min-height:440px;border-radius:12px;border:1px solid 
     <div class="panel pad">
       <div class="h">Examples</div>
       <div class="seg wide" id="fSet" style="margin-bottom:6px">
-        <button data-v="fresh" class="on" title="Neither the search nor the catalog item occurs in any training data">Unseen items</button>
-        <button data-v="test" title="New searches from held-out themes; the catalog items also occur in training with other searches">Held-out searches</button>
+        <button data-v="realistic" class="on" title="Searches written the way people type them, on themes never used in training">Realistic</button>
+        <button data-v="fresh" title="Neither the search nor the catalog item occurs in any training data">Unseen items</button>
+        <button data-v="test" title="New searches from held-out themes; the catalog items also occur in training with other searches">Held-out</button>
       </div>
       <div class="setnote" id="setNote"></div>
       <input class="search" id="q" placeholder="Search queries and titles…" autocomplete="off">
@@ -229,20 +230,21 @@ const ITEM=[["statistical","📈","Data360 indicator"],["survey","🗂️","Micr
 const RTL=new Set(["Arabic"]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let EX=[],MODELS=[],sel=null,labFilter="all",mode="greedy",busy=false,live=null,setFilter="fresh";
-const SETNOTE={fresh:"Neither the search nor the catalog item occurs anywhere in the training data. These were generated after training from new themes and items.",
+let EX=[],MODELS=[],sel=null,labFilter="all",mode="greedy",busy=false,live=null,setFilter="realistic";
+const REAL_MODEL="Realistic + DPO (item-first)",OLD_MODEL="Round 7 + DPO (best)";
+const SETNOTE={realistic:"Searches written the way people type them: constraints in the text, facets rarely set, themes never used in training. Edit the search to try your own (as typed, without facets); the server re-runs query understanding and the checks.",fresh:"Neither the search nor the catalog item occurs anywhere in the training data. These were generated after training from new themes and items.",
   test:"New searches from themes held out of training. The catalog items do occur in training, paired with other searches."};
 
 function parseInput(t){
-  const f={meta:[]};const keys=new Set(["Respond in","Item type","Query","Filters","Retrieval similarity","Result","Filter check","Reranker score"]);
+  const f={meta:[]};const keys=new Set(["Respond in","Item type","Query","Filters","Retrieval similarity","Result","Filter check","Reranker score","Search","Facets","Understood","Checks"]);
   for(const line of t.split("\n")){const i=line.indexOf(": ");if(i<0)continue;const k=line.slice(0,i),v=line.slice(i+2).trim();
     if(keys.has(k))f[k]=v;else f.meta.push([k,v]);}
   return f;
 }
 function chipKind(p){const l=p.toLowerCase();
-  if(l.includes("not covered")||l.includes("differs")||l.includes("outside"))return"bad";
-  if(l.includes("cannot")||l.includes("not verifiable")||l.includes("unknown")||l.includes("partly"))return"warn";
-  if(l.includes("covered")||l.includes("match"))return"ok";return"";}
+  if(l.includes("not covered")||l.includes("differs")||l.includes("outside")||l.includes("item is ")||l.includes("not recent"))return"bad";
+  if(l.includes("cannot")||l.includes("not verifiable")||l.includes("not stated")||l.includes("unknown")||l.includes("partly")||l.includes("not mentioned")||l.includes("not named")||l.includes("publication date"))return"warn";
+  if(l.includes("covered")||l.includes("match")||l.includes("mentioned")||l.includes("named")||l.includes("current"))return"ok";return"";}
 const contested=e=>new Set(Object.values(e.labels)).size>1;
 const itemPill=t=>{const m=ITEM.find(([k])=>t.toLowerCase().startsWith(k));return m?`${m[1]} ${m[2]}`:`🔎 ${esc(t)}`;};
 const dirOf=lang=>RTL.has(lang)?' dir="rtl"':' dir="auto"';
@@ -257,7 +259,7 @@ function renderList(){
     return `<button class="ex${sel&&sel.id===e.id?" sel":""}" data-id="${esc(e.id)}">
       <div class="m"><span class="tag">${esc(e.language.slice(0,3).toUpperCase())}</span><span>${s[0]} ${s[1]}</span>
       ${contested(e)?'<span class="flag" title="Contested label">⚑</span>':""}</div>
-      <div class="q"${dirOf(e.language)}>${esc(f["Query"]||"")}</div>
+      <div class="q"${dirOf(e.language)}>${esc(f["Query"]||f["Search"]||"")}</div>
       <div class="m"><span class="dot d-${e.labels.stored}"></span>${NICE[e.labels.stored]}</div></button>`;}).join("")||'<div class="empty">No examples match.</div>';
 }
 
@@ -274,6 +276,7 @@ function renderInput(){
     $("#resetBtn").onclick=()=>{delete sel._edited;renderInput();renderAudit();};
     return;
   }
+  if(sel.set==="realistic"){renderRealisticInput(col);return;}
   const t=currentText(),f=parseInput(t),lang=f["Respond in"]||"",sim=parseFloat(f["Retrieval similarity"]);
   const filters=(f["Filters"]&&f["Filters"]!=="none")?f["Filters"].split(";").map(x=>x.trim()).filter(Boolean):[];
   const checks=(f["Filter check"]||"").split(";").map(x=>x.trim()).filter(Boolean);
@@ -299,7 +302,46 @@ function renderInput(){
     <dl class="meta">${f.meta.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
   </section>`;
 }
-const currentText=()=>sel?(sel._edited??sel.input):"";
+const currentText=()=>sel?(sel._edited??(sel.set==="realistic"&&sel._render?sel._render.itemfirst:sel.input)):"";
+
+function renderRealisticInput(col){
+  const t=currentText(),f=parseInput(t),lang=f["Respond in"]||"",sim=parseFloat(f["Retrieval similarity"]);
+  const und=(f["Understood"]||"").split(";").map(x=>x.trim()).filter(Boolean);
+  const chk=(f["Checks"]&&f["Checks"]!=="none")?f["Checks"].split("|").map(x=>x.trim()).filter(Boolean):[];
+  const icon={ok:"✓",bad:"✕",warn:"?","":"•"};
+  const search=sel._search??sel.query??f["Search"]??"";
+  col.innerHTML=`
+  <section class="panel pad"><div class="h">Search</div>
+    <div class="row"><span class="pill">🌐 ${esc(lang)}</span><span class="pill" title="${esc(f["Item type"]||"")}">${itemPill(f["Item type"]||"")}</span>
+      <span class="pill">${esc(sel.style||"")}</span>${sel._search&&sel._search!==sel.query?'<span class="pill" style="color:var(--warn)">your search</span>':""}</div>
+    <div class="row" style="margin:10px 0 8px;flex-wrap:nowrap">
+      <input class="search" id="srch" style="background-image:none;padding-left:12px;font-size:16px;font-weight:600" value="${esc(search)}"${dirOf(lang)}>
+      <button class="btn ghost" id="applyBtn" title="Re-run query understanding and checks for this search">Apply</button>
+      ${sel._search&&sel._search!==sel.query?'<button class="iconbtn" id="undoBtn" title="Back to the original search">↺</button>':""}</div>
+    <div class="row"><span class="muted" style="margin-right:6px">Facets</span>${f["Facets"]&&f["Facets"]!=="none"?f["Facets"].split(";").map(x=>`<span class="chip">${esc(x.trim())}</span>`).join(""):'<span class="muted">none set</span>'}</div>
+  </section>
+  <section class="panel pad"><div class="h">What the preprocessor understood · given to the model</div>
+    <div class="row">${und.map(x=>{const m=x.match(/^(.*?)\s*\[(query|facet|query\+facet)\]$/);return `<span class="chip">${esc(m?m[1]:x)}${m?` <span class="muted" style="font-size:11px">${m[2]}</span>`:""}</span>`;}).join("")||'<span class="muted">nothing</span>'}</div>
+    <div class="h" style="margin-top:14px">Checks against this item</div>
+    <div class="row">${chk.map(c=>{const k=chipKind(c.replace(/^[^:]*:/,""));return `<span class="chip ${k}">${icon[k]} ${esc(c)}</span>`;}).join("")||'<span class="muted">no constraints to check</span>'}</div>
+    <div class="sig" style="margin-top:14px"><span class="k">Retrieval similarity</span>
+      ${isNaN(sim)?'<span class="muted">none</span>':`<div class="meter"><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(1,sim))*100}%"></div></div><b>${sim.toFixed(2)}</b></div>`}</div>
+  </section>
+  <section class="panel pad"><div class="h">Result being explained</div>
+    <div class="title">${esc(f["Result"]||"")}</div>
+    <dl class="meta">${f.meta.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+  </section>`;
+  const apply=async()=>{const v=$("#srch").value.trim();if(!v)return;await rerender(v===sel.query?null:v);};
+  $("#applyBtn").onclick=apply;
+  $("#srch").addEventListener("keydown",e=>{if(e.key==="Enter"&&!(e.metaKey||e.ctrlKey)){e.preventDefault();apply();}});
+  if($("#undoBtn"))$("#undoBtn").onclick=()=>rerender(null);
+}
+
+async function rerender(search){
+  const r=await fetch("api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({example_id:String(sel.id),search})});
+  if(!r.ok){return;}
+  sel._render=await r.json();sel._search=search;live=null;renderInput();renderOutput(null);renderAudit();
+}
 
 function renderOutput(s){
   const p=$("#outPanel");
@@ -324,9 +366,12 @@ function renderAudit(){
   const lang=sel.language;
   const j=sel.offline&&sel.offline.judged||{};
   const sc=(who,s)=>s?`<span class="score">${who}<b>faithful ${s.faithful}/5</b>· coherent ${s.coherent}/5</span>`:"";
-  const same=live&&live.model==="Round 7 + DPO (best)"&&!edited&&sel.offline&&sel.offline.text&&live.text.trim()===sel.offline.text.trim();
+  const offModel=sel.set==="realistic"?REAL_MODEL:OLD_MODEL;
+  const same=live&&live.model===offModel&&!edited&&!sel._search&&sel.offline&&sel.offline.text&&live.text.trim()===sel.offline.text.trim();
   const n=sel.train_item_count;
-  const prov=sel.set==="fresh"
+  const prov=sel.set==="realistic"
+    ?`<div class="prov"><b>Realistic search</b> on a theme never used in training${sel.relation?` (generated as: ${esc(sel.relation.replace("_"," "))})`:""}.${sel._search&&sel._search!==sel.query?" <b>You edited the search</b>: the labels below refer to the original.":""}</div>`
+    :sel.set==="fresh"
     ?`<div class="prov"><b>Unseen.</b> Neither this search nor this catalog item occurs in any training data${sel.theme?` (new theme: “${esc(sel.theme)}”)`:""}.</div>`
     :`<div class="prov"><b>Held-out search.</b> ${n===0?"The catalog item does not occur in training either.":`The catalog item occurs ${n} time${n===1?"":"s"} in training, with other searches.`}</div>`;
   const miss=new Set(sel.labels_missing||[]);
@@ -340,11 +385,13 @@ function renderAudit(){
     <div class="ref"${dirOf(lang)}>${esc(rn)}</div>
     ${(!edited&&(j.teacher||j.gemma4))?`<div class="h" style="margin-top:18px">Offline judges · best model on this input</div>
       <div class="judge">${sc("Teacher judge",j.teacher)}${sc("Gemma 4",j.gemma4)}</div>
-      ${same?'<div class="note info">The live output above is identical to the output these judges scored.</div>':""}`:""}`;
+      ${same?'<div class="note info">The live output above is identical to the output these judges scored.</div>':""}`:""}
+    ${sel.set==="realistic"&&sel.offline&&sel.offline.text&&same?'<div class="note info">The live output matches the offline evaluation of this model.</div>':""}`;
 }
 
 async function runOnce(modelName,onEvent){
   const body={input:currentText(),model:modelName,temperature:mode==="sample"?parseFloat($("#temp").value):0,guard:$("#guard").checked};
+  if(sel.set==="realistic"){body.example_id=String(sel.id);body.search=sel._search??null;if(sel._edited)body.raw=true;}
   const r=await fetch("api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   if(!r.ok){const e=await r.json().catch(()=>({error:r.statusText}));throw new Error(e.error||r.statusText);}
   const rd=r.body.getReader(),dec=new TextDecoder();let buf="",last=null;
@@ -380,7 +427,7 @@ async function compare(){
       <div class="cell">${r.verdict?`<span class="badge sm v-${r.verdict}">${NICE[r.verdict]}</span>${r.p!=null?`<div class="muted" style="font-size:11.5px;margin-top:4px">${(r.p*100).toFixed(0)}% confident</div>`:""}`:'<span class="muted">…</span>'}</div>
       <div class="cell"${dirOf(sel.language)}>${esc(r.narrative||"")}${r.error?`<span style="color:var(--bad)">${esc(r.error)}</span>`:""}</div>
       <div class="cell muted">${r.t?r.t+" s":""}</div>`).join("")}</div>`;};
-  for(const m of MODELS){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
+  for(const m of MODELS.filter(m=>m.format!=="itemfirst"||sel.set==="realistic")){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
     try{let probs=null;const last=await runOnce(m.name,ev=>{if(ev.type==="probs")probs=ev.probs;if(ev.type==="token"){Object.assign(r,split(ev.text));draw();}});
       if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:probs?probs[last.verdict]:null});}
       else r.error=last?last.message:"no result";}catch(e){r.error=e.message;}
@@ -394,7 +441,11 @@ function select(id,push=true){
   if(push)history.replaceState(null,"",`#ex=${sel.id}`);
   document.querySelectorAll(".ex").forEach(b=>b.classList.toggle("sel",b.dataset.id===String(sel.id)));
   $("#cmpPanel").classList.add("hidden");
+  const want=sel.set==="realistic"?REAL_MODEL:OLD_MODEL,cur=MODELS.find(m=>m.name===$("#model").value);
+  if(MODELS.some(m=>m.name===want)&&(sel.set==="realistic"?cur&&cur.format!=="itemfirst":cur&&cur.format==="itemfirst"))$("#model").value=want;
+  if(sel.set==="realistic"&&MODELS.some(m=>m.name===REAL_MODEL)&&!sel._picked){$("#model").value=REAL_MODEL;}
   renderInput();renderOutput(null);renderAudit();
+  if(sel.set==="realistic"&&!sel._render)rerender(sel._search??null);
 }
 
 async function init(){
@@ -405,7 +456,8 @@ async function init(){
   $("#fLang").innerHTML=`<option value="all">All languages</option>`+langs.map(l=>`<option>${esc(l)}</option>`).join("");
   $("#fSrc").innerHTML=`<option value="all">All sources</option>`+srcs.map(s=>`<option value="${s}">${SRC[s]?SRC[s][1]:s}</option>`).join("");
   $("#model").innerHTML=MODELS.map(m=>`<option${m.default?" selected":""}>${esc(m.name)}</option>`).join("");
-  if(!EX.some(e=>e.set==="fresh")){setFilter="test";$("#fSet").classList.add("hidden");}
+  if(!EX.some(e=>e.set==="realistic"))setFilter=EX.some(e=>e.set==="fresh")?"fresh":"test";
+  ["realistic","fresh"].forEach(v=>{if(!EX.some(e=>e.set===v)){const b=document.querySelector(`#fSet button[data-v=${v}]`);if(b)b.remove();}});
   document.querySelectorAll("#fSet button").forEach(x=>x.classList.toggle("on",x.dataset.v===setFilter));
   renderList();
   const h=location.hash.match(/ex=([\w-]+)/);const first=EX.find(e=>e.set===setFilter);select(h?h[1]:first.id,false);

@@ -38,16 +38,51 @@ MAX_CONCURRENT = int(os.environ.get("MAX_CONCURRENT", "4"))
 THREADS = int(os.environ.get("TORCH_THREADS", "4"))
 torch.set_num_threads(THREADS)
 _slots = threading.BoundedSemaphore(MAX_CONCURRENT)
-FIELDS = ("id", "language", "source", "input", "reference", "labels", "offline", "train_item_count", "labels_missing", "theme")
+FIELDS = ("id", "language", "source", "input", "reference", "labels", "offline", "train_item_count", "labels_missing", "theme",
+          "query", "facets", "style", "relation")
+_REALISTIC: dict[str, dict] = {}  # id -> example with its catalog record (kept on the server)
 
 
 def _load_examples() -> list[dict]:
     """The held-out test examples ("test") and, when built, the fresh set with unseen items ("fresh")."""
     out = []
-    for path, name in ((V.EXAMPLES, "test"), (V.EXAMPLES.parent / "examples_fresh.json", "fresh")):
+    for path, name in ((V.EXAMPLES.parent / "examples_realistic.json", "realistic"), (V.EXAMPLES, "test"),
+                       (V.EXAMPLES.parent / "examples_fresh.json", "fresh")):
         if path.exists():
-            out += [{**{k: e[k] for k in FIELDS if k in e}, "set": name} for e in json.loads(path.read_text())]
+            for e in json.loads(path.read_text()):
+                if name == "realistic":
+                    _REALISTIC[str(e["id"])] = e
+                out.append({**{k: e[k] for k in FIELDS if k in e}, "set": name})
     return out
+
+
+_U = None
+_ST = None
+
+
+def render_for(example_id: str, search: str | None) -> dict:
+    """Inputs for a realistic example and a (possibly edited) search: item-first and first-round formats."""
+    global _U, _ST
+    from ..synth.realistic import item_first, render_v1, render_v2
+    from ..synth.understand import Understander
+    from ..synth.signals import MODEL as ST_MODEL, item_text
+    e = _REALISTIC[example_id]
+    q = (search or e["query"]).strip()
+    if q == e["query"]:
+        sim = e["similarity"]
+    else:
+        if _ST is None:
+            from sentence_transformers import SentenceTransformer
+            _ST = SentenceTransformer(ST_MODEL, device="cpu")
+        a, b = _ST.encode([q, item_text(e["record"])], normalize_embeddings=True)
+        sim = float(a @ b)
+    if _U is None:
+        _U = Understander()
+    # facets belong to the original search; an edited search is treated as typed with no facets set
+    p = {"query": q, "language": e["language"], "record": e["record"], "facet_values": (e.get("facets") or {}) if q == e["query"] else {}}
+    parsed = _U.parse(q, p["facet_values"])
+    v2 = render_v2(p, _U, parsed, sim)
+    return {"itemfirst": item_first(v2), "v1": render_v1(p, p["facet_values"], sim), "similarity": round(sim, 2)}
 
 
 _PUBLIC_EXAMPLES = _load_examples()
@@ -80,8 +115,20 @@ async def models(request: Request) -> Response:
     for name, path in V.MODELS.items():
         p = V.ROOT / path
         if p.exists():
-            out.append({"name": name, "size_mb": round(p.stat().st_size / 1e6, 1), "default": name == "Round 7 + DPO (best)"})
+            out.append({"name": name, "size_mb": round(p.stat().st_size / 1e6, 1), "default": name == "Round 7 + DPO (best)",
+                        "format": V.MODEL_FORMAT.get(name, "v1")})
     return JSONResponse(out)
+
+
+async def render(request: Request) -> Response:
+    try:
+        body = await request.json()
+        eid, search = str(body.get("example_id", "")), body.get("search")
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+    if eid not in _REALISTIC or (search is not None and (not str(search).strip() or len(str(search)) > 500)):
+        return JSONResponse({"error": "unknown example or invalid search"}, status_code=400)
+    return JSONResponse(render_for(eid, search))
 
 
 async def health(request: Request) -> Response:
@@ -133,6 +180,15 @@ async def generate(request: Request) -> Response:
         return JSONResponse({"error": "invalid JSON"}, status_code=400)
     text = str(body.get("input", ""))
     model_name = str(body.get("model", "Round 7 + DPO (best)"))
+    eid = str(body.get("example_id", ""))
+    if eid in _REALISTIC and not body.get("raw"):  # realistic example: the server renders the input for the model's format
+        search = body.get("search")
+        if search is not None and (not str(search).strip() or len(str(search)) > 500):
+            return JSONResponse({"error": "invalid search"}, status_code=400)
+        r = render_for(eid, search)
+        text = r["itemfirst"] if V.MODEL_FORMAT.get(model_name) == "itemfirst" else r["v1"]
+    elif V.MODEL_FORMAT.get(model_name) == "itemfirst":
+        return JSONResponse({"error": "this model reads the realistic format; pick an example from the realistic set"}, status_code=400)
     if not text.strip() or len(text) > MAX_INPUT_CHARS:
         return JSONResponse({"error": f"input must be 1 to {MAX_INPUT_CHARS} characters"}, status_code=400)
     if model_name not in V.MODELS or not (V.ROOT / V.MODELS[model_name]).exists():
@@ -148,7 +204,7 @@ async def generate(request: Request) -> Response:
 
 app = Starlette(routes=[
     Route("/", index), Route("/index.html", index), Route("/api/examples", examples), Route("/api/models", models),
-    Route("/api/generate", generate, methods=["POST"]), Route("/healthz", health),
+    Route("/api/generate", generate, methods=["POST"]), Route("/api/render", render, methods=["POST"]), Route("/healthz", health),
 ], middleware=[Middleware(StripPrefix)])
 
 # Load the default model at startup so the first request is fast.
