@@ -1,0 +1,144 @@
+"""Web app for the relevance explainer: a single-page viewer with live CPU generation.
+
+Serves the page, the curated examples and a streaming generation endpoint. All browser requests use relative URLs,
+so the app works at the root or under a path prefix behind a reverse proxy. If the proxy forwards the prefix
+(nginx `proxy_pass http://host:3410;` without a trailing slash), set BASE_PATH to it and it is stripped here.
+
+  BASE_PATH=/relevance-explainer uvicorn relevance_explainer.webapp.server:app --host 0.0.0.0 --port 3410
+
+Endpoints (relative to the base path):
+  GET  /                 the page
+  GET  /api/examples     curated test inputs with labels, teacher reference and offline judge scores
+  GET  /api/models       available models
+  POST /api/generate     {"input", "model", "temperature", "guard"} -> NDJSON stream of events
+  GET  /healthz          liveness
+"""
+from __future__ import annotations
+
+import json
+import os
+import threading
+import time
+from pathlib import Path
+
+import torch
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from starlette.requests import Request
+from starlette.responses import FileResponse, JSONResponse, PlainTextResponse, Response, StreamingResponse
+from starlette.routing import Route
+
+from .. import viewer as V
+from ..tiny.scriptguard import banned_for
+
+STATIC = Path(__file__).parent / "static"
+BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
+MAX_INPUT_CHARS = int(os.environ.get("MAX_INPUT_CHARS", "12000"))
+MAX_CONCURRENT = int(os.environ.get("MAX_CONCURRENT", "4"))
+THREADS = int(os.environ.get("TORCH_THREADS", "4"))
+torch.set_num_threads(THREADS)
+_slots = threading.BoundedSemaphore(MAX_CONCURRENT)
+_EXAMPLES = json.loads(V.EXAMPLES.read_text())
+_PUBLIC_EXAMPLES = [{k: e[k] for k in ("id", "language", "source", "input", "reference", "labels", "offline")} for e in _EXAMPLES]
+
+
+class StripPrefix:
+    """ASGI middleware: remove BASE_PATH from the request path when the proxy forwards it."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if BASE_PATH and scope["type"] == "http" and scope["path"].startswith(BASE_PATH):
+            scope = dict(scope)
+            scope["path"] = scope["path"][len(BASE_PATH):] or "/"
+            scope["root_path"] = BASE_PATH
+        await self.app(scope, receive, send)
+
+
+async def index(request: Request) -> Response:
+    return FileResponse(STATIC / "index.html", headers={"Cache-Control": "no-cache"})
+
+
+async def examples(request: Request) -> Response:
+    return JSONResponse(_PUBLIC_EXAMPLES, headers={"Cache-Control": "public, max-age=300"})
+
+
+async def models(request: Request) -> Response:
+    out = []
+    for name, path in V.MODELS.items():
+        p = V.ROOT / path
+        if p.exists():
+            out.append({"name": name, "size_mb": round(p.stat().st_size / 1e6, 1), "default": name == "Round 7 + DPO (best)"})
+    return JSONResponse(out)
+
+
+async def health(request: Request) -> Response:
+    return PlainTextResponse("ok")
+
+
+def _events(text: str, model_name: str, temperature: float, guard: bool):
+    """Generate one answer and yield NDJSON lines: start, probs, token (cumulative text), done."""
+    if not _slots.acquire(timeout=30):
+        yield json.dumps({"type": "error", "message": "The server is busy; try again in a moment."}) + "\n"
+        return
+    try:
+        t0 = time.time()
+        model, tk, masks, load_s, size = V.load(model_name)
+        prompt = tk.encode(text + V.SEP).ids
+        if len(prompt) > model.c.max_len - 280:  # leave room for the answer within the model's context
+            yield json.dumps({"type": "error", "message": f"Input is {len(prompt)} tokens; the limit is {model.c.max_len - 280}. Shorten the metadata."}) + "\n"
+            return
+        ban = banned_for(masks, text) if guard else None
+        yield json.dumps({"type": "start", "prompt_tokens": len(prompt), "model_mb": round(size / 1e6, 1)}) + "\n"
+        toks, t1, first = [], time.time(), None
+        for k, (tok, logits) in enumerate(V.stream(model, prompt, banned=ban, temperature=temperature, seed=int(t0 * 1000) % 2**31)):
+            if k == 0:
+                first = time.time() - t1
+                yield json.dumps({"type": "probs", "probs": V.verdict_probs(tk, logits)}) + "\n"
+            if tok == V.EOS:
+                break
+            toks.append(tok)
+            if k % 2 == 0:
+                yield json.dumps({"type": "token", "text": tk.decode(toks)}) + "\n"
+        total = time.time() - t1
+        out = tk.decode(toks).strip()
+        head, _, rest = out.partition("\n")
+        verdict = head.strip() if head.strip() in V.VERDICTS else "invalid"
+        yield json.dumps({"type": "done", "text": out, "verdict": verdict, "narrative": rest.strip(), "stats": {
+            "prompt_tokens": len(prompt), "output_tokens": len(toks), "first_token_ms": round(first * 1000),
+            "total_s": round(total, 2), "per_token_ms": round((total - first) / max(1, len(toks) - 1) * 1000, 1),
+            "model_mb": round(size / 1e6, 1)}}) + "\n"
+    except Exception as exc:  # report to the page instead of breaking the stream
+        yield json.dumps({"type": "error", "message": f"{type(exc).__name__}: {exc}"}) + "\n"
+    finally:
+        _slots.release()
+
+
+async def generate(request: Request) -> Response:
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+    text = str(body.get("input", ""))
+    model_name = str(body.get("model", "Round 7 + DPO (best)"))
+    if not text.strip() or len(text) > MAX_INPUT_CHARS:
+        return JSONResponse({"error": f"input must be 1 to {MAX_INPUT_CHARS} characters"}, status_code=400)
+    if model_name not in V.MODELS or not (V.ROOT / V.MODELS[model_name]).exists():
+        return JSONResponse({"error": "unknown model"}, status_code=400)
+    try:
+        temperature = min(max(float(body.get("temperature", 0.0)), 0.0), 1.5)
+    except (TypeError, ValueError):
+        temperature = 0.0
+    guard = bool(body.get("guard", True))
+    return StreamingResponse(_events(text, model_name, temperature, guard), media_type="application/x-ndjson",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+app = Starlette(routes=[
+    Route("/", index), Route("/index.html", index), Route("/api/examples", examples), Route("/api/models", models),
+    Route("/api/generate", generate, methods=["POST"]), Route("/healthz", health),
+], middleware=[Middleware(StripPrefix)])
+
+# Load the default model at startup so the first request is fast.
+V.load("Round 7 + DPO (best)")
