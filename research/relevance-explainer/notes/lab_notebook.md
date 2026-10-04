@@ -690,3 +690,25 @@ Commit: fix at 7a21ad9 (`synth/understand.py`: no typo matching for words that o
 **Result.** 241 of 89,049 examples (0.27%) had a spurious place; 54 narratives name it. Most frequent: malaria to Malaysia 93, island to Iceland 34, Spanish compras to Comoros 27, Indonesian belanja to Netherlands 21, Indonesian bahasa to Bahamas 20, venezuelan to Venezuela 14. A few removed matches were genuine misspellings (south afrika, doniminican republic) that the stricter rule now misses. `runs/v2a-cont-itemfirst-dpo` on the re-rendered test inputs: 81.2% (teacher label) and 87.4% (unanimous), unchanged from the earlier scoring.
 
 **Implication.** No reported number changes. Typo tolerance for place names must be limited to strings that are not ordinary words; the gate costs a few real misspellings.
+
+## 2026-10-04 23:10 UTC — Realistic data, milestone B: five times the realistic data adds 2.3 verdict points and 0.3 faithfulness
+
+Commit: c4a2077 (milestone scripts; translation backfill after the language-check fix). Recipe as for `v2a-cont-itemfirst-dpo`: continue `runs/f6-dpo` on the item-first variant (lr 3e-4, 3 epochs), then on-policy DPO (round settings).
+
+**Question/Context.** Does more realistic data keep improving the model, and how far toward a 0.94 target can it go?
+
+**What was done.** `data/v2_b` at 22 chunks and 11 translation sets: 127,526 realistic examples after de-duplication (54 dropped by the typo-bug check); training split 203,468 = 85,490 realistic + 16,244 translated + 101,734 first-round (old share 50%). `runs/v2b-cont-itemfirst`, then DPO with 5,134 pairs (3,377 chosen from the student, 1,757 from the teacher) to `runs/v2b-cont-itemfirst-dpo`. Scored and judged as in the previous entries.
+
+**Result.**
+| Model | Verdict (teacher) | Unanimous | 2-class, unanimous | Faithful teacher / Gemma 4 | At 4+ (Gemma 4) |
+|---|---|---|---|---|---|
+| f6-dpo, deployed format | 72.4% | 79.1% | n/a | 3.57 / 3.78 | 60.8% |
+| v2a-cont-itemfirst-dpo (19k realistic) | 81.2% | 87.4% | 90.8% | 3.86 / 4.12 | 70.9% |
+| v2b-cont-itemfirst (102k realistic incl. translated) | 83.5% | 89.4% | n/a | 3.95 / 4.14 | 69.6% |
+| v2b-cont-itemfirst-dpo | 83.6% | 89.5% | 92.4% | 4.19 / 4.37 | 78.9% |
+
+- 2-class means irrelevant against relevant-or-partly. Label ceilings on the same test set: Gemma 4 against the teacher label 86.3% (3-class) and 90.2% (2-class); the teacher's thinking mode 83.8% and 86.8%.
+- By relation, v2a-cont to v2b-cont: related concept 66% to 80%; fully answers 76% to 83%; wrong place 85% to 82%; wrong time 83% to 83%.
+- Errors of v2a-cont-itemfirst-dpo: partly relevant called irrelevant 150 of 281.
+
+**Implication.** Realistic data scales: verdict +2.3 points and faithfulness +0.25 to 0.33 from about five times the realistic data, with DPO adding about 0.25 faithfulness again. Verdict accuracy against the teacher label is now close to how often a 31B model agrees with that label (86%), so further verdict gains should be measured on the unanimous subset. Milestone C repeats the recipe at 50 chunks. `runs/v2b-cont-itemfirst-dpo` replaces the realistic model in the app.
