@@ -562,3 +562,22 @@ Commit: cc893b0 (`train.py --verdict-last`, `synth/fieldsignals.py`); reranker p
 - Probes, test accuracy: retrieval similarity alone 72.4% (first probe) ; with filter counts and source 78.8% / 78.2% (two probe runs); adding field similarities 79.1% (+0.3); adding the reranker score 81.1% (+2.9). The reranker scored 40,000 pairs in 21 s on one H100.
 
 **Implication.** Reasoning before the verdict costs 3.7 points of verdict accuracy at this size and does not improve the narrative; the verdict-first order stays. This also lowers the prior for a generated "pitfalls" stream before the answer. Field similarities from the retriever add almost nothing beyond its overall similarity and are not pursued; the reranker score carries more verdict information and is being tested as a model input (`data/f6rr`).
+
+## 2026-10-04 03:11 UTC — Test items recur in training; a fresh set with unseen items
+
+Commit: 3067443 (`synth/fresh.py`, `scripts/build_fresh.sh`). Models as in the app (INT8 exports, CPU, script constraint on, greedy). Judges: teacher (Qwen3.8-27B-FP8) and Gemma 4 31B.
+
+**Question/Context.** The splits are by theme, so test searches are unseen, but are the catalog items? The app's 100 held-out examples were checked against the best model's training file (`data/f6/train.jsonl`).
+
+**What was done.**
+1. Overlap check of the 100 held-out examples: identical inputs, identical query text, identical (query, item) pairs, and item titles that occur in training with other searches.
+2. A fresh set: 239 new themes from the teacher (208 not used before); 347 theme and item-anchored searches; 1,522 retrieved pairs, of which 71 have an item whose id and title occur in no round file (v1 to v7: queries, pairs and examples, all splits). A second phase scanned results 4 to 30 of 140 fresh (theme, source) draws for such items and had the teacher write searches each item answers fully or partly (242 pairs). The teacher narrated all 313; 100 were selected for a spread of verdicts (25 / 35 / 40), languages and sources, and labelled with the teacher's thinking mode and Gemma 4.
+3. All four app models generated answers for the 100; the teacher and Gemma 4 judged the best model's narratives.
+
+**Result.**
+- Held-out examples: identical inputs 0, identical queries 0, identical (query, item) pairs 0; the item occurs in training with other searches for 97 of 100 (median 58 times, up to 1,089).
+- Fresh set: 0 of 100 item titles and 0 of 100 queries occur in the best model's training file. Sources: documents 44, HDX 38, indicators 14, studies 4 (unseen indicators and studies are rare: earlier rounds covered 25,567 item ids). Label agreement with the stored teacher label: thinking mode 77 of 100, Gemma 4 91 of 100; all three agree on 69.
+- Verdict against the teacher label / against the majority of the three labels / on the 69 unanimous examples: round 7 + DPO 85% / 86% / 90%; with copy head 86% / 87% / 93%; round 7 fine-tuned only 86% / 87% / 88%; round 6 + DPO 85% / 86% / 88%.
+- Best model's narratives on the fresh set: faithfulness 4.13 (teacher judge; 74% at 4 or more) and 4.33 (Gemma 4; 77%), coherence 4.30 and 4.73. On the held-out set the same model scores 4.54 and 4.62.
+
+**Implication.** The standard test set measures generalization to new searches over mostly familiar items. On unseen items the verdict holds at the same level (85 to 86% against the teacher label, 88 to 93% where the labels agree), while narrative faithfulness drops by about 0.3 to 0.4. With 100 examples and a different source mix (documents and HDX datasets dominate) the size of that drop is uncertain, but its direction matches the error analysis: the remaining errors are in describing what an item contains, which is harder for items never seen in training. The fresh set is now the second example set in the app and a candidate standard for future comparisons.
