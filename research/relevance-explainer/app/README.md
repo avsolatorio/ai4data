@@ -6,7 +6,11 @@ signals the model receives, its verdict probabilities, timing, the teacher's ref
 the offline judge scores, and can run every model on the same input side by side.
 
 - Server: `src/relevance_explainer/webapp/server.py` (Starlette on uvicorn); page: `webapp/static/index.html`.
-- Examples: `app/examples.json`, built with `python -m relevance_explainer.viewer build`.
+- Examples, two sets selectable on the page:
+  - Unseen items, `app/examples_fresh.json`: 100 searches and catalog items that occur in no data round, built
+    after training from new themes with `scripts/build_fresh.sh data/fresh 100 --anchor-unseen 140`.
+  - Held-out searches, `app/examples.json`: 100 test-split searches from held-out themes; their catalog items do
+    occur in training with other searches (the page shows how often). Built with `python -m relevance_explainer.viewer build`.
 - Models: the INT8 exports listed in `relevance_explainer.viewer.MODELS` (files under `runs/`, not tracked by git).
 
 ## Run

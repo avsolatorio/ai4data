@@ -38,8 +38,19 @@ MAX_CONCURRENT = int(os.environ.get("MAX_CONCURRENT", "4"))
 THREADS = int(os.environ.get("TORCH_THREADS", "4"))
 torch.set_num_threads(THREADS)
 _slots = threading.BoundedSemaphore(MAX_CONCURRENT)
-_EXAMPLES = json.loads(V.EXAMPLES.read_text())
-_PUBLIC_EXAMPLES = [{k: e[k] for k in ("id", "language", "source", "input", "reference", "labels", "offline")} for e in _EXAMPLES]
+FIELDS = ("id", "language", "source", "input", "reference", "labels", "offline", "train_item_count", "labels_missing", "theme")
+
+
+def _load_examples() -> list[dict]:
+    """The held-out test examples ("test") and, when built, the fresh set with unseen items ("fresh")."""
+    out = []
+    for path, name in ((V.EXAMPLES, "test"), (V.EXAMPLES.parent / "examples_fresh.json", "fresh")):
+        if path.exists():
+            out += [{**{k: e[k] for k in FIELDS if k in e}, "set": name} for e in json.loads(path.read_text())]
+    return out
+
+
+_PUBLIC_EXAMPLES = _load_examples()
 
 
 class StripPrefix:

@@ -48,6 +48,10 @@ select{padding:7px 10px;border-radius:10px;border:1px solid var(--line);backgrou
 .seg button{border:0;background:transparent;padding:5px 10px;border-radius:8px;cursor:pointer;color:var(--fg2);font-size:12.5px;font-weight:500}
 .seg button.on{background:var(--panel);color:var(--fg);box-shadow:var(--shadow)}
 .count{font-size:12px;color:var(--mute)}
+.seg.wide{display:flex}.seg.wide button{flex:1}
+.setnote{font-size:12px;color:var(--fg2);background:var(--soft);border-radius:10px;padding:8px 10px;margin-bottom:8px;line-height:1.45}
+.prov{font-size:12.8px;padding:9px 12px;border-radius:10px;margin-bottom:14px;background:var(--accbg);color:var(--fg2)}
+.prov b{color:var(--fg)}
 .list{overflow:auto;flex:1;min-height:200px;padding:6px}
 .ex{display:block;width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:11px;padding:9px 10px;cursor:pointer;margin-bottom:2px}
 .ex:hover{background:var(--soft)}
@@ -146,6 +150,11 @@ textarea.editor{width:100%;min-height:440px;border-radius:12px;border:1px solid 
   <aside class="side">
     <div class="panel pad">
       <div class="h">Examples</div>
+      <div class="seg wide" id="fSet" style="margin-bottom:6px">
+        <button data-v="fresh" class="on" title="Neither the search nor the catalog item occurs in any training data">Unseen items</button>
+        <button data-v="test" title="New searches from held-out themes; the catalog items also occur in training with other searches">Held-out searches</button>
+      </div>
+      <div class="setnote" id="setNote"></div>
       <input class="search" id="q" placeholder="Search queries and titles…" autocomplete="off">
       <div class="row" style="margin-top:8px">
         <select id="fLang" style="flex:1"></select>
@@ -220,7 +229,9 @@ const ITEM=[["statistical","📈","Data360 indicator"],["survey","🗂️","Micr
 const RTL=new Set(["Arabic"]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let EX=[],MODELS=[],sel=null,labFilter="all",mode="greedy",busy=false,live=null;
+let EX=[],MODELS=[],sel=null,labFilter="all",mode="greedy",busy=false,live=null,setFilter="fresh";
+const SETNOTE={fresh:"Neither the search nor the catalog item occurs anywhere in the training data. These were generated after training from new themes and items.",
+  test:"New searches from themes held out of training. The catalog items do occur in training, paired with other searches."};
 
 function parseInput(t){
   const f={meta:[]};const keys=new Set(["Respond in","Item type","Query","Filters","Retrieval similarity","Result","Filter check","Reranker score"]);
@@ -238,11 +249,12 @@ const dirOf=lang=>RTL.has(lang)?' dir="rtl"':' dir="auto"';
 
 function renderList(){
   const q=$("#q").value.trim().toLowerCase(),L=$("#fLang").value,S=$("#fSrc").value;
-  const items=EX.filter(e=>(L==="all"||e.language===L)&&(S==="all"||e.source===S)&&
+  $("#setNote").textContent=SETNOTE[setFilter];
+  const items=EX.filter(e=>e.set===setFilter&&(L==="all"||e.language===L)&&(S==="all"||e.source===S)&&
     (labFilter==="all"||(labFilter==="contested"?contested(e):e.labels.stored===labFilter))&&(!q||e.input.toLowerCase().includes(q)));
-  $("#count").textContent=`${items.length} of ${EX.length} examples`;
+  $("#count").textContent=`${items.length} of ${EX.filter(e=>e.set===setFilter).length} examples`;
   $("#list").innerHTML=items.map(e=>{const f=parseInput(e.input),s=SRC[e.source]||["🔎",e.source];
-    return `<button class="ex${sel&&sel.id===e.id?" sel":""}" data-id="${e.id}">
+    return `<button class="ex${sel&&sel.id===e.id?" sel":""}" data-id="${esc(e.id)}">
       <div class="m"><span class="tag">${esc(e.language.slice(0,3).toUpperCase())}</span><span>${s[0]} ${s[1]}</span>
       ${contested(e)?'<span class="flag" title="Contested label">⚑</span>':""}</div>
       <div class="q"${dirOf(e.language)}>${esc(f["Query"]||"")}</div>
@@ -269,7 +281,7 @@ function renderInput(){
   col.innerHTML=`
   <section class="panel pad"><div class="h">Search</div>
     <div class="row"><span class="pill">🌐 ${esc(lang)}</span><span class="pill" title="${esc(f["Item type"]||"")}">${itemPill(f["Item type"]||"")}</span>
-      <span class="pill">test #${sel.id}</span>${sel._edited?'<span class="pill" style="color:var(--warn)">edited</span>':""}</div>
+      <span class="pill">${sel.set==="fresh"?"✦ unseen item":"held-out #"+esc(sel.id)}</span>${sel._edited?'<span class="pill" style="color:var(--warn)">edited</span>':""}</div>
     <div class="query"${dirOf(lang)}>${esc(f["Query"]||"")}</div>
     <div class="row">${filters.length?filters.map(x=>`<span class="chip">${esc(x)}</span>`).join(""):'<span class="muted">No filters applied</span>'}</div>
   </section>
@@ -312,10 +324,15 @@ function renderAudit(){
   const lang=sel.language;
   const j=sel.offline&&sel.offline.judged||{};
   const sc=(who,s)=>s?`<span class="score">${who}<b>faithful ${s.faithful}/5</b>· coherent ${s.coherent}/5</span>`:"";
-  const same=live&&live.model==="Round 7 + DPO (best)"&&!edited&&live.text.trim()===(sel.offline.text||"").trim();
-  p.innerHTML=`<div class="h">Labels from the data audit</div>
-    <div class="labels">${[["stored","Teacher label (training target)"],["thinking","Teacher, thinking mode"],["gemma4","Gemma 4 (independent)"]].map(([k,n])=>
-      `<div class="lab"><span>${n}</span><span class="badge sm v-${L[k]}">${NICE[L[k]]}</span></div>`).join("")}</div>
+  const same=live&&live.model==="Round 7 + DPO (best)"&&!edited&&sel.offline&&sel.offline.text&&live.text.trim()===sel.offline.text.trim();
+  const n=sel.train_item_count;
+  const prov=sel.set==="fresh"
+    ?`<div class="prov"><b>Unseen.</b> Neither this search nor this catalog item occurs in any training data${sel.theme?` (new theme: “${esc(sel.theme)}”)`:""}.</div>`
+    :`<div class="prov"><b>Held-out search.</b> ${n===0?"The catalog item does not occur in training either.":`The catalog item occurs ${n} time${n===1?"":"s"} in training, with other searches.`}</div>`;
+  const miss=new Set(sel.labels_missing||[]);
+  p.innerHTML=`${prov}<div class="h">${sel.set==="fresh"?"Reference labels":"Labels from the data audit"}</div>
+    <div class="labels">${[["stored",sel.set==="fresh"?"Teacher label":"Teacher label (training target)"],["thinking","Teacher, thinking mode"],["gemma4","Gemma 4 (independent)"]].map(([k,nm])=>
+      `<div class="lab"><span>${nm}</span>${miss.has(k)?'<span class="muted">not available</span>':`<span class="badge sm v-${L[k]}">${NICE[L[k]]}</span>`}</div>`).join("")}</div>
     <div class="note ${agree?"ok":"warn"}">${agree?"All three labelers agree on this example.":"Contested: the labelers disagree, so more than one verdict is defensible here."}</div>
     ${edited?'<div class="note warn">Input edited: the labels and the reference refer to the original input.</div>':""}
     <div class="h" style="margin-top:18px">Teacher reference · Qwen3.8-27B</div>
@@ -372,9 +389,10 @@ async function compare(){
 }
 
 function select(id,push=true){
-  sel=EX.find(e=>e.id===id)||EX[0];live=null;
+  sel=EX.find(e=>String(e.id)===String(id))||EX.find(e=>e.set===setFilter)||EX[0];live=null;
+  if(sel.set!==setFilter){setFilter=sel.set;document.querySelectorAll("#fSet button").forEach(x=>x.classList.toggle("on",x.dataset.v===setFilter));renderList();}
   if(push)history.replaceState(null,"",`#ex=${sel.id}`);
-  document.querySelectorAll(".ex").forEach(b=>b.classList.toggle("sel",+b.dataset.id===sel.id));
+  document.querySelectorAll(".ex").forEach(b=>b.classList.toggle("sel",b.dataset.id===String(sel.id)));
   $("#cmpPanel").classList.add("hidden");
   renderInput();renderOutput(null);renderAudit();
 }
@@ -387,11 +405,16 @@ async function init(){
   $("#fLang").innerHTML=`<option value="all">All languages</option>`+langs.map(l=>`<option>${esc(l)}</option>`).join("");
   $("#fSrc").innerHTML=`<option value="all">All sources</option>`+srcs.map(s=>`<option value="${s}">${SRC[s]?SRC[s][1]:s}</option>`).join("");
   $("#model").innerHTML=MODELS.map(m=>`<option${m.default?" selected":""}>${esc(m.name)}</option>`).join("");
+  if(!EX.some(e=>e.set==="fresh")){setFilter="test";$("#fSet").classList.add("hidden");}
+  document.querySelectorAll("#fSet button").forEach(x=>x.classList.toggle("on",x.dataset.v===setFilter));
   renderList();
-  const h=location.hash.match(/ex=(\d+)/);select(h?+h[1]:EX[0].id,false);
+  const h=location.hash.match(/ex=([\w-]+)/);const first=EX.find(e=>e.set===setFilter);select(h?h[1]:first.id,false);
 }
 
-$("#list").addEventListener("click",e=>{const b=e.target.closest(".ex");if(b)select(+b.dataset.id);});
+$("#list").addEventListener("click",e=>{const b=e.target.closest(".ex");if(b)select(b.dataset.id);});
+$("#fSet").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;setFilter=b.dataset.v;
+  document.querySelectorAll("#fSet button").forEach(x=>x.classList.toggle("on",x===b));renderList();
+  const first=document.querySelector(".ex");if(first)select(first.dataset.id);});
 ["#q","#fLang","#fSrc"].forEach(s=>$(s).addEventListener("input",renderList));
 $("#fLab").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;labFilter=b.dataset.v;
   document.querySelectorAll("#fLab button").forEach(x=>x.classList.toggle("on",x===b));renderList();});
@@ -400,7 +423,7 @@ $("#mode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b
 $("#temp").addEventListener("input",e=>$("#tempVal").textContent=(+e.target.value).toFixed(2));
 $("#editTog").addEventListener("change",renderInput);
 $("#genBtn").onclick=generate;$("#cmpBtn").onclick=compare;
-$("#randBtn").onclick=()=>{const b=[...document.querySelectorAll(".ex")];if(b.length){const x=b[Math.floor(Math.random()*b.length)];select(+x.dataset.id);x.scrollIntoView({block:"nearest"});}};
+$("#randBtn").onclick=()=>{const b=[...document.querySelectorAll(".ex")];if(b.length){const x=b[Math.floor(Math.random()*b.length)];select(x.dataset.id);x.scrollIntoView({block:"nearest"});}};
 $("#aboutBtn").onclick=()=>{const a=$("#aboutPanel");a.classList.toggle("hidden");if(!a.classList.contains("hidden"))a.scrollIntoView({behavior:"smooth"});};
 $("#themeBtn").onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
   r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("rx-theme",r.dataset.theme);}catch(e){}};

@@ -83,6 +83,10 @@ def build(n: int = 100, seed: int = 3) -> None:
         out.append({"id": i, "language": r["language"], "source": r["source"], "input": r["input"],
                     "reference": r["output"], "labels": {"stored": r["verdict"], "thinking": think[i], "gemma4": gemma[i]},
                     "offline": {"text": gens[i]["generated"], "judged": judged.get(i, {})}})
+    title = lambda t: (m.group(1).strip() if (m := re.search(r"^Result: (.+)$", t, re.M)) else "")  # noqa: E731
+    seen = Counter(title(json.loads(l)["input"]) for l in (ROOT / "data" / "f6" / "train.jsonl").read_text().splitlines())
+    for x in out:  # how often the same catalog item occurs in the best model's training data, with other searches
+        x["train_item_count"] = seen[title(x["input"])]
     out.sort(key=lambda x: (x["language"] != "English", x["language"], x["source"]))
     EXAMPLES.parent.mkdir(exist_ok=True)
     EXAMPLES.write_text(json.dumps(out, ensure_ascii=False, indent=1))
