@@ -85,7 +85,10 @@ def language_ok(q: str, lang: str) -> bool:
     if _LID is None:
         import fasttext
         _LID = fasttext.load_model(str(LID_PATH))
-    p, label = _LID.f.predict(q.replace("\n", " "), 1, 0.0, "strict")[0]
+    pred = _LID.f.predict(q.replace("\n", " "), 1, 0.0, "strict")
+    if not pred:  # fastText gives no label for some inputs (for example only digits and symbols)
+        return True
+    p, label = pred[0]
     code = label.replace("__label__", "")
     return code == LANG_CODES[lang] or code in NEAR.get(lang, set()) or p < 0.6 or (code == "en" and p < 0.8)
 
