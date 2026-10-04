@@ -464,12 +464,17 @@ class Understander:
             if key == "countries":
                 for c in val if isinstance(val, list) else [val]:
                     iso3 = self._iso3_by_name(c) or next((e["iso3"] for e in self.names.get(tuple(TOKEN.findall(norm(c))), []) if e["kind"] == "country"), None)
-                    if iso3 and not any(x.get("iso3") == iso3 and x["kind"] == "country" for x in p["places"]):
+                    same = next((x for x in p["places"] if x.get("iso3") == iso3 and x["kind"] == "country"), None)
+                    if same:  # the facet repeats a country already typed in the search
+                        same["source"] = "query+facet"
+                    elif iso3:
                         p["places"].append({"kind": "country", "iso3": iso3, "name": self.countries[iso3]["name"], "span": c, "source": "facet"})
             elif key == "years":
                 t = self.time(str(val))
                 if t:
-                    p["time"] = {**t, "source": "facet"}
+                    q = p.get("time")
+                    same = q and q.get("start") == t.get("start") and q.get("end") == t.get("end")
+                    p["time"] = {**t, "source": "query+facet" if same else "facet"}
             elif key == "frequency":
                 p["frequency"] = {"value": str(val).lower(), "source": "facet"}
             elif key in ("sex", "area", "age_group"):

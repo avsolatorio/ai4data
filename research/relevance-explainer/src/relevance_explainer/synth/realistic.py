@@ -15,6 +15,7 @@ See docs/design_realistic.md.
 from __future__ import annotations
 
 import argparse
+import math
 import json
 import random
 import re
@@ -52,6 +53,47 @@ RELATION_TEXT = {
 }
 
 
+SCRIPT = {"Arabic": r"[؀-ۿ]", "Chinese": r"[一-鿿]", "Hindi": r"[ऀ-ॿ]", "Russian": r"[Ѐ-ӿ]"}
+NEAR = {"Indonesian": {"ms"}, "Portuguese": {"gl"}, "Spanish": {"gl", "ca"}}
+LID_PATH = Path("data/geo/lid.176.ftz")
+_LID = None
+
+
+def language_ok(q: str, lang: str) -> bool:
+    """The search is in the requested language: target script for Arabic, Chinese, Hindi and Russian; for the others
+    fastText language ID must not confidently name another language (searches under 4 words are not checked)."""
+    global _LID
+    if lang in SCRIPT:
+        return re.search(SCRIPT[lang], q) is not None
+    if len(re.findall(r"\w+", q)) < 4 or not LID_PATH.exists():
+        return True
+    if _LID is None:
+        import fasttext
+        _LID = fasttext.load_model(str(LID_PATH))
+    p, label = _LID.f.predict(q.replace("\n", " "), 1, 0.0, "strict")[0]
+    code = label.replace("__label__", "")
+    return code == LANG_CODES[lang] or code in NEAR.get(lang, set()) or p < 0.6 or (code == "en" and p < 0.8)
+
+
+def recase(q: str, rng: random.Random) -> str:
+    """A few searches typed in capitals or Title Case, as in real logs."""
+    x = rng.random()
+    if x < 0.03:
+        return q.upper()
+    if x < 0.08:
+        return " ".join(w[:1].upper() + w[1:] for w in q.split())
+    return q
+
+
+def budget(spec: dict, rng: random.Random) -> None:
+    """Short searches cannot carry many constraints: two keywords keep one, a keyword string at most three."""
+    cap = {"keywords2": 1, "keywords": 3}.get(spec["style"], 4)
+    have = [k for k in ("geo", "time", "group", "datatype") if spec.get(k) and spec.get(k) != "none"]
+    rng.shuffle(have)
+    for k in sorted(have, key=lambda k: k not in ("geo", "time"))[cap:]:  # place and time are kept first
+        spec[k] = "none" if k == "datatype" else None
+
+
 def wpick(rng: random.Random, d: dict):
     keys = list(d)
     return rng.choices(keys, weights=[v[0] if isinstance(v, tuple) else v for v in d.values()])[0]
@@ -68,27 +110,38 @@ class Specs:
         self.wb_groups = [k for k, v in g.items() if v["kind"] in ("wb_region", "income") and k not in ("EUU", "EMU", "OED", "LDC", "SST", "PSS", "CSS", "HPC", "ARB")]
         self.other_groups = [k for k, v in g.items() if v["kind"] == "curated"] + [k for k in ("EUU", "OED", "LDC", "SST", "PSS", "CSS", "HPC", "ARB") if k in g]
 
+        # Country weight: half uniform, half by size (log of the number of large cities), so small territories still
+        # appear but less often than in a uniform draw.
+        ncity = {c: sum(1 for p in self.places_by.get(c, []) if p["kind"] == "city") for c in self.countries}
+        self.cweight = {c: 0.5 + 0.5 * (1 + math.log1p(ncity[c])) for c in self.countries}
+
     def cname(self, iso3: str) -> str:
         return self.geo["countries"][iso3]["name"]
+
+    def _country(self, pool: list[str]) -> str:
+        return self.rng.choices(pool, weights=[self.cweight.get(c, 1.0) for c in pool])[0]
 
     def geography(self, kind: str, allowed: list[str] | None = None, avoid: set | None = None) -> dict | None:
         r, pool = self.rng, [c for c in (allowed or self.countries) if not avoid or c not in avoid]
         if kind == "none" or not pool:
             return None
         if kind == "country":
-            c = r.choice(pool)
+            c = self._country(pool)
             return {"kind": "country", "iso3": [c], "text": self.cname(c)}
         if kind == "multi":
-            cs = r.sample(pool, min(len(pool), r.choice([2, 2, 3])))
+            cs = list(dict.fromkeys(self._country(pool) for _ in range(r.choice([2, 2, 3]))))
+            if len(cs) < 2:
+                cs = r.sample(pool, min(len(pool), 2))
             return {"kind": "multi", "iso3": cs, "text": " and ".join(self.cname(c) for c in cs)}
         if kind in ("wb_group", "other_group"):
             code = r.choice(self.wb_groups if kind == "wb_group" else self.other_groups)
             return {"kind": "group", "code": code, "text": self.geo["groups"][code]["name"]}
         if kind == "subnational":
             for _ in range(20):
-                c = r.choice(pool)
+                c = self._country(pool)
                 if self.places_by.get(c):
-                    p = r.choice(self.places_by[c])
+                    ps = self.places_by[c]  # provinces evenly, cities by the square root of population
+                    p = r.choices(ps, weights=[1.0 if q["kind"] == "admin1" else max(1.0, (q["population"] / 150000) ** 0.5) for q in ps])[0]
                     what = "city" if p["kind"] == "city" else "province, state or region"
                     return {"kind": "subnational", "iso3": [c], "place": p["name"], "text": f"{p['name']} ({what} in {self.cname(c)})"}
             return None
@@ -213,14 +266,20 @@ def cmd_queries(a) -> None:
         s.update(id=f"q{a.seed}-{i}", mode="theme", topic=sp.rng.choice(themes), source=sp.rng.choices(list(G.SOURCE_WEIGHTS), weights=list(G.SOURCE_WEIGHTS.values()))[0])
         s["geo"] = sp.geography(wpick(sp.rng, GEO_KIND))
         s["time"] = sp.time(wpick(sp.rng, TIME_KIND))
+        budget(s, sp.rng)
         s["facet_values"] = facets_for(s, sp.rng, sp)
         specs.append(s)
 
     def one(s: dict) -> dict | None:
-        text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, QUERY_PROMPT.format(topic=s["topic"], language=s["language"], style=STYLE[s["style"]][1],
-                                                                            surface=SURFACE_TEXT[s["surface"]], must=must_lines(s)), temperature=0.9, max_tokens=400)
-        j = llm.parse_json(text)
-        return {**s, "query": str(j["query"]).strip(), "search_en": str(j.get("search_en") or s["topic"]), "expressed": j.get("expressed", [])}
+        rng = random.Random(s["id"])
+        for _ in range(3):  # retry searches written in the wrong language
+            text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, QUERY_PROMPT.format(topic=s["topic"], language=s["language"], style=STYLE[s["style"]][1],
+                                                                                surface=SURFACE_TEXT[s["surface"]], must=must_lines(s)), temperature=0.9, max_tokens=400)
+            j = llm.parse_json(text)
+            q = str(j["query"]).strip()
+            if q and language_ok(q, s["language"]):
+                return {**s, "query": recase(q, rng), "query_written": q, "search_en": str(j.get("search_en") or s["topic"]), "expressed": j.get("expressed", [])}
+        return None
 
     with ThreadPoolExecutor(a.workers) as ex:
         rows = [r for r in ex.map(lambda s: G._safe(lambda x: [one(x)], s), specs) for r in r if r]
@@ -283,13 +342,17 @@ def cmd_anchored(a) -> None:
         s["facet_values"] = facets_for(s, r, sp)
         item = "\n".join(src.render(rec))
         must = must_lines(s)
-        text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=RELATION_TEXT[rel], label=src.label, item=item[:2500],
-                                                                             language=s["language"], style=STYLE[s["style"]][1],
-                                                                             surface=SURFACE_TEXT[s["surface"]],
-                                                                             must=("The search must express:\n" + must) if (s.get("geo") or s.get("time") or s.get("group")) else "Do not mention a place, year or population group unless the relation requires it."),
-                           temperature=0.9, max_tokens=400)
-        j = llm.parse_json(text)
-        return {**s, "query": str(j["query"]).strip(), "expressed": j.get("expressed", []), "record": rec, "rank": 0}
+        for _ in range(3):  # retry searches written in the wrong language
+            text, _ = llm.chat(G.QUERY_MODEL, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=RELATION_TEXT[rel], label=src.label, item=item[:2500],
+                                                                                 language=s["language"], style=STYLE[s["style"]][1],
+                                                                                 surface=SURFACE_TEXT[s["surface"]],
+                                                                                 must=("The search must express:\n" + must) if (s.get("geo") or s.get("time") or s.get("group")) else "Do not mention a place, year or population group unless the relation requires it."),
+                               temperature=0.9, max_tokens=400)
+            j = llm.parse_json(text)
+            q = str(j["query"]).strip()
+            if q and language_ok(q, s["language"]):
+                return {**s, "query": recase(q, r), "query_written": q, "expressed": j.get("expressed", []), "record": rec, "rank": 0}
+        return None
 
     with ThreadPoolExecutor(a.retrieve_workers) as ex:
         rows = [r for r in ex.map(lambda d: G._safe(lambda x: [one(x)], d), enumerate(draws)) for r in r if r]
@@ -338,6 +401,14 @@ def render_v2(p: dict, u: Understander, parsed: dict, sim: float) -> str:
     return "\n".join(lines)
 
 
+def render_v2min(p: dict, sim: float) -> str:
+    """Minimal format: the search, facets, similarity and the record, with no query understanding or checks."""
+    src = SOURCES[p["record"]["kind"]]
+    fl = "; ".join(f"{k}={'/'.join(v) if isinstance(v, list) else v}" for k, v in (p.get("facet_values") or {}).items()) or "none"
+    return "\n".join([f"Respond in: {p['language']}", f"Item type: {src.label}", f"Search: {p['query']}", f"Facets: {fl}",
+                      f"Retrieval similarity: {sim:.2f}", *_clean_item_lines(src.render(p["record"]))])
+
+
 def v1_filters(parsed: dict, u: Understander) -> dict:
     """Extracted constraints in the first rounds' filter vocabulary (countries, years, frequency)."""
     f = {}
@@ -369,6 +440,7 @@ def cmd_render(a) -> None:
         parsed = u.parse(p["query"], p.get("facet_values"))
         rows.append({**p, "parsed": parsed, "similarity": float(s),
                      "input_v2": render_v2(p, u, parsed, float(s)),
+                     "input_v2min": render_v2min(p, float(s)),
                      "input_v1": render_v1(p, p.get("facet_values") or {}, float(s)),
                      "input_v1x": render_v1(p, {**(p.get("facet_values") or {}), **v1_filters(parsed, u)}, float(s))})
     (out / "rendered.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))
@@ -379,7 +451,7 @@ NARRATE_V2 = G.NARRATE_SYSTEM.replace(
     "- Trust the \"Filter check\" line: do not contradict it.",
     "- The \"Understood\" line lists the place, time, group and data-type constraints found in the search and the facets; the \"Checks\" line gives each one's status against the record. Trust the checks: do not contradict them. Refer to constraints as the user expressed them (\"your search mentions 2015\"), not as filters, unless they came from a facet.\n- If the search contains a constraint that the Understood line missed, judge it from the metadata yourself.",
 ).replace('Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "..."}',
-          'Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "...", "missed": ["constraints in the search that the Understood line missed, if any"]}')
+          'Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "...", "missed": ["place, time, population-group or data-type constraints in the search that the Understood line missed; not topic words; empty if none"]}')
 
 
 def cmd_narrate(a) -> None:
