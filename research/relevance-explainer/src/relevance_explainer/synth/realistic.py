@@ -109,6 +109,24 @@ def budget(spec: dict, rng: random.Random) -> None:
         spec[k] = "none" if k == "datatype" else None
 
 
+# Coverage feedback (synth.coverage): multiplicative weights that steer sampling toward under-covered cells.
+COV_PATH = Path("data/real/coverage.json")
+COV = json.loads(COV_PATH.read_text()).get("weights", {}) if COV_PATH.exists() else {}
+
+
+def cov(kind: str, key: str) -> float:
+    return float(COV.get(kind, {}).get(key, 1.0))
+
+
+def pick_theme(rng: random.Random, themes: list[str]) -> str:
+    return rng.choices(themes, weights=[cov("theme", t) for t in themes])[0] if COV.get("theme") else rng.choice(themes)
+
+
+def pick_source(rng: random.Random) -> str:
+    keys = list(G.SOURCE_WEIGHTS)
+    return rng.choices(keys, weights=[G.SOURCE_WEIGHTS[k] * cov("source", k) for k in keys])[0]
+
+
 def wpick(rng: random.Random, d: dict):
     keys = list(d)
     return rng.choices(keys, weights=[v[0] if isinstance(v, tuple) else v for v in d.values()])[0]
@@ -128,7 +146,7 @@ class Specs:
         # Country weight: half uniform, half by size (log of the number of large cities), so small territories still
         # appear but less often than in a uniform draw.
         ncity = {c: sum(1 for p in self.places_by.get(c, []) if p["kind"] == "city") for c in self.countries}
-        self.cweight = {c: 0.5 + 0.5 * (1 + math.log1p(ncity[c])) for c in self.countries}
+        self.cweight = {c: (0.5 + 0.5 * (1 + math.log1p(ncity[c]))) * cov('country', c) for c in self.countries}
 
     def cname(self, iso3: str) -> str:
         return self.geo["countries"][iso3]["name"]
@@ -199,7 +217,7 @@ class Specs:
 
     def base(self) -> dict:
         r = self.rng
-        lang = wpick(r, LANG_W)
+        lang = wpick(r, {k: v * cov('language', k) for k, v in LANG_W.items()})
         surface = wpick(r, SURFACE)
         if surface == "codeswitch" and lang == "English":
             surface = "clean"
@@ -278,7 +296,7 @@ def cmd_queries(a) -> None:
     specs = []
     for i in range(a.n):
         s = sp.base()
-        s.update(id=f"q{a.seed}-{i}", mode="theme", topic=sp.rng.choice(themes), source=sp.rng.choices(list(G.SOURCE_WEIGHTS), weights=list(G.SOURCE_WEIGHTS.values()))[0])
+        s.update(id=f"q{a.seed}-{i}", mode="theme", topic=pick_theme(sp.rng, themes), source=pick_source(sp.rng))
         s["geo"] = sp.geography(wpick(sp.rng, GEO_KIND))
         s["time"] = sp.time(wpick(sp.rng, TIME_KIND))
         budget(s, sp.rng)
@@ -313,7 +331,7 @@ def cmd_anchored(a) -> None:
     sp = Specs(geo, a.seed + 1)
     themes = json.loads(Path(a.themes).read_text())
     rng = random.Random(a.seed + 2)
-    draws = [(rng.choice(themes), rng.choices(list(G.SOURCE_WEIGHTS), weights=list(G.SOURCE_WEIGHTS.values()))[0]) for _ in range(a.n)]
+    draws = [(pick_theme(rng, themes), pick_source(rng)) for _ in range(a.n)]
 
     def one(i_draw):
         i, (theme, kind) = i_draw
@@ -330,7 +348,7 @@ def cmd_anchored(a) -> None:
         if not rec:
             return None
         s = sp.base()
-        rel = wpick(r, RELATION)
+        rel = wpick(r, {k: v * cov('relation', k) for k, v in RELATION.items()})
         covered = sorted(_record_iso3(rec))
         yrs = _record_years(rec)
         s.update(id=f"a{a.seed}-{i}", mode="anchored", relation=rel, topic=theme, source=kind)
@@ -464,6 +482,8 @@ def cmd_render(a) -> None:
     print(f"rendered: {len(rows)}")
 
 
+# A typed-constraint rule (wrong place -> partly relevant) was tried and removed: in the first rounds a failed country
+# filter goes with irrelevant in 96% of 61,717 training examples, so the teacher's convention is already consistent.
 ORDER_RULE = (
     "- Order: first say what the item offers that fits the search (its topic, place, period or group, as far as they "
     "match), then the gaps or mismatches. For a relevant item, the fit is the whole narrative, with any minor caveat last. "
