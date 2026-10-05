@@ -766,3 +766,46 @@ Commits: 3d264b7 (adapter `src/relevance_explainer/schemas.py`, test set builder
 **Second finding: anchored searches are skewed away from non-Latin languages.** The writers often answer in English when shown an English record. Production keeps 1,672 to 1,679 of 2,500 anchored searches per chunk (67%) against 98% of theme searches. Relative to the theme searches' language mix, anchored searches in chunks c31 to c40 have Hindi at 0.52 times its share, Arabic 0.59, Chinese 0.74, Russian 0.80 and English 1.37. Anchored searches carry most relevant and partly relevant labels. One added sentence in ANCHOR_PROMPT (the record is in English, the search must be in the requested language) made 30 of 30 previously failing cases succeed on the first attempt; on the schemas test set 482 of 483 searches survived against 324 of 483 before. In effect from the chunk after 0c4cf9c.
 
 **Implication.** The input format generalises: no structural change is needed, and photographs and map layers already score near the trained types. Tables (the most common new type in catalogs) need training data. Next: record pools for tables, scripts, videos and map layers, and their examples in the round after milestone C.
+
+
+## 2026-10-05 22:31 UTC — Milestone C (2.3 times milestone B's realistic data): 84.3% verdict, 93.4% 2-class on the unanimous subset
+
+Commit: d521114 for the run (scripts unchanged since milestone B; the chunks are those generated before 0c4cf9c, so the anchored-language fix is not in this data). Recipe as for milestone B: `scripts/milestone_cont.sh c 50`, continue `runs/f6-dpo` on the item-first variant, then on-policy DPO.
+
+**What was done.** `data/v2_c`: 296,495 realistic examples after de-duplication (54 dropped by the typo-bug check); training split 437,499 = 198,316 realistic + 37,752 translated + 201,431 first-round (old share 50%); labels 278,302 irrelevant, 117,037 partly relevant, 42,160 relevant. `runs/v2c-cont-itemfirst`, then DPO with 4,851 pairs (3,338 chosen from the student, 1,513 from the teacher) to `runs/v2c-cont-itemfirst-dpo`. Same realistic test set (1,495; 1,098 unanimous) and the same 800 judged examples.
+
+**Result.**
+| Model | Verdict | Unanimous | 2-class, unanimous | Faithful teacher / Gemma 4 | At 4+ (teacher / Gemma 4) |
+|---|---|---|---|---|---|
+| v2b-cont-itemfirst-dpo (milestone B) | 83.6% | 89.5% | 92.4% | 4.19 / 4.37 | n/a / 78.9% |
+| v2c-cont-itemfirst | 84.3% | 90.9% | n/a | 4.11 / 4.34 | 71.1% / 77.1% |
+| v2c-cont-itemfirst-dpo | 84.3% | 91.2% | 93.4% | 4.29 / 4.49 | 77.7% / 82.8% |
+
+- 2-class over all 1,495: 88.0%. Label ceilings unchanged: Gemma 4 against the teacher label 86.3% (3-class), the thinking teacher 83.8%.
+- By relation, v2b-cont to v2c-cont (before DPO): related concept 80% to 78%; fully answers 83% to 87%; wrong place 82% to 85%; wrong time 83% to 83%.
+
+**Implication.** Scaling continues with smaller steps: +0.7 verdict points, +1.7 on the unanimous subset, +1.0 on the 2-class unanimous measure and +0.10 / +0.12 faithfulness after DPO, for 2.3 times the realistic data. The verdict on all examples is at the level of the thinking teacher's agreement with the stored label (83.8%), so it is near the label-noise ceiling; the 2-class unanimous figure (93.4%) is the one approaching the 0.94 target. `runs/v2c-cont-itemfirst-dpo` replaces the realistic model in the app.
+
+## 2026-10-05 22:31 UTC — The model depends strongly on the retrieval score and on its scale
+
+Commit: d0d1214 (`synth/sim_variants.py`, `scripts/sim_variants.sh`, `scripts/sim_shifted.py`). Model `runs/v2b-cont-itemfirst-dpo` (milestone B), realistic test set, INT8, verdict only.
+
+**Question/Context.** At deployment the "Retrieval similarity" line comes from whatever retriever the search engine uses. How much does the model rely on it, and what happens when the retriever or its score scale changes?
+
+**What was done.** Eleven variants of the test set that differ only in that line: our retriever (stored and recomputed), three other retrievers, the line removed, a constant (the median, 0.24), scores shuffled across examples, and three rescalings of our scores that keep every rank (halved; shifted up by 0.3; mapped to 0.45 + 0.5 s, a typical range for general-purpose embedding models).
+
+**Result.**
+| Similarity line | Verdict | Unanimous |
+|---|---|---|
+| Ours (trained with), stored or recomputed | 83.6% | 89.5% |
+| Multilingual e5-small, same fine-tuning (r=0.85 with ours; mean 0.24, sd 0.23) | 82.7% | 89.5% |
+| Multilingual MiniLM, same fine-tuning (r=0.83) | 81.7% | 88.8% |
+| English MiniLM, same fine-tuning (r=0.79) | 78.1% | 84.6% |
+| Line removed | 74.2% | 79.1% |
+| Halved | 72.9% | 78.7% |
+| Constant (median) | 70.4% | 74.3% |
+| Shuffled | 65.2% | 68.3% |
+| Shifted up by 0.3 | 65.2% | 69.3% |
+| General-model range (0.45 + 0.5 s) | 60.7% | 64.7% |
+
+**Implication.** The score carries about 9 verdict points, and the model reads its absolute value: a pure change of scale with identical ranks costs up to 23 points, more than removing the line. Retrievers fine-tuned on the same task and scale transfer with a 1 to 2 point loss. A deployment with a different retriever needs either calibration to our scale (quantile mapping recovers a monotone rescaling exactly, since ranks are unchanged) or a model trained to be robust: score dropout and random affine rescaling in training, or a scale-free representation (rank or within-query percentile). Planned as a training arm on `data/v2_c`.

@@ -29,7 +29,7 @@ SEP = "\n\n### Judgment\n"
 EOS = 1
 VERDICTS = ["relevant", "partly_relevant", "irrelevant"]
 MODELS = {
-    "Realistic + DPO (item-first)": "runs/v2b-cont-itemfirst-dpo/explainer-int8.pt",
+    "Realistic + DPO (item-first)": "runs/v2c-cont-itemfirst-dpo/explainer-int8.pt",
     "Round 7 + DPO (best)": "runs/f6-dpo/explainer-int8.pt",
     "Round 7 + DPO + copy head": "runs/f6-copy-dpo/explainer-int8.pt",
     "Round 7, fine-tuned only": "runs/f6-sft/explainer-int8.pt",
