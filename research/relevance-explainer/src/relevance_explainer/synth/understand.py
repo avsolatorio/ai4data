@@ -46,7 +46,10 @@ GROUP_EVIDENCE = {  # English metadata words that show a population group is cov
     "disability": r"\b(disabilit\w*|disabled|impairment)\b",
 }
 DATATYPE_KIND = {"indicator": "indicator", "microdata": "study", "document": "document", "dataset": "dataset"}
-KIND_LABEL = {"indicator": "an indicator series", "study": "survey microdata", "document": "a document", "dataset": "a dataset"}
+KIND_LABEL = {"indicator": "an indicator series", "study": "survey microdata", "document": "a document", "dataset": "a dataset",
+              # metadata-schemas types without training data (relevance_explainer.schemas)
+              "table": "a statistical table", "geospatial": "a geospatial dataset", "image": "a photograph",
+              "video": "a video", "script": "a research project", "database": "a time series database"}
 
 
 def norm(s: str) -> str:
