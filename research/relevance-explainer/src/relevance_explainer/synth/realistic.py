@@ -247,7 +247,7 @@ ANCHOR_PROMPT = """A catalog record is shown below. Write ONE search that a pers
 Record ({label}):
 {item}
 
-Language: {language}
+Language: {language}. The record is in English, but the search must be written in {language}, as a native {language} speaker would type it (place names in their local spelling; only acronyms or technical terms may stay in English).
 Form: {style}; {surface}.
 {must}
 Do not mention filters. Write as a user who has not seen the record.

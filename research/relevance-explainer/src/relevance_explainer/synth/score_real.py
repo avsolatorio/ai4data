@@ -19,7 +19,11 @@ def main() -> None:
     a = ap.parse_args()
     rows = [json.loads(l) for l in (Path(a.data) / "test.jsonl").read_text().splitlines()]
     gens = [json.loads(l) for l in (Path(a.run) / f"{a.tag}_generations_{a.prec}.jsonl").read_text().splitlines()]
-    assert len(rows) == len(gens), (len(rows), len(gens))
+    if len(rows) != len(gens):  # the evaluator skips inputs longer than the model's context; align by input text
+        by_input = {g["input"]: g for g in gens}
+        kept = [r for r in rows if r["input"] in by_input]
+        print(f"note: {len(rows) - len(kept)} of {len(rows)} examples have no generation (too long) and are left out")
+        rows, gens = kept, [by_input[r["input"]] for r in kept]
     pv = [g["generated"].split("\n")[0].strip() for g in gens]
     def acc(idx, key):
         idx = [i for i in idx if key(rows[i])]
