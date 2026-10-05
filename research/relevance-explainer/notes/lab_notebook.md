@@ -712,3 +712,26 @@ Commit: c4a2077 (milestone scripts; translation backfill after the language-chec
 - Errors of v2a-cont-itemfirst-dpo: partly relevant called irrelevant 150 of 281.
 
 **Implication.** Realistic data scales: verdict +2.3 points and faithfulness +0.25 to 0.33 from about five times the realistic data, with DPO adding about 0.25 faithfulness again. Verdict accuracy against the teacher label is now close to how often a 31B model agrees with that label (86%), so further verdict gains should be measured on the unanimous subset. Milestone C repeats the recipe at 50 chunks. `runs/v2b-cont-itemfirst-dpo` replaces the realistic model in the app.
+
+
+## 2026-10-05 04:33 UTC — Rendering bug: item lines with real values are dropped when their last field is empty
+
+Commit: 3d264b7. Found while writing the metadata-schemas adapter (`src/relevance_explainer/schemas.py`).
+
+**Question/Context.** `realistic._clean_item_lines` is meant to drop fields the catalog does not have. It drops a whole line when the line ends in an empty field (`: n/a`), so values earlier on the same line disappear too.
+
+**What was done.** Rendered the unique catalog items of chunks c1 to c10 (14,527 items) with the trained renderers and counted dropped lines that still held at least one real value.
+
+**Result.**
+| Item kind | Line | Items losing real values |
+|---|---|---|
+| indicator | Database; Source | 2,516 of 3,367 (74.7%) |
+| study | Unit of analysis; Universe | 1,226 of 3,295 (37.2%) |
+| study | Coverage (countries); Geographic scope | 552 (16.8%) |
+| document | Document type; Published; Country or region | 378 of 4,050 (9.3%) |
+| study | Survey years; Collection mode | 219 (6.6%) |
+| dataset | Organization; Source; Formats | 44 of 3,815 (1.2%) |
+
+The teacher narrated the same reduced inputs, so labels and inputs are consistent with each other. The loss is information the model and the teacher never saw: a study's country list in 17% of studies (the Checks line still reports coverage when the search names a place), and the database name for most indicators.
+
+**Implication.** Fix at field level (drop only the empty fields of a line). Re-rendering existing rows with the fix would show the model values the teacher's narrative did not see (for example coverage the narrative calls "not stated"), so the fix needs a render version per row: old rows keep the old rendering, new chunks use the new one. Not applied while milestone C (which re-renders at assembly) is pending. The new metadata-schemas renderers print only present fields from the start.
