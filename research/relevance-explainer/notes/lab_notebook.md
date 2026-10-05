@@ -735,3 +735,34 @@ Commit: 3d264b7. Found while writing the metadata-schemas adapter (`src/relevanc
 The teacher narrated the same reduced inputs, so labels and inputs are consistent with each other. The loss is information the model and the teacher never saw: a study's country list in 17% of studies (the Checks line still reports coverage when the search names a place), and the database name for most indicators.
 
 **Implication.** Fix at field level (drop only the empty fields of a line). Re-rendering existing rows with the fix would show the model values the teacher's narrative did not see (for example coverage the narrative calls "not stated"), so the fix needs a render version per row: old rows keep the old rendering, new chunks use the new one. Not applied while milestone C (which re-renders at assembly) is pending. The new metadata-schemas renderers print only present fields from the start.
+
+
+## 2026-10-05 05:02 UTC — metadata-schemas support; current model on nine item types; anchored searches lose non-Latin languages
+
+Commits: 3d264b7 (adapter `src/relevance_explainer/schemas.py`, test set builder `synth/schemas_eval.py`), 0c4cf9c (anchored prompt and scorer fixes), ccde758 (group checks read the new text fields; applied after the evaluation below).
+
+**Question/Context.** Can the input format represent every type in github.com/worldbank/metadata-schemas, and how does the current model (`runs/v2b-cont-itemfirst-dpo`, trained on four types) do on the others?
+
+**What was done.**
+- Adapter from the nine schema types (microdata/DDI, timeseries, document, table, geospatial/ISO 19139, image/IPTC or DCMI, video, script, timeseries-db) to records and item-first inputs. Countries are normalised from `ref_country`, `geographic_units`, `nation` or `locationsShown` (aggregates such as "World" go to Geographic scope), years from collection dates, time periods, extents or publication dates. The four trained types reuse the training renderers; the new types print only present fields.
+- Records: all 69 entries of the NADA demo catalog (`data/nada_demo.jsonl`). One search per record and relation (7 relations), written by the two writers, labelled by the teacher (NARRATE_V2 on the full format) with a Gemma 4 second label. `data/schemas_eval2`: 482 examples; 7 longer than the model's context were left out of scoring.
+
+**Result.**
+| Types | n | Verdict | Unanimous | 2-class unanimous | Faithful, teacher / Gemma 4 judge | Gemma 4 vs teacher label |
+|---|---|---|---|---|---|---|
+| Trained types (survey, indicator, document) | 224 | 81.2% | 84.8% | 88.4% | 3.92 / 4.14 | 88.4% |
+| New types | 251 | 71.3% | 75.0% | 79.5% | 4.02 / 4.18 | 87.6% |
+| photograph | 49 | 87.8% | 89.1% | 93.5% | 4.39 / 4.57 | 93.9% |
+| map layer | 21 | 81.0% | 81.0% | 85.7% | 3.62 / 4.00 | 100% |
+| video | 35 | 74.3% | 81.5% | 88.9% | 4.14 / 4.17 | 77.1% |
+| script | 14 | 71.4% | 72.7% | 72.7% | 3.64 / 3.79 | 78.6% |
+| statistical table | 125 | 64.0% | 68.8% | 73.4% | 3.96 / 4.10 | 87.2% |
+| time series database | 7 | 42.9% | 33.3% | 33.3% | 4.00 / 4.00 | 85.7% |
+
+- Faithfulness does not drop on the new types; the gap is in the verdict. Errors (all types): partly relevant called irrelevant 65 of 135.
+- Tables: the model ignores the `Columns:` line (it calls a household-size table irrelevant to a household-size search and calls the table an indicator). A second cause, fixed in ccde758 after this evaluation: the group check did not read table columns, so "elderly: not mentioned" was shown for a table with a population 65+ column.
+- By relation (all types): fully answers 64%, related 49%, wrong place 81%, wrong time 85%, unrelated 100%.
+
+**Second finding: anchored searches are skewed away from non-Latin languages.** The writers often answer in English when shown an English record. Production keeps 1,672 to 1,679 of 2,500 anchored searches per chunk (67%) against 98% of theme searches. Relative to the theme searches' language mix, anchored searches in chunks c31 to c40 have Hindi at 0.52 times its share, Arabic 0.59, Chinese 0.74, Russian 0.80 and English 1.37. Anchored searches carry most relevant and partly relevant labels. One added sentence in ANCHOR_PROMPT (the record is in English, the search must be in the requested language) made 30 of 30 previously failing cases succeed on the first attempt; on the schemas test set 482 of 483 searches survived against 324 of 483 before. In effect from the chunk after 0c4cf9c.
+
+**Implication.** The input format generalises: no structural change is needed, and photographs and map layers already score near the trained types. Tables (the most common new type in catalogs) need training data. Next: record pools for tables, scripts, videos and map layers, and their examples in the round after milestone C.
