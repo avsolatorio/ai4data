@@ -559,7 +559,9 @@ def _record_iso3(rec: dict) -> set[str]:
 
 def _record_text(rec: dict) -> str:
     return " ".join(str(rec.get(k) or "") for k in ("name", "definition", "concept", "abstract", "notes", "passage", "universe",
-                                                    "geography", "unit_of_analysis", "unit", "tags", "topics"))
+                                                    "geography", "unit_of_analysis", "unit", "tags", "topics",
+                                                    # metadata-schemas fields (relevance_explainer.schemas); absent from training records
+                                                    "columns", "rows", "datasets", "purpose", "place"))
 
 
 def check(rec: dict, p: dict, u: Understander) -> list[str]:
