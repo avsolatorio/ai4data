@@ -80,7 +80,7 @@ def render_for(example_id: str, search: str | None) -> dict:
     if _U is None:
         _U = Understander()
     # facets belong to the original search; an edited search is treated as typed with no facets set
-    p = {"query": q, "language": e["language"], "record": e["record"], "facet_values": (e.get("facets") or {}) if q == e["query"] else {}}
+    p = {"query": q, "language": e["language"], "record": e["record"], "facet_values": (e.get("facets") or {}) if q == e["query"] else {}, "render_version": 2}
     parsed = _U.parse(q, p["facet_values"])
     v2 = render_v2(p, _U, parsed, sim)
     return {"itemfirst": item_first(v2), "v1": render_v1(p, p["facet_values"], sim), "similarity": round(sim, 2)}

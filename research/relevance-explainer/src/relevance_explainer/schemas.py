@@ -455,6 +455,6 @@ def to_input(rec: dict, search: str, language: str = "English", facets: dict | N
     chk = check(rec, parsed, _U)
     lines = [f"Respond in: {language}", f"Item type: {src.label}", f"Search: {search}", f"Facets: {fl}",
              f"Understood: {_U.describe(parsed)}", "Checks: " + (" | ".join(chk) if chk else "none"),
-             f"Retrieval similarity: {sim:.2f}", *_clean_item_lines(src.render(rec))]
+             f"Retrieval similarity: {sim:.2f}", *_clean_item_lines(src.render(rec), 2)]
     v2 = "\n".join(lines)
     return item_first(v2) if fmt == "itemfirst" else v2

@@ -423,20 +423,42 @@ def cmd_retrieve(a) -> None:
     print(f"pairs: {len(pairs)}")
 
 
-def _clean_item_lines(lines: list[str]) -> list[str]:
+# Item-line cleaning. Version 1 dropped a whole line when its last field was empty, which also dropped the values
+# before it (2026-10-05 04:33 UTC notebook entry). Version 2 drops only the empty fields. Each row keeps the version its
+# narrative was written against ("render_version"; rows without it are version 1); new rows use RENDER_VERSION.
+RENDER_VERSION = 2
+_EMPTY = re.compile(r":\s*(n/a|none|null|)\s*$", re.I)
+
+
+def _clean_item_lines(lines: list[str], version: int = 1) -> list[str]:
     """Drop fields the catalog does not have (empty or n/a)."""
-    return [l for l in lines if not re.search(r":\s*(n/a|none|null|)\s*$", l.strip(), re.I)]
+    if version == 1:
+        return [l for l in lines if not _EMPTY.search(l.strip())]
+    out = []
+    for l in lines:
+        fields = [f for f in l.split("; ") if not _EMPTY.search(f.strip())]
+        if fields:
+            out.append("; ".join(fields))
+    return out
+
+
+def renderer(kind: str):
+    """The item renderer for a record kind: the trained sources, then the metadata-schemas types."""
+    if kind in SOURCES:
+        return SOURCES[kind]
+    from ..schemas import RENDERERS
+    return RENDERERS[kind]
 
 
 def render_v2(p: dict, u: Understander, parsed: dict, sim: float) -> str:
-    src = SOURCES[p["record"]["kind"]]
+    src = renderer(p["record"]["kind"])
     fl = "; ".join(f"{k}={'/'.join(v) if isinstance(v, list) else v}" for k, v in (p.get("facet_values") or {}).items()) or "none"
     lines = [f"Respond in: {p['language']}", f"Item type: {src.label}", f"Search: {p['query']}", f"Facets: {fl}",
              f"Understood: {u.describe(parsed)}"]
     chk = check(p["record"], parsed, u)
     lines.append("Checks: " + (" | ".join(chk) if chk else "none"))
     lines.append(f"Retrieval similarity: {sim:.2f}")
-    lines += _clean_item_lines(src.render(p["record"]))
+    lines += _clean_item_lines(src.render(p["record"]), p.get("render_version", 1))
     return "\n".join(lines)
 
 
@@ -453,10 +475,10 @@ def item_first(v2: str) -> str:
 
 def render_v2min(p: dict, sim: float) -> str:
     """Minimal format: the search, facets, similarity and the record, with no query understanding or checks."""
-    src = SOURCES[p["record"]["kind"]]
+    src = renderer(p["record"]["kind"])
     fl = "; ".join(f"{k}={'/'.join(v) if isinstance(v, list) else v}" for k, v in (p.get("facet_values") or {}).items()) or "none"
     return "\n".join([f"Respond in: {p['language']}", f"Item type: {src.label}", f"Search: {p['query']}", f"Facets: {fl}",
-                      f"Retrieval similarity: {sim:.2f}", *_clean_item_lines(src.render(p["record"]))])
+                      f"Retrieval similarity: {sim:.2f}", *_clean_item_lines(src.render(p["record"]), p.get("render_version", 1))])
 
 
 def v1_filters(parsed: dict, u: Understander) -> dict:
@@ -487,6 +509,7 @@ def cmd_render(a) -> None:
     sims = similarities([p["query"] for p in pairs], [item_text(p["record"]) for p in pairs])
     rows = []
     for p, s in zip(pairs, sims):
+        p = {**p, "render_version": RENDER_VERSION}
         parsed = u.parse(p["query"], p.get("facet_values"))
         rows.append({**p, "parsed": parsed, "similarity": float(s),
                      "input_v2": render_v2(p, u, parsed, float(s)),
