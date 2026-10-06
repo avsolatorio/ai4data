@@ -835,3 +835,34 @@ Commit: 5cc7575 (`scripts/strip_similarity.py`, `scripts/arm_nosim.sh`).
 - By relation (with / without): related concept 78% / 66%; wrong place 85% / 79%; wrong group 86% / 80%; fully answers 87% / 86%; wrong time 83% / 86%; theme searches 83% / 82%.
 
 **Implication.** At the current data scale the score is worth about 1 to 1.6 verdict points (each interval just includes zero, one seed per arm), down from about 8 points at 14.6k examples. The model now judges mostly from the search, the item and the Understood/Checks lines. The loss concentrates on related-concept searches, where similarity is the natural evidence. Narratives are as faithful or slightly more without the score. Dropping the score removes the retriever and scale dependence (up to −23 points under a rescaled score) for about 1.5 points on in-distribution scores. Caveats: one seed per arm, supervised stage only (DPO has not changed the verdict in earlier rounds), and the comparison uses our retriever's scores, the most favourable case for the with-score model.
+
+
+## 2026-10-06 14:07 UTC — No-score model after DPO: highest faithfulness so far, verdict flat under any retrieval score; now the app default
+
+Commits: b49d415 (`scripts/nosim_followup.sh`, app support), 1531303 (app examples).
+
+**Question/Context.** Follow-up to the 06:03 UTC entry: does DPO on the no-score model keep the narrative gain, and is the model insensitive to the retrieval score as intended?
+
+**What was done.** On-policy DPO from `runs/v2c-cont-itemfirst-nosim` with the usual settings (8,000 inputs x 4 samples, teacher scores, beta 0.3, lr 2e-5, 2 epochs, supervised term 0.5): 4,848 usable pairs (3,382 chosen from the student, 1,467 from the teacher), giving `runs/v2c-cont-itemfirst-nosim-dpo`. Scored on the realistic test set without the similarity line (`data/eval_real/itemfirst_nosim`) and judged on the same 800 examples. Then the eleven retrieval-score variants of the 22:31 UTC entry, unchanged.
+
+**Result.**
+| | With score, DPO (`v2c-cont-itemfirst-dpo`) | No score, DPO | Difference (95% CI) |
+|---|---|---|---|
+| Verdict, 3-class | 84.3% | 82.8% | +1.5 [−0.1, +3.1] |
+| Unanimous subset | 91.2% | 90.2% | +1.0 [−0.4, +2.5] |
+| 2-class, unanimous subset | 93.4% | 92.5% | +0.8 [−0.4, +2.1] |
+| Faithful, teacher / Gemma 4 judge | 4.29 / 4.49 | 4.37 / 4.54 | |
+| At 4+, teacher / Gemma 4 | 77.7% / 82.8% | 80.6% / 84.3% | |
+
+Same verdict on 89.7% of test examples.
+
+Verdict accuracy under the retrieval-score variants (the line is shown although the model was trained without it):
+| Similarity line | With-score model (milestone B) | No-score model |
+|---|---|---|
+| Line removed | 74.2% | 82.8% |
+| Ours, stored / recomputed | 83.6% / 83.6% | 82.3% / 82.3% |
+| Other retrievers (e5-small, ML MiniLM, English MiniLM) | 82.7% / 81.7% / 78.1% | 82.4% / 82.7% / 82.2% |
+| Constant / shuffled | 70.4% / 65.2% | 82.4% / 82.5% |
+| Halved / shifted up 0.3 / general-model range | 72.9% / 65.2% / 60.7% | 82.3% / 82.1% / 81.9% |
+
+**Implication.** The no-score model's verdict varies by 0.9 points across all score conditions against 22.9 points for the with-score model, and its narratives are the most faithful of any model so far (+0.08 teacher, +0.05 Gemma 4 over the with-score model). The cost is 1.0 to 1.5 verdict points, each interval including zero, one seed. It removes the dependence on the deployment retriever and suits a browser build. `runs/v2c-cont-itemfirst-nosim-dpo` is the default realistic model in the app; the with-score model stays available for comparison.
