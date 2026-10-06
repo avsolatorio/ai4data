@@ -809,3 +809,29 @@ Commit: d0d1214 (`synth/sim_variants.py`, `scripts/sim_variants.sh`, `scripts/si
 | General-model range (0.45 + 0.5 s) | 60.7% | 64.7% |
 
 **Implication.** The score carries about 9 verdict points, and the model reads its absolute value: a pure change of scale with identical ranks costs up to 23 points, more than removing the line. Retrievers fine-tuned on the same task and scale transfer with a 1 to 2 point loss. A deployment with a different retriever needs either calibration to our scale (quantile mapping recovers a monotone rescaling exactly, since ranks are unchanged) or a model trained to be robust: score dropout and random affine rescaling in training, or a scale-free representation (rank or within-query percentile). Planned as a training arm on `data/v2_c`.
+
+
+## 2026-10-06 06:03 UTC — Trained without the retrieval score: 1.6 verdict points lower, faithfulness slightly higher
+
+Commit: 5cc7575 (`scripts/strip_similarity.py`, `scripts/arm_nosim.sh`).
+
+**Question/Context.** The previous entry measured a model trained with the score and tested without it (−9 points). Does a model trained without the score at the current data scale lose much? The only earlier comparison (2026-10-01 07:41 UTC entry) was at 14.6k first-round examples: about 74% without the line against 82% with it, before the Understood and Checks lines existed.
+
+**What was done.** Milestone C's supervised recipe with one change: the "Retrieval similarity" line removed from every input of `data/v2_c_itemfirst` (437,499 train, 61,188 val, 52,470 test) and of the realistic test set. Continued from `runs/f6-dpo` (itself trained with the score), lr 3e-4, 3 epochs, batch 32, selection by validation verdict accuracy, to `runs/v2c-cont-itemfirst-nosim`. Compared with `runs/v2c-cont-itemfirst` (same recipe with the score), both before DPO, INT8, same 1,495 test examples and same 800 judged examples. Paired bootstrap (2,000 resamples) over test examples.
+
+**Result.**
+| | With score | Without score | Difference (95% CI) |
+|---|---|---|---|
+| Validation verdict, epoch 3 | 85.0% | 83.7% | +1.3 |
+| Test verdict, 3-class | 84.3% | 82.7% | +1.6 [−0.1, +3.2] |
+| Test verdict, unanimous subset | 90.9% | 89.7% | +1.2 [−0.4, +2.7] |
+| 2-class, all | 88.0% | 86.8% | +1.2 [−0.3, +2.7] |
+| 2-class, unanimous subset | 93.3% | 92.2% | +1.1 [−0.3, +2.6] |
+| Faithful, teacher judge | 4.11 | 4.20 | |
+| Faithful, Gemma 4 judge | 4.34 | 4.39 | |
+| Faithful at 4+, teacher judge | 71.1% | 74.0% | |
+
+- The two models give the same verdict on 88.8% of test examples.
+- By relation (with / without): related concept 78% / 66%; wrong place 85% / 79%; wrong group 86% / 80%; fully answers 87% / 86%; wrong time 83% / 86%; theme searches 83% / 82%.
+
+**Implication.** At the current data scale the score is worth about 1 to 1.6 verdict points (each interval just includes zero, one seed per arm), down from about 8 points at 14.6k examples. The model now judges mostly from the search, the item and the Understood/Checks lines. The loss concentrates on related-concept searches, where similarity is the natural evidence. Narratives are as faithful or slightly more without the score. Dropping the score removes the retriever and scale dependence (up to −23 points under a rescaled score) for about 1.5 points on in-distribution scores. Caveats: one seed per arm, supervised stage only (DPO has not changed the verdict in earlier rounds), and the comparison uses our retriever's scores, the most favourable case for the with-score model.
