@@ -38,8 +38,10 @@ if os.environ.get("LANG_WEIGHTS"):
     _override = json.loads(os.environ["LANG_WEIGHTS"])
     assert set(_override) <= set(LANGUAGES), f"unknown languages in LANG_WEIGHTS: {set(_override) - set(LANGUAGES)}"
     LANGUAGES = {k: _override.get(k, 0) for k in LANGUAGES}
-# Share of searches per catalog source.
+# Share of searches per catalog source. SOURCE_WEIGHTS (a JSON object) replaces it, e.g. for the record pools.
 SOURCE_WEIGHTS = {"indicator": 35, "document": 25, "study": 20, "dataset": 20}
+if os.environ.get("SOURCE_WEIGHTS"):
+    SOURCE_WEIGHTS = json.loads(os.environ["SOURCE_WEIGHTS"])
 
 SEEDS = [
     "female labor force participation", "youth unemployment", "informal employment", "wages and earnings",

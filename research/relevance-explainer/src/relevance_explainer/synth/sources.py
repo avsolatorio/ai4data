@@ -223,6 +223,56 @@ class HDX:
 SOURCES = {s.kind: s for s in (Data360(), Microdata(), Documents(), HDX())}
 
 
+# ---------- local record pools (synth/pools.py) for the metadata-schemas types ----------
+class PoolSource:
+    """Search over a local pool of records with the training retriever. Enabled only through RECORD_POOLS, a JSON
+    object {kind: [pool.jsonl, ...]}, so the catalog sources above are unchanged when it is not set."""
+
+    def __init__(self, kind: str, paths: list[str]):
+        import threading
+        self.kind = kind
+        self.recs = [json.loads(l) for p in paths for l in open(p, encoding="utf-8") if l.strip()]
+        self._emb = None
+        self._lock = threading.Lock()
+
+    @property
+    def label(self) -> str:
+        from ..schemas import RENDERERS
+        return RENDERERS[self.kind].label
+
+    def render(self, rec: dict) -> list[str]:
+        from ..schemas import RENDERERS
+        return RENDERERS[self.kind].render(rec)
+
+    def _model(self):
+        global _POOL_MODEL
+        if _POOL_MODEL is None:
+            from sentence_transformers import SentenceTransformer
+            from .signals import MODEL
+            _POOL_MODEL = SentenceTransformer(MODEL, device="cuda")
+        return _POOL_MODEL
+
+    def search(self, q: str, top: int) -> list[dict]:
+        import numpy as np
+        from .signals import item_text
+        with self._lock:
+            if self._emb is None:
+                self._emb = self._model().encode([item_text(r) for r in self.recs], batch_size=256, normalize_embeddings=True,
+                                                 show_progress_bar=False)
+            qv = self._model().encode([q], normalize_embeddings=True, show_progress_bar=False)[0]
+        s = self._emb @ qv
+        return [{"_i": int(i)} for i in np.argsort(-s)[:top]]
+
+    def hydrate(self, hit: dict, q: str) -> dict | None:
+        return dict(self.recs[hit["_i"]])
+
+
+_POOL_MODEL = None
+if __import__("os").environ.get("RECORD_POOLS"):
+    for _kind, _paths in json.loads(__import__("os").environ["RECORD_POOLS"]).items():
+        SOURCES[_kind] = PoolSource(_kind, _paths)
+
+
 def _coverage(countries: list[str]) -> str:
     n = len(countries)
     if n == 0:

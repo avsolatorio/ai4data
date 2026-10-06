@@ -54,7 +54,13 @@ def _geo():
     import json
     from .synth.understand import GEO, _country_index, norm
     countries = json.loads(GEO.read_text())["countries"]
-    return _country_index(), norm, {iso3: c["name"] for iso3, c in countries.items()}
+    idx = dict(_country_index())
+    for iso3, c in countries.items():  # catalogs in other languages name countries in that language ("Sénégal", "السنغال")
+        for names in (c.get("names") or {}).values():
+            for n in names:
+                if len(norm(n)) > 3:
+                    idx.setdefault(norm(n), iso3)
+    return idx, norm, {iso3: c["name"] for iso3, c in countries.items()}
 
 
 def split_places(units) -> tuple[list[str], list[str]]:

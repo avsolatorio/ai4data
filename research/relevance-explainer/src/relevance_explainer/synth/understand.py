@@ -639,8 +639,11 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
     if p.get("frequency"):
         f, rf = p["frequency"]["value"], rec.get("frequency")
         out.append(f"frequency {f}: " + ("not stated" if not rf else "matches" if norm(rf).startswith(norm(f)[:5]) else f"differs ({rf})"))
+    ml = rec.get("meta_language")
     for g in p["groups"]:
         ok = re.search(GROUP_EVIDENCE[g["value"]], text, re.I)
+        if not ok and ml and ml != "English":  # metadata in another language: that language's group words
+            ok = any(re.search(rf"(?<!\w){re.escape(norm(w))}", ntext) for w in u.lex.get(ml, {}).get("group", {}).get(g["value"], []))
         out.append(f"group {g['value']}: {'mentioned in the metadata' if ok else 'not mentioned in the metadata'}")
     if p.get("datatype"):
         want = DATATYPE_KIND[p["datatype"]["value"]]
