@@ -866,3 +866,31 @@ Verdict accuracy under the retrieval-score variants (the line is shown although 
 | Halved / shifted up 0.3 / general-model range | 72.9% / 65.2% / 60.7% | 82.3% / 82.1% / 81.9% |
 
 **Implication.** The no-score model's verdict varies by 0.9 points across all score conditions against 22.9 points for the with-score model, and its narratives are the most faithful of any model so far (+0.08 teacher, +0.05 Gemma 4 over the with-score model). The cost is 1.0 to 1.5 verdict points, each interval including zero, one seed. It removes the dependence on the deployment retriever and suits a browser build. `runs/v2c-cont-itemfirst-nosim-dpo` is the default realistic model in the app; the with-score model stays available for comparison.
+
+
+## 2026-10-06 16:58 UTC — The student matches words: searches in everyday words for fully-answering items lose 16 points
+
+Commits: 34e9981 (paraphrased anchored searches; "related" no longer asks for narrower or broader measures), 73efb52 (paraphrase-focused chunks), fe293b9 (`synth/para_eval.py`, `scripts/para_test.sh`).
+
+**Question/Context.** On the catalog-link page, the user found the no-score model calling a stunting indicator "a related but distinct metric" for "child malnutrition" and for an everyday description of stunting. Is this a teacher or a student error, and how general is it?
+
+**What was done.**
+1. Ten everyday-language searches for items that fully answer them (stunting, total population, the $1.90 poverty headcount, GDP per capita), through the live page, on both realistic models, the teacher (NARRATE_V2) and Gemma 4.
+2. Counted contrast phrasing ("related but distinct", "distinct metric", "rather than", "not the same as") in English narratives of chunks c71 to c80.
+3. Paraphrase test set `data/eval_para`: 2,500 anchored draws with every fully-answering search written away from the record's terms (`PARAPHRASE_SHARE=1`), other relations as usual; 2,175 searches survived, narrated by the teacher, second verdict from Gemma 4 (agreement 82.7%). Scored both current models.
+
+**Result.**
+- Ten probes, verdict relevant: teacher 8, Gemma 4 10, no-score model 5, with-score model 3. The student writes "related but distinct metric" for synonyms and common names ("number of inhabitants" for Population, total: irrelevant).
+- 1,838 English narratives in ten chunks use contrast phrasing; their verdicts are irrelevant 951, partly relevant 870, relevant 17. The "related" relation asked writers for "a narrower or broader measure", which produced such pairs.
+- Paraphrase test set:
+
+| | No-score model | With-score model |
+|---|---|---|
+| All (2,175) | 76.1% | 77.6% |
+| Searches not paraphrased (1,202) | 83.3% | 83.7% |
+| Paraphrased fully-answering (973) | 67.2% | 70.1% |
+| Paraphrased fully-answering, unanimous (753) | 74.6% | 75.8% |
+
+- Teacher labels on paraphrased fully-answering searches: relevant 361, partly relevant 481, irrelevant 131 (everyday wording often makes a search broader than the record). No-score model errors on them: partly relevant called irrelevant 119, relevant called partly relevant 60 or irrelevant 36.
+
+**Implication.** The teacher handles everyday wording; the student learned word overlap from searches written by models that saw the record. Remedies in the data: 40% of fully-answering anchored searches paraphrased in every generator, the "related" instruction changed, and ten paraphrase-focused chunks (half fully-answering, 80% paraphrased, with paraphrased hard cases for wrong place, time, group and related concept so that unfamiliar wording does not become a shortcut to "relevant"). The main generation loop was paused after 118 chunks to give the teacher servers to the targeted runs. Target for round D: close most of the 16-point gap on paraphrased fully-answering searches without losing accuracy on the hard cases.
