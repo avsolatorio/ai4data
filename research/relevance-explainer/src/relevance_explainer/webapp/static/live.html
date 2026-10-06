@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog Link Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6fa;--panel:#ffffff;--soft:#f0f2f7;--line:#e3e6ee;--fg:#141824;--fg2:#4a5268;--mute:#7b8399;
+  --acc:#4f46e5;--acc2:#0ea5e9;--accbg:rgba(79,70,229,.09);
+  --ok:#047857;--okbg:rgba(16,185,129,.13);--warn:#b45309;--warnbg:rgba(245,158,11,.16);--bad:#c81e1e;--badbg:rgba(239,68,68,.12);
+  --okbar:#10b981;--warnbar:#f59e0b;--badbar:#ef4444;--shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+  --radius:14px;color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1017;--panel:#151a24;--soft:#1c2230;--line:#262d3d;--fg:#e8ebf3;--fg2:#b4bbcc;--mute:#828aa0;
+  --acc:#8b85ff;--acc2:#38bdf8;--accbg:rgba(139,133,255,.13);
+  --ok:#34d399;--okbg:rgba(52,211,153,.13);--warn:#fbbf24;--warnbg:rgba(251,191,36,.13);--bad:#f87171;--badbg:rgba(248,113,113,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1017;--panel:#151a24;--soft:#1c2230;--line:#262d3d;--fg:#e8ebf3;--fg2:#b4bbcc;--mute:#828aa0;
+  --acc:#8b85ff;--acc2:#38bdf8;--accbg:rgba(139,133,255,.13);
+  --ok:#34d399;--okbg:rgba(52,211,153,.13);--warn:#fbbf24;--warnbg:rgba(251,191,36,.13);--bad:#f87171;--badbg:rgba(248,113,113,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--acc)}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:12px 22px;background:var(--panel);border-bottom:1px solid var(--line)}
+.mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff;font-weight:700}
+.brand h1{font-size:16px;margin:0;font-weight:700}
+.brand p{margin:0;font-size:12px;color:var(--mute)}
+.sp{flex:1}
+.iconbtn{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 11px;cursor:pointer;color:var(--fg2);text-decoration:none;font-size:13px}
+.iconbtn:hover{background:var(--soft)}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 22px;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:16px 18px}
+.h{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--mute);font-weight:700;margin:0 0 10px}
+.form{display:grid;grid-template-columns:1fr;gap:12px}
+.field label{display:block;font-size:12.5px;color:var(--fg2);font-weight:600;margin-bottom:5px}
+.inp{width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--line);background:var(--soft);font-size:15px}
+.inp.big{font-size:17px;font-weight:600}
+.inp:focus,select:focus{outline:2px solid var(--accbg);border-color:var(--acc)}
+select{padding:9px 11px;border-radius:11px;border:1px solid var(--line);background:var(--panel)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.preset{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--fg2)}
+.preset:hover{background:var(--soft)}
+.btn{border:0;border-radius:11px;padding:11px 20px;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,var(--acc2)));color:#fff;box-shadow:0 6px 16px -6px var(--acc)}
+.btn.primary:disabled{opacity:.6;cursor:progress}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:var(--soft);font-size:12px;color:var(--fg2);font-weight:550}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9px;font-size:12.5px;border:1px solid var(--line);background:var(--panel)}
+.chip.ok{background:var(--okbg);color:var(--ok);border-color:transparent}
+.chip.bad{background:var(--badbg);color:var(--bad);border-color:transparent}
+.chip.warn{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.title{font-size:16px;font-weight:650;margin:6px 0 10px}
+dl.meta{display:grid;grid-template-columns:128px 1fr;gap:6px 14px;margin:0;font-size:12.8px}
+dl.meta dt{color:var(--mute)}
+dl.meta dd{margin:0;color:var(--fg2);max-height:6.6em;overflow:auto;overflow-wrap:anywhere}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:11px;font-weight:700;font-size:15px}
+.v-relevant{background:var(--okbg);color:var(--ok)}.v-partly_relevant{background:var(--warnbg);color:var(--warn)}
+.v-irrelevant{background:var(--badbg);color:var(--bad)}.v-pending,.v-invalid{background:var(--soft);color:var(--mute)}
+.narr{font-size:16px;line-height:1.65;margin:14px 0 6px;min-height:3.3em;white-space:pre-wrap}
+.caret{display:inline-block;width:8px;height:1.05em;background:var(--acc);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite;border-radius:2px}
+@keyframes blink{50%{opacity:0}}
+.steps{display:flex;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--mute)}
+.step{padding:3px 10px;border-radius:99px;background:var(--soft)}
+.step.on{background:var(--accbg);color:var(--acc);font-weight:600}
+.step.done{color:var(--ok);background:var(--okbg)}
+.bars{display:grid;grid-template-columns:116px 1fr 52px;gap:8px 12px;align-items:center;font-size:12.8px}
+.bar{height:9px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar>div{height:100%;border-radius:99px;transition:width .4s}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.stat b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--mute)}
+.empty{color:var(--mute);padding:26px 4px;text-align:center}
+.err{background:var(--badbg);color:var(--bad);padding:10px 12px;border-radius:10px;font-size:13px}
+.note{font-size:12.8px;color:var(--fg2);background:var(--soft);border-radius:10px;padding:9px 12px;line-height:1.5}
+pre.raw{white-space:pre-wrap;font:12px/1.55 "JetBrains Mono",ui-monospace,monospace;background:var(--soft);border-radius:11px;padding:12px;margin:0;max-height:420px;overflow:auto}
+details summary{cursor:pointer;color:var(--fg2);font-size:13px}
+.muted{color:var(--mute)}
+.hidden{display:none!important}
+@media (max-width:980px){.cols{grid-template-columns:1fr}}
+@media (max-width:640px){.wrap{padding:12px 16px}.top{padding:10px 16px}.brand p{display:none}dl.meta{grid-template-columns:1fr}.bars{grid-template-columns:96px 1fr 46px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="mark">✦</div>
+  <div class="brand"><h1>Catalog link explainer</h1><p>Paste a Microdata Library or Data360 link, type a search, and the 21.6 MB model explains the fit on CPU</p></div>
+  <div class="sp"></div>
+  <button class="iconbtn" id="themeBtn" title="Toggle light and dark">◐</button>
+  <a class="iconbtn" href="./">Examples</a>
+</header>
+
+<div class="wrap">
+  <section class="panel pad">
+    <div class="form">
+      <div class="field">
+        <label for="url">Catalog link</label>
+        <input class="inp" id="url" placeholder="https://microdata.worldbank.org/index.php/catalog/2056 or https://data360.worldbank.org/en/indicator/WB_WDI_SP_POP_TOTL" autocomplete="off" spellcheck="false">
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="field">
+        <label for="search">Search</label>
+        <input class="inp big" id="search" placeholder="Type a search the way you would in a catalog, in any of the 11 languages" autocomplete="off" dir="auto">
+      </div>
+      <div class="row">
+        <button class="btn primary" id="go">⚡ Fetch and explain</button>
+        <select id="lang" aria-label="Answer language"></select>
+        <select id="model" aria-label="Model"></select>
+        <span class="muted" style="font-size:12.5px">Supported: Data360 indicators; studies in the Microdata Library, catalog.ihsn.org, the NADA demo and the Reproducible Research Repository.</span>
+      </div>
+      <div class="steps" id="steps"></div>
+      <div id="formErr"></div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <div class="stack">
+      <section class="panel pad" id="recPanel"><div class="h">Catalog record</div><div class="empty">The fetched metadata appears here.</div></section>
+      <section class="panel pad" id="undPanel"><div class="h">What the preprocessor understood · given to the model</div><div class="empty">Query understanding and checks appear here.</div></section>
+    </div>
+    <div class="stack">
+      <section class="panel pad" id="outPanel"><div class="h">Model output</div><div class="empty"><div style="font-size:30px">⚡</div>Paste a link, type a search, and press <b>Fetch and explain</b>.</div></section>
+      <section class="panel pad"><div class="h">About this page</div>
+        <div class="note">The server fetches the record from the catalog's public API, converts it with the metadata-schemas adapter, detects the search language,
+        runs the rule-based query understanding (places, years, population groups, data type) and checks them against the record. The model then reads the
+        item-first input and writes a verdict and a short explanation. The default model does not use a retrieval score, so any record can be explained
+        without a search engine. Nothing is stored.</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const NICE={relevant:"Relevant",partly_relevant:"Partly relevant",irrelevant:"Irrelevant",invalid:"No verdict",pending:"Writing…"};
+const VERD=["relevant","partly_relevant","irrelevant"];
+const BAR={relevant:"var(--okbar)",partly_relevant:"var(--warnbar)",irrelevant:"var(--badbar)"};
+const LANGS=["English","French","Spanish","Portuguese","Arabic","Chinese","Russian","Indonesian","Hindi","Turkish","Swahili"];
+const PRESETS=[
+  ["Enterprise Survey, Slovakia 2013","https://microdata.worldbank.org/index.php/catalog/2056","encuesta de empresas Eslovaquia 2013"],
+  ["Population, total (Data360)","https://data360.worldbank.org/en/indicator/WB_WDI_SP_POP_TOTL","population totale du Sénégal en 2020"],
+  ["Education spending survey, Cambodia","https://microdata.worldbank.org/index.php/catalog/875","school funding by province in Cambodia"],
+  ["Stunting prevalence (NADA demo)","https://nada-demo.ihsn.org/index.php/catalog/105","malnutrition infantile Madagascar"],
+  ["Households by size table (NADA demo)","https://nada-demo.ihsn.org/index.php/catalog/11","tamaño promedio del hogar en Estados Unidos"],
+  ["Rohingya camps map (NADA demo)","https://nada-demo.ihsn.org/index.php/catalog/142","خريطة مخيمات اللاجئين في بنغلاديش"]];
+const RTL=new Set(["Arabic"]);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dirOf=l=>RTL.has(l)?' dir="rtl"':' dir="auto"';
+let MODELS=[],busy=false;
+
+function parseInput(t){const f={meta:[]};const keys=new Set(["Respond in","Item type","Search","Facets","Understood","Checks","Retrieval similarity","Result"]);
+  for(const line of t.split("\n")){const i=line.indexOf(": ");if(i<0)continue;const k=line.slice(0,i),v=line.slice(i+2).trim();if(keys.has(k))f[k]=v;else f.meta.push([k,v]);}return f;}
+function chipKind(p){const l=p.toLowerCase();
+  if(l.includes("not covered")||l.includes("differs")||l.includes("outside")||l.includes("item is ")||l.includes("not recent"))return"bad";
+  if(l.includes("cannot")||l.includes("not verifiable")||l.includes("not stated")||l.includes("partly")||l.includes("not mentioned")||l.includes("not named")||l.includes("publication date"))return"warn";
+  if(l.includes("covered")||l.includes("match")||l.includes("mentioned")||l.includes("named")||l.includes("current"))return"ok";return"";}
+function steps(active){const names=["Fetch record","Understand search","Generate"];
+  $("#steps").innerHTML=names.map((n,i)=>`<span class="step ${i<active?"done":i===active?"on":""}">${i<active?"✓":i===active?"◌":"·"} ${n}</span>`).join("");}
+
+function renderRecord(r,f){
+  $("#recPanel").innerHTML=`<div class="h">Catalog record</div>
+    <div class="row"><span class="pill">${esc(r.record.type)}</span><a class="pill" href="${esc(r.record.link)}" target="_blank" rel="noopener">Open in catalog ↗</a></div>
+    <div class="title">${esc(f["Result"]||r.record.title)}</div>
+    <dl class="meta">${f.meta.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+    <details style="margin-top:12px"><summary>Exact input the model reads</summary><pre class="raw" id="raw"></pre></details>`;
+}
+function renderUnderstood(r,f,usesScore){
+  const und=(f["Understood"]||"").split(";").map(x=>x.trim()).filter(Boolean);
+  const chk=(f["Checks"]&&f["Checks"]!=="none")?f["Checks"].split("|").map(x=>x.trim()).filter(Boolean):[];
+  const icon={ok:"✓",bad:"✕",warn:"?","":"•"};
+  $("#undPanel").innerHTML=`<div class="h">What the preprocessor understood · given to the model</div>
+    <div class="row" style="margin-bottom:8px"><span class="pill">🌐 Answer in ${esc(r.language)}${r.detected?" (detected)":""}</span>
+      ${usesScore?`<span class="pill">Retrieval similarity ${r.similarity.toFixed(2)}</span>`:'<span class="pill">No retrieval score used</span>'}</div>
+    <div class="row">${und.map(x=>{const m=x.match(/^(.*?)\s*\[(query|facet|query\+facet)\]$/);return `<span class="chip">${esc(m?m[1]:x)}</span>`;}).join("")||'<span class="muted">nothing</span>'}</div>
+    <div class="h" style="margin-top:14px">Checks against this record</div>
+    <div class="row">${chk.map(c=>{const k=chipKind(c.replace(/^[^:]*:/,""));return `<span class="chip ${k}">${icon[k]} ${esc(c)}</span>`;}).join("")||'<span class="muted">no place, time, group or type constraints to check</span>'}</div>`;
+}
+function renderOutput(s,lang){
+  const p=$("#outPanel");
+  const bars=s.probs?`<div class="h" style="margin-top:16px">Verdict confidence · first output step</div><div class="bars">${VERD.map(v=>
+    `<span>${NICE[v]}</span><div class="bar"><div style="width:${(s.probs[v]*100).toFixed(1)}%;background:${BAR[v]}"></div></div><span style="text-align:right;font-variant-numeric:tabular-nums">${(s.probs[v]*100).toFixed(1)}%</span>`).join("")}</div>`:"";
+  const st=s.stats?`<div class="stats">${[["fetch + render",s.prep_ms+" ms"],["first token",s.stats.first_token_ms+" ms"],["total",s.stats.total_s+" s"],
+    ["per token",s.stats.per_token_ms+" ms"],["prompt tokens",s.stats.prompt_tokens],["model file",s.stats.model_mb+" MB"]]
+    .map(([k,v])=>`<div class="stat"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>`:"";
+  p.innerHTML=`<div class="h">Model output · ${esc(s.model)}</div>
+    <span class="badge v-${s.verdict}">${s.verdict==="pending"?"◌":"●"} ${NICE[s.verdict]||esc(s.verdict)}</span>
+    <div class="narr"${dirOf(lang)}>${esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>${bars}${st}${s.error?`<div class="err">${esc(s.error)}</div>`:""}`;
+}
+function split(text){const i=text.indexOf("\n");if(i<0)return{verdict:"pending",narrative:""};
+  const v=text.slice(0,i).trim();return{verdict:VERD.includes(v)?v:"invalid",narrative:text.slice(i+1).trim()};}
+
+async function go(){
+  if(busy)return;const url=$("#url").value.trim(),search=$("#search").value.trim();
+  $("#formErr").innerHTML="";
+  if(!url||!search){$("#formErr").innerHTML='<div class="err">Paste a catalog link and type a search.</div>';return;}
+  busy=true;$("#go").disabled=true;steps(0);const t0=performance.now();
+  try{
+    const lang=$("#lang").value==="auto"?null:$("#lang").value;
+    const r=await fetch("api/live",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,search,language:lang})});
+    const j=await r.json();
+    if(!r.ok){throw new Error(j.error||r.statusText);}
+    const prep=Math.round(performance.now()-t0);steps(1);
+    const model=$("#model").value,m=MODELS.find(x=>x.name===model)||{},usesScore=m.format==="itemfirst";
+    const f=parseInput(j.input);renderRecord(j,f);renderUnderstood(j,f,usesScore);
+    $("#raw").textContent=usesScore?j.input:j.input.replace(/\nRetrieval similarity: [-0-9.]+/,"");
+    history.replaceState(null,"",`#url=${encodeURIComponent(url)}&q=${encodeURIComponent(search)}`);
+    steps(2);
+    const s={model,verdict:"pending",narrative:"",running:true,prep_ms:prep};renderOutput(s,j.language);
+    const g=await fetch("api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({input:j.input,model,raw:true,temperature:0,guard:true})});
+    if(!g.ok){const e=await g.json().catch(()=>({error:g.statusText}));throw new Error(e.error||g.statusText);}
+    const rd=g.body.getReader(),dec=new TextDecoder();let buf="";
+    for(;;){const{value,done}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n"))>=0){const line=buf.slice(0,i);buf=buf.slice(i+1);if(!line.trim())continue;const ev=JSON.parse(line);
+        if(ev.type==="probs")s.probs=ev.probs;
+        if(ev.type==="token")Object.assign(s,split(ev.text));
+        if(ev.type==="done")Object.assign(s,{verdict:ev.verdict,narrative:ev.narrative,stats:ev.stats,running:false});
+        if(ev.type==="error"){s.error=ev.message;s.running=false;}
+        renderOutput(s,j.language);}}
+    s.running=false;renderOutput(s,j.language);steps(3);
+  }catch(e){$("#formErr").innerHTML=`<div class="err">${esc(e.message)}</div>`;steps(-1);$("#steps").innerHTML="";}
+  finally{busy=false;$("#go").disabled=false;}
+}
+
+async function init(){
+  $("#presets").innerHTML=PRESETS.map(([n,u,q],i)=>`<button class="preset" data-i="${i}">${esc(n)}</button>`).join("");
+  $("#presets").onclick=e=>{const b=e.target.closest(".preset");if(!b)return;const[,u,q]=PRESETS[+b.dataset.i];$("#url").value=u;$("#search").value=q;};
+  $("#lang").innerHTML=`<option value="auto">Answer language: detect</option>`+LANGS.map(l=>`<option>${l}</option>`).join("");
+  try{MODELS=(await fetch("api/models").then(r=>r.json())).filter(m=>m.format.startsWith("itemfirst"));}catch(e){MODELS=[];}
+  $("#model").innerHTML=MODELS.map(m=>`<option>${esc(m.name)}</option>`).join("");
+  const h=new URLSearchParams(location.hash.slice(1));if(h.get("url"))$("#url").value=h.get("url");if(h.get("q"))$("#search").value=h.get("q");
+  $("#go").onclick=go;
+  ["#url","#search"].forEach(s=>$(s).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}}));
+  $("#themeBtn").onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+    document.documentElement.dataset.theme=cur==="dark"?"light":"dark";try{localStorage.setItem("theme",document.documentElement.dataset.theme);}catch(e){}};
+  try{const t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}
+}
+init();
+</script>
+</body>
+</html>

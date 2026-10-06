@@ -68,6 +68,8 @@ before the request reaches the app. Without it the prefix is forwarded, which al
 | GET | `/api/models` | available models and file sizes |
 | POST | `/api/generate` | `{"input", "model", "temperature", "guard"}`; returns NDJSON events `start`, `probs`, `token`, `done` or `error` |
 | GET | `/healthz` | liveness |
+| GET | `/live` | page that explains a live catalog record (link plus typed search) |
+| POST | `/api/live` | `{"url", "search", "language"}`; fetches a Data360 indicator or a study from an allowlisted NADA catalog (Microdata Library, catalog.ihsn.org, NADA demo, Reproducible Research Repository), converts it with `relevance_explainer.schemas` and returns the item-first input, the detected language and the record summary. Generation then goes through `/api/generate` with `"raw": true` |
 
 ## Notes
 

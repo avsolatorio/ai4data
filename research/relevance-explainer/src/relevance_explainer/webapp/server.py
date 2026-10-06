@@ -192,7 +192,10 @@ async def generate(request: Request) -> Response:
         if fmt == "itemfirst_nosim":
             text = re.sub(r"\nRetrieval similarity: [-0-9.]+", "", text)
     elif V.MODEL_FORMAT.get(model_name, "v1").startswith("itemfirst"):
-        return JSONResponse({"error": "this model reads the realistic format; pick an example from the realistic set"}, status_code=400)
+        if not body.get("raw"):
+            return JSONResponse({"error": "this model reads the realistic format; pick an example from the realistic set"}, status_code=400)
+        if V.MODEL_FORMAT[model_name] == "itemfirst_nosim":  # a raw realistic input (live catalog page): drop the score line
+            text = re.sub(r"\nRetrieval similarity: [-0-9.]+", "", text)
     if not text.strip() or len(text) > MAX_INPUT_CHARS:
         return JSONResponse({"error": f"input must be 1 to {MAX_INPUT_CHARS} characters"}, status_code=400)
     if model_name not in V.MODELS or not (V.ROOT / V.MODELS[model_name]).exists():
@@ -206,9 +209,31 @@ async def generate(request: Request) -> Response:
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
+async def live_page(request: Request) -> Response:
+    return FileResponse(STATIC / "live.html", headers={"Cache-Control": "no-cache"})
+
+
+async def live_render(request: Request) -> Response:
+    """{"url", "search", "language"} -> the rendered input for a live catalog record (see webapp/live.py)."""
+    from starlette.concurrency import run_in_threadpool
+    from . import live
+    try:
+        body = await request.json()
+        url, search, lang = str(body.get("url", "")).strip(), str(body.get("search", "")).strip(), body.get("language")
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+    if not url or len(url) > 500 or not search or len(search) > 300:
+        return JSONResponse({"error": "give a catalog link and a search of up to 300 characters"}, status_code=400)
+    try:
+        return JSONResponse(await run_in_threadpool(live.render, url, search, lang))
+    except live.LiveError as e:
+        return JSONResponse({"error": str(e)}, status_code=422)
+
+
 app = Starlette(routes=[
     Route("/", index), Route("/index.html", index), Route("/api/examples", examples), Route("/api/models", models),
     Route("/api/generate", generate, methods=["POST"]), Route("/api/render", render, methods=["POST"]), Route("/healthz", health),
+    Route("/live", live_page), Route("/api/live", live_render, methods=["POST"]),
 ], middleware=[Middleware(StripPrefix)])
 
 # Load the default model at startup so the first request is fast.
