@@ -43,6 +43,8 @@ GROUPS = list(GROUP_EVIDENCE)
 DATATYPE = {"none": 55, "indicator": 12, "microdata": 13, "document": 10, "dataset": 10}
 FACETS = {"none": 75, "duplicate": 10, "extra": 15}
 RELATION = {"full": 30, "wrong_place": 12, "wrong_time": 10, "wrong_group": 6, "related": 14, "other_topic": 12, "unrelated": 16}
+if os.environ.get("RELATION_WEIGHTS"):  # a JSON object replacing the mix, e.g. for a paraphrase-focused run
+    RELATION = json.loads(os.environ["RELATION_WEIGHTS"])
 RELATION_TEXT = {
     "full": "a search that this record answers well: its topic, and any place, time or group mentioned, are covered by the record",
     "wrong_place": "a search on the record's topic, but for the place given below, which the record does not cover",
@@ -56,6 +58,11 @@ RELATION_TEXT = {
 # this the student learns word overlap and calls a synonym or the common name of the concept "related but distinct"
 # (notebook 2026-10-06: 'child malnutrition' for a stunting indicator, 'number of inhabitants' for Population, total).
 PARAPHRASE_SHARE = float(os.environ.get("PARAPHRASE_SHARE", "0.4"))
+# Relations whose searches may be paraphrased. With wrong_place, wrong_time and wrong_group included, everyday wording also
+# appears with a failing constraint, so the student cannot learn "unfamiliar words, therefore relevant".
+PARAPHRASE_RELATIONS = set(os.environ.get("PARAPHRASE_RELATIONS", "full").split(","))
+PARAPHRASE_TOPIC = ("Write the topic the way a non-specialist would: do not use the key terms of the record's title or definition; use "
+                    "everyday words, a synonym or the common name of the concept.")
 PARAPHRASE_TEXT = ("a search that this record answers well, written the way a non-specialist would ask: do not use the key terms of the "
                    "record's title or definition; use everyday words, a synonym, a description of the situation, or the common name of the "
                    "concept (for example 'kids too short for their age' for a stunting indicator, 'how many people live in Kenya' for a "
@@ -364,7 +371,7 @@ def cmd_anchored(a) -> None:
         covered = sorted(_record_iso3(rec))
         yrs = _record_years(rec)
         s.update(id=f"a{a.seed}-{i}", mode="anchored", relation=rel, topic=theme, source=kind)
-        s["wording"] = "paraphrase" if rel == "full" and r.random() < PARAPHRASE_SHARE else "free"
+        s["wording"] = "paraphrase" if rel in PARAPHRASE_RELATIONS and r.random() < PARAPHRASE_SHARE else "free"
         if rel == "full":
             s["geo"] = sp.geography(r.choice(["none", "country", "country", "subnational"]), allowed=covered[:40] if 0 < len(covered) <= 60 else None) if covered else None
             s["time"] = sp.time(r.choice(["none", "year", "range", "relative"]), inside=yrs) if yrs and rec["kind"] != "document" else None
@@ -389,9 +396,12 @@ def cmd_anchored(a) -> None:
         s["facet_values"] = facets_for(s, r, sp)
         item = "\n".join(src.render(rec))
         must = must_lines(s)
+        rtext = RELATION_TEXT[rel]
+        if s["wording"] == "paraphrase":
+            rtext = PARAPHRASE_TEXT if rel == "full" else f"{rtext}. {PARAPHRASE_TOPIC}"
         for _ in range(3):  # retry searches written in the wrong language
             wm, wurls = writer(s["id"])
-            text, _ = llm.chat(wm, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=PARAPHRASE_TEXT if s["wording"] == "paraphrase" else RELATION_TEXT[rel], label=src.label, item=item[:2500],
+            text, _ = llm.chat(wm, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=rtext, label=src.label, item=item[:2500],
                                                                                  language=s["language"], style=STYLE[s["style"]][1],
                                                                                  surface=SURFACE_TEXT[s["surface"]],
                                                                                  must=("The search must express:\n" + must) if (s.get("geo") or s.get("time") or s.get("group")) else "Do not mention a place, year or population group unless the relation requires it."),
