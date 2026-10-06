@@ -231,7 +231,7 @@ const RTL=new Set(["Arabic"]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let EX=[],MODELS=[],sel=null,labFilter="all",mode="greedy",busy=false,live=null,setFilter="realistic";
-const REAL_MODEL="Realistic + DPO (item-first)",OLD_MODEL="Round 7 + DPO (best)";
+const REAL_MODEL="Realistic, no retrieval score",OLD_MODEL="Round 7 + DPO (best)";
 const SETNOTE={realistic:"Searches written the way people type them: constraints in the text, facets rarely set, themes never used in training. Edit the search to try your own (as typed, without facets); the server re-runs query understanding and the checks.",fresh:"Neither the search nor the catalog item occurs anywhere in the training data. These were generated after training from new themes and items.",
   test:"New searches from themes held out of training. The catalog items do occur in training, paired with other searches."};
 
@@ -325,7 +325,8 @@ function renderRealisticInput(col){
     <div class="h" style="margin-top:14px">Checks against this item</div>
     <div class="row">${chk.map(c=>{const k=chipKind(c.replace(/^[^:]*:/,""));return `<span class="chip ${k}">${icon[k]} ${esc(c)}</span>`;}).join("")||'<span class="muted">no constraints to check</span>'}</div>
     <div class="sig" style="margin-top:14px"><span class="k">Retrieval similarity</span>
-      ${isNaN(sim)?'<span class="muted">none</span>':`<div class="meter"><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(1,sim))*100}%"></div></div><b>${sim.toFixed(2)}</b></div>`}</div>
+      ${isNaN(sim)?'<span class="muted">none</span>':`<div class="meter"><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(1,sim))*100}%"></div></div><b>${sim.toFixed(2)}</b></div>`}
+      ${(MODELS.find(m=>m.name===$("#model").value)||{}).format==="itemfirst_nosim"?'<span class="muted">not given to this model</span>':""}</div>
   </section>
   <section class="panel pad"><div class="h">Result being explained</div>
     <div class="title">${esc(f["Result"]||"")}</div>
@@ -427,7 +428,7 @@ async function compare(){
       <div class="cell">${r.verdict?`<span class="badge sm v-${r.verdict}">${NICE[r.verdict]}</span>${r.p!=null?`<div class="muted" style="font-size:11.5px;margin-top:4px">${(r.p*100).toFixed(0)}% confident</div>`:""}`:'<span class="muted">…</span>'}</div>
       <div class="cell"${dirOf(sel.language)}>${esc(r.narrative||"")}${r.error?`<span style="color:var(--bad)">${esc(r.error)}</span>`:""}</div>
       <div class="cell muted">${r.t?r.t+" s":""}</div>`).join("")}</div>`;};
-  for(const m of MODELS.filter(m=>m.format!=="itemfirst"||sel.set==="realistic")){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
+  for(const m of MODELS.filter(m=>!m.format.startsWith("itemfirst")||sel.set==="realistic")){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
     try{let probs=null;const last=await runOnce(m.name,ev=>{if(ev.type==="probs")probs=ev.probs;if(ev.type==="token"){Object.assign(r,split(ev.text));draw();}});
       if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:probs?probs[last.verdict]:null});}
       else r.error=last?last.message:"no result";}catch(e){r.error=e.message;}
@@ -442,7 +443,7 @@ function select(id,push=true){
   document.querySelectorAll(".ex").forEach(b=>b.classList.toggle("sel",b.dataset.id===String(sel.id)));
   $("#cmpPanel").classList.add("hidden");
   const want=sel.set==="realistic"?REAL_MODEL:OLD_MODEL,cur=MODELS.find(m=>m.name===$("#model").value);
-  if(MODELS.some(m=>m.name===want)&&(sel.set==="realistic"?cur&&cur.format!=="itemfirst":cur&&cur.format==="itemfirst"))$("#model").value=want;
+  if(MODELS.some(m=>m.name===want)&&(sel.set==="realistic"?cur&&!cur.format.startsWith("itemfirst"):cur&&cur.format.startsWith("itemfirst")))$("#model").value=want;
   if(sel.set==="realistic"&&MODELS.some(m=>m.name===REAL_MODEL)&&!sel._picked){$("#model").value=REAL_MODEL;}
   renderInput();renderOutput(null);renderAudit();
   if(sel.set==="realistic"&&!sel._render)rerender(sel._search??null);
@@ -456,6 +457,7 @@ async function init(){
   $("#fLang").innerHTML=`<option value="all">All languages</option>`+langs.map(l=>`<option>${esc(l)}</option>`).join("");
   $("#fSrc").innerHTML=`<option value="all">All sources</option>`+srcs.map(s=>`<option value="${s}">${SRC[s]?SRC[s][1]:s}</option>`).join("");
   $("#model").innerHTML=MODELS.map(m=>`<option${m.default?" selected":""}>${esc(m.name)}</option>`).join("");
+  $("#model").onchange=()=>{if(sel){sel._picked=true;renderInput();}};  // the input panel notes which signals the model reads
   if(!EX.some(e=>e.set==="realistic"))setFilter=EX.some(e=>e.set==="fresh")?"fresh":"test";
   ["realistic","fresh"].forEach(v=>{if(!EX.some(e=>e.set===v)){const b=document.querySelector(`#fSet button[data-v=${v}]`);if(b)b.remove();}});
   document.querySelectorAll("#fSet button").forEach(x=>x.classList.toggle("on",x.dataset.v===setFilter));

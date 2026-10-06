@@ -29,6 +29,7 @@ SEP = "\n\n### Judgment\n"
 EOS = 1
 VERDICTS = ["relevant", "partly_relevant", "irrelevant"]
 MODELS = {
+    "Realistic, no retrieval score": "runs/v2c-cont-itemfirst-nosim-dpo/explainer-int8.pt",
     "Realistic + DPO (item-first)": "runs/v2c-cont-itemfirst-dpo/explainer-int8.pt",
     "Round 7 + DPO (best)": "runs/f6-dpo/explainer-int8.pt",
     "Round 7 + DPO + copy head": "runs/f6-copy-dpo/explainer-int8.pt",
@@ -37,7 +38,8 @@ MODELS = {
 }
 RTL = {"Arabic"}
 # Input format per model: "itemfirst" models read the item-first realistic format with query understanding and checks.
-MODEL_FORMAT = {"Realistic + DPO (item-first)": "itemfirst"}
+# "itemfirst_nosim" is the same format without the "Retrieval similarity" line.
+MODEL_FORMAT = {"Realistic + DPO (item-first)": "itemfirst", "Realistic, no retrieval score": "itemfirst_nosim"}
 
 
 # ----------------------------------------------------------------------------------------------- examples

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import threading
 import time
 from pathlib import Path
@@ -186,8 +187,11 @@ async def generate(request: Request) -> Response:
         if search is not None and (not str(search).strip() or len(str(search)) > 500):
             return JSONResponse({"error": "invalid search"}, status_code=400)
         r = render_for(eid, search)
-        text = r["itemfirst"] if V.MODEL_FORMAT.get(model_name) == "itemfirst" else r["v1"]
-    elif V.MODEL_FORMAT.get(model_name) == "itemfirst":
+        fmt = V.MODEL_FORMAT.get(model_name, "v1")
+        text = r["v1"] if fmt == "v1" else r["itemfirst"]
+        if fmt == "itemfirst_nosim":
+            text = re.sub(r"\nRetrieval similarity: [-0-9.]+", "", text)
+    elif V.MODEL_FORMAT.get(model_name, "v1").startswith("itemfirst"):
         return JSONResponse({"error": "this model reads the realistic format; pick an example from the realistic set"}, status_code=400)
     if not text.strip() or len(text) > MAX_INPUT_CHARS:
         return JSONResponse({"error": f"input must be 1 to {MAX_INPUT_CHARS} characters"}, status_code=400)
