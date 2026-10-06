@@ -48,10 +48,19 @@ RELATION_TEXT = {
     "wrong_place": "a search on the record's topic, but for the place given below, which the record does not cover",
     "wrong_time": "a search on the record's topic, but for the period given below, which the record does not cover",
     "wrong_group": "a search on the record's topic, but for the population group given below, which the record does not mention",
-    "related": "a search for a related but different concept than what the record measures or contains (for example a neighbouring indicator, a cause or consequence, a narrower or broader measure)",
+    "related": "a search for a related but different concept than what the record measures or contains (for example a neighbouring indicator, or a cause or consequence of what it measures); not a synonym or the common name of the same concept",
     "other_topic": "a search on a clearly different topic, for the place given below that the record covers",
     "unrelated": "a search on a topic unrelated to the record",
 }
+# Fully-answering searches in other words than the record's. Writers shown a record tend to reuse its terms, so without
+# this the student learns word overlap and calls a synonym or the common name of the concept "related but distinct"
+# (notebook 2026-10-06: 'child malnutrition' for a stunting indicator, 'number of inhabitants' for Population, total).
+PARAPHRASE_SHARE = float(os.environ.get("PARAPHRASE_SHARE", "0.4"))
+PARAPHRASE_TEXT = ("a search that this record answers well, written the way a non-specialist would ask: do not use the key terms of the "
+                   "record's title or definition; use everyday words, a synonym, a description of the situation, or the common name of the "
+                   "concept (for example 'kids too short for their age' for a stunting indicator, 'how many people live in Kenya' for a "
+                   "total population series, 'extreme poverty' for a poverty headcount at the international poverty line). Its topic, "
+                   "and any place, time or group mentioned, are covered by the record")
 
 
 # Search writers: several models give more varied searches. QUERY_WRITERS='{"model": {"urls": [...], "share": 0.6}, ...}'.
@@ -355,6 +364,7 @@ def cmd_anchored(a) -> None:
         covered = sorted(_record_iso3(rec))
         yrs = _record_years(rec)
         s.update(id=f"a{a.seed}-{i}", mode="anchored", relation=rel, topic=theme, source=kind)
+        s["wording"] = "paraphrase" if rel == "full" and r.random() < PARAPHRASE_SHARE else "free"
         if rel == "full":
             s["geo"] = sp.geography(r.choice(["none", "country", "country", "subnational"]), allowed=covered[:40] if 0 < len(covered) <= 60 else None) if covered else None
             s["time"] = sp.time(r.choice(["none", "year", "range", "relative"]), inside=yrs) if yrs and rec["kind"] != "document" else None
@@ -381,7 +391,7 @@ def cmd_anchored(a) -> None:
         must = must_lines(s)
         for _ in range(3):  # retry searches written in the wrong language
             wm, wurls = writer(s["id"])
-            text, _ = llm.chat(wm, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=RELATION_TEXT[rel], label=src.label, item=item[:2500],
+            text, _ = llm.chat(wm, G.QUERY_SYSTEM, ANCHOR_PROMPT.format(relation=PARAPHRASE_TEXT if s["wording"] == "paraphrase" else RELATION_TEXT[rel], label=src.label, item=item[:2500],
                                                                                  language=s["language"], style=STYLE[s["style"]][1],
                                                                                  surface=SURFACE_TEXT[s["surface"]],
                                                                                  must=("The search must express:\n" + must) if (s.get("geo") or s.get("time") or s.get("group")) else "Do not mention a place, year or population group unless the relation requires it."),
