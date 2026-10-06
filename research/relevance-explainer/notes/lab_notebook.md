@@ -868,7 +868,7 @@ Verdict accuracy under the retrieval-score variants (the line is shown although 
 **Implication.** The no-score model's verdict varies by 0.9 points across all score conditions against 22.9 points for the with-score model, and its narratives are the most faithful of any model so far (+0.08 teacher, +0.05 Gemma 4 over the with-score model). The cost is 1.0 to 1.5 verdict points, each interval including zero, one seed. It removes the dependence on the deployment retriever and suits a browser build. `runs/v2c-cont-itemfirst-nosim-dpo` is the default realistic model in the app; the with-score model stays available for comparison.
 
 
-## 2026-10-06 16:58 UTC — The student matches words: searches in everyday words for fully-answering items lose 16 points
+## 2026-10-06 17:02 UTC — The student matches words: searches in everyday words for fully-answering items lose 16 points
 
 Commits: 34e9981 (paraphrased anchored searches; "related" no longer asks for narrower or broader measures), 73efb52 (paraphrase-focused chunks), fe293b9 (`synth/para_eval.py`, `scripts/para_test.sh`).
 
