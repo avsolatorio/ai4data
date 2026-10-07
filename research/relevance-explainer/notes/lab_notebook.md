@@ -926,3 +926,25 @@ No-score model by phenomenon, all and unanimous, with the most frequent error:
 | vague | 73.3% | 87.0% | partly -> relevant 25 |
 
 **Implication.** The realistic test overstates accuracy for searches unlike the training writers' (83% against 61 to 65% here). The errors are consistent with lexical matching: different words for the same concept lower the verdict (synonym, proxy, standard measure), shared words with a different meaning raise it (look-alike, threshold). Round D addresses only synonyms. Round E: targeted training slices for the eight weakest phenomena, written by the training writers on records not used in the suite and kept only where the teacher and Gemma 4 agree; the challenge suite stays held out, with the caveat that the same phenomenon definitions make it partly in-distribution afterwards, so an independent check (the user's probes, real requests) is still needed.
+
+
+## 2026-10-07 13:35 UTC — Round D (supervised stage): better on every test set; synonyms +21 points, tables unchanged
+
+Commit: 8b360af (round D chain), bc92a42 (CPU fallback for similarities, used by the later evaluations). Run `runs/v2d-nosim`.
+
+**What was done.** `data/v2_d`: all 118 realistic chunks and translation sets, plus the targeted sets with origin labels: paraphrase chunks (repeated twice), new item types (7 of 8 chunks usable, twice), translated metadata (8 sets); old share 0.4; training split 889,899 rows (real 492,795; old 201,431; translated 94,771; paraphrase 41,786 counting repeats; types 40,012; translated metadata 19,104), validation 114,199, test 105,052. Similarity line removed everywhere. Continued `runs/v2c-cont-itemfirst-nosim` (the no-score supervised model), lr 2e-4, 2 epochs, 43 minutes per epoch; validation verdict 82.9% then 84.8%. The paraphrase and nine-type evaluations failed in the chain (a transient GPU memory error, output hidden) and were rerun with `scripts/eval_sets.sh`. Compared with the same stage of the previous no-score model (both before DPO).
+
+**Result.**
+| Test set | v2c no-score (before) | v2d no-score (round D) |
+|---|---|---|
+| Realistic, 1,495 | 82.7% (unanimous 89.7%) | 84.6% (91.6%) |
+| Paraphrase set, 2,175 | 76.0% (unanimous 81.4%) | 80.7% (86.6%) |
+| Paraphrased fully-answering searches, 973 | 68.4% | 74.5% |
+| Not paraphrased, 1,202 | 82.1% | 85.8% |
+| Nine-type NADA set, 475 | 78.3% (unanimous 82.3%) | 81.1% (84.4%) |
+| Challenge suite, 2,244 | 61.1% (unanimous 63.9%) | 65.3% (69.6%) |
+
+- Nine types, trained / new: 83.5% / 73.7% before, 86.2% / 76.5% after. Tables 72.8% before and after (n=125); photographs 83.7% to 89.8%; microdata 84.6% to 89.0%; video 68.6% to 74.3%.
+- Challenge suite by phenomenon, before / after: synonym 31.3% / 52.7%; group definition 44.0% / 54.0%; time phrase 55.7% / 62.4%; proxy 39.3% / 45.3%; standard measure 54.0% / 56.7%; threshold 42.7% / 44.7%; negation 53.0% / 49.7%; look-alike 55.0% / 52.3%; question 79.3% / 86.7%; title 79.2% / 85.2%.
+
+**Implication.** Paraphrase data moved its target (synonym +21 points on the independent suite, paraphrased fully-answering +6 points) and also lifted the realistic test (+1.9) without the score, so the no-score model now exceeds the with-score model of milestone C (84.3%). Threshold, negation and look-alike did not improve: these are the phenomena that need number comparison or negation, consistent with the plan to move them into deterministic checks. Tables did not improve; the table pools (Statistics Canada, ILOSTAT) differ from the NADA test tables (US Census, WDI country tables), and the nine-type test inputs were rendered before the render-version and group-check fixes (labels were narrated on those inputs, so they were not re-rendered). DPO for round D is running.
