@@ -896,7 +896,7 @@ Commits: 34e9981 (paraphrased anchored searches; "related" no longer asks for na
 **Implication.** The teacher handles everyday wording; the student learned word overlap from searches written by models that saw the record. Remedies in the data: 40% of fully-answering anchored searches paraphrased in every generator, the "related" instruction changed, and ten paraphrase-focused chunks (half fully-answering, 80% paraphrased, with paraphrased hard cases for wrong place, time, group and related concept so that unfamiliar wording does not become a shortcut to "relevant"). The main generation loop was paused after 118 chunks to give the teacher servers to the targeted runs. Target for round D: close most of the 16-point gap on paraphrased fully-answering searches without losing accuracy on the hard cases.
 
 
-## 2026-10-07 10:06 UTC — Challenge suite: 61% overall; the student behaves like a word matcher
+## 2026-10-07 09:39 UTC — Challenge suite: 61% overall; the student behaves like a word matcher
 
 Commit: dacad01 (`synth/challenge.py`, `scripts/challenge.sh`; also the record-pool lock fix).
 
