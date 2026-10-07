@@ -96,7 +96,7 @@ def main() -> None:
             return []
         p = {k: v for k, v in r.items() if k not in ("verdict", "narrative", "missed", "input_v2", "input_v2min", "input_v1", "input_v1x")}
         p.update(record=rec, render_version=RENDER_VERSION, origin="metatrans", meta_language=L)
-        parsed = u.parse(p["query"], p.get("facet_values"))
+        parsed = u.parse(p["query"], p.get("facet_values"), level=p["render_version"])
         p["parsed"] = parsed
         p["input_v2"] = render_v2(p, u, parsed, p["similarity"])
         p["input_v2min"] = render_v2min(p, p["similarity"])

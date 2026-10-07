@@ -43,7 +43,7 @@ def _render_real(r: dict):
     """Re-render a realistic example with the current query understanding. Returns None when an earlier parse found a
     place the current one does not and the narrative names it (the narrative followed a wrong Understood line)."""
     from .understand import norm
-    parsed = _U.parse(r["query"], r.get("facet_values"))
+    parsed = _U.parse(r["query"], r.get("facet_values"), level=r.get("render_version", 1))
     new = {x.get("iso3") or x.get("code") for x in parsed["places"]}
     for x in (r.get("parsed") or {}).get("places", []):
         if (x.get("iso3") or x.get("code")) not in new and norm(x["name"]) in norm(r["narrative"]):

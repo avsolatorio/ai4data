@@ -25,7 +25,7 @@ def main() -> None:
     from .understand import Understander
     u = Understander()
     for r in rows:  # inputs as the current preprocessor renders them
-        parsed = u.parse(r["query"], r.get("facet_values"))
+        parsed = u.parse(r["query"], r.get("facet_values"), level=r.get("render_version", 1))
         r["input_v2"], r["input_v2min"] = render_v2(r, u, parsed, r["similarity"]), render_v2min(r, r["similarity"])
     for name, key in (("full", "input_v2"), ("min", "input_v2min"), ("itemfirst", None)):
         d = Path(a.out) / name

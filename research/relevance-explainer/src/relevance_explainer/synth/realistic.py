@@ -446,7 +446,7 @@ def cmd_retrieve(a) -> None:
 # Item-line cleaning. Version 1 dropped a whole line when its last field was empty, which also dropped the values
 # before it (2026-10-05 04:33 UTC notebook entry). Version 2 drops only the empty fields. Each row keeps the version its
 # narrative was written against ("render_version"; rows without it are version 1); new rows use RENDER_VERSION.
-RENDER_VERSION = 2
+RENDER_VERSION = 3  # 3: thresholds, exclusions and named periods in the Understood and Checks lines (synth/constraints.py)
 _EMPTY = re.compile(r":\s*(n/a|none|null|)\s*$", re.I)
 
 
@@ -530,7 +530,7 @@ def cmd_render(a) -> None:
     rows = []
     for p, s in zip(pairs, sims):
         p = {**p, "render_version": RENDER_VERSION}
-        parsed = u.parse(p["query"], p.get("facet_values"))
+        parsed = u.parse(p["query"], p.get("facet_values"), level=p["render_version"])
         rows.append({**p, "parsed": parsed, "similarity": float(s),
                      "input_v2": render_v2(p, u, parsed, float(s)),
                      "input_v2min": render_v2min(p, float(s)),

@@ -75,7 +75,7 @@ def main() -> None:
     from .signals import item_text, similarities
     sims = similarities([r["query"] for r in out], [item_text(r["record"]) for r in out])
     for r, s in zip(out, sims):
-        r["parsed"] = u.parse(r["query"], r.get("facet_values"))
+        r["parsed"] = u.parse(r["query"], r.get("facet_values"), level=r.get("render_version", 1))
         r["similarity"] = float(s)
         r["input_v2"] = render_v2(r, u, r["parsed"], float(s))
         r["input_v2min"] = render_v2min(r, float(s))

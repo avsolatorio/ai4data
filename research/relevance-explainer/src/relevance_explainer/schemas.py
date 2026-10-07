@@ -443,8 +443,9 @@ def similarity(search: str, rec: dict) -> float:
 
 
 def to_input(rec: dict, search: str, language: str = "English", facets: dict | None = None,
-             sim: float | None = None, fmt: str = "itemfirst") -> str:
-    """The model input for a record (from to_record) and a search. fmt: 'itemfirst' (current models) or 'full'."""
+             sim: float | None = None, fmt: str = "itemfirst", render_version: int = 2) -> str:
+    """The model input for a record (from to_record) and a search. fmt: "itemfirst" (current models) or "full".
+    render_version 3 adds thresholds, exclusions and named periods; use it with models trained on version 3 data."""
     global _U
     from .synth.realistic import _clean_item_lines, item_first
     from .synth.understand import Understander, check
@@ -455,7 +456,7 @@ def to_input(rec: dict, search: str, language: str = "English", facets: dict | N
         rec["passage"] = Documents.passage(rec["_fulltext"], search)
     src = RENDERERS[rec["kind"]]
     facets = facets or {}
-    parsed = _U.parse(search, facets)
+    parsed = _U.parse(search, facets, level=render_version)
     sim = similarity(search, rec) if sim is None else sim
     fl = "; ".join(f"{k}={'/'.join(v) if isinstance(v, list) else v}" for k, v in facets.items()) or "none"
     chk = check(rec, parsed, _U)

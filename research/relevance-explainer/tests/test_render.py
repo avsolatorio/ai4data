@@ -13,7 +13,7 @@ def test_version_1_is_unchanged():
 def test_version_2_keeps_values_and_drops_empty_fields():
     assert _clean_item_lines(LINES, 2) == ["Result: X", "Source: WDI", "Frequency: Annual; Years: 1960-2020",
                                            "Coverage: 1 country: Maldives", "Concept: a; b: c"]
-    assert RENDER_VERSION == 2
+    assert RENDER_VERSION >= 2 and _clean_item_lines(LINES, 3) == _clean_item_lines(LINES, 2)
 
 
 def test_renderer_covers_trained_and_schema_kinds():

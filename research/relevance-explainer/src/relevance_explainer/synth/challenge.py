@@ -134,7 +134,8 @@ def cmd_label(a) -> None:
     for r, s in zip(rows, sims):
         p = {"query": r["query"], "language": r["language"], "record": r["record"], "facet_values": {}, "render_version": RENDER_VERSION}
         r["similarity"] = float(s)
-        r["input_v2"] = render_v2(p, u, u.parse(r["query"], {}), float(s))
+        r["render_version"] = RENDER_VERSION
+        r["input_v2"] = render_v2(p, u, u.parse(r["query"], {}, level=RENDER_VERSION), float(s))
 
     def one(r):
         t = llm.parse_json(llm.chat(TEACHER[0], NARRATE_V2, r["input_v2"], temperature=0.4, max_tokens=450, base_urls=TEACHER[1])[0])
@@ -188,7 +189,8 @@ def cmd_examples(a) -> None:
         if r.get("gemma4") != r["verdict"]:
             continue
         out.append({"query": r["query"], "language": r["language"], "record": r["record"], "facet_values": {},
-                    "parsed": u.parse(r["query"], {}), "similarity": r["similarity"], "render_version": RENDER_VERSION,
+                    "parsed": u.parse(r["query"], {}, level=r.get("render_version", 2)), "similarity": r["similarity"],
+                    "render_version": r.get("render_version", 2),
                     "verdict": r["verdict"], "narrative": r["narrative"], "topic": f"phen-{r['phenomenon']}-{r['record']['id']}",
                     "mode": "anchored", "relation": r["phenomenon"], "wording": r["phenomenon"], "style": None,
                     "writer": "mixed"})

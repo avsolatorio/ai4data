@@ -448,7 +448,29 @@ class Understander:
                 out.append(key)
         return out
 
-    def parse(self, query: str, facets: dict | None = None) -> dict:
+    def parse(self, query: str, facets: dict | None = None, level: int = 2) -> dict:
+        """level 3 (render version 3) adds thresholds, exclusions and named periods (synth/constraints.py); level 2 is the
+        understanding that rows narrated before render version 3 were written against."""
+        p = self._parse2(query, facets)
+        if level >= 3:
+            from . import constraints as C
+            n = norm(query)
+            p["thresholds"] = C.thresholds(n)
+            for pl in p["places"]:
+                if pl["source"] != "facet" and C.excluded(n, norm(pl.get("span") or pl["name"])):
+                    pl["excluded"] = True
+            for g in p["groups"]:
+                if g["source"] == "query" and any(C.excluded(n, w) for w in self.lex_flat["group"].get(g["value"], []) if w in n):
+                    g["excluded"] = True
+            # a named period replaces a parsed year only when that year is part of it ("before the 2008 crisis"); an
+            # explicit year elsewhere in the search ("financial crisis Bulgaria 2010") wins
+            t = C.named_period(n)
+            cur = p.get("time")
+            if t and (not cur or (cur["source"] == "query" and re.sub(r"\D", "", cur.get("span", "")) in re.sub(r"\D", "", t["span"]) and re.sub(r"\D", "", cur.get("span", "")))):
+                p["time"] = {**t, "source": "query"}
+        return p
+
+    def _parse2(self, query: str, facets: dict | None = None) -> dict:
         p = {"places": [], "time": None, "frequency": None, "groups": [], "datatype": None, "scope": None}
         for pl in self.places(query):
             if pl["kind"] == "scope":
@@ -500,7 +522,7 @@ class Understander:
             else:
                 where = " or ".join(pl["ambiguous"]) if pl.get("ambiguous") else self.countries[pl["iso3"]]["name"]
                 d = f"place={pl['name']} ({'city' if pl['kind'] == 'city' else 'province or state'} in {where})"
-            parts.append(f"{d} [{pl['source']}]")
+            parts.append(f"{'excluded ' if pl.get('excluded') else ''}{d} [{pl['source']}]")
         if p.get("scope"):
             parts.append(f"place={'all countries' if p['scope'] == 'global' else 'developing countries'} [query]")
         t = p.get("time")
@@ -509,7 +531,10 @@ class Understander:
         if p.get("frequency"):
             parts.append(f"frequency={p['frequency']['value']} [{p['frequency']['source']}]")
         for g in p["groups"]:
-            parts.append(f"group={g['value']} [{g['source']}]")
+            parts.append(f"{'excluded ' if g.get('excluded') else ''}group={g['value']} [{g['source']}]")
+        for t in p.get("thresholds") or []:
+            from .constraints import label
+            parts.append(f"{'threshold' if t['kind'] == 'money_per_day' else 'age'}={label(t).replace('age ', '')} [query]")
         if p.get("datatype"):
             parts.append(f"wants={p['datatype']['value']} [{p['datatype']['source']}]")
         return "; ".join(parts) or "no place, time or group constraints found"
@@ -572,6 +597,13 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
     ntext = norm(text)
     doc_region = rec.get("kind") == "document" and rec.get("countries") and not iso3s
     for pl in p["places"]:
+        if pl.get("excluded"):  # the search excludes this place: say whether the record includes it
+            inside = (pl["kind"] == "country" and pl["iso3"] in iso3s) or (pl["kind"] == "group" and set(u.groups[pl["code"]]["members"]) & iso3s) \
+                or norm(pl["name"]) in ntext
+            st = "record includes it (results for it would need to be removed)" if inside else \
+                ("coverage not stated" if not rec.get("countries") else "record does not include it")
+            out.append(f"excluded place {pl['name']}: {st}")
+            continue
         if pl["kind"] == "country":
             if iso3s and pl["iso3"] in iso3s:
                 st = "covered"
@@ -644,7 +676,15 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
         ok = re.search(GROUP_EVIDENCE[g["value"]], text, re.I)
         if not ok and ml and ml != "English":  # metadata in another language: that language's group words
             ok = any(re.search(rf"(?<!\w){re.escape(norm(w))}", ntext) for w in u.lex.get(ml, {}).get("group", {}).get(g["value"], []))
-        out.append(f"group {g['value']}: {'mentioned in the metadata' if ok else 'not mentioned in the metadata'}")
+        if g.get("excluded"):
+            out.append(f"excluded group {g['value']}: {'mentioned in the metadata (a breakdown may allow removing it)' if ok else 'not mentioned in the metadata'}")
+        else:
+            out.append(f"group {g['value']}: {'mentioned in the metadata' if ok else 'not mentioned in the metadata'}")
+    if p.get("thresholds"):
+        from .constraints import check_threshold, record_thresholds
+        rt = record_thresholds(" ".join(str(rec.get(k) or "") for k in ("name", "definition", "concept", "abstract", "notes",
+                                                                          "universe", "unit_of_analysis", "unit", "columns", "rows")))
+        out += [check_threshold(t, rt) for t in p["thresholds"]]
     if p.get("datatype"):
         want = DATATYPE_KIND[p["datatype"]["value"]]
         out.append(f"type {p['datatype']['value']}: " + ("matches" if want == rec.get("kind") else f"item is {KIND_LABEL.get(rec.get('kind'), rec.get('kind'))}"))
