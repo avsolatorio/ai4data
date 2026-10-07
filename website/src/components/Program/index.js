@@ -63,7 +63,11 @@ export default function Program() {
             <Link to="/ai-readiness-assessment">
               AI-readiness assessment framework
             </Link>{' '}
-            for national statistical organizations.
+            for national statistical organizations, and a{' '}
+            <Link to="/ai-readiness-in-practice">
+              dimension-by-dimension map
+            </Link>{' '}
+            of how the workstreams address it.
           </p>
         </div>
 
