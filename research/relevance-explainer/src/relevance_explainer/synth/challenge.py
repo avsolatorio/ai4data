@@ -20,7 +20,7 @@ from pathlib import Path
 
 from . import generate as G
 from . import llm
-from .realistic import NARRATE_V2, RENDER_VERSION, item_first, language_ok, render_v2, renderer
+from .realistic import NARRATE_V2, RENDER_VERSION, item_first, language_ok, render_v2, renderer, writer
 from .understand import Understander
 
 GEMMA = ("gemma-4-31b", ["http://localhost:8002/v1"])
@@ -90,12 +90,16 @@ def load_records(n: int, seed: int) -> list[dict]:
 
 def cmd_write(a) -> None:
     rng = random.Random(a.seed)
-    recs = load_records(a.per * 6, a.seed)
+    per = json.loads(a.per_phenomenon) if a.per_phenomenon else {}
+    recs = load_records(max([a.per, *per.values()]) * 6, a.seed)
+    exclude = set()
+    if a.exclude:  # records used by the held-out challenge suite
+        exclude = {json.loads(l)["record"]["id"] for l in Path(a.exclude).read_text().splitlines()}
     jobs = []
     for name, (instr, filt, _) in PHENOMENA.items():
-        cands = [r for r in recs if filt is None or filt(r)]
+        cands = [r for r in recs if (filt is None or filt(r)) and r["id"] not in exclude]
         rng.shuffle(cands)
-        for k, rec in enumerate(cands[: a.per]):
+        for k, rec in enumerate(cands[: per.get(name, a.per)]):
             lang = rng.choices(list(LANG_W), weights=list(LANG_W.values()))[0]
             text = instr
             if name == "old_place":
@@ -106,8 +110,9 @@ def cmd_write(a) -> None:
         src = renderer(j["record"]["kind"])
         item = "\n".join(src.render(j["record"]))[:2500]
         for _ in range(3):
-            t, _ = llm.chat(GEMMA[0], "You write realistic, varied test cases.", PROMPT.format(language=j["language"], instruction=j["instruction"],
-                                                                                             label=src.label, item=item), temperature=0.9, max_tokens=300, base_urls=GEMMA[1])
+            model, urls = writer(j["id"]) if a.mix_writers else GEMMA
+            t, _ = llm.chat(model, "You write realistic, varied test cases.", PROMPT.format(language=j["language"], instruction=j["instruction"],
+                                                                                          label=src.label, item=item), temperature=0.9, max_tokens=300, base_urls=urls)
             js = llm.parse_json(t)
             q = str(js.get("query") or "").strip()
             if q and language_ok(q, j["language"]):
@@ -173,16 +178,37 @@ def cmd_build(a) -> None:
         print(f"  {k:18s} teacher labels {dict(c)}")
 
 
+def cmd_examples(a) -> None:
+    """Training rows in the realistic example schema (for assemble_v2), only where the teacher and Gemma 4 agree."""
+    from .understand import Understander
+    rows = [json.loads(l) for l in (Path(a.out) / "labeled.jsonl").read_text().splitlines()]
+    u = Understander()
+    out = []
+    for r in rows:
+        if r.get("gemma4") != r["verdict"]:
+            continue
+        out.append({"query": r["query"], "language": r["language"], "record": r["record"], "facet_values": {},
+                    "parsed": u.parse(r["query"], {}), "similarity": r["similarity"], "render_version": RENDER_VERSION,
+                    "verdict": r["verdict"], "narrative": r["narrative"], "topic": f"phen-{r['phenomenon']}-{r['record']['id']}",
+                    "mode": "anchored", "relation": r["phenomenon"], "wording": r["phenomenon"], "style": None,
+                    "writer": "mixed"})
+    (Path(a.out) / "examples.jsonl").write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in out))
+    print(f"training rows: {len(out)} of {len(rows)} (teacher and Gemma 4 agree)", dict(Counter(x["relation"] for x in out)))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["write", "label", "build"])
+    ap.add_argument("stage", choices=["write", "label", "build", "examples"])
     ap.add_argument("--out", default="data/challenge")
     ap.add_argument("--eval", default="data/eval_challenge")
     ap.add_argument("--per", type=int, default=150)
+    ap.add_argument("--per-phenomenon", default=None, help='JSON {"synonym": 1500, ...} overriding --per')
+    ap.add_argument("--exclude", default=None, help="searches.jsonl whose records are not used (the held-out suite)")
+    ap.add_argument("--mix-writers", action="store_true", help="the training writers (data/real/writers.json) instead of Gemma 4 only")
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--workers", type=int, default=16)
     a = ap.parse_args()
-    {"write": cmd_write, "label": cmd_label, "build": cmd_build}[a.stage](a)
+    {"write": cmd_write, "label": cmd_label, "build": cmd_build, "examples": cmd_examples}[a.stage](a)
 
 
 if __name__ == "__main__":
