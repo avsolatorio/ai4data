@@ -949,7 +949,7 @@ Commit: 8b360af (round D chain), bc92a42 (CPU fallback for similarities, used by
 
 **Implication.** Paraphrase data moved its target (synonym +21 points on the independent suite, paraphrased fully-answering +6 points) and also lifted the realistic test (+1.9) without the score, so the no-score model now exceeds the with-score model of milestone C (84.3%). Threshold, negation and look-alike did not improve: these are the phenomena that need number comparison or negation, consistent with the plan to move them into deterministic checks. Tables did not improve; the table pools (Statistics Canada, ILOSTAT) differ from the NADA test tables (US Census, WDI country tables), and the nine-type test inputs were rendered before the render-version and group-check fixes (labels were narrated on those inputs, so they were not re-rendered). DPO for round D is running.
 
-## 2026-10-07 17:52 UTC — Round D after DPO: best faithfulness so far; now the app's default; round E slices ready
+## 2026-10-07 17:51 UTC — Round D after DPO: best faithfulness so far; now the app's default; round E slices ready
 
 Commit: 8b360af (round D chain); this commit (app). Run `runs/v2d-nosim-dpo`: on-policy DPO from `runs/v2d-nosim`, 4,607 pairs (3,276 chosen from the student, 1,331 from the teacher), usual settings. The chain's evaluations again failed on GPU memory (output hidden) and were rerun with `scripts/eval_sets.sh`.
 
