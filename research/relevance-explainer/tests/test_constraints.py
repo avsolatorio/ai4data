@@ -42,7 +42,7 @@ def test_age_checks():
 
 
 @pytest.mark.parametrize("q", ["poverty in West Africa excluding Nigeria", "pauvreté Afrique de l'Ouest sauf le Nigeria",
-                               "pobreza sin Nigeria", "poverty not Nigeria"])
+                               "pobreza excepto Nigeria", "poverty not Nigeria", "Nijerya hariç Batı Afrika yoksulluk"])
 def test_excluded_place(q):
     p = parse(q)
     ng = [x for x in p["places"] if x.get("iso3") == "NGA"]
@@ -65,6 +65,49 @@ def test_excluded_group():
 def test_named_periods(q, start, end):
     t = parse(q)["time"]
     assert t and t["start"] == start and t["end"] == end
+
+
+@pytest.mark.parametrize("q,unit", [("HIV incidence rate percentage", "percent"), ("how many people live in Kenya", "count"),
+                                    ("porcentaje de cirugías por habitante", "per_capita"), ("dollar value of exports Peru", "currency"),
+                                    ("poverty Kenya", None)])
+def test_unit_of_query(q, unit):
+    assert parse(q).get("unit") == unit
+
+
+def test_unit_check():
+    count = {**POV, "name": "Number of people living in poverty", "unit": "Number"}
+    assert "unit a percentage or rate: differs (record gives a count)" in check(count, parse("poverty percentage Kenya"), U)
+    assert "unit a percentage or rate: matches" in check(STUNT, parse("stunting percentage"), U)
+
+
+@pytest.mark.parametrize("q,term", [("business public assistance excluding agricultural firms", "agricultural firms"),
+                                    ("import compliance costs excluding agriculture in Kenya", "agriculture"),
+                                    ("pobreza en China excepto datos imputados", "datos imputados")])
+def test_excluded_terms(q, term):
+    assert term in parse(q)["excluded_terms"]
+
+
+@pytest.mark.parametrize("q", ["kepemilikan tanah di Afrika kecuali wilayah perkotaan", "Canada education except urban areas"])
+def test_group_inside_excluded_phrase(q):
+    assert any(g["value"] == "urban" and g.get("excluded") for g in parse(q)["groups"])
+
+
+@pytest.mark.parametrize("q,term", [("无偿家务时间，排除有偿劳动", "有偿劳动"), ("Nijerya hanehalkı anketi hastaneler hariç", "hastaneler"),
+                                    ("मालदीव शिक्षा डेटा, स्वास्थ्य को छोड़कर", "स्वास्थ्य")])
+def test_excluded_terms_cjk_and_postpositions(q, term):
+    assert any(term in t for t in parse(q)["excluded_terms"])
+
+
+@pytest.mark.parametrize("q", ["jeunesse sans emploi en Ouganda", "численность лиц без гражданства", "jovenes sin estudio ni empleo",
+                               "children born without a birth certificate", "Berapa rata-rata kecepatan internet"])
+def test_concepts_with_without_are_not_exclusions(q):
+    p = parse(q)
+    assert p["excluded_terms"] == [] and not any(x.get("excluded") for x in p["places"] + p["groups"])
+    assert p.get("unit") is None
+
+
+def test_excluded_place_not_repeated_as_term():
+    assert parse("poverty in West Africa excluding Nigeria")["excluded_terms"] == []
 
 
 def test_level_2_unchanged():

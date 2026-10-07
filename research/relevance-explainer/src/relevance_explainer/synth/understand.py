@@ -456,6 +456,20 @@ class Understander:
             from . import constraints as C
             n = norm(query)
             p["thresholds"] = C.thresholds(n)
+            p["unit"] = C.unit_of_query(n)
+            terms = []
+            for t in C.excluded_terms(n):  # a place or group inside an excluded phrase is that place or group excluded
+                hit = False
+                for pl in p["places"]:
+                    k = norm(pl.get("span") or pl["name"])
+                    if k and (k in t or t in k):
+                        pl["excluded"] = hit = True
+                for g in p["groups"]:
+                    if any(w in t for w in self.lex_flat["group"].get(g["value"], [])):
+                        g["excluded"] = hit = True
+                if not hit:
+                    terms.append(t)
+            p["excluded_terms"] = terms
             for pl in p["places"]:
                 if pl["source"] != "facet" and C.excluded(n, norm(pl.get("span") or pl["name"])):
                     pl["excluded"] = True
@@ -535,6 +549,11 @@ class Understander:
         for t in p.get("thresholds") or []:
             from .constraints import label
             parts.append(f"{'threshold' if t['kind'] == 'money_per_day' else 'age'}={label(t).replace('age ', '')} [query]")
+        if p.get("unit"):
+            from .constraints import UNIT_LABEL
+            parts.append(f"unit={UNIT_LABEL[p['unit']]} [query]")
+        for t in p.get("excluded_terms") or []:
+            parts.append(f"excluded term={t} [query]")
         if p.get("datatype"):
             parts.append(f"wants={p['datatype']['value']} [{p['datatype']['source']}]")
         return "; ".join(parts) or "no place, time or group constraints found"
@@ -685,6 +704,12 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
         rt = record_thresholds(" ".join(str(rec.get(k) or "") for k in ("name", "definition", "concept", "abstract", "notes",
                                                                           "universe", "unit_of_analysis", "unit", "columns", "rows")))
         out += [check_threshold(t, rt) for t in p["thresholds"]]
+    if p.get("unit"):
+        from .constraints import check_unit
+        out.append(check_unit(p["unit"], rec))
+    for t in p.get("excluded_terms") or []:
+        stem = norm(t)[:max(4, len(norm(t)) - 2)]
+        out.append(f"excluded term {t}: {'mentioned in the metadata (the item may include it)' if stem in ntext else 'not mentioned in the metadata'}")
     if p.get("datatype"):
         want = DATATYPE_KIND[p["datatype"]["value"]]
         out.append(f"type {p['datatype']['value']}: " + ("matches" if want == rec.get("kind") else f"item is {KIND_LABEL.get(rec.get('kind'), rec.get('kind'))}"))

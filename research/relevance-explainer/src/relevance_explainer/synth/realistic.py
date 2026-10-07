@@ -547,9 +547,19 @@ ORDER_RULE = (
     "match), then the gaps or mismatches. For a relevant item, the fit is the whole narrative, with any minor caveat last. "
     "For an irrelevant item, say briefly what the item actually contains, then why it does not answer the search; do not "
     "invent a fit that is not there.")
+# Concept rules (from render version 3 data on; notebook 2026-10-07): the challenge suite found the student treating
+# synonyms and standard measures as different concepts, which the earlier "related concept" data had encouraged.
+CONCEPT_RULE = (
+    "- Concepts: a synonym, an everyday description or the common name of what the item measures is the same concept "
+    "(\"number of inhabitants\" is total population; \"kids too short for their age\" is stunting). The standard measure of "
+    "a broad concept answers it (a consumer price index for inflation, a literacy rate for literacy). A proxy answers only "
+    "partly: say what it approximates (GDP per capita for average income). A different threshold, age band or unit answers "
+    "only partly: state both (the search's $3 a day and the item's $1.90). Do not call two names of the same thing "
+    "\"related but distinct\".\n- If the Checks line says a place or group is excluded by the search, the item can still "
+    "answer it when it covers other places or groups as well; say whether the excluded part can be left out.")
 NARRATE_V2 = G.NARRATE_SYSTEM.replace(
     "- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
-    ORDER_RULE + "\n- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
+    ORDER_RULE + "\n" + CONCEPT_RULE + "\n- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
 ).replace(
     "- Trust the \"Filter check\" line: do not contradict it.",
     "- The \"Understood\" line lists the place, time, group and data-type constraints found in the search and the facets; the \"Checks\" line gives each one's status against the record. Trust the checks: do not contradict them. Refer to constraints as the user expressed them (\"your search mentions 2015\"), not as filters, unless they came from a facet.\n- If the search contains a constraint that the Understood line missed, judge it from the metadata yourself.",

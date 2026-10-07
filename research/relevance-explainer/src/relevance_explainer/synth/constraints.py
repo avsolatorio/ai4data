@@ -38,12 +38,14 @@ AGE_RANGE = re.compile(r"(?:aged?|ages|age group|entre|de|between|от|usia|umur
 
 AGE_RANGE_PREFIXED = re.compile(r"(?:aged|ages|age group|age|edad(?:es)? de|idade de|usia|umur|возраст\w*|年龄)\s*(\d{1,2})\s*(?:-|–|to|a|à|до|hingga)\s*(\d{1,2})(?!\d)")
 
-# Exclusion cues: before the excluded word (most languages) or after it (Turkish, Hindi postpositions).
-EXCL_BEFORE = re.compile(r"(?:^|\W)(?:excluding|except(?: for)?|other than|apart from|but not|not including|without|"
-                         r"sauf|hors|excepte|a l'exception de|autre que|sans|excepto|salvo|excluyendo|aparte de|sin|"
-                         r"exceto|excluindo|sem|fora|кроме|исключая|за исключением|без|除了|不包括|不含|باستثناء|ما عدا|عدا|بدون|"
-                         r"kecuali|selain|tanpa|isipokuwa|ila|सिवाय|not)\s*(?:the |la |le |les |el |los |las |o |a |os |as )?$")
-EXCL_AFTER = re.compile(r"^\s*(?:haric|hariç|disinda|dışında|haricinde|hariçinde|को छोड़कर|के बिना|के अलावा)")
+# Exclusion cues: before the excluded word (most languages) or after it (Turkish, Hindi postpositions). Only explicit
+# exclusion words: "without", "sans", "sin", "без", "tanpa" and similar usually name a concept ("sans emploi" is
+# unemployed, "без гражданства" stateless, "sin estudio ni empleo" NEET), so they are not cues.
+EXCL_BEFORE = re.compile(r"(?:^|\W)(?:excluding|except(?: for)?|other than|apart from|but not|not including|"
+                         r"sauf|hors|excepte|a l'exception de|autre que|excepto|salvo|excluyendo|aparte de|"
+                         r"exceto|excluindo|кроме|исключая|за исключением|除了|不包括|不含|باستثناء|ما عدا|عدا|"
+                         r"kecuali|selain|isipokuwa|सिवाय|not)\s*(?:the |la |le |les |el |los |las |o |a |os |as )?$")
+EXCL_AFTER = re.compile(r"^\s*(?:haric|hariç|disinda|dışında|haricinde|hariçinde|को छोड़कर|के अलावा)")
 
 
 def _num(s: str) -> float:
@@ -156,3 +158,80 @@ def check_threshold(t: dict, rt: dict) -> str:
             return f"{lab}: matches"
     have = ", ".join(label({"kind": f"age_{k}", "lo": lo, "hi": hi}) for k, lo, hi in rt["ages"][:2])
     return f"{lab}: differs (record covers {have})"
+
+
+# ---------- units: what kind of number the search asks for, against what the record gives ----------
+UNIT_QUERY = {
+    "percent": r"percent\w*|percentage|share of|proportion|pourcentage|part des?|porcentaje|proporcion|porcentagem|"
+               r"процент\w*|доля|百分比|比例|persentase|yuzde|yüzde|asilimia|प्रतिशत|نسبة|بالمئة",
+    # explicit count words only: "berapa", "كم", "сколько", "多少", "combien" also mean "how much"
+    "count": r"how many|number of|total number|count of|nombre de|numero de|número de|cuantos|cuántos|quantos|"
+             r"количеств\w*|数量|人数|jumlah|sayisi|sayısı|idadi ya|कितने|संख्या|عدد",
+    "per_capita": r"per capita|per person|per head|per inhabitant|par habitant|par personne|por habitante|por persona|"
+                  r"por pessoa|на душу|на человека|人均|per kapita|kisi basina|kişi başına|kwa kila mtu|प्रति व्यक्ति|للفرد|لكل فرد",
+    "currency": r"dollar value|value in dollars|in us\$|in usd|en dolares|en dólares|em dolares|в долларах|美元|dalam dolar|"
+                r"dolar cinsinden|kwa dola|डॉलर में|بالدولار",
+}
+UNIT_LABEL = {"percent": "a percentage or rate", "count": "a count", "per_capita": "a per-person or per-population rate",
+              "currency": "a money value"}
+
+
+def unit_of_query(nquery: str) -> str | None:
+    for k in ("per_capita", "currency", "percent", "count"):  # the more specific unit first ("porcentaje ... por habitante")
+        pat = UNIT_QUERY[k]
+        if re.search(rf"(?<!\w)(?:{pat})", nquery) or (k == "percent" and "%" in nquery):
+            return k
+    return None
+
+
+def unit_of_record(rec: dict) -> str | None:
+    from .understand import norm
+    s = norm(" ".join(str(rec.get(k) or "") for k in ("unit", "name")))
+    if re.search(r"per capita|per person|per 1,?000|per 100,?000|per 10,?000|per inhabitant", s):
+        return "per_capita"
+    if re.search(r"%|percent|share of|proportion|ratio", s):
+        return "percent"
+    if re.search(r"us\$|current \$|constant \$|lcu|dollars|usd|ppp \$", s):
+        return "currency"
+    if re.search(r"\bnumber\b|\bcount\b|\btotal\b|\bpeople\b|\bpersons\b|\bthousands?\b|\bmillions?\b", s):
+        return "count"
+    return None
+
+
+def check_unit(want: str, rec: dict) -> str:
+    have = unit_of_record(rec)
+    if not have:
+        return f"unit {UNIT_LABEL[want]}: unit not stated in the metadata"
+    if have == want or {have, want} == {"percent", "per_capita"}:
+        return f"unit {UNIT_LABEL[want]}: matches"
+    return f"unit {UNIT_LABEL[want]}: differs (record gives {UNIT_LABEL[have]})"
+
+
+# ---------- excluded terms that are not places or groups ("excluding agriculture", "without imputed values") ----------
+_CUES = (r"excluding|except(?: for)?|other than|apart from|but not|not including|sauf|hors|excepte|a l'exception de|"
+         r"autre que|excepto|salvo|excluyendo|aparte de|exceto|excluindo|кроме|исключая|за исключением|"
+         r"باستثناء|ما عدا|kecuali|selain|isipokuwa")  # explicit cues only (see EXCL_BEFORE)
+_ART = ("the", "la", "le", "les", "el", "los", "las", "o", "a", "os", "as", "l'")
+EXCL_TERM = re.compile(rf"(?:^|\W)(?:{_CUES})\s+([^\W\d][\w'-]*(?:\s+[^\W\d][\w'-]*){{0,2}})")
+_STOP_END = {"in", "for", "of", "the", "and", "or", "from", "since", "before", "after", "en", "de", "du", "des", "del", "da",
+             "do", "y", "et", "e", "и", "в", "di", "na", "ya"}
+
+
+EXCL_CJK = re.compile(r"(?:不含|不包括|除了|排除)([一-鿿]{1,8}?)(?:以外|之外|外|[）)，,。\s]|$)")
+_W = r"[\wऀ-ॿ'-]"  # \w misses Devanagari vowel signs
+EXCL_POST = re.compile(rf"((?:{_W}+\s+){{0,1}}{_W}+)\s+(?:haric|hariç|disinda|dışında|haricinde|को छोड़कर|के अलावा)")
+
+
+def excluded_terms(nquery: str) -> list[str]:
+    out = [m.group(1) for m in EXCL_CJK.finditer(nquery)] + [m.group(1) for m in EXCL_POST.finditer(nquery)]
+    for m in EXCL_TERM.finditer(nquery):
+        words = m.group(1).split()
+        if words and words[0] in _ART:
+            words = words[1:]
+        for i, w in enumerate(words):  # stop at a connective ("excluding agriculture in Kenya" -> "agriculture")
+            if w in _STOP_END:
+                words = words[:i]
+                break
+        if words:
+            out.append(" ".join(words))
+    return list(dict.fromkeys(out))
