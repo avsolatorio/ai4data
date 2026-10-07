@@ -894,3 +894,35 @@ Commits: 34e9981 (paraphrased anchored searches; "related" no longer asks for na
 - Teacher labels on paraphrased fully-answering searches: relevant 361, partly relevant 481, irrelevant 131 (everyday wording often makes a search broader than the record). No-score model errors on them: partly relevant called irrelevant 119, relevant called partly relevant 60 or irrelevant 36.
 
 **Implication.** The teacher handles everyday wording; the student learned word overlap from searches written by models that saw the record. Remedies in the data: 40% of fully-answering anchored searches paraphrased in every generator, the "related" instruction changed, and ten paraphrase-focused chunks (half fully-answering, 80% paraphrased, with paraphrased hard cases for wrong place, time, group and related concept so that unfamiliar wording does not become a shortcut to "relevant"). The main generation loop was paused after 118 chunks to give the teacher servers to the targeted runs. Target for round D: close most of the 16-point gap on paraphrased fully-answering searches without losing accuracy on the hard cases.
+
+
+## 2026-10-07 10:06 UTC — Challenge suite: 61% overall; the student behaves like a word matcher
+
+Commit: dacad01 (`synth/challenge.py`, `scripts/challenge.sh`; also the record-pool lock fix).
+
+**Question/Context.** After the paraphrase failure, which other failure modes does the training generator miss? The test needs to be independent of the training writers.
+
+**What was done.** Fifteen phenomena, each with its own instruction (synonym or everyday words, acronym or code, standard measure of a concept, proxy, different threshold or unit, finer level, indirect time phrase, exclusion, two asks, question, survey or dataset name, vague, old country name, different group definition, look-alike words). One writer (Gemma 4) with a prompt separate from the training prompts wrote one search per record and phenomenon, 150 records per phenomenon, 11 languages (half English), records from chunks c89 to c118 and the record pools. Teacher labels (NARRATE_V2, render version 2), Gemma 4 second verdict. 2,244 examples, `data/eval_challenge`. Records occur in training; the searches do not.
+
+**Result.** Gemma 4 agrees with the teacher on 77.9% (lower than on the realistic test, 86%). Verdict accuracy, no-score model (`v2c-cont-itemfirst-nosim-dpo`) / with-score model: all 60.6% / 63.9%; unanimous subset 64.6% / 66.4% (realistic test: 82.8% / 84.3%).
+
+No-score model by phenomenon, all and unanimous, with the most frequent error:
+| Phenomenon | All | Unanimous | Main error (teacher -> model) |
+|---|---|---|---|
+| synonym | 31.3% | 32.8% | relevant -> partly 40 |
+| threshold | 42.7% | 34.5% | partly -> relevant 53 |
+| proxy | 39.3% | 38.5% | partly -> irrelevant 51 |
+| time_phrase | 55.7% | 47.1% | relevant -> partly 38 |
+| group_definition | 44.0% | 49.5% | partly -> irrelevant 40 |
+| negation | 53.0% | 52.0% | relevant -> partly 22 |
+| lookalike | 55.0% | 55.1% | irrelevant -> partly 23 |
+| standard_measure | 54.0% | 57.5% | partly -> irrelevant 22 |
+| multi_ask | 77.2% | 78.3% | partly -> irrelevant 18 |
+| acronym | 68.7% | 79.0% | relevant -> partly 15 |
+| question | 79.3% | 81.9% | relevant -> partly 15 |
+| old_place | 75.2% | 83.2% | partly -> relevant 15 |
+| finer_level | 81.3% | 85.0% | partly -> irrelevant 16 |
+| title_name | 79.2% | 85.0% | relevant -> partly 16 |
+| vague | 73.3% | 87.0% | partly -> relevant 25 |
+
+**Implication.** The realistic test overstates accuracy for searches unlike the training writers' (83% against 61 to 65% here). The errors are consistent with lexical matching: different words for the same concept lower the verdict (synonym, proxy, standard measure), shared words with a different meaning raise it (look-alike, threshold). Round D addresses only synonyms. Round E: targeted training slices for the eight weakest phenomena, written by the training writers on records not used in the suite and kept only where the teacher and Gemma 4 agree; the challenge suite stays held out, with the caveat that the same phenomenon definitions make it partly in-distribution afterwards, so an independent check (the user's probes, real requests) is still needed.
