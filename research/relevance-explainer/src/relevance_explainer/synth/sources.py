@@ -250,7 +250,8 @@ class PoolSource:
         if _POOL_MODEL is None:
             from sentence_transformers import SentenceTransformer
             from .signals import MODEL
-            _POOL_MODEL = SentenceTransformer(MODEL, device="cuda")
+            # CPU: the pool search runs next to vLLM and training on the GPUs, where it hit allocation failures
+            _POOL_MODEL = SentenceTransformer(MODEL, device=__import__("os").environ.get("POOL_DEVICE", "cpu"))
         return _POOL_MODEL
 
     def search(self, q: str, top: int) -> list[dict]:

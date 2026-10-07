@@ -22,10 +22,17 @@ def item_text(rec: dict) -> str:
 def similarities(queries: list[str], items: list[str], model_name: str = MODEL, batch: int = 256) -> np.ndarray:
     from sentence_transformers import SentenceTransformer
 
-    m = SentenceTransformer(model_name, device="cuda")
-    q = m.encode(queries, batch_size=batch, normalize_embeddings=True, show_progress_bar=False)
-    d = m.encode(items, batch_size=batch, normalize_embeddings=True, show_progress_bar=False)
-    return (q * d).sum(1)
+    # GPU first; CPU when the GPU is full (shared with vLLM and training: CUBLAS allocation failures on 2026-10-07)
+    for device in ("cuda", "cpu"):
+        try:
+            m = SentenceTransformer(model_name, device=device)
+            q = m.encode(queries, batch_size=batch, normalize_embeddings=True, show_progress_bar=False)
+            d = m.encode(items, batch_size=batch, normalize_embeddings=True, show_progress_bar=False)
+            return (q * d).sum(1)
+        except RuntimeError as e:
+            if device == "cpu":
+                raise
+            print(f"similarities: GPU failed ({str(e)[:80]}); using the CPU")
 
 
 def add_similarity_line(text: str, sim: float) -> str:
