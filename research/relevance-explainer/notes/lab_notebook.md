@@ -948,3 +948,23 @@ Commit: 8b360af (round D chain), bc92a42 (CPU fallback for similarities, used by
 - Challenge suite by phenomenon, before / after: synonym 31.3% / 52.7%; group definition 44.0% / 54.0%; time phrase 55.7% / 62.4%; proxy 39.3% / 45.3%; standard measure 54.0% / 56.7%; threshold 42.7% / 44.7%; negation 53.0% / 49.7%; look-alike 55.0% / 52.3%; question 79.3% / 86.7%; title 79.2% / 85.2%.
 
 **Implication.** Paraphrase data moved its target (synonym +21 points on the independent suite, paraphrased fully-answering +6 points) and also lifted the realistic test (+1.9) without the score, so the no-score model now exceeds the with-score model of milestone C (84.3%). Threshold, negation and look-alike did not improve: these are the phenomena that need number comparison or negation, consistent with the plan to move them into deterministic checks. Tables did not improve; the table pools (Statistics Canada, ILOSTAT) differ from the NADA test tables (US Census, WDI country tables), and the nine-type test inputs were rendered before the render-version and group-check fixes (labels were narrated on those inputs, so they were not re-rendered). DPO for round D is running.
+
+## 2026-10-07 17:52 UTC — Round D after DPO: best faithfulness so far; now the app's default; round E slices ready
+
+Commit: 8b360af (round D chain); this commit (app). Run `runs/v2d-nosim-dpo`: on-policy DPO from `runs/v2d-nosim`, 4,607 pairs (3,276 chosen from the student, 1,331 from the teacher), usual settings. The chain's evaluations again failed on GPU memory (output hidden) and were rerun with `scripts/eval_sets.sh`.
+
+**Result.** Previous app model (`v2c-cont-itemfirst-nosim-dpo`) / round D after DPO:
+| Test set | Before | Round D + DPO |
+|---|---|---|
+| Realistic (unanimous) | 82.8% (90.2%) | 84.3% (92.2%) |
+| Paraphrase set | 76.1% | 79.7% (paraphrased fully-answering 72.8%) |
+| Nine-type NADA set | 78.3% | 80.4% |
+| Challenge suite (unanimous) | 60.6% (64.6%) | 63.3% (69.5%) |
+| Faithful, teacher / Gemma 4 judge | 4.37 / 4.54 | 4.50 / 4.66 |
+| Faithful at 4+, teacher / Gemma 4 | 80.6% / 84.3% | 85.1% / 88.2% |
+
+- DPO kept the verdict at the supervised level on the realistic test (84.6% to 84.3%) and lowered it slightly on the paraphrase set (80.7% to 79.7%) and the challenge suite (65.3% to 63.3%); faithfulness rose as in earlier rounds.
+- The user's ten everyday-language probes: relevant 7 of 10 (before 5; teacher 8, Gemma 4 10). Still wrong: "number of inhabitants Brazil" (irrelevant, with "total population ... not the number of inhabitants"), "extreme poverty rate" (partly relevant), "average income per person Peru" (irrelevant).
+- Round E slices (`data/real_phen/p1`): 13,376 searches labelled, Gemma 4 agrees with the teacher on 75.1%; 10,046 agreed rows kept (about 1,000 to 1,200 for each of the eight weak phenomena). Replacement new-type chunks c9, c13 to c16 complete.
+
+**Implication.** `runs/v2d-nosim-dpo` replaces the no-score model in the app. The concept-vocabulary failures persist for specific concepts (population and inhabitants, income and GDP per capita), which supports the concept-inventory approach; threshold, negation and look-alike remain the targets for deterministic checks.
