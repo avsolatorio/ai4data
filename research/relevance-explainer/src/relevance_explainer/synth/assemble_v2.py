@@ -72,6 +72,8 @@ def main() -> None:
     ap.add_argument("--out", default="data/v2")
     ap.add_argument("--real", nargs="*", default=None, help="realistic chunk directories (default: all data/real/c*)")
     ap.add_argument("--old-share", type=float, default=0.6, help="largest share of old-round rows in the training split")
+    ap.add_argument("--extra", nargs="*", default=[],
+                    help="targeted sets as origin=glob[:repeat], e.g. para=data/real_para/c*:2 types=data/real_types/c*:2 metatrans=data/real_meta/m*")
     ap.add_argument("--procs", type=int, default=24)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -88,24 +90,38 @@ def main() -> None:
             for r, (v2, vm) in zip(old, rendered)]
 
     real_dirs = a.real if a.real is not None else sorted(str(p) for g in ("c*", "t*") for p in Path("data/real").glob(g) if (p / "examples.jsonl").exists())
-    seen, real = set(), []
-    for d in real_dirs:
+    sets = [(d, None, 1) for d in real_dirs]
+    for spec in a.extra:  # origin=glob[:repeat]
+        origin, _, rest = spec.partition("=")
+        pattern, _, rep = rest.partition(":")
+        sets += [(str(p.parent), origin, int(rep or 1)) for p in sorted(Path().glob(pattern + "/examples.jsonl"))]
+    seen, real, repeat = set(), [], []
+    for d, origin, rep in sets:
         for line in (Path(d) / "examples.jsonl").read_text().splitlines():
             r = json.loads(line)
-            key = (r["query"], r["record"]["id"])
+            key = (r["query"], r["record"]["id"], r["record"].get("meta_language"))
             if key not in seen:
                 seen.add(key)
+                if origin:
+                    r["_origin"] = origin
                 real.append(r)
+                repeat.append(rep)
+    print("sets:", {o or "real": sum(1 for s in sets if s[1] == o) for o in {s[1] for s in sets}})
     with ProcessPoolExecutor(a.procs, initializer=_init) as ex:
         rer = list(ex.map(_render_real, real, chunksize=256))
     print(f"realistic examples: {len(real)}; dropped after re-rendering: {sum(x is None for x in rer)}")
-    for r, x in zip(real, rer):
+    for r, x, rep in zip(real, rer, repeat):
         if x is None:
             continue
         r["input_v2"], r["input_v2min"] = x
-        rows.append({"input": r["input_v2"], "input_min": r["input_v2min"], "output": f"{r['verdict']}\n{r['narrative']}",
-                         "verdict": r["verdict"], "source": r["record"]["kind"], "language": r["language"], "seed": r["topic"],
-                         "origin": "translated" if r.get("mode") == "translated" else "real", "style": r.get("style"), "writer": r.get("writer", "qwen3.8-27b"), "mode": r.get("mode")})
+        origin = r.get("_origin") or ("translated" if r.get("mode") == "translated" else "real")
+        row = {"input": r["input_v2"], "input_min": r["input_v2min"], "output": f"{r['verdict']}\n{r['narrative']}",
+               "verdict": r["verdict"], "source": r["record"]["kind"], "language": r["language"], "seed": r["topic"],
+               "origin": origin, "style": r.get("style"), "writer": r.get("writer", "qwen3.8-27b"), "mode": r.get("mode"),
+               "wording": r.get("wording", "free"), "relation": r.get("relation")}
+        rows.append(row)
+        if rep > 1 and G.split_of(row["seed"]) == "train":  # repeated targeted rows count once in val and test
+            rows += [{**row, "repeat": k} for k in range(1, rep)]
 
     splits = {"train": [], "val": [], "test": []}
     for r in rows:
