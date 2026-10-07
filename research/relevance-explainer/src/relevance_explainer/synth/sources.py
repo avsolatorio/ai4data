@@ -229,11 +229,12 @@ class PoolSource:
     object {kind: [pool.jsonl, ...]}, so the catalog sources above are unchanged when it is not set."""
 
     def __init__(self, kind: str, paths: list[str]):
-        import threading
         self.kind = kind
         self.recs = [json.loads(l) for p in paths for l in open(p, encoding="utf-8") if l.strip()]
         self._emb = None
-        self._lock = threading.Lock()
+        # One lock for every pool: they share one embedding model, and concurrent encodes on it failed with dtype errors
+        # (2026-10-07; most of the anchored and retrieval stages of type chunks c3, c4, c5 and c8 were lost).
+        self._lock = _POOL_LOCK
 
     @property
     def label(self) -> str:
@@ -268,6 +269,7 @@ class PoolSource:
 
 
 _POOL_MODEL = None
+_POOL_LOCK = __import__("threading").Lock()
 if __import__("os").environ.get("RECORD_POOLS"):
     for _kind, _paths in json.loads(__import__("os").environ["RECORD_POOLS"]).items():
         SOURCES[_kind] = PoolSource(_kind, _paths)
