@@ -928,7 +928,7 @@ No-score model by phenomenon, all and unanimous, with the most frequent error:
 **Implication.** The realistic test overstates accuracy for searches unlike the training writers' (83% against 61 to 65% here). The errors are consistent with lexical matching: different words for the same concept lower the verdict (synonym, proxy, standard measure), shared words with a different meaning raise it (look-alike, threshold). Round D addresses only synonyms. Round E: targeted training slices for the eight weakest phenomena, written by the training writers on records not used in the suite and kept only where the teacher and Gemma 4 agree; the challenge suite stays held out, with the caveat that the same phenomenon definitions make it partly in-distribution afterwards, so an independent check (the user's probes, real requests) is still needed.
 
 
-## 2026-10-07 13:35 UTC — Round D (supervised stage): better on every test set; synonyms +21 points, tables unchanged
+## 2026-10-07 13:25 UTC — Round D (supervised stage): better on every test set; synonyms +21 points, tables unchanged
 
 Commit: 8b360af (round D chain), bc92a42 (CPU fallback for similarities, used by the later evaluations). Run `runs/v2d-nosim`.
 
