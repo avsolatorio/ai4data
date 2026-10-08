@@ -28,4 +28,13 @@ export const cookbooks = [
     chapters: 6,
     to: '/cookbook/data-from-documents/',
   },
+  {
+    id: 'monitoring-data-use',
+    audience: 'Dissemination teams and management in national statistical organizations',
+    title: 'Practical Guide to Monitoring Data Use',
+    description:
+      'Six questions an organization can ask about where its data are used, each answered with recipes for defining use, collecting documents, detecting and harmonizing mentions, reporting, and acting on the results. Builds on the Monitoring of Data Use workstream.',
+    chapters: 6,
+    to: '/cookbook/monitoring-data-use/',
+  },
 ];

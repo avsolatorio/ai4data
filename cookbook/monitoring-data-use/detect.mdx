@@ -1,0 +1,192 @@
+---
+id: detect
+title: "3. Detection of mentions"
+sidebar_label: "3. Detect"
+sidebar_position: 4
+description: Named-entity extraction of dataset mentions with the program's extractor, a labelled sample to measure precision and recall, and thresholds and deduplication.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Detection of mentions
+
+**Question:** Can mentions of the data be found in documents?
+
+## Rationale
+
+Keyword search finds the canonical name and nothing else. Documents refer
+to a survey as "the labour survey", to an indicator by its definition, and
+to a report by its author; they name the dataset once and use a pronoun
+after. Named-entity extraction finds these mentions from the text around
+them, with a confidence, and records whether the document uses the data or
+cites it. The program's extractor does this with a zero-shot model and a
+fine-tuned adapter for dataset mentions.
+
+An extractor's output is only as good as its measured precision and
+recall, so the chapter pairs the model with a labelled sample.
+
+## Target state
+
+- Mentions are extracted from every collected document with the dataset name, acronym, producer, usage flag, context, and confidence.
+- Precision and recall are measured on a labelled sample across document types and languages, and reported.
+- Thresholds and deduplication are tuned on the sample, and the sample grows with each review.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Search the collected text for the canonical names and acronyms. Read the hits and record the mentions with their context. |
+| **AI-ready** | Run the extractor on every document. Label a sample of sentences and measure precision and recall. Set the confidence threshold and deduplicate. |
+| **AI-native** | Run extraction in the pipeline on each collection run, keep the labelled sample growing from reviews, and re-measure when the model or adapter changes. |
+
+:::info[Running example]
+The extractor found twelve mentions in the six documents. Against the
+labelled sample of fourteen sentences, it found eleven of the twelve
+labelled mentions, missed "Population and Housing Census 2014", and
+extracted one generic phrase ("food security report" in the regional
+outlook) that a person did not count as a mention.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Run the extractor on the collected documents" level="AI-ready" skills="Developer with Python; a machine that runs a small language model" time="One day to set up; seconds per document">
+
+**Result:** one record per mention with the fields the later chapters
+need, for every document in the collection.
+
+1. Install the program's package with the data-use dependencies
+   (`pip install "ai4data[datause]"`) and run the extractor on the text of
+   each document:
+
+```python
+from ai4data.data_use import extract_from_document
+
+result = extract_from_document("D01.pdf", include_confidence=True)
+for mention in result["dataset_mention"]:
+    print(mention["dataset_name"]["text"], mention["is_used"], mention["usage_context"])
+```
+
+   The extractor uses a zero-shot named-entity model (GLiNER) with the
+   program's adapter for dataset mentions, and returns for each mention the
+   dataset name, acronym and producer where present, whether the data are
+   used, the usage context, and a confidence.
+2. Store the mentions as JSON lines, one per mention, with the document
+   identifier, the mention text, the sentence it was found in, and the
+   extractor's fields. The running example:
+
+```json file=../../website/static/cookbook-files/monitoring-data-use/mentions_example.jsonl
+```
+
+3. Record the model, adapter, and threshold used with each run; a change
+   in any of them changes the counts.
+
+**What this does not do.** The extractor finds mentions in the text it is
+given. A document without a text layer yields nothing, and a mention in a
+figure or a reference list formatted as an image is invisible. The model
+was trained on English development literature; other languages need the
+measurement of recipe 3.2 before the counts are trusted.
+
+</Recipe>
+
+<Recipe title="3.2 Measure precision and recall on a labelled sample" level="AI-ready" skills="Dissemination officer for labelling; Python" time="One day for the first hundred sentences">
+
+**Result:** precision, recall, and the lists of what was missed and what
+was wrongly extracted, for the organization's own documents.
+
+1. Draw sentences from the collected documents across types and
+   languages, and label each: the dataset mention it contains, or none.
+   Two labellers and an agreement check make the sample trustworthy. The
+   example sample:
+
+```csv file=../../website/static/cookbook-files/monitoring-data-use/labelled_sample.csv
+```
+
+2. Score the extractor's output against the sample:
+
+```python file=../../website/static/cookbook-files/monitoring-data-use/score_mentions.py
+```
+
+Output for the running example:
+
+```text
+labelled mentions 12, extracted 12, correct 11
+precision 0.92  recall 0.92  F1 0.92
+false positives (extracted, not labelled as a mention):
+  D06: 'food security report'
+false negatives (labelled, not extracted):
+  D04: 'population and housing census 2014'
+```
+
+3. Read both lists. The false positive is a generic phrase with low
+   confidence (0.52), which a threshold removes; the false negative is a
+   census named as a sampling frame, which the adapter may treat as a
+   method and which a review adds to the sample as a positive example.
+4. Keep the sample and the scores with the model version, and re-run on
+   every change.
+
+**What this does not do.** Fourteen sentences demonstrate the measure. A
+few hundred sentences per document type and language, with two labellers,
+give a number to report. The script scores the mention text only; the
+usage flag and the context are scored by review.
+
+</Recipe>
+
+<Recipe title="3.3 Set thresholds and deduplicate" level="AI-ready" skills="Developer" time="Half a day">
+
+**Result:** a confidence threshold chosen on the sample, and one record per
+distinct mention per document.
+
+1. Plot precision and recall on the sample at several thresholds of
+   `dataset_threshold`, and choose the threshold for the use the counts
+   serve: a higher one for a published report, a lower one for a review
+   queue.
+2. Deduplicate within a document with the program's
+   `deduplicate_extraction`, which merges repeated mentions of the same
+   dataset, clusters acronyms with their long forms ("HBS" with "Household
+   Budget Survey 2021"), and keeps the context windows.
+3. Keep the mention count after deduplication as the secondary figure next
+   to the document count ([chapter 1](./define.mdx), recipe 1.3).
+
+**What this does not do.** A threshold trades precision for recall; it
+does not improve the model. Recurring misses of one kind (datasets named
+as frames, mentions in the national language) call for additions to the
+labelled sample and, at the AI-native level, for adapting the model.
+
+</Recipe>
+
+## Implementation options
+
+- **Extractor:** the program's `ai4data.data_use` package (GLiNER with the `ai4data/datause-extraction` adapter), run locally; keyword search over canonical names as the foundational method.
+- **Labelling:** a spreadsheet with document, sentence, and mention; two labellers; agreement measured.
+- **Measures:** precision, recall, and F1 at the mention level; the same per document type and language.
+- **Deduplication:** the program's `deduplicate_extraction` (overlap filtering, acronym clustering, fuzzy clusters).
+
+## World Bank examples
+
+- [Monitoring of Data Use](/docs/data_use/) documents the extractor, its output fields, and the deduplication step, with the implementation files in the repository.
+- The program publishes its extraction adapter on Hugging Face (`ai4data/datause-extraction`) for reuse.
+
+## Common mistakes
+
+- **Trusting the model's scores.** A reported recall from another corpus is not the organization's recall; measure on its documents.
+- **Threshold chosen by eye.** The sample shows what each threshold costs.
+- **Counting duplicates.** The same survey mentioned ten times in one paper is one use.
+- **English only.** A labelled sample in the national language is the only evidence that the extractor works there.
+
+## Verification
+
+- **Extraction:** every collected document has a mentions file with model, adapter, and threshold recorded.
+- **Measurement:** precision and recall per document type and language from the labelled sample, with the date.
+- **Deduplication:** a sample of documents shows one record per distinct mention.
+
+## Checklist
+
+<Checklist id="monitoring-data-use-detect" items={[
+  'Extractor run on every collected document',
+  'Mentions stored as JSON lines with document, text, context, and fields',
+  'Model, adapter, and threshold recorded per run',
+  'Labelled sample across document types and languages, two labellers',
+  'Precision and recall measured and kept with the model version',
+  'Threshold chosen on the sample; mentions deduplicated per document',
+]} />

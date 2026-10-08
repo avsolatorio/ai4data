@@ -1,0 +1,152 @@
+---
+id: collect
+title: "2. Collection of documents"
+sidebar_label: "2. Collect"
+sidebar_position: 3
+description: The sources where uses of the data appear, collection within each source's terms, document metadata, and the text layer that extraction reads.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Collection of documents
+
+**Question:** Can the documents that use the data be collected?
+
+## Rationale
+
+Mentions are found in documents the organization has. Which documents it
+has decides what the monitoring can see: a collection of academic papers
+shows research use and nothing of policy or media use. The sources have to
+be listed, collected within their terms, and described (year, type,
+source), because every count in [chapter 5](./report.mdx) is a count over
+this collection.
+
+## Target state
+
+- The sources in scope are listed with their terms of access and the method of collection.
+- Documents are collected on a schedule with their metadata and stored with a text layer.
+- Coverage is measured: the share of a reference list of known uses that the collection contains.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | List the sources. Search the main ones by hand each quarter for the canonical names and acronyms, and record the documents found with year, type, and source. |
+| **AI-ready** | Collect from the listed sources with their APIs or exports, within their terms, on a schedule. Store the documents with metadata and a text layer. Build a reference list to measure coverage. |
+| **AI-native** | Run collection automatically, add new sources from the results (a journal that cites often), and track coverage over time. |
+
+:::info[Running example]
+Six documents from four kinds of source: an academic index, a government
+website, a media archive, and an international organization's site. Each
+has an identifier, a year, a type, and a source, which the use report
+groups by.
+:::
+
+## Recipes
+
+<Recipe title="2.1 List the sources" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
+
+**Result:** the list of places where uses of the data appear, with the
+terms under which each can be collected.
+
+1. Academic use: open scholarly indexes such as [OpenAlex](https://openalex.org/)
+   (open metadata and an API), national research repositories, and
+   [Crossref](https://www.crossref.org/) for DOIs and references.
+2. Policy use: government document sites, parliamentary records, strategy
+   and budget documents, international organizations' reports.
+3. Media use: news archives and the organization's own press monitoring.
+4. AI use: the assistants users ask, checked with a fixed question set
+   ([chapter 5](./report.mdx)).
+5. For each source, record the terms (API, export, crawling allowed or
+   not, rate limits, licence of the content) and the collection method.
+
+**What this does not do.** The list is the scope. Sources that cannot be
+collected within their terms stay out, and the report says so.
+
+</Recipe>
+
+<Recipe title="2.2 Collect documents within each source's terms" level="AI-ready" skills="Developer" time="One to two weeks to set up; scheduled runs after">
+
+**Result:** the documents from each source, with metadata, stored for
+extraction.
+
+1. Prefer APIs and exports to crawling. OpenAlex and Crossref offer APIs
+   with search by text and by reference; government sites often have
+   document lists; news archives have search exports.
+2. Where crawling is the only way, respect the site's `robots.txt`
+   ([RFC 9309](https://www.rfc-editor.org/rfc/rfc9309)), identify the
+   crawler, rate-limit requests, and keep to the pages that hold documents.
+3. Store each document with a record: identifier, title, year, type,
+   source, country, URL, date collected, and licence of the content. The
+   example documents table has the fields the report uses:
+
+```csv file=../../website/static/cookbook-files/monitoring-data-use/documents.csv
+```
+
+4. Deduplicate across sources (the same paper in two indexes) by DOI or
+   by title and year.
+
+**What this does not do.** Collection within terms limits what is
+collected. Full texts behind paywalls are out of reach; abstracts and
+reference lists from the indexes still show mentions and citations.
+
+</Recipe>
+
+<Recipe title="2.3 Produce the text layer and measure coverage" level="AI-ready" skills="Developer; dissemination officer for the reference list" time="One day to set up">
+
+**Result:** every collected document has text the extractor can read, and
+a measured share of known uses that the collection contains.
+
+1. Extract text per page with PyMuPDF, as the program's
+   [document parser](/docs/data_use/) does, and run OCR on scanned
+   documents; keep the page structure, because the extractor's context
+   windows and the citation back to the page use it.
+2. Build a reference list of known uses: documents staff know cite the
+   data, references from the organization's own citation tracking, and
+   DataCite citation events for datasets with DOIs.
+3. Measure coverage as the share of the reference list present in the
+   collection, per source type, and report it with the counts.
+4. Add sources where coverage is low and the type of use matters.
+
+**What this does not do.** Coverage against a reference list measures the
+known uses. Unknown uses, in sources nobody listed, remain unknown; the
+measure is a lower bound.
+
+</Recipe>
+
+## Implementation options
+
+- **Scholarly indexes:** OpenAlex (open, API), Crossref (DOIs, references), national repositories; DataCite citation events for datasets with DOIs.
+- **Government and policy documents:** document sites and parliamentary records, collected by export or by crawling within terms.
+- **Media:** news archive search exports, press monitoring services.
+- **Text extraction:** PyMuPDF for PDFs, OCR for scans; the same text layer the [documents cookbook](/cookbook/data-from-documents/inventory) produces.
+
+## World Bank examples
+
+- [Monitoring of Data Use](/docs/data_use/) parses PDFs with PyMuPDF and keeps page structure for extraction.
+- The [Microdata Library](https://microdata.worldbank.org/citations) publishes a citations list per study, built from collected publications.
+
+## Common mistakes
+
+- **Crawling against the terms.** It risks the organization's access and reputation; APIs and exports exist for most sources.
+- **Documents without metadata.** A mention without a year and a type cannot be reported.
+- **One source type.** Research-only collections miss the policy use that justifies a statistical office.
+- **No coverage measure.** A count without coverage reads as a total.
+
+## Verification
+
+- **Sources:** each listed source has a recorded method and terms.
+- **Collection:** the scheduled run produces documents with complete metadata; duplicates across sources are merged.
+- **Coverage:** the share of the reference list found, per source type, reported with the latest run.
+
+## Checklist
+
+<Checklist id="monitoring-data-use-collect" items={[
+  'Sources listed with terms and collection method',
+  'APIs and exports preferred; crawling within robots.txt and rate limits',
+  'Documents stored with identifier, year, type, source, URL, licence',
+  'Duplicates across sources merged',
+  'Text layer per page; OCR for scans',
+  'Reference list built and coverage measured per source type',
+]} />

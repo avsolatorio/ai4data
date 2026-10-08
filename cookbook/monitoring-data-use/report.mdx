@@ -1,0 +1,175 @@
+---
+id: report
+title: "5. Reporting of use"
+sidebar_label: "5. Report"
+sidebar_position: 6
+description: Use per dataset by year and document type, combined with access statistics and an AI visibility check, and reported with the coverage and recall caveats that make the numbers interpretable.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 5. Reporting of use
+
+**Question:** Can use be reported and interpreted?
+
+## Rationale
+
+A use report answers the questions management asks: which products are
+used, by whom, for what, and whether that is changing. It also carries the
+caveats without which the numbers mislead: which sources were covered, what
+share of known uses the collection contained, and what the extractor's
+recall was. Combined with access statistics (downloads and API calls,
+counted the way the research data community counts them) and with a check
+of how AI systems answer, it gives a rounded picture of use.
+
+## Target state
+
+- A report per period gives, for each dataset, the documents that mention and that use it, by year, document type, and source, with co-use.
+- Access statistics are counted following the COUNTER Code of Practice for Research Data and reported next to the mentions.
+- AI systems' answers are checked with a fixed question set on a schedule.
+- Every report states its coverage and the extractor's recall.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Publish a list of documents that cite each flagship dataset, updated each quarter. |
+| **AI-ready** | Produce the use report from harmonized mentions and the documents table. Add COUNTER-aligned access statistics and the AI visibility check. State coverage and recall. |
+| **AI-native** | Publish the report with the data, show "used in" on each dataset page from the results, and track trends across periods with a stable scope. |
+
+:::info[Running example]
+Across six documents, the household budget survey is used in two, the
+labour force survey in one, the undernourishment indicator in one, and
+the unemployment indicator in one; the food security report is mentioned
+in two without being used. Two documents also use other
+organizations' data alongside.
+:::
+
+## Recipes
+
+<Recipe title="5.1 Produce the use report" level="AI-ready" skills="Python" time="Minutes per run">
+
+**Result:** use per dataset, mentioned and used, by year and document
+type, with co-use, from the harmonized mentions and the documents table.
+
+```python file=../../website/static/cookbook-files/monitoring-data-use/use_report.py
+```
+
+1. Run the report on the harmonized mentions:
+
+```bash
+python use_report.py harmonized.jsonl documents.csv
+```
+
+Output for the running example (abridged):
+
+```text
+6 documents, 12 mentions, 5 datasets of the organization mentioned
+
+dataset                mentioned in  used in  by year / by type
+EX-HBS-2021                       2        2  2023: 1, 2024: 1 / journal article: 1, working paper: 1
+EX-LFS                            1        1  2025: 1 / news article: 1
+...
+other organizations' data mentioned alongside (co-use):
+  'Demographic and Health Survey 2016': 1 document(s)
+  'World Development Indicators': 1 document(s)
+```
+
+2. Report documents as the unit and mentions as the secondary figure
+   ([chapter 1](./define.mdx)). Separate mentioned from used; a report
+   cited as context is a different fact from a survey the analysis rests
+   on.
+3. Keep the scope stable between periods; a change in sources is a break
+   and is marked as one.
+
+**What this does not do.** The counts cover the collected documents.
+Recipe 5.3 adds the caveats that make them interpretable, and the report
+is never read without them.
+
+</Recipe>
+
+<Recipe title="5.2 Add access statistics and the AI visibility check" level="AI-ready" skills="Web analyst; dissemination officer" time="One day to set up; two hours per period">
+
+**Result:** downloads and API calls counted comparably with other data
+repositories, and a record of how AI systems answer questions the data
+answer, next to the use counts.
+
+1. Count views and downloads following the
+   [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/):
+   filter repeated requests, separate machine access from regular access,
+   and report both. Developed with [Make Data Count](https://makedatacount.org/),
+   it is what data repositories report, so the organization's figures
+   become comparable.
+2. Count API and agent-interface calls per dataset from the logs, with the
+   same machine and regular split.
+3. Run the AI visibility check from the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/monitor-use):
+   a fixed set of questions asked of two or three assistants each month,
+   recording whether the organization is cited, whether the figure is
+   right, and whether the link resolves.
+4. Present the three measures side by side per dataset; they answer
+   different questions and move differently.
+
+**What this does not do.** Downloads count files, mentions count
+documents, and the AI check samples answers. None is a count of users or
+of decisions influenced, and the report says so.
+
+</Recipe>
+
+<Recipe title="5.3 State coverage and recall with every count" level="Foundational" skills="Dissemination officer" time="Part of each report">
+
+**Result:** every number in the report is read with the two facts that
+bound it.
+
+1. Coverage: the share of the reference list of known uses that the
+   collection contained, per source type ([chapter 2](./collect.mdx)).
+2. Recall: the extractor's recall on the labelled sample, per document
+   type and language ([chapter 3](./detect.mdx)).
+3. Match rate: the share of mentions resolved to an identifier
+   ([chapter 4](./harmonize.mdx)).
+4. Print the three with the counts, and when comparing periods, note any
+   change in sources, model, or threshold.
+
+**What this does not do.** Coverage and recall bound the counts from
+below; they do not estimate the true total. An estimate of total use needs
+a sampling design over sources, which is a larger exercise than this
+guide covers.
+
+</Recipe>
+
+## Implementation options
+
+- **Use report:** the script in this chapter from harmonized mentions; a dashboard once the pipeline runs on a schedule.
+- **Access statistics:** COUNTER Code of Practice for Research Data; DataCite citation events for datasets with DOIs.
+- **AI visibility:** the fixed question set and log from the dissemination cookbook.
+- **Publication:** "used in" lists on dataset pages, as the Microdata Library's citations pages show.
+
+## World Bank examples
+
+- The [Microdata Library](https://microdata.worldbank.org/citations) publishes the citations of each study.
+- [Monitoring of Data Use](/docs/data_use/) names impact measurement, gap analysis, evidence-base tracking, and catalog enrichment as the downstream uses of harmonized mentions.
+
+## Common mistakes
+
+- **A count without coverage.** It reads as a total and is an undercount of unknown size.
+- **Mentions and downloads added together.** They count different things.
+- **A rise after adding a source.** Growth or scope change; the report has to say which.
+- **Reports nobody acts on.** Chapter 6 is the reason the report exists.
+
+## Verification
+
+- **Report:** produced per period from the harmonized mentions with the documents table; figures reproducible from the files.
+- **Caveats:** coverage, recall, and match rate stated in the report.
+- **Access statistics:** machine and regular access separated, following the Code of Practice.
+
+## Checklist
+
+<Checklist id="monitoring-data-use-report" items={[
+  'Use report per dataset: mentioned, used, by year, type, source',
+  'Co-use with other organizations\' data reported',
+  'Downloads and API calls counted per the COUNTER Code of Practice for Research Data',
+  'AI visibility check run on a schedule',
+  'Coverage, recall, and match rate stated with every count',
+  'Scope stable across periods; changes marked as breaks',
+]} />
