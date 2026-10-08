@@ -1,15 +1,15 @@
 ---
 id: variables
-title: "2. Interpretation of variables"
-sidebar_label: "2. Variables"
-sidebar_position: 3
+title: "3. Interpretation of variables"
+sidebar_label: "3. Variables"
+sidebar_position: 4
 description: Labels, value codes, missing-value codes, universes, and question text for every variable, checked before release and stored in the DDI-based schema.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 2. Interpretation of variables
+# 3. Interpretation of variables
 
 **Question:** Can AI interpret the variables?
 
@@ -40,7 +40,7 @@ attach to variables.
 |---|---|
 | **Foundational** | Produce a data dictionary with one row per variable: file, name, label, type, value codes, missing codes. Publish it with the data. |
 | **AI-ready** | Add universe and question text. Run the dictionary check before release and fix every error. Convert the dictionary into the schema's `variables` section and validate the study record. |
-| **AI-native** | Add concepts ([chapter 3](./concepts.mdx)), derivations, and summary statistics per variable. Run the check in the release pipeline, and use AI-assisted review for label and description quality. |
+| **AI-native** | Add concepts ([chapter 4](./concepts.mdx)), derivations, and summary statistics per variable. Run the check in the release pipeline, and use AI-assisted review for label and description quality. |
 
 :::info[Running example]
 The dictionary of `EX-LFS-2025-Q2` has 18 variables and five planted
@@ -50,7 +50,7 @@ into the schema and validates the study record at the AI-ready level.
 
 ## Recipes
 
-<Recipe title="2.1 Check the data dictionary before release" level="Foundational" skills="Data curator; Python" time="One hour the first time; minutes on each release">
+<Recipe title="3.1 Check the data dictionary before release" level="Foundational" skills="Data curator; Python" time="One hour the first time; minutes on each release">
 
 **Result:** a list of the variables that software or a user would misread,
 with the reason, and fill rates per field.
@@ -102,7 +102,7 @@ a questionnaire review add those.
 
 </Recipe>
 
-<Recipe title="2.2 Convert the dictionary into the DDI-based schema" level="AI-ready" skills="Python" time="One hour">
+<Recipe title="3.2 Convert the dictionary into the DDI-based schema" level="AI-ready" skills="Python" time="One hour">
 
 **Result:** the `data_files` and `variables` sections of the study record,
 so that the record is complete at the AI-ready level and can be imported
@@ -140,7 +140,7 @@ the curator to add where they apply.
 
 </Recipe>
 
-<Recipe title="2.3 Document missing codes, universes, and derivations" level="AI-ready" skills="Subject-matter statistician" time="Two to four hours per survey">
+<Recipe title="3.3 Document missing codes, universes, and derivations" level="AI-ready" skills="Subject-matter statistician" time="Two to four hours per survey">
 
 **Result:** a user or a system can tell, for every variable, which codes
 are not values, who the variable applies to, and how derived variables were
@@ -166,7 +166,7 @@ computed.
 **What this does not do.** This recipe documents the rules. It does not
 verify them against the data; a consistency check (for example, that
 `lfs_status` equals 1 for every case with a positive `hours`) belongs to
-the data quality procedures in [chapter 5](./fitness.mdx).
+the data quality procedures in [chapter 7](./fitness.mdx).
 
 </Recipe>
 
@@ -175,13 +175,21 @@ the data quality procedures in [chapter 5](./fitness.mdx).
 - **DDI Codebook** holds variable-level documentation: label, text, question, universe, categories, derivation, concepts, and summary statistics. The World Bank schema is its JSON form.
 - **The Metadata Editor** builds the dictionary from the data file (names, types, frequencies) and lets the curator add the rest; it exports the schema and publishes to NADA.
 - **Statistical software exports.** SPSS, Stata, and R files carry labels and value labels, which the Metadata Editor and DDI tools read; a dictionary CSV as in this chapter is the portable form.
-- **DDI Lifecycle** adds reusable questions and concepts for organizations that manage questionnaires centrally ([chapter 3](./concepts.mdx)).
+- **DDI Lifecycle** adds reusable questions and concepts for organizations that manage questionnaires centrally ([chapter 4](./concepts.mdx)).
 
 ## World Bank examples
 
 - The [microdata schema](https://github.com/worldbank/metadata-schemas) defines `variables` (with `var_catgry`, `var_universe`, `var_qstn_qstnlit`, `var_derivation`, `var_concept`, `var_sumstat`) and `data_files`.
 - [Metadata Augmentation](/docs/metadata-augmentation/) reads dictionaries in CSV, JSON, or from a NADA catalog, and its adapters map source columns to a canonical form, which is the same step as recipe 2.2.
 - The [Metadata Reviewer](/docs/metadata-reviewer/overview) reviews label and description text with a curator in the loop.
+
+## Resources
+
+- [DDI Codebook 2.5 variable elements](https://ddialliance.org/Specification/DDI-Codebook/2.5/): `var`, `labl`, `catgry`, `universe`, `qstn`, `derivation`, `concept`, `sumStat`.
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): the variable-level screens, frequencies, and validation.
+- [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas): the microdata schema (`variables`, `data_files`) and the Python library for building records.
+- [pyreadstat](https://github.com/Roche/pyreadstat): reads labelled Stata, SPSS, and SAS files for checks outside the editor.
+- [Metadata Augmentation](/docs/metadata-augmentation/): the program's dictionary adapters and variable grouping, which read the dictionary form used here.
 
 ## Common mistakes
 

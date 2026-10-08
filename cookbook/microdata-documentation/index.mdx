@@ -26,10 +26,12 @@ nothing without the label, the value codes, the universe, and the question
 that produced it. An AI system that reads an undocumented file will guess,
 and a user who relies on the answer will not know that it guessed.
 
-This guide is organized around six questions a curator can ask about the
-documentation of a survey: whether people and AI can find it, interpret its
-variables, relate them to concepts and classifications, find the right
-variable among hundreds, judge whether the data fit a purpose, and obtain the
+This guide is organized around eight questions a curator can ask about the
+documentation of a survey: whether people and AI can find it, whether the
+documentation can be produced from the files the organization already has,
+whether AI can interpret the variables, relate them to concepts and
+classifications, find the right variable among hundreds, follow a variable
+across survey rounds, judge whether the data fit a purpose, and obtain the
 data under the stated conditions. Each chapter answers one question with
 recipes, maturity levels, and a checklist.
 
@@ -44,7 +46,7 @@ each standard and where it applies.
 :::tip[Documentation first, AI second]
 The highest-value steps in this guide are documentation practice: complete
 labels, value codes, universes, question text, and access conditions. They
-serve every user. The AI methods in chapters 4 and 5 (thematic grouping,
+serve every user. The AI methods in chapters 5 and 6 (thematic grouping,
 semantic search, assisted review) work on that documentation and have
 nothing to work with without it.
 :::
@@ -59,11 +61,13 @@ a survey's documentation at a level in each chapter.
 | Chapter | Question | Practical topics |
 |---|---|---|
 | [1. Findability of surveys](./find.mdx) | Can people and AI find the survey? | Study-level record, DDI, catalog, DOI, schema.org |
-| [2. Interpretation of variables](./variables.mdx) | Can AI interpret the variables? | Labels, value codes, missing codes, universes, data dictionary checks, DDI variables |
-| [3. Questions, concepts, and classifications](./concepts.mdx) | Can AI relate questions to concepts and standards? | Question text, concept maps, ISCED, ISCO, ISIC, harmonized names |
-| [4. Navigation of large dictionaries](./navigate.mdx) | Can AI find the right variable among hundreds? | Variable groups, thematic grouping, variable-level search, evaluation |
-| [5. Fitness for use](./fitness.mdx) | Can AI judge whether the data fit a purpose? | Design, weights, response rates, quality statements, versions, errata |
-| [6. Access under the right conditions](./access.mdx) | Can AI access the data under the stated conditions? | Access tiers, disclosure control, licences, citation, automated access |
+| [2. Documentation from existing files](./produce.mdx) | Can documentation be produced from the files the organization already has? | Draft dictionary from the data file, import with labels, question recovery, backlog |
+| [3. Interpretation of variables](./variables.mdx) | Can AI interpret the variables? | Labels, value codes, missing codes, universes, data dictionary checks, DDI variables |
+| [4. Questions, concepts, and classifications](./concepts.mdx) | Can AI relate questions to concepts and standards? | Question text, concept maps, ISCED, ISCO, ISIC, harmonized names |
+| [5. Navigation of large dictionaries](./navigate.mdx) | Can AI find the right variable among hundreds? | Variable groups, thematic grouping, variable-level search, evaluation |
+| [6. Comparability across survey rounds](./rounds.mdx) | Can variables be followed across survey rounds and related surveys? | Crosswalks, breaks in series, correspondence tables, harmonized variables |
+| [7. Fitness for use](./fitness.mdx) | Can AI judge whether the data fit a purpose? | Design, weights, response rates, quality statements, versions, errata |
+| [8. Access under the right conditions](./access.mdx) | Can AI access the data under the stated conditions? | Access tiers, disclosure control, licences, citation, automated access |
 
 ## Maturity levels
 
@@ -86,8 +90,10 @@ record is complete; its data dictionary has 18 variables, and five defects
 are planted in it: a variable without a label, a label that repeats the
 name, a categorical variable without value codes, a duplicated name, and a
 numeric variable without a missing-value statement. The recipes find them,
-repair them, and convert the dictionary into the DDI-based schema. All
-values are invented.
+repair them, and convert the dictionary into the DDI-based schema. A
+41-record extract of the data file and the dictionary of the previous
+round (`EX-LFS-2024-Q4`) serve the chapters on producing documentation and
+on comparability. All values are invented.
 
 ## Scope of the examples
 
@@ -102,14 +108,18 @@ full version adds.
 | File | Used in |
 |---|---|
 | [lfs_2025q2_dictionary.csv](pathname:///cookbook-files/microdata-documentation/lfs_2025q2_dictionary.csv) | The running example's data dictionary, with planted defects |
-| [check_dictionary.py](pathname:///cookbook-files/microdata-documentation/check_dictionary.py) | Chapter 2: data dictionary check |
-| [dictionary_to_ddi.py](pathname:///cookbook-files/microdata-documentation/dictionary_to_ddi.py) | Chapter 2: conversion to the World Bank microdata schema (DDI) |
-| [concept_map.csv](pathname:///cookbook-files/microdata-documentation/concept_map.csv) | Chapter 3: variables mapped to concepts and classifications |
-| [variable_questions.csv](pathname:///cookbook-files/microdata-documentation/variable_questions.csv) | Chapter 4: known-variable question set |
-| [score_variable_search.py](pathname:///cookbook-files/microdata-documentation/score_variable_search.py) | Chapter 4: variable search scoring |
-| [access_policy_template.md](pathname:///cookbook-files/microdata-documentation/access_policy_template.md) | Chapter 6: access policy with tiers and rules for automated clients |
+| [lfs_2025q2_sample.csv](pathname:///cookbook-files/microdata-documentation/lfs_2025q2_sample.csv) | Chapter 2: a 41-record extract of the data file, without labels |
+| [profile_datafile.py](pathname:///cookbook-files/microdata-documentation/profile_datafile.py) and [draft_dictionary.csv](pathname:///cookbook-files/microdata-documentation/draft_dictionary.csv) | Chapter 2: draft dictionary from the data file, and its output |
+| [check_dictionary.py](pathname:///cookbook-files/microdata-documentation/check_dictionary.py) | Chapter 3: data dictionary check |
+| [dictionary_to_ddi.py](pathname:///cookbook-files/microdata-documentation/dictionary_to_ddi.py) | Chapter 3: conversion to the World Bank microdata schema (DDI) |
+| [concept_map.csv](pathname:///cookbook-files/microdata-documentation/concept_map.csv) | Chapter 4: variables mapped to concepts and classifications |
+| [variable_questions.csv](pathname:///cookbook-files/microdata-documentation/variable_questions.csv) | Chapter 5: known-variable question set |
+| [score_variable_search.py](pathname:///cookbook-files/microdata-documentation/score_variable_search.py) | Chapter 5: variable search scoring |
+| [lfs_2024q4_dictionary.csv](pathname:///cookbook-files/microdata-documentation/lfs_2024q4_dictionary.csv) | Chapter 6: the previous round's dictionary |
+| [compare_rounds.py](pathname:///cookbook-files/microdata-documentation/compare_rounds.py) and [round_crosswalk.csv](pathname:///cookbook-files/microdata-documentation/round_crosswalk.csv) | Chapter 6: crosswalk between rounds, and its output |
+| [access_policy_template.md](pathname:///cookbook-files/microdata-documentation/access_policy_template.md) | Chapter 8: access policy with tiers and rules for automated clients |
 | [example_microdata.json](pathname:///cookbook-files/ai-ready-dissemination/example_microdata.json) | The study record, from the dissemination cookbook |
-| [check_metadata.py](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) and [profile_microdata.json](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json) | Chapters 1 and 2: validation against the schema and the completeness profile, from the dissemination cookbook |
+| [check_metadata.py](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) and [profile_microdata.json](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json) | Chapters 1 and 3: validation against the schema and the completeness profile, from the dissemination cookbook |
 
 ## Related resources
 

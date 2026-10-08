@@ -50,7 +50,7 @@ SKIP = {"_template", "authoring"}
 LEVELS = {"Foundational", "AI-ready", "AI-native"}
 INDEX_SECTIONS = ["Chapters and questions", "Maturity levels", "Files", "Citation", "Version history"]
 CHAPTER_REQUIRED = ["Rationale", "Target state", "Maturity levels", "Recipes", "Common mistakes", "Checklist"]
-CHAPTER_RECOMMENDED = ["Implementation options", "Verification"]
+CHAPTER_RECOMMENDED = ["Implementation options", "Resources", "Verification"]
 
 BANNED = re.compile(r", not |rather than|instead of|not just|isn.t\.|\bmerely\b|\bsimply\b|\bactually\b")
 COMMA_TAG = re.compile(r", (and|with|but|so|then|because) ")

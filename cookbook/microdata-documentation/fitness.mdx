@@ -1,15 +1,15 @@
 ---
 id: fitness
-title: "5. Fitness for use"
-sidebar_label: "5. Fitness"
-sidebar_position: 6
+title: "7. Fitness for use"
+sidebar_label: "7. Fitness"
+sidebar_position: 8
 description: Sampling design, weights, response rates, quality statements, versions, and errata in machine-readable fields, so that users and AI systems can judge whether the data fit a purpose.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 5. Fitness for use
+# 7. Fitness for use
 
 **Question:** Can AI judge whether the data fit a purpose?
 
@@ -46,7 +46,7 @@ and errata log.
 
 ## Recipes
 
-<Recipe title="5.1 Document the design, the weights, and the response" level="Foundational" skills="Survey methodologist" time="Half a day per survey">
+<Recipe title="7.1 Document the design, the weights, and the response" level="Foundational" skills="Survey methodologist" time="Half a day per survey">
 
 **Result:** a user or a system can tell how the sample was drawn, which
 weight to use for which estimate, and how complete the response was.
@@ -73,7 +73,7 @@ cookbook return the weight variable with the data.
 
 </Recipe>
 
-<Recipe title="5.2 Publish a quality statement in machine-readable fields" level="AI-ready" skills="Survey methodologist; data curator" time="Half a day per survey">
+<Recipe title="7.2 Publish a quality statement in machine-readable fields" level="AI-ready" skills="Survey methodologist; data curator" time="Half a day per survey">
 
 **Result:** the known limits of the data are in fields that a catalog
 displays and an AI system can quote.
@@ -96,7 +96,7 @@ release so that the statement reflects the data as released.
 
 </Recipe>
 
-<Recipe title="5.3 Version each release and publish errata" level="AI-ready" skills="Data curator" time="One hour per release">
+<Recipe title="7.3 Version each release and publish errata" level="AI-ready" skills="Data curator" time="One hour per release">
 
 **Result:** every release is identified, every correction is recorded, and
 a user or a system can tell which version an analysis used.
@@ -132,6 +132,14 @@ checksummed; the `data_files` section holds the version per file.
 - The [microdata schema](https://github.com/worldbank/metadata-schemas) carries `quality_statement`, `data_appraisal`, `sampling_deviation`, `response_rate`, `sampling_error_estimates`, `data_checks`, and `version_statement`.
 - [Anomaly Detection and Explanation](/docs/anomaly-detection/) classifies unusual values and cites evidence, which supports the data checks recorded per file.
 - The [Microdata Library](https://microdata.worldbank.org/) lists versions and access conditions on each study page.
+
+## Resources
+
+- [UN National Quality Assurance Frameworks manual](https://unstats.un.org/unsd/methodology/dataquality/): the quality dimensions a quality statement reports.
+- [DDI Codebook 2.5](https://ddialliance.org/Specification/DDI-Codebook/2.5/): `sampProc`, `weight`, `respRate`, `EstSmpErr`, `dataAppr`, and `verStmt`.
+- [W3C PROV](https://www.w3.org/TR/prov-overview/): provenance of derived and harmonized files.
+- [DataCite metadata schema](https://schema.datacite.org/): versioned DOIs and the `relatedIdentifier` links between versions.
+- [Anomaly Detection and Explanation](/docs/anomaly-detection/): the program's method for finding and explaining unusual values, for the data checks recorded per file.
 
 ## Common mistakes
 

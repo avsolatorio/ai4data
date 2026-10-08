@@ -29,8 +29,19 @@ chapters to read first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'produce',
+      title: '2. Produce',
+      question: 'How is documentation produced for a survey that has data files but no record?',
+      options: [
+        'By hand, from scratch, when someone asks for the survey.',
+        'A dictionary is drafted from the data file and labelled files are imported into the editor; the backlog is listed.',
+        'Question text and code lists are recovered from questionnaires and codebooks with their source, and the backlog is ordered by use and gaps.',
+        'Draft, import, recovery, and checks run as a pipeline on every new file before a curator sees it.',
+      ],
+    },
+    {
       id: 'variables',
-      title: '2. Variables',
+      title: '3. Variables',
       question: 'How are the variables documented?',
       options: [
         'Variable names only, or labels for some variables.',
@@ -41,7 +52,7 @@ chapters to read first. Answers are stored in this browser only.
     },
     {
       id: 'concepts',
-      title: '3. Concepts',
+      title: '4. Concepts',
       question: 'How are variables linked to concepts and classifications?',
       options: [
         'Not linked; classifications are described in the report, if at all.',
@@ -52,7 +63,7 @@ chapters to read first. Answers are stored in this browser only.
     },
     {
       id: 'navigate',
-      title: '4. Navigate',
+      title: '5. Navigate',
       question: 'How does a user find a variable among hundreds?',
       options: [
         'By reading the data dictionary from top to bottom.',
@@ -62,8 +73,19 @@ chapters to read first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'rounds',
+      title: '6. Rounds',
+      question: 'How are differences between survey rounds documented?',
+      options: [
+        'They are not; users compare variables by name.',
+        'A crosswalk between the latest two rounds is published with the record.',
+        'Every pair of rounds has a crosswalk; recoded variables have correspondence tables; breaks are stated in the record.',
+        'Harmonized variables with reusable definitions span the rounds, and a concept search returns each round with its comparability.',
+      ],
+    },
+    {
       id: 'fitness',
-      title: '5. Fitness',
+      title: '7. Fitness',
       question: 'How can a user judge whether the data fit a purpose?',
       options: [
         'From the report, if it describes the design.',
@@ -74,7 +96,7 @@ chapters to read first. Answers are stored in this browser only.
     },
     {
       id: 'access',
-      title: '6. Access',
+      title: '8. Access',
       question: 'How are the access conditions stated and applied?',
       options: [
         'Access is by request, with conditions decided case by case.',
@@ -88,11 +110,12 @@ chapters to read first. Answers are stored in this browser only.
 
 ## Interpretation of the result
 
-- A **Not yet** or **Foundational** result in chapters 1 and 2 comes first:
+- A **Not yet** or **Foundational** result in chapters 1 to 3 comes first:
   study-level and variable-level documentation are what every later chapter
-  reads.
-- Chapter 6 can start at any time; the access policy is a one-day task that
+  reads, and chapter 2 is where that documentation comes from when the
+  files exist and the records do not.
+- Chapter 8 can start at any time; the access policy is a one-day task that
   makes the rest safe to publish.
-- Chapters 3 and 4 give the largest gains for users once chapter 2 is at
-  AI-ready, because concept links and thematic groups turn a long dictionary
-  into something searchable.
+- Chapters 4 to 6 give the largest gains for users once chapter 3 is at
+  AI-ready, because concept links, thematic groups, and crosswalks turn a
+  long dictionary into something searchable and comparable.

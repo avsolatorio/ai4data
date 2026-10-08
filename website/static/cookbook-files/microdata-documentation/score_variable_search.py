@@ -46,7 +46,11 @@ def search(question: str, dictionary: list[dict[str, str]], k: int = K) -> list[
     query = tokens(question)
     scored = []
     for var in dictionary:
-        text = tokens(" ".join(var.get(f, "") for f in TEXT_FIELDS) + " " + var["name"].replace("_", " "))
+        text = tokens(
+            " ".join(var.get(f, "") for f in TEXT_FIELDS)
+            + " "
+            + var["name"].replace("_", " ")
+        )
         overlap = len(query & text)
         if overlap:
             scored.append((overlap, var["name"]))
@@ -75,18 +79,26 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{'id':<4} {'lang':<5} {'rank':>4}  question")
     for q in questions:
         ranked = search(q["question"], dictionary)
-        rank = ranked.index(q["expected_name"]) + 1 if q["expected_name"] in ranked else None
+        rank = (
+            ranked.index(q["expected_name"]) + 1
+            if q["expected_name"] in ranked
+            else None
+        )
         for group in ("all", q["language"]):
             n[group] += 1
             if rank is not None:
                 hits[group] += 1
                 rr[group] += 1 / rank
-        print(f"{q['question_id']:<4} {q['language']:<5} {rank or '-':>4}  {q['question']}")
+        print(
+            f"{q['question_id']:<4} {q['language']:<5} {rank or '-':>4}  {q['question']}"
+        )
 
     print()
     print(f"{'group':<6} {'n':>3} {'R@5':>6} {'MRR':>6}")
     for group in sorted(n, key=lambda g: (g != "all", g)):
-        print(f"{group:<6} {n[group]:>3} {hits[group] / n[group]:>6.2f} {rr[group] / n[group]:>6.2f}")
+        print(
+            f"{group:<6} {n[group]:>3} {hits[group] / n[group]:>6.2f} {rr[group] / n[group]:>6.2f}"
+        )
     return 0
 
 

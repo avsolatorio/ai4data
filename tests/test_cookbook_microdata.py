@@ -118,3 +118,37 @@ def test_variable_search_ranks_by_label_question_and_concept(score):
     assert score.search("highest education level", dictionary)[0] == "educ"
     assert score.search("survey weight", dictionary)[0] == "weight"
     assert score.search("quarterly inflation", dictionary) == []
+
+
+@pytest.fixture(scope="module")
+def profile():
+    return load_script(SCRIPTS, "profile_datafile")
+
+
+@pytest.fixture(scope="module")
+def rounds():
+    return load_script(SCRIPTS, "compare_rounds")
+
+
+def test_profile_drafts_a_dictionary_with_fields_to_fill(profile, tmp_path, capsys):
+    draft = tmp_path / "draft.csv"
+    assert profile.main([str(SCRIPTS / "lfs_2025q2_sample.csv"), str(draft)]) == 0
+    out = capsys.readouterr().out
+    assert "41 records, 18 columns: 13 categorical, 5 numeric, 0 string" in out
+    assert "candidate missing codes found in 4 columns: educ, occupation, industry, jobsearch" in out
+    rows = {r["name"]: r for r in __import__("csv").DictReader(draft.open(encoding="utf-8"))}
+    assert rows["age"]["type"] == "numeric" and rows["educ"]["missing"] == "-9"
+    assert rows["lfs_status"]["values"] == "1=;2=;3=" and rows["lfs_status"]["label"] == ""
+
+
+def test_compare_rounds_classifies_every_variable(rounds, tmp_path, capsys):
+    crosswalk = tmp_path / "crosswalk.csv"
+    assert rounds.main([str(SCRIPTS / "lfs_2024q4_dictionary.csv"), str(SCRIPTS / "lfs_2025q2_dictionary.csv"), str(crosswalk)]) == 0
+    out = capsys.readouterr().out
+    assert "lists 'hours' 2 times" in out
+    assert "same      12" in out and "recoded    2  relationship, educ" in out
+    assert "renamed    1  looked_work" in out and "dropped    1  secondjob" in out and "new        2  informal, q17b" in out
+    rows = list(__import__("csv").DictReader(crosswalk.open(encoding="utf-8")))
+    renamed = next(r for r in rows if r["status"] == "renamed")
+    assert renamed["new_name"] == "jobsearch" and renamed["note"] == "matched on label"
+    assert next(r for r in rows if r["old_name"] == "relationship")["note"].startswith("codes missing in lfs_2025q2")

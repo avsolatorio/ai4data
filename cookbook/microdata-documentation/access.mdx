@@ -1,15 +1,15 @@
 ---
 id: access
-title: "6. Access under the right conditions"
-sidebar_label: "6. Access"
-sidebar_position: 7
+title: "8. Access under the right conditions"
+sidebar_label: "8. Access"
+sidebar_position: 9
 description: Access tiers, disclosure control, licences, citation requirements, and the rules for automated and AI clients, stated in the record and applied by the catalog.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Access under the right conditions
+# 8. Access under the right conditions
 
 **Question:** Can AI access the data under the stated conditions?
 
@@ -51,7 +51,7 @@ survey, with finer geography, would serve metadata only.
 
 ## Recipes
 
-<Recipe title="6.1 Adopt an access policy with tiers" level="Foundational" skills="Management; legal; disclosure control specialist" time="One day to draft; approval time varies">
+<Recipe title="8.1 Adopt an access policy with tiers" level="Foundational" skills="Management; legal; disclosure control specialist" time="One day to draft; approval time varies">
 
 **Result:** a short, approved statement of who may access which files under
 which conditions, and what is done to a file before it enters a tier.
@@ -77,7 +77,40 @@ the specialist's tools, before release, and the assessment is kept.
 
 </Recipe>
 
-<Recipe title="6.2 State the conditions in every record" level="AI-ready" skills="Data curator" time="One hour per survey">
+<Recipe title="8.2 Apply disclosure control and document it in the record" level="Foundational" skills="Disclosure control specialist; data curator" time="One to three days per file">
+
+**Result:** a public use file whose disclosure risk was measured and
+reduced by recorded steps, and a record that states what was changed so
+that users compute correct statistics.
+
+1. Measure the risk on the candidate file: identify the key variables
+   (geography, age, sex, occupation, education, household size), compute
+   the share of sample-unique and population-unique combinations, and set
+   the threshold the policy requires. The
+   [sdcMicro practice guide](https://sdcpractice.readthedocs.io/) walks
+   through this in a twelve-step workflow with code.
+2. Reduce the risk with the least information loss: remove direct
+   identifiers; recode geography and age into broader classes; top-code
+   income and hours; suppress the rare combinations that remain. Measure
+   the information loss on the statistics users need most (the
+   published tables) and stop when the policy's threshold is met.
+3. Record every step in the study record: the variables removed, the
+   recodings, the top-codes, and the suppression rate, in the
+   `data_processing` and `data_appraisal` fields, and a line on the study
+   page. A user who does not know that age is top-coded at 80 computes a
+   wrong mean.
+4. Keep the sdcMicro script or the sdcApp report with the internal
+   documentation, so that the next round applies the same rules.
+
+**What this does not do.** Disclosure control makes a file safe enough
+under a stated threshold; it does not make it anonymous in an absolute
+sense, and the use conditions of the tier (no re-identification attempts,
+no linking) remain part of the protection. Linked or longitudinal files
+need a risk assessment of the linkage.
+
+</Recipe>
+
+<Recipe title="8.3 State the conditions in every record" level="AI-ready" skills="Data curator" time="One hour per survey">
 
 **Result:** a person or a system reading the record knows the tier, the
 licence, the citation requirement, and the restrictions without reading
@@ -103,7 +136,7 @@ and secure tiers, the agreement and the secure environment.
 
 </Recipe>
 
-<Recipe title="6.3 Define what automated and AI clients may access" level="AI-native" skills="Catalog administrator; developer" time="One day">
+<Recipe title="8.4 Define what automated and AI clients may access" level="AI-native" skills="Catalog administrator; developer" time="One day">
 
 **Result:** every automated path (API, bulk download, agent interface)
 serves public use data and all metadata, and nothing else, with the
@@ -144,6 +177,15 @@ licence, and the citation requirement is what lets use be traced
 - The [Microdata Library](https://microdata.worldbank.org/) applies access types per study, with public use files downloadable after agreeing to terms and licensed files by application.
 - NADA manages registered and licensed access requests and exposes records through its API and MCP interface.
 - The dissemination cookbook's [governance chapter](/cookbook/ai-ready-dissemination/govern) covers the AI-use policy and the component register that the automated paths belong in.
+
+## Resources
+
+- [IHSN anonymization resources](https://ihsn.org/anonymization): the theory guide, the practice guide, and sdcApp, for statistical disclosure control of microdata.
+- [sdcMicro practice guide](https://sdcpractice.readthedocs.io/): the twelve-step workflow with code, risk measures, methods, and information-loss measures; the [sdcMicro package](https://cran.r-project.org/package=sdcMicro) on CRAN.
+- [Creative Commons BY 4.0](https://creativecommons.org/licenses/by/4.0/): the licence for open data; public use microdata add use conditions on top.
+- [NADA](https://nada.ihsn.org/): access types (public use, licensed, data enclave, external) and the request workflow.
+- [Access policy template](pathname:///cookbook-files/microdata-documentation/access_policy_template.md): the tiers, conditions, and rules for automated clients used in recipe 6.1.
+- [Governance chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/govern): the AI-use policy and component register the automated paths belong in.
 
 ## Common mistakes
 

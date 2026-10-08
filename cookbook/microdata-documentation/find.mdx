@@ -25,7 +25,7 @@ persistent identifier.
 
 Microdata have a second findability problem that indicators do not: users
 look for a variable ("age of household head") as often as for a survey.
-That part is handled in [chapter 4](./navigate.mdx); this chapter makes the
+That part is handled in [chapter 5](./navigate.mdx); this chapter makes the
 survey itself findable.
 
 ## Target state
@@ -41,7 +41,7 @@ survey itself findable.
 |---|---|
 | **Foundational** | Write a study record with title, abstract, collection dates, country, universe, analysis unit, sampling, and citation requirement. Publish it on a page with a permanent URL. |
 | **AI-ready** | Store the record in the World Bank microdata schema, through the Metadata Editor or as JSON. Publish it in NADA or an equivalent catalog that emits schema.org markup. Register a DOI. Check the record against the completeness profile. |
-| **AI-native** | Keep the record current through versions, expose the variables to variable-level search ([chapter 4](./navigate.mdx)), and let the catalog's API and agent interface serve the record to software. |
+| **AI-native** | Keep the record current through versions, expose the variables to variable-level search ([chapter 5](./navigate.mdx)), and let the catalog's API and agent interface serve the record to software. |
 
 :::info[Running example]
 The study record for `EX-LFS-2025-Q2` already passes the schema and the
@@ -80,7 +80,7 @@ python check_metadata.py example_microdata.json profile_microdata.json
    Output for the running example: valid against `microdata-schema.json`,
    complete at the foundational level, no validity issues. At the AI-ready
    level the same record reports `data_files` and `variables` missing; those
-   come from [chapter 2](./variables.mdx).
+   come from [chapter 3](./variables.mdx).
 
 4. Keep the record in version control next to the data documentation, and
    re-run the check whenever it changes.
@@ -115,8 +115,8 @@ and citable by a persistent identifier.
 
 **What this does not do.** Catalog publication makes the survey findable by
 title and abstract. Users who search for a variable will still not find it
-until the variables are documented ([chapter 2](./variables.mdx)) and
-searchable ([chapter 4](./navigate.mdx)).
+until the variables are documented ([chapter 3](./variables.mdx)) and
+searchable ([chapter 5](./navigate.mdx)).
 
 </Recipe>
 
@@ -132,6 +132,15 @@ searchable ([chapter 4](./navigate.mdx)).
 - The [Microdata Library](https://microdata.worldbank.org/) publishes thousands of studies in NADA with DDI records and DataCite DOIs.
 - The [metadata schemas](https://github.com/worldbank/metadata-schemas) repository holds the microdata schema and a Python library for building records.
 - The [Metadata Editor](https://github.com/worldbank/metadata-editor) documents microdata with templates and validation and publishes to NADA.
+
+## Resources
+
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): documenting a study from the microdata template and publishing it to NADA.
+- [NADA](https://nada.ihsn.org/): the open-source catalog that stores DDI records, exposes schema.org and an API, and manages access types.
+- [IHSN survey catalog](https://catalog.ihsn.org/): the central catalog of national surveys, which harvests national catalogs; a target for exchange.
+- [DDI Codebook 2.5](https://ddialliance.org/Specification/DDI-Codebook/2.5/): the study-level elements the schema maps to.
+- [schema.org Dataset](https://schema.org/Dataset) and [Google's dataset structured-data guide](https://developers.google.com/search/docs/appearance/structured-data/dataset): what a crawler reads from the study page.
+- [DataCite](https://datacite.org/): DOI registration for datasets; the Microdata Library's DOIs are DataCite DOIs.
 
 ## Common mistakes
 

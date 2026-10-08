@@ -73,13 +73,23 @@ def main(argv: list[str] | None = None) -> int:
             errors.append(f"{ref}: label repeats the name ({label!r})")
         if vtype == "categorical" and not (r.get("values") or "").strip():
             errors.append(f"{ref}: categorical variable without value labels")
-        if vtype == "numeric" and not (r.get("missing") or "").strip() and not is_identifier(name):
-            warnings.append(f"{ref}: numeric variable without a missing-value statement")
+        if (
+            vtype == "numeric"
+            and not (r.get("missing") or "").strip()
+            and not is_identifier(name)
+        ):
+            warnings.append(
+                f"{ref}: numeric variable without a missing-value statement"
+            )
         if not (r.get("universe") or "").strip():
             warnings.append(f"{ref}: no universe")
         if not (r.get("question") or "").strip() and not is_identifier(name):
             warnings.append(f"{ref}: no question or derivation text")
-        if vtype == "categorical" and not (r.get("concept") or "").strip() and not is_identifier(name):
+        if (
+            vtype == "categorical"
+            and not (r.get("concept") or "").strip()
+            and not is_identifier(name)
+        ):
             warnings.append(f"{ref}: no concept or classification named")
 
     print(f"{len(rows)} variables in {len({r['file_id'] for r in rows})} file(s)")

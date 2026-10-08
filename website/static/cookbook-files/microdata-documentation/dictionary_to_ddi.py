@@ -50,14 +50,18 @@ def convert(rows: list[dict[str, str]]) -> tuple[list[dict], list[dict]]:
     variables: list[dict] = []
     for i, r in enumerate(rows, 1):
         file_id = r["file_id"].strip()
-        files.setdefault(file_id, {"file_id": file_id, "file_name": f"{file_id}.csv", "var_count": 0})
+        files.setdefault(
+            file_id, {"file_id": file_id, "file_name": f"{file_id}.csv", "var_count": 0}
+        )
         files[file_id]["var_count"] += 1
         var: dict = {
             "vid": f"V{i}",
             "file_id": file_id,
             "name": r["name"].strip(),
             "labl": (r.get("label") or "").strip(),
-            "var_format": {"type": FORMAT.get((r.get("type") or "").strip().lower(), "character")},
+            "var_format": {
+                "type": FORMAT.get((r.get("type") or "").strip().lower(), "character")
+            },
         }
         if (r.get("universe") or "").strip():
             var["var_universe"] = r["universe"].strip()
@@ -82,8 +86,12 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("dictionary", type=Path)
-    parser.add_argument("--study", type=Path, help="study record (JSON) to merge the sections into")
-    parser.add_argument("-o", "--output", type=Path, help="where to write the result (default: stdout)")
+    parser.add_argument(
+        "--study", type=Path, help="study record (JSON) to merge the sections into"
+    )
+    parser.add_argument(
+        "-o", "--output", type=Path, help="where to write the result (default: stdout)"
+    )
     args = parser.parse_args(argv)
 
     with args.dictionary.open(newline="", encoding="utf-8") as fh:
@@ -101,7 +109,9 @@ def main(argv: list[str] | None = None) -> int:
     text = json.dumps(record, indent=2, ensure_ascii=False)
     if args.output:
         args.output.write_text(text + "\n", encoding="utf-8")
-        print(f"wrote {args.output}: {len(files)} file(s), {len(variables)} variable(s)")
+        print(
+            f"wrote {args.output}: {len(files)} file(s), {len(variables)} variable(s)"
+        )
     else:
         print(text)
     return 0

@@ -1,15 +1,15 @@
 ---
 id: navigate
-title: "4. Navigation of large dictionaries"
-sidebar_label: "4. Navigate"
-sidebar_position: 5
+title: "5. Navigation of large dictionaries"
+sidebar_label: "5. Navigate"
+sidebar_position: 6
 description: Thematic variable groups, variable-level search across surveys, and a question set that measures whether users find the right variable.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Navigation of large dictionaries
+# 5. Navigation of large dictionaries
 
 **Question:** Can AI find the right variable among hundreds?
 
@@ -50,7 +50,7 @@ label says "Age in completed years".
 
 ## Recipes
 
-<Recipe title="4.1 Group variables into themes" level="AI-ready" skills="Data curator; Python for the automated version" time="Half a day per survey by hand; minutes with the pipeline, plus review">
+<Recipe title="5.1 Group variables into themes" level="AI-ready" skills="Data curator; Python for the automated version" time="Half a day per survey by hand; minutes with the pipeline, plus review">
 
 **Result:** DDI variable groups (`variable_groups`) that organize the
 dictionary by topic, so that a user browses "Employment" or "Education"
@@ -82,13 +82,13 @@ result = augmentor.augment("lfs_2025q2_dictionary.csv")
 
 **What this does not do.** The groups organize variables; they do not
 define concepts. A group named "Education" is a navigation aid, and the
-concept links of [chapter 3](./concepts.mdx) are what make `educ`
+concept links of [chapter 4](./concepts.mdx) are what make `educ`
 comparable across surveys. The automated pipeline needs a language model,
 which can be a local open-weight one; see [Efficient and Inclusive AI](/docs/inclusive-ai/).
 
 </Recipe>
 
-<Recipe title="4.2 Measure variable search with a known-variable question set" level="AI-ready" skills="Data curator; speakers of each supported language; Python" time="One day for the first 30 questions">
+<Recipe title="5.2 Measure variable search with a known-variable question set" level="AI-ready" skills="Data curator; speakers of each supported language; Python" time="One day for the first 30 questions">
 
 **Result:** Recall@5 and MRR for variable search, per language, for any
 search that returns a ranked list of variable names.
@@ -132,7 +132,7 @@ without a native speaker and are marked as such in the file.
 
 </Recipe>
 
-<Recipe title="4.3 Add semantic variable search across surveys" level="AI-native" skills="Developer with Python" time="One to two weeks including evaluation">
+<Recipe title="5.3 Add semantic variable search across surveys" level="AI-native" skills="Developer with Python" time="One to two weeks including evaluation">
 
 **Result:** a search that returns `lfs_status` for "employed or
 unemployed" and `age` for "age of household member", across every survey in
@@ -154,7 +154,7 @@ the catalog, scored against the keyword baseline.
 
 **What this does not do.** Semantic search finds variables whose
 documentation describes them. It cannot find a variable labelled with its
-name only, which is why [chapter 2](./variables.mdx) comes first.
+name only, which is why [chapter 3](./variables.mdx) comes first.
 
 </Recipe>
 
@@ -170,6 +170,14 @@ name only, which is why [chapter 2](./variables.mdx) comes first.
 - [Metadata Augmentation](/docs/metadata-augmentation/) generates DDI-style variable groups with semantic clustering and language-model curation, with adapters for CSV, JSON, and NADA catalogs.
 - [Data Discoverability](/docs/data-discoverability/) and the [PI-FT toolkit](/pift-toolkit/pipeline) cover search by meaning over structured records and its evaluation.
 - The [Microdata Library](https://microdata.worldbank.org/) exposes variable-level search across its studies.
+
+## Resources
+
+- [Metadata Augmentation](/docs/metadata-augmentation/): thematic variable grouping with semantic clustering and model curation, with adapters for CSV, JSON, and NADA.
+- [Sentence Transformers](https://www.sbert.net/): multilingual embedding models for variable-level semantic search, and the training utilities to fine-tune one.
+- [rank_bm25](https://github.com/dorianbrown/rank_bm25): a small keyword retriever for the foundational level and the hybrid baseline.
+- [Data Discoverability](/docs/data-discoverability/) and the [PI-FT toolkit](/pift-toolkit/pipeline): the program's approach to search by meaning and its evaluation.
+- [Evaluation chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/evaluate): the measures and the question-set discipline used in recipe 5.2.
 
 ## Common mistakes
 

@@ -15,8 +15,8 @@ export const cookbooks = [
     audience: 'Data curators in national statistical organizations',
     title: 'Practical Guide to AI-Ready Microdata Documentation',
     description:
-      'Six questions a curator can ask about a survey\'s documentation, each answered with recipes, maturity levels, tests, and a checklist. Builds on DDI Codebook and the World Bank microdata schema.',
-    chapters: 6,
+      'Eight questions a curator can ask about a survey\'s documentation, from producing it out of existing files to comparability across rounds and access conditions, each answered with recipes, maturity levels, tests, and a checklist. Builds on DDI Codebook and the World Bank microdata schema.',
+    chapters: 8,
     to: '/cookbook/microdata-documentation/',
   },
   {

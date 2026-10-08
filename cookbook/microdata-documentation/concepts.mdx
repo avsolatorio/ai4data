@@ -1,15 +1,15 @@
 ---
 id: concepts
-title: "3. Questions, concepts, and classifications"
-sidebar_label: "3. Concepts"
-sidebar_position: 4
+title: "4. Questions, concepts, and classifications"
+sidebar_label: "4. Concepts"
+sidebar_position: 5
 description: Question text attached to variables, concept maps to international classifications with versions, and harmonized names for reuse across surveys.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 3. Questions, concepts, and classifications
+# 4. Questions, concepts, and classifications
 
 **Question:** Can AI relate questions to concepts and standards?
 
@@ -50,7 +50,7 @@ its version, level, and URI, and gives each a harmonized name.
 
 ## Recipes
 
-<Recipe title="3.1 Attach the question text to every collected variable" level="Foundational" skills="Data curator with the questionnaire" time="Two to four hours per survey">
+<Recipe title="4.1 Attach the question text to every collected variable" level="Foundational" skills="Data curator with the questionnaire" time="Two to four hours per survey">
 
 **Result:** each variable record states the question as asked, so that a
 label can be checked against it and a user can see the wording.
@@ -74,7 +74,7 @@ starts there.
 
 </Recipe>
 
-<Recipe title="3.2 Map variables to concepts and classifications" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="One day per survey the first time">
+<Recipe title="4.2 Map variables to concepts and classifications" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="One day per survey the first time">
 
 **Result:** a concept map, one row per variable, that names the concept,
 the classification, its version, a URI, and a harmonized name, stored in
@@ -103,7 +103,7 @@ against the classification's definitions, or AI-assisted coding review
 
 </Recipe>
 
-<Recipe title="3.3 Reuse questions and concepts across surveys" level="AI-native" skills="Methodologist; data curator" time="Ongoing; one week to set up">
+<Recipe title="4.3 Reuse questions and concepts across surveys" level="AI-native" skills="Methodologist; data curator" time="Ongoing; one week to set up">
 
 **Result:** the organization's recurring concepts have one definition, one
 harmonized name, and one question wording, so that a system can find every
@@ -123,7 +123,7 @@ survey that measures a concept and compare them.
 
 **What this does not do.** Harmonized names and shared definitions do not
 make data from two surveys comparable when the samples, modes, or reference
-periods differ; the quality statements in [chapter 5](./fitness.mdx) carry
+periods differ; the quality statements in [chapter 7](./fitness.mdx) carry
 that information.
 
 </Recipe>
@@ -141,6 +141,14 @@ that information.
 - The program's Global Question Bank and ontologies and knowledge graphs workstreams develop reusable questions and concept links ([program overview](/)).
 - The [AI-ready data framework](/docs/ai-ready-framework) names semantic knowledge, including concepts and classifications, among the attributes of AI-ready data.
 
+## Resources
+
+- [UN classifications registry](https://unstats.un.org/unsd/classifications/): ISIC, COICOP, and the correspondence tables between versions.
+- [ISCED 2011](https://uis.unesco.org/en/topic/international-standard-classification-education-isced) and [ISCO-08](https://www.ilo.org/public/english/bureau/stat/isco/): the education and occupation classifications with their code lists.
+- [19th ICLS resolution on work statistics](https://www.ilo.org/resource/19th-icls-resolution-i): the definitions behind labour force status.
+- [SKOS](https://www.w3.org/TR/skos-reference/) and [XKOS](https://ddialliance.org/xkos): concept schemes and statistical classifications in machine-readable form.
+- [DDI Lifecycle 3.3](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/): reusable questions and concepts across studies.
+
 ## Common mistakes
 
 - **A classification without a version.** ISCED 1997 and ISCED 2011 differ; a system that does not know which was used will combine them.
@@ -153,7 +161,7 @@ that information.
 - **Question text:** every collected variable has it; a sample compared with the questionnaire matches word for word.
 - **Concept map:** every classified variable has a classification, a version, and a resolving URI.
 - **Code consistency:** the value codes of each classified variable are valid codes of the named classification at the stated level.
-- **Cross-survey search:** a query for a concept returns every survey that measures it ([chapter 4](./navigate.mdx)).
+- **Cross-survey search:** a query for a concept returns every survey that measures it ([chapter 5](./navigate.mdx)).
 
 ## Checklist
 

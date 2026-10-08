@@ -29,7 +29,7 @@ integration and can be run locally.
 | Subject | One problem domain, for example AI-ready data dissemination, microdata documentation, or extraction of data from documents. |
 | Audience | One primary audience, named on the overview page and on the landing card, for example national statistical organizations or data curators. |
 | Organizing principle | The questions the audience asks about its own situation. Each chapter answers one question. |
-| Length | Six to ten chapters. A domain that needs more is two cookbooks. |
+| Length | One chapter per question the audience asks; the count follows from the questions. Most domains need six to ten. A domain that needs more is two cookbooks; a question that needs fewer than two recipes is part of another chapter. |
 | Relation to documentation | A cookbook states what to do and why, and links to the documentation for how each method or tool works. It does not duplicate the documentation. |
 | Register | A guidance document: formal, specific, and descriptive. See [Writing rules](#writing-rules). |
 
@@ -63,6 +63,7 @@ checker verifies the headings.
 | Recipes | Two to four recipes (see below). |
 | Implementation options | Open standards and patterns, with alternatives. |
 | World Bank examples | Program workstreams, tools, and reference implementations that apply, with links. Optional where none exist. |
+| Resources | External tools, guides, standards documents, and example implementations needed to carry out the recipes, one line each with a link. Every item says what it is used for in the chapter. |
 | Common mistakes | Three to five short items. |
 | Verification | How to test that the chapter's steps worked. |
 | Checklist | A `<Checklist id="..." items={[...]} />` component. |
