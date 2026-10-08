@@ -969,7 +969,7 @@ Commit: 8b360af (round D chain); this commit (app). Run `runs/v2d-nosim-dpo`: on
 
 **Implication.** `runs/v2d-nosim-dpo` replaces the no-score model in the app. The concept-vocabulary failures persist for specific concepts (population and inhabitants, income and GDP per capita), which supports the concept-inventory approach; threshold, negation and look-alike remain the targets for deterministic checks.
 
-## 2026-10-08 04:15 UTC — Round E: deterministic constraints, concept rules and concept inventory; challenge suite 64% to 71%
+## 2026-10-08 04:18 UTC — Round E: deterministic constraints, concept rules and concept inventory; challenge suite 64% to 71%
 
 Commits: 14df8ad and 4c3031b (render version 3: `synth/constraints.py`, `Understander.parse(level=3)`, checks; concept rules in NARRATE_V2), a58128f (round E driver), eea1da7 (keep-alive in tmux). Runs `runs/v2e-nosim`, `runs/v2e-nosim-dpo`.
 
