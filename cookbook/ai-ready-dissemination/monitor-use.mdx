@@ -1,6 +1,6 @@
 ---
 id: monitor-use
-title: "7. Monitor how your data are used"
+title: "7. Monitoring of data use"
 sidebar_label: "7. Monitor use"
 sidebar_position: 8
 description: Dataset mention detection, citation tracking, and AI visibility checks for official statistics.
@@ -9,21 +9,21 @@ description: Dataset mention detection, citation tracking, and AI visibility che
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 7. Monitor how your data are used
+# 7. Monitoring of data use
 
 **Question:** Can we see how our data are used, including by AI systems?
 
-## Why this matters
+## Rationale
 
 Download counts show only part of data use. Statistics are cited in
 research papers, policy documents, news stories, and, increasingly, in the
-answers of AI systems. Knowing where and how they appear helps an office
+answers of AI systems. Knowing where and how they appear helps an organization
 prioritize datasets, find misuse, and show the value of its work.
 
-## What good looks like
+## Target state
 
 - Datasets have consistent names and identifiers, which makes mentions easier to match.
-- The office tracks mentions in publications and reports as well as downloads.
+- The organization tracks mentions in publications and reports as well as downloads.
 - It checks how AI systems describe its statistics, and corrects the source material when answers are wrong.
 
 ## Maturity levels
@@ -32,13 +32,13 @@ prioritize datasets, find misuse, and show the value of its work.
 |---|---|
 | **Foundational** | Publish a recommended citation and a persistent identifier (a DataCite DOI where possible) for each dataset. Keep web and API logs, and count views and downloads following the COUNTER Code of Practice for Research Data, which separates machine access from regular access. |
 | **AI-ready** | Search publication sources for dataset names and identifiers on a schedule. Keep a table of dataset name variants and acronyms. Review a sample of results by hand. |
-| **AI-native** | Extract dataset mentions from documents with a named-entity model, harmonize variants to canonical identifiers, and report use by dataset, topic, and geography. Periodically ask AI systems a fixed set of questions and record how they cite or misquote the office. |
+| **AI-native** | Extract dataset mentions from documents with a named-entity model, harmonize variants to canonical identifiers, and report use by dataset, topic, and geography. Periodically ask AI systems a fixed set of questions and record how they cite or misquote the organization. |
 
 :::info[Running example]
-The office's labour force survey is cited as "LFS", "the labour survey",
+The organization's labour force survey is cited as "LFS", "the labour survey",
 and "Labour Force Survey 2025" in reports. The name table in recipe 7.1 maps
 all three to one identifier, and the monthly AI check in recipe 7.3 records
-whether assistants cite the office when asked for the unemployment rate.
+whether assistants cite the organization when asked for the unemployment rate.
 :::
 
 ## Recipes
@@ -58,7 +58,7 @@ HBS,Household Budget Survey,HBS,household survey;budget survey;HBS 2021
 2. Add variants as they are found in documents (recipe 7.2 produces them).
 3. Publish the table with the recommended citation and the DOI from
    [chapter 5](./trust.mdx), and use the canonical name everywhere the
-   office writes. A DOI makes citations countable: DataCite collects
+   organization writes. A DOI makes citations countable: DataCite collects
    citations of DOIs from the literature, which gives a second source of
    use next to text mining.
 
@@ -84,10 +84,10 @@ document, with a measured accuracy.
 
 <Recipe title="7.3 Run a monthly AI visibility check" level="AI-native" skills="Dissemination staff" time="Two hours a month">
 
-**Result:** a record, over time, of whether AI assistants cite the office,
+**Result:** a record, over time, of whether AI assistants cite the organization,
 quote the right numbers, and link to the right page.
 
-1. Fix ten questions that users ask about the office's main indicators, in
+1. Fix ten questions that users ask about the organization's main indicators, in
    the national language and in English.
 2. Each month, ask the same questions to two or three widely used assistants
    and record:
@@ -98,9 +98,9 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 2026-10-01,assistant B,q04,no,no,,quoted a 2023 figure from a third-party site
 ```
 
-3. When a number is wrong, check first whether the office's own page and API
+3. When a number is wrong, check first whether the organization's own page and API
    show the current value clearly ([chapters 1](./find.mdx), [2](./retrieve.mdx),
-   and [5](./trust.mdx)). Most fixes are on the office's side.
+   and [5](./trust.mdx)). Most fixes are on the organization's side.
 4. Treat the results as a sample that changes month to month. Report trends
    over several months, and avoid conclusions from one run.
 
@@ -109,7 +109,7 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 ## Implementation options
 
 - **Citation design:** one canonical dataset name, a short acronym, and a persistent identifier (DataCite DOI) reduce ambiguity and make citations countable.
-- **Usage counts:** the [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/), developed with [Make Data Count](https://makedatacount.org/), gives rules for logging views and downloads, filtering repeated requests, and reporting machine access separately from regular access. Following it makes an office's counts comparable with those of data repositories.
+- **Usage counts:** the [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/), developed with [Make Data Count](https://makedatacount.org/), gives rules for logging views and downloads, filtering repeated requests, and reporting machine access separately from regular access. Following it makes an organization's counts comparable with those of data repositories.
 - **Log analysis:** user-agent strings and request patterns identify many crawlers and automated clients. Record them in a separate category and report human and automated use separately.
 - **Mention extraction:** zero-shot named-entity models can find dataset mentions in PDF and web text. A matching step maps variants such as an acronym and a full title to one identifier.
 - **AI visibility check:** a fixed set of questions run against several assistants, repeated on a schedule.
@@ -125,7 +125,7 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 - **Reading one AI check as a trend.** Assistant answers vary between runs. Several months of the same questions make a trend.
 - **Blaming the assistant.** When an assistant quotes an old figure, the current one was often hard to find or retrieve. Fix the source first.
 
-## How to test it
+## Verification
 
 - **Extraction accuracy:** label a sample of documents by hand and measure precision and recall of the extraction.
 - **Harmonization accuracy:** check a sample of matched variants against the canonical identifier.

@@ -35,7 +35,7 @@ function HomepageHeader() {
               Office of the WBG Chief Statistician &amp; Development Data Group
             </Link>
             <Heading as="h1" className={styles.heroTitle}>
-              Making development data <strong>AI-ready.</strong>
+              <strong>AI-ready</strong> development data
             </Heading>
             <p className={styles.heroSubtitle}>
               {siteConfig.tagline}
@@ -45,13 +45,13 @@ function HomepageHeader() {
                 className={clsx("button button--lg", styles.primaryButton)}
                 to="/docs/introduction"
               >
-                Read the Documentation
+                Documentation
               </Link>
               <Link
                 className={clsx("button button--lg", styles.secondaryButton)}
                 to="https://github.com/worldbank/ai4data"
               >
-                View on GitHub
+                GitHub repository
               </Link>
             </div>
           </div>
@@ -82,7 +82,7 @@ function ClosingCta() {
             className={clsx("button button--md", styles.closingButtonPrimary)}
             to="https://github.com/worldbank/ai4data"
           >
-            Explore the Repository
+            Repository
           </Link>
         </div>
       </div>

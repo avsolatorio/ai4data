@@ -23,7 +23,7 @@ const Stops = [
     ),
     link: {
       to: 'https://arxiv.org/abs/2606.06242',
-      label: 'Read the benchmark paper',
+      label: 'Benchmark paper',
     },
     Evidence: SnapshotEvidence,
   },
@@ -41,7 +41,7 @@ const Stops = [
     ),
     link: {
       to: '/docs/metadata-reviewer/overview',
-      label: 'See the full pipeline reference',
+      label: 'Pipeline reference',
     },
     Evidence: MetadataEvidence,
   },
@@ -59,7 +59,7 @@ const Stops = [
     ),
     link: {
       to: '/docs/anomaly/explanation/elicitation-pipeline#example-llm-inputoutput',
-      label: 'See the full input/output schema',
+      label: 'Input and output schema',
     },
     Evidence: AnomalyEvidence,
   },
@@ -75,7 +75,7 @@ const Stops = [
         Context Protocol (MCP) tool call.
       </p>
     ),
-    link: {to: '/docs/mcp/', label: 'See the MCP integration guide'},
+    link: {to: '/docs/mcp/', label: 'MCP integration guide'},
     Evidence: SearchEvidence,
   },
   {
@@ -94,7 +94,7 @@ const Stops = [
     ),
     link: {
       to: 'https://arxiv.org/abs/2509.06902',
-      label: 'Read the PCN paper',
+      label: 'Proof-Carrying Numbers paper',
     },
     Evidence: PcnEvidence,
   },
@@ -150,13 +150,13 @@ export default function ScrollDemo() {
         <div className={styles.head}>
           <span className="eyebrow">Examples</span>
           <Heading as="h2" className={styles.title}>
-            See the tools at work
+            Example outputs
           </Heading>
           <p className={styles.lede}>
-            Five short examples show what the program&apos;s tools do and how
-            they could fit your work. Scroll to step through them, and select
-            anything in a panel to try it. Parts that are illustrations are
-            labeled.
+            Five examples show the outputs of the program&apos;s tools on real
+            and illustrative inputs. Scroll to step through them; the
+            interactive elements in each panel can be selected. Parts that are
+            illustrations are labeled.
           </p>
         </div>
 

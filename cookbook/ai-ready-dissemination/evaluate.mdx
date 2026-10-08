@@ -1,6 +1,6 @@
 ---
 id: evaluate
-title: "6. Evaluate whether it works"
+title: "6. Evaluation"
 sidebar_label: "6. Evaluate"
 sidebar_position: 7
 description: Retrieval benchmarks, hallucination tests, answer accuracy, and multilingual evaluation.
@@ -9,18 +9,18 @@ description: Retrieval benchmarks, hallucination tests, answer accuracy, and mul
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Evaluate whether it works
+# 6. Evaluation
 
 **Question:** Can we tell whether our AI-ready steps improved anything?
 
-## Why this matters
+## Rationale
 
 Each step in this guide is meant to improve a measurable outcome: more
 questions find the right series, more answers carry the right number. Without
 a fixed test set, changes to metadata, search, or models cannot be compared,
 and problems appear first in front of users.
 
-## What good looks like
+## Target state
 
 - A small, versioned set of test questions with known correct answers.
 - The same measures are run before and after each change.
@@ -47,7 +47,7 @@ semantic search in chapter 1 has to beat.
 <Recipe title="6.1 Build a known-item question set" level="Foundational" skills="Dissemination staff; speakers of each supported language" time="One day for the first 30 questions">
 
 **Result:** a CSV of questions, each with the series that should come first,
-that the whole office can add to.
+that the whole organization can add to.
 
 ```csv file=../../website/static/cookbook-files/ai-ready-dissemination/eval_questions.csv
 ```
@@ -59,7 +59,7 @@ Guidelines for writing questions:
    rarely use the exact words. Mark which questions are paraphrases and which
    use the official title; the scores for the two groups differ and both
    matter.
-3. Include near concepts where the office publishes something close but
+3. Include near concepts where the organization publishes something close but
    different ("infant mortality" when only under-five mortality exists).
 4. Include questions with no answer and mark the expected id `NONE`.
 5. Include each supported language, written by speakers of that language,
@@ -77,7 +77,7 @@ in seconds, for any search system that returns a ranked list of ids.
 
 The script includes a plain keyword search so that it runs with no
 dependencies and gives a baseline. Replace the `search()` function with a call
-to your own search to score it.
+to the organization's own search to score it.
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/score_retrieval.py
 ```
@@ -106,7 +106,7 @@ demonstration, and the scores move by 0.07 with a single question. A usable
 set has at least 30 to 50 questions per language and is drawn from real
 queries, and differences between systems should be read with that sample
 size in mind. The built-in keyword search is a baseline for the exercise;
-score the office's own search, which will be better than it.
+score the organization's own search, which will be better than it.
 
 </Recipe>
 
@@ -159,7 +159,7 @@ describes graded evaluation with an LLM judge.
 - **Changing the question set and the system at the same time.** The scores cannot be compared. Version the set.
 - **Grading with a model and never checking.** Model graders drift and share blind spots with the system under test. Spot-check every run.
 
-## How to test the suite itself
+## Verification of the suite
 
 Confirm that a deliberately worse configuration, such as search with empty
 descriptions, scores lower. If it does not, the suite is not measuring what

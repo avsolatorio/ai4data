@@ -21,13 +21,13 @@ export default function CookbookCta() {
       <div className="container">
         <div className={styles.layout}>
           <div className={styles.text}>
-            <span className="eyebrow">For statistical offices</span>
+            <span className="eyebrow">For national statistical organizations</span>
             <Heading as="h2" className={styles.title}>
               Practical Guide to AI-Ready Data Dissemination
             </Heading>
             <p className={styles.lede}>
               A cookbook organized around nine questions a national statistical
-              office can ask about its own dissemination system. Each chapter
+              organization can ask about its own dissemination system. Each chapter
               lists steps at three maturity levels (foundational, AI-ready, and
               AI-native), implementation options based on open standards,
               tests, and a checklist. Generative AI is optional; the first
@@ -37,7 +37,7 @@ export default function CookbookCta() {
             <Link
               className={clsx('button button--md', styles.button)}
               to="/cookbook/ai-ready-dissemination/">
-              Open the guide
+              Practical guide
             </Link>
           </div>
           <ol className={styles.list}>

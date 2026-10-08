@@ -81,7 +81,7 @@ const QUESTIONS = [
       'Download counts only.',
       'A recommended citation and identifier per dataset; automated clients separated in logs.',
       'Publication sources searched for mentions on a schedule, with a table of name variants.',
-      'Mentions extracted automatically and reported; AI systems checked for how they cite the office.',
+      'Mentions extracted automatically and reported; AI systems checked for how they cite the organization.',
     ],
   },
   {

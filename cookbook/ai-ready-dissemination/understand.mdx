@@ -1,6 +1,6 @@
 ---
 id: understand
-title: "3. Make the meaning of the numbers clear"
+title: "3. Meaning of the data: units, concepts, and classifications"
 sidebar_label: "3. Understand"
 sidebar_position: 4
 description: Units, concepts, classifications, method notes, and the standards that make them machine-readable.
@@ -9,18 +9,18 @@ description: Units, concepts, classifications, method notes, and the standards t
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 3. Make the meaning of the numbers clear
+# 3. Meaning of the data: units, concepts, and classifications
 
 **Question:** Can AI understand what the numbers mean?
 
-## Why this matters
+## Rationale
 
 A number carries meaning through its unit, reference period, population,
 definition, and method. An AI system that retrieves "41" without these may
 describe it as a percentage when it is a rate per 1,000, or combine two series
 that use different definitions.
 
-## What good looks like
+## Target state
 
 - Each series states its unit, frequency, reference period, geographic coverage, and population.
 - Definitions and method notes are written once, linked to the series, and available in structured form.
@@ -161,10 +161,10 @@ FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
 - **One definition page for a family of indicators.** Each series needs its own record, even when the text is shared.
 - **National codes without a crosswalk.** Users and systems cannot compare with other countries.
 
-## How to test it
+## Verification
 
 - **Interpretation questions:** for 20 series, ask an assistant for the unit, the reference period, and the definition. Compare the answers with the official metadata.
-- **Comparability questions:** ask whether two series can be compared, where you know the answer, for example because of a definition change.
+- **Comparability questions:** ask whether two series can be compared, where the answer is known, for example because of a definition change.
 - **Code audit:** list every code used in the data and confirm that each appears in a published code list.
 
 ## Checklist

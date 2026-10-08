@@ -97,7 +97,7 @@ const config = {
             position: 'left',
             items: [
               {to: '/ai-readiness-assessment', label: 'Assessment framework'},
-              {to: '/ai-readiness-in-practice', label: 'From assessment to action'},
+              {to: '/ai-readiness-in-practice', label: 'Operationalizing the assessment'},
             ],
           },
           {
@@ -114,7 +114,7 @@ const config = {
           {label: 'Introduction', to: '/docs/introduction'},
           {label: 'Partnerships', to: '/docs/partnerships/'},
           {label: 'AI-readiness assessment', to: '/ai-readiness-assessment'},
-          {label: 'From assessment to action', to: '/ai-readiness-in-practice'},
+          {label: 'Operationalizing the assessment', to: '/ai-readiness-in-practice'},
           {label: 'GitHub', href: 'https://github.com/worldbank/ai4data'},
           {
             label: 'Issues',

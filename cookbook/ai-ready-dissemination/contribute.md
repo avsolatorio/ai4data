@@ -1,19 +1,19 @@
 ---
 id: contribute
-title: Contribute a recipe
+title: Contributing
 sidebar_position: 14
 description: How to propose a recipe, a correction, or an example for this guide.
 ---
 
-# Contribute a recipe
+# Contributing
 
 This guide improves through recipes that someone has run in a statistical
-office. Contributions are welcome through
+organization. Contributions are welcome through
 [GitHub issues](https://github.com/worldbank/ai4data/issues) and pull
 requests to the `cookbook/` folder of the
 [repository](https://github.com/worldbank/ai4data).
 
-## What makes a good recipe
+## Criteria for a recipe
 
 - It produces a defined result that a reader can check.
 - It names the level, the skills needed, and a realistic time.
@@ -42,10 +42,10 @@ Corrections to standards references, measures, or code are the most useful
 contribution. Open an issue with the page, the sentence, and the source that
 shows the correction.
 
-## Examples from offices
+## Examples from statistical organizations
 
-If your office has implemented something in this guide, a short description
-(what was done, what changed in the measures, what you would do differently)
+If an organization has implemented something in this guide, a short description
+(what was done, what changed in the measures, what would be done differently)
 can be added as an example in the relevant chapter. Say what may be
 published and under what name.
 

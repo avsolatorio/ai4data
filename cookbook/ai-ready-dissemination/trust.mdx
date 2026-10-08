@@ -1,6 +1,6 @@
 ---
 id: trust
-title: "5. Make answers trustworthy"
+title: "5. Trust and provenance of answers"
 sidebar_label: "5. Trust"
 sidebar_position: 6
 description: Provenance, citations, numeric verification, grounding, and freshness for answers that use official statistics.
@@ -9,18 +9,18 @@ description: Provenance, citations, numeric verification, grounding, and freshne
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 5. Make answers trustworthy
+# 5. Trust and provenance of answers
 
 **Question:** Can answers be trusted and traced?
 
-## Why this matters
+## Rationale
 
-Official statistics carry the authority of the office that publishes them. When
-an AI system quotes a number, readers assume it comes from that office. A
-wrong or outdated value, shown with the office's name, damages trust in the
+Official statistics carry the authority of the organization that publishes them. When
+an AI system quotes a number, readers assume it comes from that organization. A
+wrong or outdated value, shown with the organization's name, damages trust in the
 source. Users need to see where a number came from and check it.
 
-## What good looks like
+## Target state
 
 - Every number in an answer links to the series, release, and date it came from.
 - Numbers shown to users are checked against the official record before display.
@@ -58,7 +58,7 @@ https://stats.example/series/FS_UNDERNOURISH_PCT. Accessed [date].
 ```
 
 2. Register a DOI for each dataset through [DataCite](https://schema.datacite.org/)
-   where the office can, and put it in the citation. The World Bank
+   where the organization can, and put it in the citation. The World Bank
    Microdata Library assigns DataCite DOIs to its datasets (prefix
    10.48529), and the World Bank indicator and microdata schemas carry a
    `datacite` block for the registration metadata and a
@@ -161,17 +161,17 @@ part that needs the paper's approach.
 
 ## Common mistakes
 
-- **Citing the office without the release.** A correct number from an old release looks wrong next to the current one. The release date is part of the citation.
+- **Citing the organization without the release.** A correct number from an old release looks wrong next to the current one. The release date is part of the citation.
 - **Trusting the model to cite.** Models produce plausible citations. The citation must come from the retrieved record, and the number must be checked against it.
 - **Deleting superseded pages.** Citations break and the replacement is not found. Keep the page with a notice.
 - **Verifying only the final answer.** Intermediate values a model computes (a change, an average) need the inputs shown so a reader can check them.
 
-## How to test it
+## Verification
 
 - **Number match rate:** on a test set, the share of numbers in answers that match the official values (recipe 5.3).
 - **Citation check:** sample answers and confirm that each citation resolves and supports the statement.
 - **Staleness test:** publish a revision in a test environment and confirm that answers reflect it.
-- **Adversarial prompts:** ask for numbers the office does not publish and check that the system declines to invent them.
+- **Adversarial prompts:** ask for numbers the organization does not publish and check that the system declines to invent them.
 
 ## Checklist
 

@@ -1,14 +1,14 @@
 ---
 id: data-types
-title: By data type
+title: Application by data type
 sidebar_position: 11
 hide_table_of_contents: true
 description: How the nine questions and the recipes apply to indicators, survey microdata, geospatial data, documents, and tables, and which standard describes each type.
 ---
 
-# By data type
+# Application by data type
 
-The nine questions apply to every kind of data an office publishes. What
+The nine questions apply to every kind of data an organization publishes. What
 changes by type is the record schema, the access format, what "meaning"
 consists of, and the risks. This page gives the mapping. The running
 example in the chapters uses indicators; the files list on the
@@ -19,7 +19,7 @@ metadata check in [recipe 1.1](./find.mdx) runs on all of them.
 
 The World Bank's [metadata schemas](https://github.com/worldbank/metadata-schemas)
 cover each type with a JSON Schema that follows the international standard
-for that type. Using them means a record can move between the office's
+for that type. Using them means a record can move between the organization's
 catalog, NADA, the Metadata Editor, and the World Bank's own catalogs
 without translation. Two open-source tools from the World Bank and IHSN
 work with all of these types: the
@@ -40,7 +40,7 @@ managed access to microdata).
 | Scripts and reproducibility packages | `script-schema.json` | World Bank script schema | Code and data in a versioned archive | Catalog API, code hosting | Inputs, outputs, software, steps | `idno`; DOI |
 | Images and video | `image-schema.json`, `video-schema.json` | [IPTC](https://iptc.org/standards/photo-metadata/), Dublin Core | Image and video files | Catalog API | Caption, location, date, rights | `idno` |
 
-## The nine questions by type
+## The nine questions by data type
 
 | Question | Indicators | Microdata | Geospatial | Documents |
 |---|---|---|---|---|
@@ -54,11 +54,11 @@ managed access to microdata).
 | **8. Govern** | Public data; low risk | Disclosure control before any exposure; access tiers; no microdata to external services | Sensitive locations; resolution limits | Embargoes; confidential annexes |
 | **9. Sustain** | Same for all types: open standards, separable AI layer, versioned profiles and question sets | | | |
 
-## Running the metadata check by type
+## Metadata check by data type
 
 The checker selects the schema from the profile's `type` and validates the
 record against it, so the same command works for each type. The profiles
-are starting points for the office to edit.
+are starting points for the organization to edit.
 
 ```bash
 python check_metadata.py example_catalog.csv      profile_indicator.json
@@ -71,7 +71,7 @@ Nested records in JSON are what NADA and the Metadata Editor export. CSV
 works for flat types such as indicators; for microdata, geospatial data,
 and documents, use JSON.
 
-## Where the types differ most
+## Principal differences between data types
 
 - **Microdata** needs chapter 8 before chapter 2. Disclosure control and
   access tiers come before any API or agent interface, and microdata never

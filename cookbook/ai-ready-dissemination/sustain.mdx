@@ -1,6 +1,6 @@
 ---
 id: sustain
-title: "9. Keep it sustainable"
+title: "9. Sustainability and maintenance"
 sidebar_label: "9. Sustain"
 sidebar_position: 10
 description: Architecture choices, open standards, small and open models, cost, skills, and lifecycle management.
@@ -9,17 +9,17 @@ description: Architecture choices, open standards, small and open models, cost, 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 9. Keep it sustainable
+# 9. Sustainability and maintenance
 
 **Question:** Can we maintain what we build?
 
-## Why this matters
+## Rationale
 
 Pilots are easy to start and costly to keep running. Models change, vendors
 change prices, and staff move on. An AI-ready dissemination system that depends
 on one person or one provider can stop working within a year of launch.
 
-## What good looks like
+## Target state
 
 - The system is built from open standards and replaceable parts.
 - Running costs are known and proportionate to the number of users.
@@ -32,10 +32,10 @@ on one person or one provider can stop working within a year of launch.
 |---|---|
 | **Foundational** | Document how data and metadata are produced and published. Assign backups for each task. Improve metadata and file formats first, since these keep their value regardless of tools. |
 | **AI-ready** | Use open standards for catalog, structure, and API (chapters 1 to 3). Keep code and configuration in version control. Schedule reviews of metadata and the test suite. Estimate the cost per query before launch. |
-| **AI-native** | Use small and open models where they reach the needed quality, and larger models where the task requires them. Monitor cost, latency, and quality together. Share components with partner offices, and contribute fixes back. |
+| **AI-native** | Use small and open models where they reach the needed quality, and larger models where the task requires them. Monitor cost, latency, and quality together. Share components with partner organizations, and contribute fixes back. |
 
 :::info[Running example]
-The example office's catalog, API, and CSV files work with no AI component
+The example organization's catalog, API, and CSV files work with no AI component
 running. The semantic search and the description drafts are an added layer:
 each runs on a small open-weight model on one server, and each has a row in
 the register with an exit plan.
@@ -103,9 +103,9 @@ hosted models.
 - **Architecture:** keep the AI layer separate from the authoritative data store and API. Place each component in the [GSBPM](https://unece.org/statistics/modernstats/gsbpm) phase it serves (the program's [GSBPM mapping](/docs/gsbpm-mapping) does this for its own workstreams), so that ownership follows the existing process.
 - **Model size:** classification, tagging, and embedding tasks often work with small models. Open-weight models can run on one modest server.
 - **Cost control:** cache repeated queries, batch non-urgent work such as metadata review, and set usage limits.
-- **Skills:** a small team that combines a metadata specialist, a data engineer, and someone responsible for evaluation covers most of the work in this guide. Training material can be shared across offices.
+- **Skills:** a small team that combines a metadata specialist, a data engineer, and someone responsible for evaluation covers most of the work in this guide. Training material can be shared across organizations.
 - **Lifecycle:** plan for model updates, index rebuilds, and the retirement of components. Re-run the evaluation suite after each.
-- **Shared resources:** open-source tools and shared test sets let offices reuse each other's work.
+- **Shared resources:** open-source tools and shared test sets let organizations reuse each other's work.
 
 ## World Bank examples
 
@@ -118,9 +118,9 @@ hosted models.
 - **Choosing the largest model first.** It costs more at every query and hides whether a small one would do.
 - **A pilot that lives on one laptop.** The handover test (below) finds this early.
 - **No budget for re-running the evaluation.** Each model update needs a run; without it, quality drifts unnoticed.
-- **Building what partner offices already share.** Check the open resources first.
+- **Building what partner organizations already share.** Check the open resources first.
 
-## How to test it
+## Verification
 
 - **Switch-off test:** recipe 9.1.
 - **Handover test:** ask a staff member who did not build a component to run an update from the documentation.

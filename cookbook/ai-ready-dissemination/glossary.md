@@ -63,7 +63,7 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **OpenAPI.** A standard, machine-readable description of a REST API.
 
-**Open-weight model.** A model whose weights are published, so that it can be run on the office's own hardware.
+**Open-weight model.** A model whose weights are published, so that it can be run on the organization's own hardware.
 
 **Prompt injection.** Instructions hidden in content a system reads (a document, a web page, a user message) that try to change the system's behaviour.
 

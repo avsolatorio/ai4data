@@ -223,7 +223,7 @@ export const dimensions = [
     ],
     support: {tools: 0, methods: 0, recipes: 1, reference: 0, guidance: 1},
     resources: ['responsibleAi'],
-    cookbook: [{to: `${CB}govern`, label: 'Chapter 8: Operate responsibly (policy template, component register, injection tests)'}],
+    cookbook: [{to: `${CB}govern`, label: 'Chapter 8: Governance and responsible operation (policy template, component register, injection tests)'}],
     steps: [
       {from: 'A', to: 'B', text: 'Adopt the one-page AI-use policy template and name an owner for each AI component.'},
       {from: 'B', to: 'C', text: 'Keep the component register with review dates; require human approval for generated metadata and text.'},
@@ -306,8 +306,8 @@ export const dimensions = [
     support: {tools: 2, methods: 2, recipes: 2, reference: 0, guidance: 1},
     resources: ['metadataSchemas', 'synthetic', 'pift', 'pcn', 'inclusive', 'smallAgentic'],
     cookbook: [
-      {to: `${CB}evaluate`, label: 'Chapter 6: Evaluate (question sets, Recall@k and MRR, answer-level tests)'},
-      {to: `${CB}sustain`, label: 'Chapter 9: Sustain (smallest sufficient model, switch-off test, cost per query)'},
+      {to: `${CB}evaluate`, label: 'Chapter 6: Evaluation (question sets, Recall@k and MRR, answer-level tests)'},
+      {to: `${CB}sustain`, label: 'Chapter 9: Sustainability and maintenance (smallest sufficient model, switch-off test, cost per query)'},
     ],
     steps: [
       {from: 'A', to: 'B', text: 'Adopt the metadata schemas as the interoperability baseline and write a first known-item question set.'},
@@ -353,7 +353,7 @@ export const dimensions = [
     ],
     support: {tools: 1, methods: 0, recipes: 1, reference: 0, guidance: 2},
     resources: ['partnerships', 'openSource', 'cb'],
-    cookbook: [{to: `${CB}contribute`, label: 'Contribute a recipe or an example from your organization'}],
+    cookbook: [{to: `${CB}contribute`, label: 'Contribute a recipe or an example from the organization'}],
     steps: [
       {from: 'A', to: 'B', text: 'Adopt one program tool and report back what worked.'},
       {from: 'B', to: 'C', text: 'Contribute an example or a recipe to the cookbook under the organization\'s name.'},
@@ -384,7 +384,7 @@ export const dimensions = [
       {to: `${CB}find`, label: 'Chapter 1: recipe 1.1 (check records against the schema and a profile), recipe 1.2 (schema.org on every page)'},
       {to: `${CB}understand`, label: 'Chapter 3: definitions and method notes, code lists and crosswalks, breaks and revisions as data'},
       {to: `${CB}standards`, label: 'Standards by chapter: SDMX, DDI, ISO 19115, Dublin Core, DCAT, DataCite'},
-      {to: `${CB}data-types`, label: 'By data type: schema, format, and interface per type'},
+      {to: `${CB}data-types`, label: 'Application by data type: schema, format, and interface per type'},
     ],
     steps: [
       {from: 'A', to: 'B', text: 'Document each product in the World Bank schema for its type with the Metadata Editor or the CSV template, and run the completeness check at the foundational level.'},

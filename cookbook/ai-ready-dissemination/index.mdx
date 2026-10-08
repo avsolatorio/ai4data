@@ -3,12 +3,12 @@ id: index
 title: Practical Guide to AI-Ready Data Dissemination
 sidebar_label: Overview
 sidebar_position: 0
-description: A cookbook for national statistical offices that want their published statistics to be found, understood, and cited correctly by people and AI systems.
+description: A cookbook for national statistical organizations that want their published statistics to be found, understood, and cited correctly by people and AI systems.
 ---
 
 # Practical Guide to AI-Ready Data Dissemination
 
-**A cookbook for national statistical offices.** Version 0.1 (working draft), October 2026.
+**A cookbook for national statistical organizations.** Version 0.1 (working draft), October 2026.
 
 :::note[Working draft]
 This guide is a working draft from the AI for Data – Data for AI program. It
@@ -20,11 +20,11 @@ guideline. Comments and corrections are welcome as
 
 People increasingly reach statistics through AI systems: search assistants,
 chatbots, and analysis tools. These systems read the metadata, web pages, and
-APIs that a statistical office publishes. When those are incomplete,
+APIs that a statistical organization publishes. When those are incomplete,
 ambiguous, or hard to retrieve, the systems return the wrong series, mix up
 definitions, or quote numbers without a source.
 
-This guide is organized around nine questions an office can ask about its own
+This guide is organized around nine questions an organization can ask about its own
 dissemination system. Each chapter explains why the question matters, what a
 good answer looks like, and gives **recipes**: tasks with a defined result,
 the skills and time they need, and the code or template to do them.
@@ -35,7 +35,7 @@ and schema.org for catalogs, DataCite for identifiers, and the World Bank's
 own metadata schemas for records. The [standards page](./standards.md)
 lists each one, where the World Bank uses it, and where it appears in the
 guide. The chapters follow one indicator catalog as a running example; the
-[By data type](./data-types.md) page shows how each question and recipe
+[Application by data type](./data-types.md) page shows how each question and recipe
 applies to survey microdata, geospatial data, documents, and tables, with a
 record and a profile for each.
 
@@ -47,14 +47,14 @@ optional later layer, and chapters 4 and 5 explain what has to be in place
 before one is safe to run.
 :::
 
-## Start here
+## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes. It places
-an office at a level in each chapter and suggests a reading order.
+an organization at a level in each chapter and suggests a reading order.
 
-## The questions
+## Chapters and questions
 
-| Chapter | Question for a statistical office | Practical topics |
+| Chapter | Question for a statistical organization | Practical topics |
 |---|---|---|
 | [1. Find](./find.mdx) | Can people and AI find our statistics? | Metadata completeness, indexing, DCAT and schema.org, semantic search, multilingual metadata |
 | [2. Retrieve](./retrieve.mdx) | Can AI retrieve our data reliably? | Open formats, APIs, stable identifiers, machine-readable access, MCP |
@@ -72,7 +72,7 @@ retrieve it with context, interpret it, and verify the result.
 
 ## Maturity levels
 
-Each chapter describes three levels. An office can sit at different levels in
+Each chapter describes three levels. An organization can sit at different levels in
 different chapters, and the first level is a complete, useful state on its
 own.
 
@@ -80,7 +80,7 @@ own.
 |---|---|
 | **Foundational** | Data and metadata are published in open, documented formats that a person can download and that a crawler can read. |
 | **AI-ready** | Data and metadata are structured, identified, and accessible through documented interfaces, so that software, including AI systems, can use them without manual steps. |
-| **AI-native** | The office offers AI-oriented interfaces such as semantic search or an agent protocol, with provenance and verification built in. |
+| **AI-native** | The organization offers AI-oriented interfaces such as semantic search or an agent protocol, with provenance and verification built in. |
 
 For access, as an example:
 
@@ -88,10 +88,10 @@ For access, as an example:
 - **AI-ready:** a documented REST API, stable identifiers, and structured metadata.
 - **AI-native:** semantic discovery, a standard agent interface such as MCP, and provenance on every answer.
 
-## The running example
+## Running example
 
 The recipes use one small, fictional catalog so that each chapter picks up
-where the previous one ends. The example office publishes five series:
+where the previous one ends. The example organization publishes five series:
 
 | id | title | unit |
 |---|---|---|
@@ -111,7 +111,7 @@ so on), and the values file uses SDMX cross-domain concept names (`SERIES`,
 catalog, the values, and every script in this guide are in the files list
 below. All values are invented.
 
-## About the examples
+## Scope of the examples
 
 The examples are small on purpose: five series, fifteen test questions,
 and single-file scripts with no dependencies beyond the standard library
@@ -119,9 +119,9 @@ and `jsonschema`, so that a reader can run them in an afternoon and see
 the shape of each check. They are starting points. Each recipe
 ends with a **What this does not do** note that says where the example
 stops and what the full version adds, and points to the program's tools
-where one exists. Treat a recipe as done when the office's own data pass
-the office's own version of the check, with the profile, question set, and
-rules that the office has agreed.
+where one exists. Treat a recipe as done when the organization's own data pass
+the organization's own version of the check, with the profile, question set, and
+rules that the organization has agreed.
 
 ## Files
 
@@ -134,7 +134,7 @@ The scripts use only the Python standard library unless stated.
 | [example_values.csv](pathname:///cookbook-files/ai-ready-dissemination/example_values.csv) | The running example values (SDMX cross-domain concept names) |
 | [metadata_template.csv](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv) | Chapter 1: fields every series record needs, named as in the World Bank indicator schema |
 | [check_metadata.py](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) | Chapter 1: three-layer metadata check (schema, profile, validity) for every World Bank metadata type; needs `jsonschema` 4.18+ |
-| [profile_indicator.json](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json) | Chapter 1: fields required at each level for indicators, and the validity rules, for the office to edit |
+| [profile_indicator.json](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json) | Chapter 1: fields required at each level for indicators, and the validity rules, for the organization to edit |
 | [profile_microdata.json](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json) | Chapter 1: the same for survey microdata (DDI Codebook based schema) |
 | [profile_geospatial.json](pathname:///cookbook-files/ai-ready-dissemination/profile_geospatial.json) | Chapter 1: the same for geospatial data (ISO 19115/19139 based schema) |
 | [profile_document.json](pathname:///cookbook-files/ai-ready-dissemination/profile_document.json) | Chapter 1: the same for documents (Dublin Core based schema) |
@@ -150,14 +150,14 @@ The scripts use only the Python standard library unless stated.
 | [ai_component_register.csv](pathname:///cookbook-files/ai-ready-dissemination/ai_component_register.csv) | Chapter 8: AI component register |
 | [ai_use_policy_template.md](pathname:///cookbook-files/ai-ready-dissemination/ai_use_policy_template.md) | Chapter 8: AI-use policy template |
 
-## How this guide relates to other resources
+## Related resources
 
 | Resource | Purpose |
 |---|---|
-| This guide | What a statistical office can do, and why, in a sequence of practical steps. |
-| [By data type](./data-types.md) | How the questions and recipes apply to indicators, microdata, geospatial data, documents, and tables. |
+| This guide | What a statistical organization can do, and why, in a sequence of practical steps. |
+| [Application by data type](./data-types.md) | How the questions and recipes apply to indicators, microdata, geospatial data, documents, and tables. |
 | [Standards used in this guide](./standards.md) | The published standards behind each recipe, with the ones the World Bank has adopted. |
-| [AI-readiness assessment](/ai-readiness-assessment) | A structured assessment of where an office stands before planning. |
+| [AI-readiness assessment](/ai-readiness-assessment) | A structured assessment of where an organization stands before planning. |
 | [From assessment to action](/ai-readiness-in-practice) | Each assessment dimension mapped to the program's tools, methods, and the chapters of this guide. |
 | [Documentation](/docs/introduction) | How each program method and tool works. |
 | [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |
@@ -165,9 +165,9 @@ The scripts use only the Python standard library unless stated.
 ## Citation
 
 World Bank. 2026. *Practical Guide to AI-Ready Data Dissemination: A cookbook
-for national statistical offices.* Version 0.1. AI for Data – Data for AI.
+for national statistical organizations.* Version 0.1. AI for Data – Data for AI.
 https://worldbank.github.io/ai4data/cookbook/ai-ready-dissemination/
 
-## Changes
+## Version history
 
 - **0.1 (October 2026).** First draft: nine chapters, recipes, templates, self-assessment.

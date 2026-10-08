@@ -1,6 +1,6 @@
 ---
 id: ask
-title: "4. Let users ask questions naturally"
+title: "4. Natural-language access"
 sidebar_label: "4. Ask"
 sidebar_position: 5
 description: Natural-language search, retrieval-augmented generation, conversational interfaces, and multilingual access.
@@ -9,11 +9,11 @@ description: Natural-language search, retrieval-augmented generation, conversati
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Let users ask questions naturally
+# 4. Natural-language access
 
 **Question:** Can users ask questions in their own words?
 
-## Why this matters
+## Rationale
 
 Most users do not know the official names of indicators or the structure of a
 catalog. They type a question. Natural-language interfaces reduce the effort of
@@ -24,7 +24,7 @@ This chapter comes after findability, retrieval, and meaning because a
 conversational interface depends on all three. A chatbot placed over incomplete
 metadata produces confident answers from poor inputs.
 
-## What good looks like
+## Target state
 
 - A question returns the relevant series, with the unit, period, and source, in a few seconds.
 - The system says when it has no matching data.
@@ -43,7 +43,7 @@ metadata produces confident answers from poor inputs.
 A user asks "Is hunger going down?" The system retrieves
 `FS_UNDERNOURISH_PCT` and its last three values, and the model answers from
 those values only: 8.4% in 2022, 7.9% in 2023, 7.6% in 2024, with the series
-URL. For "What is inflation?" it says that the office does not publish that
+URL. For "What is inflation?" it says that the organization does not publish that
 series.
 :::
 
@@ -58,7 +58,7 @@ at the source, and each one becomes a test question.
    not clicked, for the last month.
 2. Group them by intent. Most fall into a few buckets: a synonym the catalog
    does not use ("jobless"), a language the catalog does not cover, a series
-   the office does not publish, or a typo.
+   the organization does not publish, or a typo.
 3. For synonyms, add the words to the description or a keywords field of the
    right series. For missing languages, translate the titles of the series
    involved. For unpublished series, add a page that says so and points to
@@ -84,11 +84,11 @@ The flow has four steps, and the model sees data only in step 3:
    with instructions like these:
 
 ```text
-You answer questions about official statistics published by the office.
+You answer questions about official statistics published by the organization.
 Use only the records and values provided below. Every number you state
 must appear in the values. Cite the series id and source URL for each
 number. State the unit and the period. If the records do not answer the
-question, say that the office does not publish a matching series and do
+question, say that the organization does not publish a matching series and do
 not estimate. Answer in the language of the question.
 
 Records:
@@ -143,10 +143,10 @@ model call the data tools itself; the rules above still apply.
 - **Testing in one language.** A system that works in English can fail completely in the national language. Score each language.
 - **No refusal path.** A system that always answers will invent a series when none exists.
 
-## How to test it
+## Verification
 
 - **Question set:** collect real questions from help-desk and search logs, and add questions in each supported language.
-- **No-answer cases:** include questions the office cannot answer, and check that the system declines.
+- **No-answer cases:** include questions the organization cannot answer, and check that the system declines.
 - **Review sample:** recipe 4.3.
 
 ## Checklist

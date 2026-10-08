@@ -1,6 +1,6 @@
 ---
 id: find
-title: "1. Make your statistics findable"
+title: "1. Findability of statistics"
 sidebar_label: "1. Find"
 sidebar_position: 2
 description: Metadata completeness, machine-readable catalogs, and semantic search so that people and AI systems find the right statistics.
@@ -9,11 +9,11 @@ description: Metadata completeness, machine-readable catalogs, and semantic sear
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 1. Make your statistics findable
+# 1. Findability of statistics
 
 **Question:** Can people and AI find our statistics?
 
-## Why this matters
+## Rationale
 
 AI systems increasingly mediate how users discover data. A search assistant
 looks at page titles, descriptions, and catalog records. A series with a vague
@@ -24,7 +24,7 @@ Users also describe what they need in their own words. "How many people go
 hungry" and "prevalence of undernourishment" refer to the same topic, and a
 keyword index treats them as unrelated.
 
-## What good looks like
+## Target state
 
 - Every dataset and indicator has a stable identifier and a complete record: title, description, unit, time coverage, geography, frequency, source, and contact.
 - The catalog is published in a machine-readable form that crawlers and harvesters can read.
@@ -39,7 +39,7 @@ keyword index treats them as unrelated.
 | **AI-native** | Add semantic search over the catalog using embeddings, combined with keyword search. Use AI to find and repair missing or inconsistent metadata, with human review. Offer the catalog to AI assistants through an agent interface (see [chapter 2](./retrieve.mdx)). |
 
 :::info[Running example]
-The example office has five series. One of them, `LF_UNEMP_PCT`, has no
+The example organization has five series. One of them, `LF_UNEMP_PCT`, has no
 description. The recipes below find that gap, publish each series as a
 schema.org record, and add a search that understands "jobless rate".
 :::
@@ -49,7 +49,7 @@ schema.org record, and add a search that understands "jobless rate".
 <Recipe title="1.1 Check the records against the schema and a completeness profile" level="Foundational" skills="Anyone who can export the catalog and run a Python script; a metadata lead to set the profile" time="Half a day the first time; minutes after that">
 
 **Result:** for every series record, three answers: is it a valid instance
-of the published schema, does it have every field the office requires at
+of the published schema, does it have every field the organization requires at
 its target level, and are the values well-formed. This is the first measure
 to track, because every later step depends on these fields.
 
@@ -58,12 +58,12 @@ A completeness check has three layers, and they answer different questions:
 | Layer | Question | Who decides the rule |
 |---|---|---|
 | Structure | Is the record a valid instance of the [World Bank metadata schema](https://github.com/worldbank/metadata-schemas) for its type? | The schema. The indicator schema requires only `idno` and `name`; the other 73 fields of `series_description` are optional. The other types are similar. |
-| Completeness | Does the record have every field the office requires at this maturity level? | The office, in a **profile** file, one per data type. The schema does not define completeness. |
-| Validity | Do dates parse, do periods run in order, are URLs URLs, do values come from the office's vocabulary, is the definition more than the name repeated? | Rules named in the profile and applied by the script. |
+| Completeness | Does the record have every field the organization requires at this maturity level? | The organization, in a **profile** file, one per data type. The schema does not define completeness. |
+| Validity | Do dates parse, do periods run in order, are URLs URLs, do values come from the organization's vocabulary, is the definition more than the name repeated? | Rules named in the profile and applied by the script. |
 
 The same check runs for indicators, survey microdata, geospatial data,
 documents, tables, scripts, images, and videos: the profile names the type,
-the script fetches that type's schema. The [By data type](./data-types.md)
+the script fetches that type's schema. The [Application by data type](./data-types.md)
 page lists the profiles and example records for each.
 
 1. Export the records. A catalog that uses the schemas, through NADA or the
@@ -81,9 +81,9 @@ page lists the profiles and example records for each.
    foundational, AI-ready, and AI-native levels as paths into the record,
    gives the reason each field matters for AI-ready dissemination, and
    sets the validity rules (which fields are dates, which are URLs, which
-   take a vocabulary, which need a minimum length). An office can remove a
+   take a vocabulary, which need a minimum length). An organization can remove a
    field from a level, and the reason states what that costs. Keep the
-   edited profile in version control; it is the office's definition of
+   edited profile in version control; it is the organization's definition of
    "complete". Offices that document with the
    [Metadata Editor](https://github.com/worldbank/metadata-editor) can
    mirror the profile in its metadata templates, which set the required
@@ -154,7 +154,7 @@ Offices that run [NADA](https://nada.ihsn.org/) already have this: NADA
 writes a schema.org `Dataset` block on every catalog page from the stored
 record (the World Bank [Microdata Library](https://microdata.worldbank.org/)
 pages show it), and the Metadata Editor can export schema.org, Croissant,
-and DCAT from the same records. The steps below are for an office with its
+and DCAT from the same records. The steps below are for an organization with its
 own website.
 
 1. Map the catalog fields to the schema.org properties in the example below.
@@ -187,8 +187,8 @@ need to load the data.
 `FS_UNDERNOURISH_PCT` for "how many people go hungry", with the keyword
 search still available for exact codes and names.
 
-NADA provides semantic search over its catalog records, so an office that
-runs it gets this layer with the catalog. The steps below are for an office
+NADA provides semantic search over its catalog records, so an organization that
+runs it gets this layer with the catalog. The steps below are for an organization
 with its own search, and the evaluation in step 4 applies to both.
 
 1. Build the question set and baseline scores first ([chapter 6](./evaluate.mdx)). Without them there is no way to tell whether the new search is better.
@@ -239,7 +239,7 @@ model on structured records when a general model is not good enough.
 
 - The [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas) define records for indicators, indicator databases, microdata (based on DDI Codebook), documents (Dublin Core), geospatial data (ISO 19115/19139), tables, images (IPTC), and scripts, with a DataCite block for DOIs. They come with a Python library and Excel templates.
 - [NADA](https://nada.ihsn.org/), the open-source catalog that runs the World Bank Microdata Library, stores records in these schemas and supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC.
-- Each record gets a persistent identifier, with a DOI through [DataCite](https://schema.datacite.org/) where the office can register one ([chapter 5](./trust.mdx)).
+- Each record gets a persistent identifier, with a DOI through [DataCite](https://schema.datacite.org/) where the organization can register one ([chapter 5](./trust.mdx)).
 
 **Machine-readable catalog metadata for the web**
 
@@ -272,10 +272,10 @@ model on structured records when a general model is not good enough.
 - **Translating metadata by machine without review.** A wrong translation of a definition is worse than none. Translate titles first and have them checked.
 - **Measuring once.** Scores drift as the catalog and models change. Keep the question set and re-run it.
 
-## How to test it
+## Verification
 
-- **Completeness:** the share of records that pass the schema and the office's profile at the target level, and the count of missing fields per field (recipe 1.1).
-- **Known-item queries:** 30 to 50 queries for which you know the correct series, written the way users write. Check whether the correct series appears in the top 5 and top 10 ([chapter 6](./evaluate.mdx)).
+- **Completeness:** the share of records that pass the schema and the organization's profile at the target level, and the count of missing fields per field (recipe 1.1).
+- **Known-item queries:** 30 to 50 queries for which the correct series is known, written the way users write. Check whether the correct series appears in the top 5 and top 10 ([chapter 6](./evaluate.mdx)).
 - **Crawler view:** open a dataset page with a structured-data validator and confirm that the record is parsed.
 - **Language check:** repeat the known-item queries in each supported language.
 

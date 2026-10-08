@@ -10,7 +10,7 @@ description: The published standards each chapter builds on, with the ones the W
 
 The recipes use published standards wherever one exists. Where the World
 Bank's Development Data Group has adopted a standard for its own catalogs and
-APIs, the guide uses that one, so that an office following the guide ends up
+APIs, the guide uses that one, so that an organization following the guide ends up
 interoperable with the World Bank and with the other organizations that use
 the same standards.
 
@@ -42,7 +42,7 @@ cross-domain concept names.
 | Standard | Use | World Bank use | In this guide |
 |---|---|---|---|
 | [DDI Codebook](https://ddialliance.org/ddi-codebook) | Documentation of a survey or administrative dataset: study, files, variables, value labels | The Microdata Library and NADA; the World Bank microdata schema is based on it | Chapter 3: variables and value codes |
-| [DDI Lifecycle](https://ddialliance.org/ddi-lifecycle) | Documentation across the data lifecycle, with reusable questions and concepts | | Chapter 3: for offices that manage questionnaires and concepts centrally |
+| [DDI Lifecycle](https://ddialliance.org/ddi-lifecycle) | Documentation across the data lifecycle, with reusable questions and concepts | | Chapter 3: for organizations that manage questionnaires and concepts centrally |
 | [DDI-CDI](https://ddialliance.org/ddi-cdi) | Cross-domain integration: describes data structures and provenance across data types | | Chapter 5: provenance for derived data |
 | [XKOS](https://ddialliance.org/xkos) | Extension of SKOS for statistical classifications and correspondences between them | | Chapter 3, recipe 3.2: classifications and crosswalks |
 
@@ -105,8 +105,8 @@ cross-domain concept names.
 |---|---|---|
 | [GSBPM](https://unece.org/statistics/modernstats/gsbpm) | Generic Statistical Business Process Model; the program's [GSBPM mapping](/docs/gsbpm-mapping) places each workstream in it | Chapter [9](./sustain.mdx) |
 | [GSIM](https://unece.org/statistics/modernstats/gsim) | Generic Statistical Information Model, the information objects behind GSBPM | Chapter 3 |
-| [UN Fundamental Principles of Official Statistics](https://unstats.un.org/fpos/) | The principles under which statistical offices operate | Chapter [8](./govern.mdx) |
-| [ISO/IEC 42001](https://www.iso.org/standard/42001) | Management system standard for AI | Chapter 8: a reference for offices that want a certifiable management system |
+| [UN Fundamental Principles of Official Statistics](https://unstats.un.org/fpos/) | The principles under which statistical organizations operate | Chapter [8](./govern.mdx) |
+| [ISO/IEC 42001](https://www.iso.org/standard/42001) | Management system standard for AI | Chapter 8: a reference for organizations that want a certifiable management system |
 | [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework) | A voluntary framework for managing AI risk | Chapter 8 |
 
 ## Corrections
