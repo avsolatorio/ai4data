@@ -996,7 +996,7 @@ Ten probes, against the teacher-and-Gemma labels under the new rules: E + DPO ag
 
 **Implication.** Explicit threshold and unit checks moved the threshold phenomenon by 21 points and the concept data moved synonyms, proxies and standard measures by 8 to 14 points, with the realistic test unchanged. Negation and look-alike did not move although exclusions are now stated: the next step there is to read the challenge errors and the labels (Gemma 4 and the teacher agree least on these). The challenge suite is now partly in-distribution (same phenomenon definitions in training), so an independent check is still needed. `runs/v2e-nosim-dpo` with version-3 inputs replaces the app's no-score model.
 
-## 2026-10-08 14:08 UTC — Numbers in explanations: a token-level constraint made text worse; resampling halves unsupported numbers
+## 2026-10-08 14:12 UTC — Numbers in explanations: a token-level constraint made text worse; resampling halves unsupported numbers
 
 Commit: this commit (`tiny/numguard.py`; `train.evaluate(num_guard)`, `export.explain(num_guard=True)`, the app). Model `runs/v2e-nosim-dpo`, version-3 test sets.
 
