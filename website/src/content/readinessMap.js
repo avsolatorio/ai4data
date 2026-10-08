@@ -186,7 +186,7 @@ export const resources = {
     title: 'Cookbook self-assessment',
     to: '/cookbook/ai-ready-dissemination/start-here',
     kind: 'recipes',
-    note: 'Five minutes; places an office at a level per chapter',
+    note: 'Five minutes; places an organization at a level per chapter',
   },
   cbStandards: {
     title: 'Standards used in the cookbook',
@@ -213,7 +213,7 @@ export const dimensions = [
     short: 'Strategy',
     coverage: 'partial',
     summary:
-      'Strategy, oversight bodies, risk management, ethics principles, and change management are institutional decisions. The program contributes guidance and templates for the AI-use policy, the component register, and human review that questions 1.1.3 and 1.1.4 look for.',
+      'Strategy, oversight bodies, risk management, ethics principles, and change management are institutional decisions. The program contributes guidance and templates for an AI-use policy, a component register, and human review, which are the instruments that questions 1.1.3 and 1.1.4 ask about.',
     questions: [
       {id: '1.1.1', topic: 'AI strategy'},
       {id: '1.1.2', topic: 'Governance and oversight'},
@@ -238,7 +238,7 @@ export const dimensions = [
     short: 'Legal',
     coverage: 'partial',
     summary:
-      'Legal frameworks, external data access, and accountability provisions are outside the program. The program is a working example for question 1.2.6: every method and tool is published under an open-source licence, and the cookbook shows what an office needs in place to do the same.',
+      'Legal frameworks, external data access, and accountability provisions are outside the program\'s scope. For question 1.2.6 the program serves as a working example: every method and tool is published under an open-source licence, and the cookbook describes what an organization needs in place to do the same.',
     questions: [
       {id: '1.2.1', topic: 'Legal and policy frameworks for AI'},
       {id: '1.2.2', topic: 'Compliance with external regulations'},
@@ -252,7 +252,7 @@ export const dimensions = [
     resources: ['openSource'],
     cookbook: [],
     steps: null,
-    evidence: ['Open-source repository with licence, for offices that adapt program code'],
+    evidence: ['Open-source repository with licence, for organizations that adapt program code'],
   },
   {
     id: '1.3',
@@ -261,7 +261,7 @@ export const dimensions = [
     short: 'Skills',
     coverage: 'partial',
     summary:
-      'Workforce planning, recruitment, and incentives belong to the office. The program supports literacy and skills development with documentation that explains each method, runnable notebooks, and a cookbook that a technical team can work through in an afternoon per recipe.',
+      'Workforce planning, recruitment, and incentives rest with the organization. The program supports AI literacy and skills development through documentation that explains each method, runnable notebooks, and a cookbook that a technical team can work through recipe by recipe.',
     questions: [
       {id: '1.3.1', topic: 'AI literacy across the workforce', covered: true},
       {id: '1.3.2', topic: 'Specialized AI expertise'},
@@ -289,7 +289,7 @@ export const dimensions = [
     short: 'Technology',
     coverage: 'partial',
     summary:
-      'Connectivity, cloud, compute, environments, and security are infrastructure decisions the program does not make. It contributes to three questions: interoperability standards (1.4.7) through the metadata schemas, privacy-preserving techniques (1.4.10) through synthetic data, and evaluation infrastructure (1.4.11) through its evaluation methods and the cookbook test suite.',
+      'Connectivity, cloud services, computing, environments, and security are infrastructure decisions outside the program\'s scope. The program contributes to three questions: interoperability standards (1.4.7) through the metadata schemas, privacy-preserving techniques (1.4.10) through synthetic data, and evaluation infrastructure (1.4.11) through its evaluation methods and the cookbook\'s test suite.',
     questions: [
       {id: '1.4.1', topic: 'Electricity and connectivity'},
       {id: '1.4.2', topic: 'Cloud strategy'},
@@ -323,7 +323,7 @@ export const dimensions = [
     short: 'Funding',
     coverage: 'none',
     summary:
-      'Funding structure, lifecycle coverage, donor management, return tracking, and leadership sponsorship are entirely the office\'s. The cookbook\'s cost-per-query recipe helps with one input to question 1.5.4, and open-source tools reduce licence costs, but the program has no component for this dimension.',
+      'Funding structure, lifecycle coverage, donor management, return tracking, and leadership sponsorship rest entirely with the organization. The cookbook\'s cost-per-query recipe supplies one input to question 1.5.4, and open-source tools reduce licence costs; the program has no component for this dimension.',
     questions: [
       {id: '1.5.1', topic: 'Structure of AI funding'},
       {id: '1.5.2', topic: 'Lifecycle funding coverage'},
@@ -344,7 +344,7 @@ export const dimensions = [
     short: 'Partnerships',
     coverage: 'partial',
     summary:
-      'The program is itself a partnership channel: offices can adopt its open-source tools, contribute recipes and examples, and take part in the collaboration it runs with peer organizations and the international statistical community (questions 1.6.2 and 1.6.4).',
+      'The program is a channel for partnership: organizations can adopt its open-source tools, contribute recipes and examples, and take part in its collaboration with peer organizations and the international statistical community (questions 1.6.2 and 1.6.4).',
     questions: [
       {id: '1.6.1', topic: 'Governance of external AI partnerships'},
       {id: '1.6.2', topic: 'Collaboration in the statistical community', covered: true},
@@ -353,13 +353,13 @@ export const dimensions = [
     ],
     support: {tools: 1, methods: 0, recipes: 1, reference: 0, guidance: 2},
     resources: ['partnerships', 'openSource', 'cb'],
-    cookbook: [{to: `${CB}contribute`, label: 'Contribute a recipe or an example from your office'}],
+    cookbook: [{to: `${CB}contribute`, label: 'Contribute a recipe or an example from your organization'}],
     steps: [
       {from: 'A', to: 'B', text: 'Adopt one program tool and report back what worked.'},
-      {from: 'B', to: 'C', text: 'Contribute an example or a recipe to the cookbook under the office\'s name.'},
+      {from: 'B', to: 'C', text: 'Contribute an example or a recipe to the cookbook under the organization\'s name.'},
       {from: 'C', to: 'D', text: 'Co-develop methods and standards through the program partnerships and publish results as open source.'},
     ],
-    evidence: ['Published contributions (recipes, code, examples) with the office named'],
+    evidence: ['Published contributions (recipes, code, examples) with the organization named'],
   },
 
   // --------------------------------------------------------------- Pillar II
@@ -370,7 +370,7 @@ export const dimensions = [
     short: 'Metadata',
     coverage: 'direct',
     summary:
-      'The program publishes the metadata schemas that NADA and the Metadata Editor use, develops methods to fill and check records with AI under curator review, and works on classifications, concept links, and a question bank. The cookbook turns this into a three-layer check and templates that an office can run on its own catalog.',
+      'The program publishes the metadata schemas used by NADA and the Metadata Editor, develops methods to complete and check records with AI under curator review, and works on classifications, concept links, and a question bank. The cookbook translates these into a three-layer check and templates that an organization can run on its own catalog.',
     questions: [
       {id: '2.1.1', topic: 'Adoption of metadata standards', covered: true},
       {id: '2.1.2', topic: 'Classifications, concepts, vocabularies', covered: true},
@@ -391,7 +391,7 @@ export const dimensions = [
       {from: 'B', to: 'C', text: 'Publish code lists and crosswalks, record breaks and provenance as fields, and emit schema.org or DCAT from the catalog (NADA does this on every page).'},
       {from: 'C', to: 'D', text: 'Reach the AI-ready profile across the catalog, link concepts to shared vocabularies, and use AI-assisted review under a curator to keep records consistent.'},
     ],
-    evidence: ['Completeness report at the target level using the office\'s profile', 'A validated schema.org or DCAT record', 'Published code lists and crosswalks', 'Provenance block in records'],
+    evidence: ['Completeness report at the target level using the organization\'s profile', 'A validated schema.org or DCAT record', 'Published code lists and crosswalks', 'Provenance block in records'],
   },
   {
     id: '2.2',
@@ -432,7 +432,7 @@ export const dimensions = [
     short: 'Catalog',
     coverage: 'direct',
     summary:
-      'NADA provides the catalog with schema.org markup, keyword and semantic search, and managed access; the Microdata Library runs on it with DataCite DOIs. The discoverability work and the PI-FT toolkit improve search by meaning on structured records, and the cookbook gives the question sets and scores to show it.',
+      'NADA provides the catalog, with schema.org markup, keyword and semantic search, and managed access; the Microdata Library runs on it with DataCite DOIs. The discoverability work and the PI-FT toolkit improve search by meaning over structured records. The cookbook provides the question sets and measures needed to demonstrate the improvement.',
     questions: [
       {id: '2.3.1', topic: 'Status of the data catalog', covered: true},
       {id: '2.3.2', topic: 'Search capabilities', covered: true},
@@ -451,7 +451,7 @@ export const dimensions = [
     steps: [
       {from: 'A', to: 'B', text: 'Catalog every published product in NADA or an equivalent, with stable identifiers and keyword search.'},
       {from: 'B', to: 'C', text: 'Register DOIs, add semantic search, and write the question set that measures whether users find the right series.'},
-      {from: 'C', to: 'D', text: 'Fine-tune retrieval on the office\'s own records, report Recall@k and MRR per language, and surface lineage and quality fields in results.'},
+      {from: 'C', to: 'D', text: 'Fine-tune retrieval on the organization\'s own records, report Recall@k and MRR per language, and surface lineage and quality fields in results.'},
     ],
     evidence: ['Catalog URL with schema.org records', 'DOI registrations', 'Retrieval scores per language with the question set'],
   },
@@ -462,7 +462,7 @@ export const dimensions = [
     short: 'APIs',
     coverage: 'partial',
     summary:
-      'The program does not ship an API product. It offers reference implementations (the WDI SDMX API and the Data360 API), the cookbook\'s recipes for an SDMX or OpenAPI-described interface that returns provenance with every response, and the versioning and revisions practice from chapter 3. Performance and bulk access remain engineering work for the office.',
+      'The program does not provide an API product. It offers reference implementations (the WDI SDMX API and the Data360 API), cookbook recipes for an SDMX or OpenAPI-described interface that returns provenance with every response, and the versioning and revisions practice of chapter 3. Performance and bulk access remain engineering work for the organization.',
     questions: [
       {id: '2.4.1', topic: 'Extent of API access', covered: true},
       {id: '2.4.2', topic: 'Documentation and usability', covered: true},
@@ -491,7 +491,7 @@ export const dimensions = [
     short: 'Agent access',
     coverage: 'direct',
     summary:
-      'This is where the program concentrates: MCP design for official statistics with two running servers (Data360 and NADA), grounded answers with every number verified (Proof-Carrying Numbers), evaluation of retrieval and answers, synthetic data for sharing, and small and agentic models for statistical tasks. The cookbook sequences these so that a chatbot comes after findability, retrieval, meaning, and trust.',
+      'The program\'s work is concentrated in this dimension: MCP design for official statistics with two servers in operation (Data360 and NADA), grounded answers with every number verified (Proof-Carrying Numbers), evaluation of retrieval and answers, synthetic data for sharing, and small and agentic models for statistical tasks. The cookbook sequences these so that a conversational interface follows findability, retrieval, meaning, and trust.',
     questions: [
       {id: '2.5.1', topic: 'Generative AI for dissemination', covered: true},
       {id: '2.5.2', topic: 'Model Context Protocol adoption', covered: true},
@@ -522,7 +522,7 @@ export const dimensions = [
     short: 'Licensing',
     coverage: 'partial',
     summary:
-      'The World Bank\'s default of CC BY 4.0 on datasets, the licence field in the metadata schemas, and the cookbook\'s recipes put a machine-readable licence in every record, page, and API response. Whether a licence addresses AI training and derived products (2.6.4) is a legal choice the program cannot make for an office.',
+      'The World Bank\'s default licence for datasets (CC BY 4.0), the licence field in the metadata schemas, and the cookbook\'s recipes place a machine-readable licence in every record, page, and API response. Whether a licence addresses AI training and derived products (2.6.4) is a legal decision for the organization.',
     questions: [
       {id: '2.6.1', topic: 'Type of licence on public data', covered: true},
       {id: '2.6.2', topic: 'Licence associated with each dataset', covered: true},
@@ -548,5 +548,5 @@ export const dimensions = [
 export const coverageLabels = {
   direct: 'Program components address most questions',
   partial: 'Program components address some questions',
-  none: 'No program component; the office\'s own decision',
+  none: 'No program component; the organization\'s own decision',
 };

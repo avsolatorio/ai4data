@@ -29,23 +29,24 @@ function Hero({counts}) {
   return (
     <header className={styles.hero}>
       <div className="container">
-        <span className="eyebrow">AI-readiness assessment · in practice</span>
+        <span className="eyebrow">AI-readiness assessment framework · operational companion</span>
         <Heading as="h1" className={styles.heroTitle}>
-          From assessment to action
+          Operationalizing the AI-readiness assessment
         </Heading>
         <p className={styles.heroLede}>
-          The AI-readiness assessment scores a statistical office on twelve
-          dimensions. This page lists, for each dimension, the program
-          workstreams, open-source tools, reference implementations, and
-          cookbook recipes an office can use to move up a level. It also
-          names the evidence each one produces for the assessment form.
+          The AI-readiness assessment framework scores a national statistical
+          organization on twelve dimensions across two pillars. This page sets
+          out, for each dimension, the program workstreams, open-source tools,
+          reference implementations, and cookbook recipes that support
+          progress to a higher maturity level. It also identifies the evidence
+          that each resource produces for the assessment form.
         </p>
         <div className={styles.heroActions}>
           <Link className={clsx('button button--md', styles.primary)} to="/ai-readiness-assessment">
-            Open the assessment framework
+            Assessment framework
           </Link>
           <Link className={clsx('button button--md', styles.secondary)} to="/cookbook/ai-ready-dissemination/start-here">
-            Five-minute self-assessment
+            Cookbook self-assessment
           </Link>
         </div>
         <dl className={styles.facts}>
@@ -75,22 +76,22 @@ function HowItWorks() {
   const steps = [
     {
       n: '1',
-      title: 'Assess',
-      body: 'Score each dimension with the framework, or take the cookbook\'s five-minute version to place a team quickly.',
+      title: 'Assessment',
+      body: 'Complete the assessment framework to obtain a maturity level (A to D) for each dimension. The cookbook provides a short self-assessment for a first orientation.',
       to: '/ai-readiness-assessment',
       cta: 'Assessment framework',
     },
     {
       n: '2',
-      title: 'Map',
-      body: 'Find the dimensions with the largest gaps below. Each one lists what the program provides and what the office has to decide itself.',
+      title: 'Mapping',
+      body: 'For each dimension where the gap between the current and target levels is largest, consult its entry below. The entry lists the program resources that apply and the questions that remain the organization\'s own.',
       to: '#explorer',
-      cta: 'Dimension explorer',
+      cta: 'Dimension entries',
     },
     {
       n: '3',
-      title: 'Act',
-      body: 'Follow the cookbook recipes and tools named for that dimension. Each produces an artifact the assessment form asks for as evidence.',
+      title: 'Implementation',
+      body: 'Apply the cookbook recipes and tools identified for the dimension. Each produces a document, dataset, or measurement that can be attached to the assessment form as evidence.',
       to: '/cookbook/ai-ready-dissemination/',
       cta: 'Cookbook',
     },
@@ -99,9 +100,9 @@ function HowItWorks() {
     <section className={styles.section}>
       <div className="container">
         <div className={styles.head}>
-          <span className="eyebrow">How this page works</span>
+          <span className="eyebrow">Purpose and structure</span>
           <Heading as="h2" className={styles.title}>
-            From a score to an action plan
+            Using the assessment results
           </Heading>
         </div>
         <ol className={styles.steps}>
@@ -121,12 +122,12 @@ function HowItWorks() {
           ))}
         </ol>
         <p className={styles.note}>
-          The program is strongest on Pillar II, the readiness of data
-          products. On Pillar I it contributes to specific questions (open
-          source, skills, interoperability standards, privacy-preserving
-          techniques, evaluation, partnerships) and has no component for
-          strategy, legal frameworks, infrastructure, or funding. The matrix
-          below shows this honestly.
+          The program's contribution is concentrated in Pillar II, the
+          readiness of data products. In Pillar I it addresses specific
+          questions on open-source publication, skills, interoperability
+          standards, privacy-preserving techniques, evaluation, and
+          partnerships. It has no component for strategy, legal frameworks,
+          infrastructure, or funding. The matrix below records this.
         </p>
       </div>
     </section>
@@ -138,13 +139,13 @@ function Matrix({onPick}) {
     <section className={clsx(styles.section, styles.band)}>
       <div className="container">
         <div className={styles.head}>
-          <span className="eyebrow">Coverage at a glance</span>
+          <span className="eyebrow">Coverage by dimension</span>
           <Heading as="h2" className={styles.title}>
-            What the program offers for each dimension
+            Program support by assessment dimension
           </Heading>
           <p className={styles.lede}>
-            Each cell shows how much of a kind of support exists for a
-            dimension. Select a row to open it in the explorer.
+            Each cell indicates the extent of one kind of support for a
+            dimension. Selecting a dimension opens its entry below.
           </p>
         </div>
         <div className={styles.matrixWrap}>
@@ -227,9 +228,9 @@ function Explorer({selected, setSelected}) {
     <section className={styles.section} id="explorer">
       <div className="container">
         <div className={styles.head}>
-          <span className="eyebrow">Dimension by dimension</span>
+          <span className="eyebrow">Dimension entries</span>
           <Heading as="h2" className={styles.title}>
-            Resources and evidence by dimension
+            Program resources and evidence for each dimension
           </Heading>
         </div>
         <div className={styles.explorer}>
@@ -290,7 +291,7 @@ function Explorer({selected, setSelected}) {
             {d.resources.length > 0 && (
               <div className={styles.block}>
                 <Heading as="h4" className={styles.blockTitle}>
-                  What the program offers
+                  Program resources
                 </Heading>
                 <div className={styles.kinds}>
                   {supportKinds
@@ -315,7 +316,7 @@ function Explorer({selected, setSelected}) {
             {d.cookbook.length > 0 && (
               <div className={styles.block}>
                 <Heading as="h4" className={styles.blockTitle}>
-                  Cookbook path
+                  Relevant cookbook chapters
                 </Heading>
                 <ul className={styles.cbList}>
                   {d.cookbook.map((c) => (
@@ -330,7 +331,7 @@ function Explorer({selected, setSelected}) {
             {d.steps ? (
               <div className={styles.block}>
                 <Heading as="h4" className={styles.blockTitle}>
-                  Moving up a level with program resources
+                  Progression between maturity levels
                 </Heading>
                 <ol className={styles.levels}>
                   {d.steps.map((s) => (
@@ -343,20 +344,21 @@ function Explorer({selected, setSelected}) {
                   ))}
                 </ol>
                 <p className={styles.fine}>
-                  Levels A to D are the framework's maturity scale. The
-                  framework's own suggested actions for each step apply as
-                  well; these are the ones the program's resources support.
+                  Levels A to D are the maturity scale of the framework. The
+                  actions listed are those supported by program resources;
+                  the framework's suggested actions for each transition also
+                  apply.
                 </p>
               </div>
             ) : (
               <div className={styles.block}>
                 <Heading as="h4" className={styles.blockTitle}>
-                  Moving up a level
+                  Progression between maturity levels
                 </Heading>
                 <p className={styles.fine}>
                   The program has no component for this dimension. The
-                  framework's suggested actions and the office's own planning
-                  apply.
+                  framework's suggested actions and the organization's own
+                  planning apply.
                 </p>
               </div>
             )}
@@ -364,7 +366,7 @@ function Explorer({selected, setSelected}) {
             {d.evidence.length > 0 && (
               <div className={styles.block}>
                 <Heading as="h4" className={styles.blockTitle}>
-                  Evidence these produce for the assessment form
+                  Evidence for the assessment form
                 </Heading>
                 <ul className={styles.evidence}>
                   {d.evidence.map((e) => (
@@ -375,7 +377,7 @@ function Explorer({selected, setSelected}) {
             )}
 
             <footer className={styles.panelFoot}>
-              <Link to={`/ai-readiness-assessment`}>Read the full dimension in the framework →</Link>
+              <Link to={`/ai-readiness-assessment`}>Full dimension in the assessment framework →</Link>
               <span className={styles.permalink}>
                 Link to this dimension: <code>#dim-{d.id}</code>
               </span>
@@ -394,19 +396,20 @@ function Closing() {
         <div className={styles.closingRow}>
           <div>
             <Heading as="h2" className={styles.closingTitle}>
-              Where to start
+              Recommended sequence
             </Heading>
             <p className={styles.closingText}>
-              The framework's early-stage pathway puts quality control,
-              metadata standards, a searchable catalog, and API access under a
-              clear licence first. Those are dimensions 2.2, 2.1, 2.3, 2.4, and
-              2.6 on this page, and the cookbook's chapters 1 to 3 and 5. A
-              chatbot or agent interface (2.5) comes after.
+              The framework's pathway for early-stage organizations places
+              data quality control, metadata standards, a searchable catalog,
+              and API access under a clear licence first. These correspond to
+              dimensions 2.2, 2.1, 2.3, 2.4, and 2.6 on this page and to
+              chapters 1 to 3 and 5 of the cookbook. Agentic and generative AI
+              access (dimension 2.5) follows.
             </p>
           </div>
           <div className={styles.closingActions}>
             <Link className={clsx('button button--md', styles.primary)} to="/cookbook/ai-ready-dissemination/">
-              Open the cookbook
+              Cookbook
             </Link>
             <Link className={clsx('button button--md', styles.secondaryOnDark)} to="mailto:ai4data@worldbank.org">
               Contact the program
@@ -449,8 +452,8 @@ export default function InPractice() {
 
   return (
     <Layout
-      title="From assessment to action"
-      description="How the AI for Data – Data for AI program's tools, methods, and cookbook recipes address each dimension of the AI-readiness assessment framework.">
+      title="Operationalizing the AI-readiness assessment"
+      description="The program workstreams, tools, reference implementations, and cookbook recipes that support each dimension of the AI-readiness assessment framework, with the evidence each produces.">
       <Hero counts={counts} />
       <main>
         <HowItWorks />
