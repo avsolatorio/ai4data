@@ -1,0 +1,178 @@
+---
+id: method
+title: "2. Choice of synthesis method"
+sidebar_label: "2. Method"
+sidebar_position: 3
+description: The families of synthesis methods (sequential models such as CART, copulas, generative networks, transformer-based generators), what each preserves and costs, the choice by data and use, and the first run with its parameters recorded.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Choice of synthesis method
+
+**Question:** Which synthesis method fits the data?
+
+## Rationale
+
+Synthesis methods differ in what they preserve, what they need, and
+what they can leak. Sequential methods fit one variable at a time
+conditional on the previous ones (classification and regression trees
+or parametric models) and are transparent, fast, and well understood in
+official statistics. Copula methods fit the marginals and a dependence
+structure. Generative networks and transformer-based generators learn
+the joint distribution from the records and handle mixed types and
+relational structure, at the cost of training time, tuning, and a
+tendency to memorize if left unchecked. The choice follows the data (how
+many records and variables, which types, whether tables are linked) and
+the uses (which relationships have to hold); the running example shows
+what the simplest method loses.
+
+## Target state
+
+- The method for each synthetic file is chosen by a written rule from the data and the intended uses, with the alternatives considered recorded.
+- The synthesis runs with a recorded seed and parameters, on the organization's infrastructure, with the real data never leaving it.
+- The first run is measured ([chapters 3](./utility.mdx) and [4](./risk.mdx)) before any choice is final.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Synthesize one file with a sequential method (synthpop or equivalent) with the seed recorded; measure it. |
+| **AI-ready** | Compare two methods on the same file with the utility and risk measures; choose by the written rule; record parameters and alternatives in the synthesis record. |
+| **AI-native** | Use a relational generator for multi-table surveys; tune by the organization's target analyses; re-synthesize at each release as a pipeline stage. |
+
+:::info[Running example]
+The 300-record extract is synthesized by the crudest method, sampling
+each column independently with income conditioned on education, to show
+what a method that ignores relationships loses: the marginals match, the
+link between sex and labour force status disappears, and the employment
+rate for men falls from 0.56 to 0.40. A sequential CART synthesis is the
+method the chapter recommends as the first real attempt.
+:::
+
+## Recipes
+
+<Recipe title="2.1 Choose the method by data and use" level="Foundational" skills="Methodologist" time="Half a day">
+
+**Result:** the method for a file, chosen by a written rule, with the
+alternatives recorded.
+
+| Data and use | First choice | Why |
+|---|---|---|
+| One table, up to a few hundred thousand records, mixed types, uses need marginals and main relationships | Sequential synthesis (CART) | Transparent, fast, handles mixed types, measures built in |
+| One table, mostly numeric, uses need correlations | Copula (Gaussian copula) | Fits marginals and dependence directly |
+| One table, many records, complex interactions, uses need higher-order structure | Transformer-based generator (REaLTabFormer) or a tabular generative network | Learns the joint distribution; needs tuning and memorization checks |
+| Several linked tables (households and persons, firms and establishments) | Relational generator (REaLTabFormer relational mode, HMA) | Models parent-child structure ([chapter 5](./relational.mdx)) |
+| Panel or longitudinal records | Sequential synthesis by wave with the previous wave as predictor, or a sequence model | Preserves within-person consistency |
+
+1. Describe the data: records, variables by type, linked tables, panel
+   structure; and the uses: the analyses that must give similar
+   answers ([chapter 1](./purpose.mdx)).
+2. Pick the first choice from the table and one alternative; both will
+   be measured.
+3. Record the choice and the reason in the synthesis record
+   ([chapter 6](./release.mdx)).
+
+**What this does not do.** The table gives a first choice; the measures
+decide. A file whose uses need one relationship the method does not
+preserve is a file whose record says so.
+
+</Recipe>
+
+<Recipe title="2.2 Run a sequential synthesis with the parameters recorded" level="Foundational" skills="Methodologist with R or Python" time="One day for the first file">
+
+**Result:** a synthetic file produced by a sequential method with the
+visit sequence, the method per variable, the seed, and the smoothing
+recorded.
+
+1. Set the visit sequence: variables in the order that makes the
+   conditioning sensible (geography, demographics, then outcomes), with
+   derived variables computed after synthesis from their inputs, never
+   synthesized.
+2. Choose the method per variable (CART for most; parametric where the
+   variable is simple); set a minimum leaf size so that no leaf is one
+   person; add smoothing to continuous variables.
+3. Run with a recorded seed; synthpop's `syn()` or an equivalent
+   Python implementation; keep the real data on the organization's
+   infrastructure.
+4. Apply the rules of the survey after synthesis (ages of children
+   below the head's, hours only for the employed), or synthesize within
+   the rules; count what the rules changed.
+
+**What this does not do.** Sequential synthesis preserves the
+relationships along the visit sequence and attenuates the rest; the
+utility report shows which. Rare categories and small areas are the
+first to lose fidelity, and the record says so.
+
+</Recipe>
+
+<Recipe title="2.3 Run a transformer-based or network generator with memorization checks" level="AI-ready" skills="Data scientist with Python and a GPU" time="Two to three days for the first file">
+
+**Result:** a synthetic file from a generator that learns the joint
+distribution, with the training stopped before memorization and the
+parameters recorded.
+
+1. Install the generator ([REaLTabFormer](https://github.com/worldbank/REaLTabFormer):
+   `pip install realtabformer`) and fit it on the real table; it trains
+   a sequence model over the records and includes a stopping criterion
+   that measures whether generated records are too close to the
+   training ones.
+2. Set the sampling parameters and the seed; generate the same number
+   of records as the real file, or more where the uses need it.
+3. Run the risk checks of [chapter 4](./risk.mdx) first: exact copies
+   and closest-record distance; a generator that copied is retrained
+   with a stronger stopping rule or a smaller model.
+4. Record the model version, the training parameters, the stopping
+   statistic, and the seed.
+
+**What this does not do.** A generator needs records to learn from; a
+small survey (a few thousand records) is usually better served by
+sequential synthesis. Training time and tuning are real costs, and the
+copying check is not optional.
+
+</Recipe>
+
+## Implementation options
+
+- **Sequential:** synthpop (R) with CART or parametric methods; equivalent Python implementations.
+- **Copula and networks:** SDV (Gaussian copula, CTGAN, TVAE; Business Source License) for comparison; tabular generative networks where licensing allows.
+- **Transformer-based:** REaLTabFormer (MIT) for tabular and relational data, with its built-in memorization stopping criterion.
+- **Rules:** survey edit rules applied after synthesis or enforced during it; derived variables recomputed.
+
+## World Bank examples
+
+- [REaLTabFormer](https://github.com/worldbank/REaLTabFormer) (Solatorio and Dupriez, 2023) is the program's generator for tabular and relational data, with a target-based stopping criterion that limits memorization.
+- The program's [GSBPM mapping](/docs/gsbpm-mapping) places synthetic data under disclosure control, where the method choice is recorded with the file.
+
+## Resources
+
+- [synthpop](https://cran.r-project.org/package=synthpop) and its [paper (Nowok, Raab, and Dibben, 2016)](https://doi.org/10.18637/jss.v074.i11): sequential synthesis with CART and the utility and disclosure measures that come with it.
+- [REaLTabFormer paper](https://arxiv.org/abs/2302.02041): the transformer-based method for tabular and relational data and its memorization control.
+- [SDV](https://github.com/sdv-dev/SDV): copula, network, and multi-table synthesizers for comparison (check the licence for the organization's use).
+- [UNECE starter guide](https://unece.org/statistics/publications/synthetic-data-official-statistics-starter-guide): the method overview written for statistical organizations.
+- [Real and synthetic extracts](pathname:///cookbook-files/synthetic-data-for-sharing/real_sample.csv): the running example's files, with the crude synthesis that the utility chapter measures.
+
+## Common mistakes
+
+- **A generator for a small survey.** Sequential methods do better with thousands of records and are transparent.
+- **Derived variables synthesized.** They stop agreeing with their inputs; recompute them.
+- **No seed, no parameters.** The file cannot be reproduced or explained.
+- **Training until the loss stops falling.** The generator memorizes; stop by the copying check.
+
+## Verification
+
+- **Choice:** recorded with the reason and the alternative considered.
+- **Run:** seed, parameters, visit sequence or training settings recorded; real data stayed on the organization's infrastructure.
+- **Rules:** survey rules applied and the changes counted.
+
+## Checklist
+
+<Checklist id="synthetic-data-for-sharing-method" items={[
+  'Data and intended uses described before the choice',
+  'Method chosen by the written rule with an alternative to compare',
+  'Visit sequence, methods per variable, leaf size, smoothing recorded (sequential)',
+  'Model version, training parameters, stopping statistic recorded (generators)',
+  'Seed recorded; real data kept on the organization\'s infrastructure',
+  'Survey rules applied; derived variables recomputed',
+]} />

@@ -64,4 +64,31 @@ export const cookbooks = [
     chapters: 9,
     to: '/cookbook/evaluation-suites/',
   },
+  {
+    id: 'language-models-in-production',
+    audience: 'Methodologists and production managers in national statistical organizations',
+    title: 'Practical Guide to Language Models in Statistical Production',
+    description:
+      'Where language models can assist each phase of statistical production, from questionnaire design and open-text coding to editing, commentary, and quality assurance, with the controls that keep the statistics official.',
+    chapters: 7,
+    to: '/cookbook/language-models-in-production/',
+  },
+  {
+    id: 'synthetic-data-for-sharing',
+    audience: 'Microdata teams and methodologists in national statistical organizations',
+    title: 'Practical Guide to Synthetic Data for Sharing',
+    description:
+      'What synthetic microdata are for and what they are not, which method fits the data, how utility and disclosure risk are measured, how relational and longitudinal data are handled, and how a synthetic release is documented and put to use.',
+    chapters: 7,
+    to: '/cookbook/synthetic-data-for-sharing/',
+  },
+  {
+    id: 'small-and-open-models',
+    audience: 'IT and data science leads in national statistical organizations',
+    title: 'Practical Guide to Small and Open Models for Statistical Offices',
+    description:
+      'When a small or open-weight model is enough, which models are candidates and under which licences, how they are run, adapted, evaluated against larger models, kept secure and current, and what they cost to sustain.',
+    chapters: 7,
+    to: '/cookbook/small-and-open-models/',
+  },
 ];

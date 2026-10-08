@@ -1,0 +1,199 @@
+---
+id: assurance
+title: "7. Quality assurance and documentation of model use"
+sidebar_label: "7. Assurance"
+sidebar_position: 8
+description: The controls that keep model-assisted production official (human oversight at defined points, evaluation suites per task, versioning), the measurement of effects on the statistics, and a statement of model use in the quality report of each release.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Quality assurance and documentation of model use
+
+**Question:** How is model use documented and quality-assured?
+
+## Rationale
+
+Official statistics are official because their methods are documented,
+their quality is measured and reported, and a named organization stands
+behind them. Model assistance enters that framework like any other
+method: with defined points of human decision, with measured
+performance per task from an evaluation suite, with versions that make
+a result reproducible, with an assessment of the effect on the
+statistics, and with a statement in the quality report that says where
+models were used, which, how well they performed, and who decided. A
+reader of the report should be able to find every model-assisted step
+and its controls, and an auditor should be able to reproduce a run.
+
+## Target state
+
+- Every model-assisted task has defined decision points, an evaluation suite with required scores, and pinned versions recorded per run.
+- The effect of model assistance on the statistics is measured (re-coded samples, editor decisions, before-and-after comparisons) and reported.
+- Each release's quality report carries a statement of model use with the sections a reader needs, checked for completeness.
+- The statements, the suites, and the register are reviewed each year, and the AI-use policy covers production.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write a statement of model use for one release; name the decision points and the versions. |
+| **AI-ready** | Build the evaluation suite per task with required scores; measure the effect on the statistics; publish the statement with every release and check it. |
+| **AI-native** | Automate the statement from the register and the suites; audit a run end to end each year; publish the suites' report cards. |
+
+:::info[Running example]
+The statement of model use for the labour force survey release names
+three model-assisted tasks with their GSBPM sub-processes, the models
+and where they ran, the measured performance (coding accuracy on a
+re-coded sample, the commentary's verified numbers), the human
+oversight at each point, and the effect on the statistics. The check
+finds every section and every number it requires.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Define the decision points and the suite per task" level="AI-ready" skills="Methodologist; developer" time="One day per task">
+
+**Result:** for each model-assisted task, the point where a person
+decides, the evaluation suite with its required scores, and the
+versions that make a run reproducible.
+
+1. For each row of the map ([chapter 1](./map.mdx)), write the
+   decision point: who decides, on what (the model's output plus which
+   context), and how the decision is recorded.
+2. Build the task's suite as the [evaluation cookbook](/cookbook/evaluation-suites/)
+   describes: a labelled set, the measures (accuracy by level for
+   coding; editor ratings for explanations; verified numbers for
+   commentary), the required scores set from the cost of error, and
+   the gate on changes.
+3. Pin and record the versions per run ([chapter 6](./running.mdx)).
+4. Keep the three (decision points, suite, versions) in the register,
+   and require them before a task leaves pilot.
+
+**What this does not do.** Decision points and suites control the
+tasks they cover. A task used informally outside the map (an analyst
+pasting records into an assistant) is outside every control, which is
+what the AI-use policy's rules and training are for.
+
+</Recipe>
+
+<Recipe title="7.2 Measure the effect on the statistics" level="AI-ready" skills="Methodologist" time="Half a day per release">
+
+**Result:** evidence, per task, of whether model assistance changed the
+statistics, and by how much, reported with the release.
+
+1. Coding: compare the distribution of codes by major group between the
+   automated share and the coder-coded share, and between this round
+   and the last, with the re-coded sample's agreement; a shift beyond
+   sampling variation is investigated before release.
+2. Editing: compare the acceptance of model proposals with the editors'
+   own corrections on a sample without proposals (an A/B sample of
+   editors), to see whether proposals change what editors decide.
+3. Commentary: the check's record (verified numbers, sourced claims) and
+   the edit distance; no effect on the statistics by construction, and
+   the record shows it.
+4. Report the measurements in the quality report's statement with the
+   method and the sample sizes.
+
+**What this does not do.** A measured effect within variation is not
+proof of none; it is the organization's evidence at the stated
+precision, which is how every other quality measure is reported.
+
+</Recipe>
+
+<Recipe title="7.3 Publish a statement of model use with each release" level="Foundational" skills="Methodologist; dissemination officer" time="An hour per release">
+
+**Result:** a statement in the quality report that says where models
+were used, which, how they performed, who decided, and what the effect
+was, checked for completeness before publication.
+
+```md file=../../website/static/cookbook-files/language-models-in-production/model_use_statement.md
+```
+
+```python file=../../website/static/cookbook-files/language-models-in-production/check_statement.py
+```
+
+```bash
+python check_statement.py model_use_statement.md
+```
+
+Output for the running example:
+
+```text
+  ok      Where a model was used
+  ok      Models and versions
+  ok      Measured performance
+  ok      Human oversight
+  ok      Effect on the statistics
+  ok      Contact
+uses with a GSBPM sub-process: 3/3
+measured numbers in the performance section: 7
+result: PASS
+```
+
+1. Write the statement from the register, the suites, and the run
+   records: one bullet per task with its GSBPM sub-process, the models
+   and where they ran, the measured performance with sample sizes, the
+   oversight at each point, the effect on the statistics, and a
+   contact.
+2. Run the check; publish the statement in the quality report and link
+   it from the release page; the transparency requirement of the
+   [AI-use policy](/cookbook/ai-ready-dissemination/govern) is met by
+   it.
+3. Keep the statements; the series of statements is the record of how
+   model use in production changed.
+4. Audit one run end to end each year: from the statement to the
+   register, the suite's report card, the job's versions, and a
+   reproduced result on the labelled sample.
+
+**What this does not do.** The statement reports; the controls it
+describes are what assure. A statement that cannot be reproduced from
+the records is the audit's finding.
+
+</Recipe>
+
+## Implementation options
+
+- **Decision points and suites:** per task in the register; the evaluation cookbook's methods; required scores from cost of error.
+- **Effect measurement:** re-coded samples and distribution comparisons for coding; A/B samples for editing; check records for commentary.
+- **Statement:** the template and check in this chapter; published in the quality report; kept per release.
+- **Audit:** annual end-to-end reproduction of one run.
+
+## World Bank examples
+
+- The program's [GSBPM mapping](/docs/gsbpm-mapping) places responsible AI guidance and the AI-readiness assessment under overarching quality management, where the statement of model use belongs.
+- The [dissemination cookbook's governance chapter](/cookbook/ai-ready-dissemination/govern) sets the AI-use policy, the component register, and the transparency requirement the statement fulfils.
+- The [evaluation suites cookbook](/cookbook/evaluation-suites/) provides the suites and report cards the statement cites.
+
+## Resources
+
+- [UN National Quality Assurance Frameworks manual](https://unstats.un.org/unsd/methodology/dataquality/): the quality reporting the statement fits into.
+- [European Statistics Code of Practice](https://ec.europa.eu/eurostat/web/quality/european-statistics-code-of-practice): principles on sound methodology, quality commitment, and transparency applied to model use.
+- [ISO/IEC 42001](https://www.iso.org/standard/42001): the management system standard for organizations that want a certifiable structure for AI use.
+- [Statement template and check](pathname:///cookbook-files/language-models-in-production/check_statement.py): the running example.
+- [Reporting chapter of the evaluation cookbook](/cookbook/evaluation-suites/reporting): the report cards the statement cites.
+
+## Common mistakes
+
+- **Model use described in a methodology annex nobody updates.** The statement is per release and checked.
+- **Performance claimed without sample sizes.** A number without its sample is a claim.
+- **Effects assumed to be nil.** Measure them, and report the precision.
+- **Controls that exist on paper.** The annual audit reproduces a run.
+
+## Verification
+
+- **Tasks:** every map row has decision points, a suite with required scores, and recorded versions.
+- **Effects:** measured and reported per release with sample sizes.
+- **Statement:** passes the check; published with each release; the series is kept.
+- **Audit:** one run reproduced in the last year with the finding recorded.
+
+## Checklist
+
+<Checklist id="language-models-in-production-assurance" items={[
+  'Decision points defined per task with the decision recorded',
+  'Evaluation suite with required scores per task; changes gated',
+  'Versions pinned and recorded per run',
+  'Effect on the statistics measured per release with sample sizes',
+  'Statement of model use published with each release and checked',
+  'Annual end-to-end audit of one run',
+]} />

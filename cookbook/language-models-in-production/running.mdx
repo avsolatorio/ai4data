@@ -1,0 +1,195 @@
+---
+id: running
+title: "6. Models inside the production environment"
+sidebar_label: "6. Running"
+sidebar_position: 7
+description: Running models where production data live, with local open-weight models for confidential text, batch processing for the large jobs, measured cost and time per record, pinned versions, and the separation that keeps the production systems independent of the model layer.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 6. Models inside the production environment
+
+**Question:** How are models run inside the production environment?
+
+## Rationale
+
+Production data are confidential, production systems are stable, and
+production deadlines are fixed. A model used in production has to meet
+all three: it runs where the data are, under the organization's
+control, for confidential text; it is pinned to a version so that a
+coding run in March and one in June use the same model; it processes
+a survey's records in hours, in batch, at a cost that is known before
+the job starts; and it can be switched off without stopping production.
+These are operational questions with operational answers, and the
+answers decide whether model assistance is a pilot or a production
+method.
+
+## Target state
+
+- Confidential text is processed by open-weight models run on the organization's infrastructure; hosted models see only public or aggregate inputs, by the rule in the map of [chapter 1](./map.mdx).
+- Large jobs run in batch with resumable manifests, measured throughput, and a cost per record known before the run.
+- Model versions, prompts, and classification versions are pinned and recorded per job; a model change is a change that the evaluation suite gates.
+- Production systems run without the model layer; the switch-off test passes.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Run a local open-weight model for one task on a server inside the production network; pin the version; measure throughput. |
+| **AI-ready** | Batch jobs with manifests and status; cost per record estimated and measured; versions recorded per job; the switch-off test passes. |
+| **AI-native** | A shared model service for the organization's tasks with quotas per unit; model updates gated by the suites; capacity planned from measured demand. |
+
+:::info[Running example]
+The labour force survey's occupation coding: 250,000 responses at 180
+input and 12 output tokens each. A hosted model at a batch discount
+would cost about 14 and take five hours at the allowed rate; the local
+server at 900 tokens per second takes fifteen hours and costs about 18
+in server time. The organization runs locally because the responses
+are confidential, and schedules the job overnight.
+:::
+
+## Recipes
+
+<Recipe title="6.1 Run an open-weight model inside the production network" level="Foundational" skills="Infrastructure; developer" time="Two to three days">
+
+**Result:** a model server on the organization's infrastructure that
+production jobs call, with the model version pinned and no data leaving
+the network.
+
+1. Choose the model from the evaluation of the task
+   ([small and open models cookbook](/cookbook/small-and-open-models/));
+   coding and explanation tasks run well on small open-weight models.
+2. Serve it with a server that batches requests (vLLM, llama.cpp,
+   Ollama for small deployments) on a machine inside the production
+   network, with access limited to the production jobs' accounts.
+3. Pin the model by name and hash, the server version, and the prompt
+   files under version control; record them in the AI component
+   register.
+4. Measure throughput (tokens per second at the job's batch size) and
+   keep the figure; the cost estimate of recipe 6.2 uses it.
+
+**What this does not do.** A local server removes the data transfer
+risk; it does not remove the need for access control, logging, and the
+rules of the map. A hosted model remains an option for public and
+aggregate inputs where it is better or cheaper.
+
+</Recipe>
+
+<Recipe title="6.2 Estimate cost and time before a batch job" level="AI-ready" skills="Developer; production manager" time="Minutes">
+
+**Result:** the cost and the wall time of a job under the hosted and
+the local option, from the organization's own token counts and
+throughput, before the job is scheduled.
+
+```python file=../../website/static/cookbook-files/language-models-in-production/batch_cost.py
+```
+
+```bash
+python batch_cost.py --records 250000 --tokens-in 180 --tokens-out 12 \
+    --hosted-in 0.50 --hosted-out 2.00 --batch-discount 0.5 \
+    --local-tokens-per-second 900 --local-hourly-cost 1.20
+```
+
+Output for the running example:
+
+```text
+250,000 records, 45.0M input tokens, 3.0M output tokens
+
+hosted (batch discount 0.50): cost 14.25, about 5.0 hours at the allowed rate, 0.057 per 1,000 records
+local (900 tokens/s): 14.8 hours of server time, cost 17.78, 0.071 per 1,000 records
+
+Add review time per record from the assurance chapter's measurements; it is usually the larger cost.
+```
+
+1. Measure tokens per record on a sample of the real inputs (prompt,
+   rules, text); the prompt is often the larger part, and a shorter
+   prompt is the first saving.
+2. Put in the current hosted prices and the measured local throughput
+   and server cost; read both options.
+3. Decide by the map's rule first (confidential text runs locally),
+   then by cost and deadline; schedule the local job in the window the
+   throughput implies.
+4. Record the estimate with the job; compare with the measured run
+   afterwards and correct the inputs.
+
+**What this does not do.** The estimate covers model time. Review time
+per record (coders on the routed share, editors on proposals) is the
+larger cost for reviewed outputs and comes from the measurements of
+[chapter 7](./assurance.mdx).
+
+</Recipe>
+
+<Recipe title="6.3 Run jobs in batch with manifests and pass the switch-off test" level="AI-ready" skills="Developer; operations" time="One day to set up">
+
+**Result:** model jobs that resume after interruption, record their
+versions, and can be stopped without stopping production.
+
+1. Run each job from a manifest (records to process, stage, status),
+   as the [documents cookbook](/cookbook/data-from-documents/operate)
+   does for document pipelines; a job that stops at record 90,000
+   resumes there.
+2. Write the model version, prompt version, classification version,
+   threshold, and run date into the job's output file header and the
+   register.
+3. Use the batch endpoint of a hosted provider for public inputs where
+   it is cheaper, with the same manifest.
+4. Run the switch-off test of the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/sustain)
+   for production: with the model server stopped, coding falls back to
+   coders with no automated share, editing shows failures without
+   explanations, and the release proceeds; the production systems do
+   not depend on the model layer.
+
+**What this does not do.** Batch jobs cover the production pattern.
+Interactive uses (an editor asking for an explanation on demand) need
+the server available during working hours with the capacity for it,
+which the measured throughput sizes.
+
+</Recipe>
+
+## Implementation options
+
+- **Serving:** vLLM or llama.cpp with a server inside the production network; Ollama for a single small deployment; a hosted batch endpoint for public inputs.
+- **Pinning:** model name and hash, server and prompt versions under version control and in the register.
+- **Batch:** manifests with status and resume; output headers with versions; scheduled windows from throughput.
+- **Independence:** the switch-off test; fallbacks defined per task.
+
+## World Bank examples
+
+- [Efficient and Inclusive AI Applications](/docs/inclusive-ai/) describes provider-agnostic configuration, batch processing, and locally hosted open-weight models, the deployment pattern of this chapter.
+- The [Metadata Reviewer](/docs/metadata-reviewer/overview) is LLM-agnostic and runs with local models, which satisfies the confidentiality rule for unpublished records.
+
+## Resources
+
+- [vLLM](https://github.com/vllm-project/vllm), [llama.cpp](https://github.com/ggml-org/llama.cpp), and [Ollama](https://ollama.com/): open-source servers for open-weight models, from data-centre throughput to a single workstation.
+- [Efficient and Inclusive AI Applications](/docs/inclusive-ai/): the program's measurements and deployment guidance.
+- [Operation chapter of the documents cookbook](/cookbook/data-from-documents/operate): resumable manifests and cost per page for batch pipelines.
+- [Sustainability chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/sustain): the switch-off test and the cost-per-query estimate.
+- [Batch cost estimator](pathname:///cookbook-files/language-models-in-production/batch_cost.py): the running example.
+
+## Common mistakes
+
+- **Confidential text to a hosted model because it is easier.** The map's rule is the rule.
+- **Unpinned models.** March and June code differently and nobody knows why.
+- **Jobs that restart from zero.** A manifest costs an hour to add.
+- **Production that needs the model server up.** The switch-off test exists for this.
+
+## Verification
+
+- **Serving:** the model server is inside the network; access is limited; the version is pinned and recorded.
+- **Estimates:** every job has a recorded estimate and a measured outcome.
+- **Batch:** a job interrupted in testing resumes; output headers carry the versions.
+- **Independence:** the switch-off test passes with the fallbacks exercised.
+
+## Checklist
+
+<Checklist id="language-models-in-production-running" items={[
+  'Open-weight model served inside the production network for confidential text',
+  'Model, server, prompt, and classification versions pinned and recorded',
+  'Throughput measured; cost and time estimated before each job',
+  'Batch jobs with manifests, resume, and version headers',
+  'Hosted batch endpoints only for public or aggregate inputs',
+  'Switch-off test passes with fallbacks defined per task',
+]} />

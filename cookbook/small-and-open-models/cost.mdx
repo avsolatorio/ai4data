@@ -1,0 +1,169 @@
+---
+id: cost
+title: "7. Cost, skills, and sustainability"
+sidebar_label: "7. Cost"
+sidebar_position: 8
+description: The total cost of running models locally against hosted use over several years (hardware, power, staff, updates), the skills a small team needs, shared infrastructure across units and organizations, and the plan that keeps the capacity alive.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Cost, skills, and sustainability
+
+**Question:** What do they cost, and how is the capacity sustained?
+
+## Rationale
+
+A local model costs hardware, power, and people; a hosted model costs
+per query and a dependency. The comparison is over years and includes
+what is easy to forget: the staff time to run the server, the updates,
+the suite runs, and the skills that leave when a person does. For most
+statistical organizations the arithmetic favours local open models for
+the narrow, high-volume tasks and hosted or large models for a few
+others, and it favours sharing: one GPU server serves every unit's
+batch jobs, one team maintains the registry and the suites, and
+organizations share test sets and fine-tuned models where licences
+allow. The sustainability plan names the people, the budget lines, and
+the renewal dates.
+
+## Target state
+
+- The cost of each task is known per query under its chosen model, including staff time, and compared yearly with the alternatives.
+- A small team with named roles maintains the registry, the serving, the suites, and the adaptations, with the skills documented and shared.
+- Hardware and software renewals, model reviews, and budget lines are planned over three years, and shared infrastructure is used where it exists.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Estimate the three-year cost of the first local deployment against hosted use; name the person who runs it. |
+| **AI-ready** | Measure cost per query per task in production; staff the roles; plan renewals and reviews; share the server across units. |
+| **AI-native** | Share infrastructure, test sets, and fine-tuned models across organizations; report cost and capacity yearly with the AI component register. |
+
+:::info[Running example]
+The example organization runs its coding, extraction, and embedding
+tasks on one 24 GB GPU server inside the production network and uses a
+hosted model for release commentary and the public assistant. Its
+three-year estimate puts the server, power, and a half-time engineer
+against the hosted alternative for the same volumes; the local tasks
+cost a fraction per query, and the hosted tasks stay hosted because
+their volume is low and their quality requirement high.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Estimate the total cost over three years" level="Foundational" skills="Head of IT; finance" time="Half a day">
+
+**Result:** a three-year cost of the local deployment against hosted
+use for the same tasks and volumes, with the assumptions written down.
+
+1. Local: hardware (the server from [chapter 3](./serving.mdx), amortized
+   over three years), power and hosting, the staff share (an engineer's
+   fraction for running and updating), and the suite runs' time.
+2. Hosted: the measured tokens per query times prices for each task's
+   volume, plus the staff share for integration and monitoring, plus the
+   cost of the data that cannot be sent (the tasks that would have to
+   stay manual).
+3. Compare per task and in total; the frontier of
+   [chapter 5](./comparison.mdx) gives the per-query figures.
+4. Record the assumptions (volumes, prices, salaries, lifetime) with the
+   estimate and revisit yearly; prices and volumes both change.
+
+**What this does not do.** An estimate with written assumptions is a
+plan; the measured cost per query after a year of production replaces
+it, as the [production cookbook](/cookbook/language-models-in-production/running)
+measures batch jobs.
+
+</Recipe>
+
+<Recipe title="7.2 Staff the roles and document the skills" level="AI-ready" skills="Head of the unit" time="Half a day">
+
+**Result:** named people for the roles the capacity needs, with the
+skills documented so that the capacity survives a departure.
+
+1. Roles: a model engineer (registry, serving, updates, verification);
+   an evaluation owner (suites, gates, report cards); a task owner per
+   adapted task (prompts, data, decisions); a security contact. One
+   person can hold two roles; no role is unassigned.
+2. Document the procedures as runbooks: importing a model, verifying
+   and deploying it, running the suite, rolling back; the scripts of
+   these cookbooks are the runbooks' core.
+3. Train a second person per role; the switch-off test of the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/sustain)
+   doubles as a staffing test when run by the second person.
+4. Share training with other organizations through the program's
+   events and materials.
+
+**What this does not do.** Roles and runbooks keep the capacity
+running; they do not make the organization a research lab. The scope
+stays the narrow tasks the frontier favours, and the ambitious ones use
+hosted or shared capacity.
+
+</Recipe>
+
+<Recipe title="7.3 Share infrastructure, test sets, and models" level="AI-native" skills="Head of IT; head of the unit" time="Ongoing">
+
+**Result:** one serving capacity for the organization's units, and test
+sets and fine-tuned models shared with other organizations where
+licences and data allow.
+
+1. Inside the organization: one model service with quotas per unit
+   ([chapter 3](./serving.mdx)); one registry; one evaluation owner;
+   cost allocated by measured use.
+2. Across organizations: publish question sets whose content is public
+   ([evaluation cookbook, chapter 9](/cookbook/evaluation-suites/reporting));
+   share fine-tuned models whose training data allow it, with cards;
+   use shared or pooled infrastructure where a regional or program
+   arrangement exists.
+3. Record what is shared and under which terms in the AI component
+   register.
+
+**What this does not do.** Sharing reduces cost and raises quality for
+tasks with common structure (coding to international classifications,
+catalog search); tasks on national data and language remain the
+organization's to adapt.
+
+</Recipe>
+
+## Implementation options
+
+- **Cost model:** amortized hardware, power, staff share, suite time against measured hosted spend; per task and in total; assumptions recorded.
+- **Roles:** model engineer, evaluation owner, task owners, security contact; runbooks from the cookbooks' scripts; a second person per role.
+- **Sharing:** one service and registry per organization; public question sets and shareable fine-tuned models across organizations; pooled infrastructure where available.
+
+## World Bank examples
+
+- [Efficient and Inclusive AI Applications](/docs/inclusive-ai/) measures model size against task accuracy and describes batch and local deployment, the basis of the cost model.
+- The program's [partnerships](/docs/partnerships) and open-source [code](https://github.com/worldbank/ai4data) are the sharing channels for test sets and models.
+
+## Resources
+
+- [Sustainability chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/sustain): the switch-off test and the cost-per-query estimate.
+- [Running chapter of the production cookbook](/cookbook/language-models-in-production/running): measured batch costs that replace the estimate.
+- [Reporting chapter of the evaluation cookbook](/cookbook/evaluation-suites/reporting): shared set formats and report cards.
+- [Frontier script](pathname:///cookbook-files/small-and-open-models/cost_frontier.py): per-query costs per candidate.
+
+## Common mistakes
+
+- **Hardware without the engineer.** The server idles and the models age.
+- **Hosted costs without the data that cannot be sent.** Those tasks stay manual, which is a cost.
+- **One person who knows everything.** The capacity leaves with them.
+- **Every unit with its own server.** One service, quotas, measured use.
+
+## Verification
+
+- **Cost:** a three-year estimate with written assumptions, revisited within the year; measured cost per query per task in production.
+- **Roles:** named, with runbooks and a trained second person; the switch-off test run by the second person.
+- **Sharing:** one service and registry per organization; shared assets recorded with terms.
+
+## Checklist
+
+<Checklist id="small-and-open-models-cost" items={[
+  'Three-year cost of local against hosted per task with assumptions recorded',
+  'Cost per query measured in production and reported yearly',
+  'Roles named: model engineer, evaluation owner, task owners, security contact',
+  'Runbooks and a trained second person per role',
+  'One model service and registry per organization with quotas',
+  'Test sets and models shared across organizations where terms allow',
+]} />

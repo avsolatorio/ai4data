@@ -1,0 +1,167 @@
+---
+id: workflow
+title: "7. Synthetic data in the access workflow"
+sidebar_label: "7. Workflow"
+sidebar_position: 8
+description: Putting synthetic files to use (code development before an application, teaching, test data for pipelines, work in enclaves), telling users what they can and cannot do, measuring the effect on access requests and support, and tracking use.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Synthetic data in the access workflow
+
+**Question:** How do synthetic data enter the access and analysis workflow?
+
+## Rationale
+
+A synthetic file pays off when it changes how people work with the real
+one. Applicants for a licensed file write and test their code on the
+synthetic file while the application is processed, and arrive at the
+real file with code that runs; researchers in an enclave prepare their
+analysis outside it; teachers use a realistic file without any access
+procedure; developers test pipelines on data with the right shape; a
+partner organization receives something it can work with while the
+agreement for the real data is negotiated. Each of these is a place in
+the organization's workflow where the synthetic file is offered, with
+the guidance that tells the user what to expect, and each can be
+measured: shorter time from application to first result, fewer support
+requests, fewer resubmissions.
+
+## Target state
+
+- The synthetic file is offered at the points of the access workflow where it helps: the application page, the enclave's preparation step, the teaching and developer resources.
+- Users receive guidance with the file: what it reproduces, what it does not, how to move code from the synthetic to the real file, and what to expect.
+- The effect is measured (time to first result, support requests, resubmissions, downloads) and reported with the microdata unit's other measures.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Offer the synthetic file on the real survey's page with the guidance; count downloads. |
+| **AI-ready** | Offer it in the application workflow and the enclave preparation step; measure time to first result and support requests before and after; collect user feedback. |
+| **AI-native** | Produce synthetic files at each release; serve them through the same API and agent interface as public data, labelled; track use with the monitoring cookbook's methods. |
+
+:::info[Running example]
+Applicants for the labour force survey's licensed file are shown the
+synthetic file on the application page with a guidance note and a
+script that switches a program from the synthetic to the real file by
+changing one path. In the following quarter, support requests about
+variable names and types fall, and the first results from the real file
+arrive sooner; the unit reports both with the download counts.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Offer the file where applicants and users look" level="Foundational" skills="Dissemination officer; catalog administrator" time="Half a day">
+
+**Result:** the synthetic file is linked from the real survey's page,
+the application form, and the teaching and developer resources, with a
+guidance note.
+
+1. On the real survey's catalog page and in the application form, add
+   a block: "A synthetic version is available now for code development
+   and teaching", with the link and the one-paragraph guidance.
+2. In the enclave's onboarding, add the synthetic file as the
+   preparation step: analysts write their programs against it before
+   their session.
+3. List the files in a teaching and developer resources page with the
+   purpose statement.
+4. Count downloads and page views per file ([monitoring cookbook, chapter 2](/cookbook/monitoring-data-use/access)).
+
+**What this does not do.** Offering the file helps users who read the
+page. The guidance note and the label are what reach the ones who do
+not.
+
+</Recipe>
+
+<Recipe title="7.2 Write the guidance and the switch-over script" level="Foundational" skills="Methodologist; developer" time="Half a day per survey">
+
+**Result:** a one-page guidance note and a script that moves a user's
+program from the synthetic file to the real one.
+
+1. The note: what the file is (synthetic, from which survey and
+   method); what it reproduces (the variables, types, codes, the
+   marginals and relationships the utility report confirmed); what it
+   does not (estimates, small groups, relationships not listed); the
+   label; the licence; the contact.
+2. The switch-over: the synthetic file has the same variable names,
+   types, value codes, and file layout as the real file, so that a
+   program changes one path to run on the real data; provide the data
+   dictionary of the [microdata cookbook](/cookbook/microdata-documentation/variables)
+   for both.
+3. State the expected differences a user will see on the real file
+   (different numbers; small groups present; weights).
+
+**What this does not do.** A program that runs on the synthetic file
+can still be wrong on the real one in ways the synthetic file could not
+show; the note says so, and the enclave's output checking remains.
+
+</Recipe>
+
+<Recipe title="7.3 Measure the effect and track use" level="AI-ready" skills="Microdata unit; analyst" time="An hour per quarter">
+
+**Result:** evidence of what the synthetic file changed, reported with
+the unit's access statistics.
+
+1. Before and after the file's release, measure: time from application
+   approval to the applicant's first result or output request; support
+   requests about variable names, types, and codes; resubmissions of
+   programs in the enclave; teaching requests for data.
+2. Count the file's downloads and, where the terms ask for it, the
+   citations and mentions of the synthetic file in publications
+   ([monitoring cookbook](/cookbook/monitoring-data-use/)), which also
+   catches a synthetic file quoted as if real.
+3. Collect feedback from applicants on what the synthetic file did and
+   did not help with; the utility report's target analyses grow from it.
+4. Report the measures quarterly with the access statistics.
+
+**What this does not do.** Before-and-after measures on a small number
+of applicants show direction; the unit reports them with their counts.
+A synthetic file quoted as a source of statistics is a misuse to
+correct through the monitoring cookbook's follow-up.
+
+</Recipe>
+
+## Implementation options
+
+- **Placement:** the real survey's page, the application form, the enclave onboarding, teaching and developer pages; the API and agent interface for the open tier, labelled.
+- **Guidance:** a one-page note per file; the switch-over script; the data dictionary for both files.
+- **Measures:** time to first result, support requests, resubmissions, downloads, citations and mentions.
+- **Feedback:** applicant feedback into the utility report's target analyses.
+
+## World Bank examples
+
+- The [Microdata Library](https://microdata.worldbank.org/) access workflow (public use, licensed, enclave) is where the synthetic file is offered, as the [microdata cookbook's access chapter](/cookbook/microdata-documentation/access) describes.
+- The [monitoring cookbook](/cookbook/monitoring-data-use/) counts access and finds mentions, which measure the synthetic file's use.
+
+## Resources
+
+- [Access chapter of the microdata cookbook](/cookbook/microdata-documentation/access): the tiers and workflow the file joins.
+- [Variables chapter of the microdata cookbook](/cookbook/microdata-documentation/variables): the data dictionary that makes the switch-over possible.
+- [Access statistics chapter of the monitoring cookbook](/cookbook/monitoring-data-use/access): counting downloads of the synthetic file consistently.
+- [UNECE starter guide](https://unece.org/statistics/publications/synthetic-data-official-statistics-starter-guide): use cases from statistical organizations.
+
+## Common mistakes
+
+- **A file nobody is told about.** It is linked where applicants look.
+- **Different variable names from the real file.** The switch-over fails and the file loses its purpose.
+- **No guidance.** Users compute estimates and publish them.
+- **No measurement.** The unit cannot say what the file changed.
+
+## Verification
+
+- **Placement:** the file is linked from the real survey's page, the application form, and the enclave onboarding.
+- **Guidance:** each file has the note and the switch-over script; the dictionaries match.
+- **Measures:** reported quarterly with counts; feedback collected.
+
+## Checklist
+
+<Checklist id="synthetic-data-for-sharing-workflow" items={[
+  'Synthetic file offered on the survey page, the application form, and enclave onboarding',
+  'Guidance note per file with what it reproduces and what it does not',
+  'Same variable names, types, codes, and layout as the real file; switch-over script',
+  'Downloads, time to first result, support requests, resubmissions measured',
+  'Citations and mentions of the synthetic file tracked; misuse followed up',
+  'Applicant feedback fed into the utility report',
+]} />
