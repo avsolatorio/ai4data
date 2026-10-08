@@ -1,15 +1,15 @@
 ---
 id: improve
-title: "6. Improvement from decisions"
-sidebar_label: "6. Improve"
-sidebar_position: 7
+title: "8. Improvement from decisions"
+sidebar_label: "8. Improve"
+sidebar_position: 9
 description: Acceptance rates and an error taxonomy tracked per field and model, an evaluation set built from curator decisions that gates prompt and model changes, and model choice and cost for routine tasks.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Improvement from decisions
+# 8. Improvement from decisions
 
 **Question:** How do curator decisions improve the system?
 
@@ -48,12 +48,12 @@ is tested on the decided records before it ships.
 
 ## Recipes
 
-<Recipe title="6.1 Track acceptance and the error taxonomy" level="Foundational" skills="Curator; Python" time="One hour per period">
+<Recipe title="8.1 Track acceptance and the error taxonomy" level="Foundational" skills="Curator; Python" time="One hour per period">
 
 **Result:** a time series of acceptance rates per field, task, and model,
 and a coded list of why suggestions fail.
 
-1. Run the acceptance script of [chapter 2](./draft.mdx) on each period's
+1. Run the acceptance script of [chapter 3](./draft.mdx) on each period's
    decisions and keep the output with the model, prompt, and manifest
    versions.
 2. Code rejection and edit reasons into a short taxonomy: wrong flag,
@@ -72,7 +72,7 @@ period measures that ceiling.
 
 </Recipe>
 
-<Recipe title="6.2 Gate changes on an evaluation set" level="AI-ready" skills="Developer; curator" time="One day to set up; part of each change">
+<Recipe title="8.2 Gate changes on an evaluation set" level="AI-ready" skills="Developer; curator" time="One day to set up; part of each change">
 
 **Result:** no change to a prompt, an agents manifest, a rubric, or a
 model ships without a measured effect on a fixed set of decided records.
@@ -97,7 +97,7 @@ until such records enter the set, which is why the set grows.
 
 </Recipe>
 
-<Recipe title="6.3 Choose the model per task and know the cost" level="AI-native" skills="Developer" time="One to two days per task">
+<Recipe title="8.3 Choose the model per task and know the cost" level="AI-native" skills="Developer" time="One to two days per task">
 
 **Result:** each task runs on the smallest model that passes the
 evaluation set, and the cost per record is reported.
@@ -137,6 +137,14 @@ runs.
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) names feedback loops from reviewer corrections and human-in-the-loop review among the practices the program recommends.
 - [Efficient and Inclusive AI](/docs/inclusive-ai/) compares model sizes by task, describes batch processing, and shows the provider-agnostic configuration with a local model.
 - The [Metadata Reviewer](/docs/metadata-reviewer/overview) ships alternative agents manifests, which are the kind of change the evaluation set gates.
+
+## Resources
+
+- [Efficient and Inclusive AI](/docs/inclusive-ai/): model size by task, batch processing, and provider-agnostic configuration with local models.
+- [litellm](https://github.com/BerriAI/litellm): one client for hosted and local models, so that candidates can be compared on the same evaluation set.
+- [Evaluation chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/evaluate): the question-set discipline (versioning, held-out part, gates) applied here to decided records.
+- [Metadata Reviewer agents manifests](/docs/metadata-reviewer/user-manual/appendix-agents-manifest): the kind of change the evaluation set gates.
+- [Acceptance script](pathname:///cookbook-files/metadata-curation-with-llms/score_suggestions.py): the per-period measure.
 
 ## Common mistakes
 

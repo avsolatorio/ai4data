@@ -30,11 +30,18 @@ THRESHOLD = 0.5
 def load(path: Path) -> dict[str, dict[str, float]]:
     with path.open(newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
-    return {r["record_id"]: {k: float(v) for k, v in r.items() if k != "record_id" and v != ""} for r in rows}
+    return {
+        r["record_id"]: {
+            k: float(v) for k, v in r.items() if k != "record_id" and v != ""
+        }
+        for r in rows
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("model", type=Path)
     parser.add_argument("curator", type=Path)
     args = parser.parse_args(argv)
@@ -43,7 +50,9 @@ def main(argv: list[str] | None = None) -> int:
     records = sorted(set(model) & set(curator))
     if not records:
         sys.exit("no records in common")
-    dimensions = [d for d in next(iter(model.values())) if all(d in curator[r] for r in records)]
+    dimensions = [
+        d for d in next(iter(model.values())) if all(d in curator[r] for r in records)
+    ]
 
     print(f"{len(records)} records, {len(dimensions)} dimensions\n")
     print(f"{'dimension':<22} {'exact':>6} {'within 1':>9} {'mean diff':>10}  note")
@@ -58,8 +67,12 @@ def main(argv: list[str] | None = None) -> int:
             flagged += 1
             note = "model more severe" if diff < 0 else "model more lenient"
         print(f"{d:<22} {exact:>6.2f} {within:>9.2f} {diff:>+10.2f}  {note}")
-    print(f"\n{flagged} dimension(s) miscalibrated at a mean difference of {THRESHOLD} or more")
-    print("Scores are compared with the curators' scores as the reference; the curators' own agreement is reported separately.")
+    print(
+        f"\n{flagged} dimension(s) miscalibrated at a mean difference of {THRESHOLD} or more"
+    )
+    print(
+        "Scores are compared with the curators' scores as the reference; the curators' own agreement is reported separately."
+    )
     return 0
 
 

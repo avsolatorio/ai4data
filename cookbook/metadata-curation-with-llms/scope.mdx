@@ -69,7 +69,7 @@ model does and what the curator decides.
 2. Mark which fields a model may never draft (units, methods, legal text)
    and which it may only flag.
 3. Name the curator role that decides, and the record of decisions
-   ([chapter 4](./review.mdx), recipe 4.3).
+   ([chapter 5](./review.mdx), recipe 4.3).
 
 **What this does not do.** The typology sets roles; it does not make
 drafts good. [Chapters 2](./draft.mdx) and [3](./assess.mdx) measure
@@ -94,7 +94,7 @@ them.
    (through litellm), so the model can be a local one.
 
 **What this does not do.** Rules state the practice; the review board and
-the decision log of [chapter 4](./review.mdx) are where the practice is
+the decision log of [chapter 5](./review.mdx) are where the practice is
 visible and auditable.
 
 </Recipe>
@@ -116,7 +116,7 @@ review effort, and a definition of success for them.
    first run.
 
 **What this does not do.** Twenty records calibrate the workflow. The
-catalog-scale run comes after the acceptance rates of [chapter 6](./improve.mdx)
+catalog-scale run comes after the acceptance rates of [chapter 8](./improve.mdx)
 are known.
 
 </Recipe>
@@ -132,6 +132,14 @@ are known.
 
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) lists the task families and the risks (plausible but incorrect text, inconsistency, bias) that the rules answer.
 - The [Metadata Reviewer](/docs/metadata-reviewer/overview) is designed to be LLM-agnostic, so that the model choice follows the confidentiality rule.
+
+## Resources
+
+- [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality): the task families (generation, alignment, standardization, translation, summarization, diagnostics) and the risks the rules answer.
+- [ISO/IEC 42001](https://www.iso.org/standard/42001) and the [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework): management frameworks the typology and the register fit into.
+- [AI-use policy template](pathname:///cookbook-files/ai-ready-dissemination/ai_use_policy_template.md) and [AI component register](pathname:///cookbook-files/ai-ready-dissemination/ai_component_register.csv) from the dissemination cookbook: where the rules and the pipeline are recorded.
+- [litellm](https://github.com/BerriAI/litellm): the provider-agnostic client the program's tools use, which lets the model be a local one for unpublished records.
+- [Efficient and Inclusive AI](/docs/inclusive-ai/): running open-weight models locally, for the confidentiality rule.
 
 ## Common mistakes
 

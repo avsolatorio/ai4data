@@ -28,11 +28,13 @@ produce plausible text that is wrong. The difference between help and harm
 is the workflow: what the model is asked to do, how its output is checked,
 who decides, and how decisions feed back.
 
-This guide is organized around six questions a curation team can ask:
-which tasks a model can assist and which stay with people, whether a model
-can draft fields a curator will accept, whether it can assess quality
+This guide is organized around eight questions a curation team can ask:
+which tasks a model can assist and which stay with people, whether legacy
+records can be moved into the schema without loss, whether a model can
+draft fields a curator will accept, whether it can assess quality
 consistently, how curators review and decide on suggestions, whether free
-text can be aligned with controlled vocabularies, and how curator
+text can be aligned with controlled vocabularies, whether metadata can be
+translated with the same meaning in every language, and how curator
 decisions improve the system. Each chapter answers one question with
 recipes, maturity levels, and a checklist.
 
@@ -63,11 +65,13 @@ a curation team at a level in each chapter.
 | Chapter | Question | Practical topics |
 |---|---|---|
 | [1. Scope of model assistance](./scope.mdx) | Which curation tasks can a model assist, and which stay with people? | Task typology, decision rights, confidentiality, where to start |
-| [2. Drafting of fields](./draft.mdx) | Can a model draft fields that a curator will accept? | Prompts with record and schema, structured output, draft status, acceptance rate |
-| [3. Assessment of quality](./assess.mdx) | Can a model assess metadata quality consistently? | Four dimensions, structured scores, calibration against curators, catalog reports |
-| [4. Review of suggestions](./review.mdx) | How do curators review and decide on suggestions? | The Metadata Reviewer, issue categories and severity, the review board, recorded decisions |
-| [5. Alignment with vocabularies](./standardize.mdx) | Can free text be aligned with controlled vocabularies? | SKOS vocabularies, mapping, unmapped terms, translations under review |
-| [6. Improvement from decisions](./improve.mdx) | How do curator decisions improve the system? | Acceptance rates, error taxonomy, evaluation gates, model choice and cost |
+| [2. Migration of legacy records](./migrate.mdx) | Can legacy records be moved into the schema without losing what they say? | Field mapping with model proposals, transforms, unplaced columns, validation and review |
+| [3. Drafting of fields](./draft.mdx) | Can a model draft fields that a curator will accept? | Prompts with record and schema, structured output, draft status, acceptance rate |
+| [4. Assessment of quality](./assess.mdx) | Can a model assess metadata quality consistently? | Four dimensions, structured scores, calibration against curators, catalog reports |
+| [5. Review of suggestions](./review.mdx) | How do curators review and decide on suggestions? | The Metadata Reviewer, issue categories and severity, the review board, recorded decisions |
+| [6. Alignment with vocabularies](./standardize.mdx) | Can free text be aligned with controlled vocabularies? | SKOS vocabularies, mapping, unmapped terms, model proposals |
+| [7. Translation of metadata](./translate.mdx) | Can metadata be translated so that every language gets the same meaning? | Scope and reviewers, glossary from the vocabulary, model translation, checks, publication per language |
+| [8. Improvement from decisions](./improve.mdx) | How do curator decisions improve the system? | Acceptance rates, error taxonomy, evaluation gates, model choice and cost |
 
 ## Maturity levels
 
@@ -90,7 +94,9 @@ free-text keywords that follow no list. The recipes draft the missing
 definition, score the five records on four dimensions and compare the
 scores with a curator's, run the records through a review pipeline, map
 the keywords to a small vocabulary, and compute acceptance rates from the
-curator's decisions. All records and decisions are invented.
+curator's decisions. A legacy spreadsheet of the same five records and
+ten French translations serve the migration and translation chapters.
+All records, translations, and decisions are invented.
 
 ## Scope of the examples
 
@@ -105,14 +111,16 @@ scripts here measure what comes back.
 
 | File | Used in |
 |---|---|
-| [suggestions_example.jsonl](pathname:///cookbook-files/metadata-curation-with-llms/suggestions_example.jsonl) | Chapters 2, 4, and 6: suggestions from drafting and from the review pipeline |
-| [decisions_example.csv](pathname:///cookbook-files/metadata-curation-with-llms/decisions_example.csv) | Chapters 4 and 6: the curator's decisions on the suggestions |
-| [score_suggestions.py](pathname:///cookbook-files/metadata-curation-with-llms/score_suggestions.py) | Chapters 2 and 6: acceptance rates per field and source |
-| [model_scores.csv](pathname:///cookbook-files/metadata-curation-with-llms/model_scores.csv) and [curator_scores.csv](pathname:///cookbook-files/metadata-curation-with-llms/curator_scores.csv) | Chapter 3: quality scores from the model and from a curator |
-| [assess_agreement.py](pathname:///cookbook-files/metadata-curation-with-llms/assess_agreement.py) | Chapter 3: calibration of model scores against curators |
-| [keywords_freetext.csv](pathname:///cookbook-files/metadata-curation-with-llms/keywords_freetext.csv) and [vocabulary.csv](pathname:///cookbook-files/metadata-curation-with-llms/vocabulary.csv) | Chapter 5: free-text keywords and a small vocabulary |
-| [map_vocabulary.py](pathname:///cookbook-files/metadata-curation-with-llms/map_vocabulary.py) | Chapter 5: mapping of keywords to the vocabulary |
+| [legacy_catalog.csv](pathname:///cookbook-files/metadata-curation-with-llms/legacy_catalog.csv), [field_mapping.csv](pathname:///cookbook-files/metadata-curation-with-llms/field_mapping.csv), and [migrate_records.py](pathname:///cookbook-files/metadata-curation-with-llms/migrate_records.py) | Chapter 2: the legacy spreadsheet, the field mapping, and the migration |
+| [suggestions_example.jsonl](pathname:///cookbook-files/metadata-curation-with-llms/suggestions_example.jsonl) | Chapters 3, 5, and 8: suggestions from drafting and from the review pipeline |
+| [decisions_example.csv](pathname:///cookbook-files/metadata-curation-with-llms/decisions_example.csv) | Chapters 5 and 8: the curator's decisions on the suggestions |
+| [score_suggestions.py](pathname:///cookbook-files/metadata-curation-with-llms/score_suggestions.py) | Chapters 3 and 8: acceptance rates per field and source |
+| [model_scores.csv](pathname:///cookbook-files/metadata-curation-with-llms/model_scores.csv) and [curator_scores.csv](pathname:///cookbook-files/metadata-curation-with-llms/curator_scores.csv) | Chapter 4: quality scores from the model and from a curator |
+| [assess_agreement.py](pathname:///cookbook-files/metadata-curation-with-llms/assess_agreement.py) | Chapter 4: calibration of model scores against curators |
+| [keywords_freetext.csv](pathname:///cookbook-files/metadata-curation-with-llms/keywords_freetext.csv) and [vocabulary.csv](pathname:///cookbook-files/metadata-curation-with-llms/vocabulary.csv) | Chapter 6: free-text keywords and a small vocabulary |
+| [map_vocabulary.py](pathname:///cookbook-files/metadata-curation-with-llms/map_vocabulary.py) | Chapter 6: mapping of keywords to the vocabulary |
 | [example_catalog.csv](pathname:///cookbook-files/ai-ready-dissemination/example_catalog.csv) | The five records, from the dissemination cookbook |
+| [translations_example.csv](pathname:///cookbook-files/metadata-curation-with-llms/translations_example.csv) and [check_translations.py](pathname:///cookbook-files/metadata-curation-with-llms/check_translations.py) | Chapter 7: French translations with planted errors, and the check |
 
 ## Related resources
 

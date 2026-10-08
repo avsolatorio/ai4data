@@ -1,15 +1,15 @@
 ---
 id: draft
-title: "2. Drafting of fields"
-sidebar_label: "2. Draft"
-sidebar_position: 3
+title: "3. Drafting of fields"
+sidebar_label: "3. Draft"
+sidebar_position: 4
 description: Prompts that give the model the record and the schema's field definitions, structured output marked as draft, checks before review, and the acceptance rate that measures the drafts.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 2. Drafting of fields
+# 3. Drafting of fields
 
 **Question:** Can a model draft fields that a curator will accept?
 
@@ -46,7 +46,7 @@ edit.
 
 ## Recipes
 
-<Recipe title="2.1 Draft a missing field from the record and the schema" level="Foundational" skills="Curator with access to a model" time="One hour to set up; seconds per record">
+<Recipe title="3.1 Draft a missing field from the record and the schema" level="Foundational" skills="Curator with access to a model" time="One hour to set up; seconds per record">
 
 **Result:** a draft for each missing field, grounded in the record, in the
 catalog's style, marked as a draft.
@@ -62,7 +62,7 @@ catalog's style, marked as a draft.
    be validated and the grounding read.
 3. Write the draft into the record with a draft status and the source
    ("model draft, [model], [date]"), never into the published field.
-4. Send the draft to the review board ([chapter 4](./review.mdx)).
+4. Send the draft to the review board ([chapter 5](./review.mdx)).
 
 A prompt for the running example's definition, as text:
 
@@ -83,7 +83,7 @@ only what the record supports, and the curator, catch that.
 
 </Recipe>
 
-<Recipe title="2.2 Check drafts before review" level="AI-ready" skills="Python" time="Half a day to set up">
+<Recipe title="3.2 Check drafts before review" level="AI-ready" skills="Python" time="Half a day to set up">
 
 **Result:** drafts that fail formal checks never reach the curator.
 
@@ -96,9 +96,9 @@ only what the record supports, and the curator, catch that.
    draft appears in the record or the named source; a draft that adds
    facts is returned to the model with the rule, or dropped.
 3. Check style: register, length, the organization's terms (the
-   vocabulary of [chapter 5](./standardize.mdx)) for keywords and topics.
+   vocabulary of [chapter 6](./standardize.mdx)) for keywords and topics.
 4. Pass only drafts that clear the checks; log the rest with the reason,
-   which is the first entry in the error taxonomy of [chapter 6](./improve.mdx).
+   which is the first entry in the error taxonomy of [chapter 8](./improve.mdx).
 
 **What this does not do.** Formal checks catch form. A draft that is
 well-formed and wrong in substance (a plausible but incorrect ratio) is
@@ -106,7 +106,7 @@ the curator's to catch, which is why no draft skips review.
 
 </Recipe>
 
-<Recipe title="2.3 Measure acceptance per field" level="AI-ready" skills="Python" time="Minutes per period">
+<Recipe title="3.3 Measure acceptance per field" level="AI-ready" skills="Python" time="Minutes per period">
 
 **Result:** the share of drafts accepted or edited, per field and per
 source, with the rejections and their reasons.
@@ -137,7 +137,7 @@ rejected, with reasons:
    flag itself was wrong.
 2. Read the edits: a high rate with low similarity means curators rewrite
    the drafts, which is a prompt or style problem.
-3. Keep the rates per period and per model ([chapter 6](./improve.mdx)).
+3. Keep the rates per period and per model ([chapter 8](./improve.mdx)).
 
 **What this does not do.** Ten decisions give a demonstration; a measure
 needs a period's worth. The script counts curator decisions; a second
@@ -157,6 +157,14 @@ are, which bounds how much the rate can mean.
 
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) describes automated field generation from minimal inputs and the risk of plausible but incorrect text.
 - [Metadata Augmentation](/docs/metadata-augmentation/) drafts DDI-style variable groups with a model and a self-consistency check, the same pattern at the variable level.
+
+## Resources
+
+- [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas): the field definitions (`definition_long`, `measurement_unit`, `keywords`) a drafting prompt quotes.
+- [Metadata quality assessment notebook](/docs/notebooks/metadata-quality-assessment-with-llm): structured output with a JSON schema, the pattern a drafting prompt follows.
+- [Metadata Augmentation](/docs/metadata-augmentation/): model drafting of variable groups with a self-consistency check, the same pattern at the variable level.
+- [Metadata checker](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) from the dissemination cookbook: schema and profile validation of a record with its drafts.
+- [Suggestions and decisions files](pathname:///cookbook-files/metadata-curation-with-llms/suggestions_example.jsonl): the running example's drafts and the curator's decisions, with the [acceptance script](pathname:///cookbook-files/metadata-curation-with-llms/score_suggestions.py).
 
 ## Common mistakes
 

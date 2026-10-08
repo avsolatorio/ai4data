@@ -39,7 +39,9 @@ def norm(text: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("keywords", type=Path)
     parser.add_argument("vocabulary", type=Path)
     parser.add_argument("--threshold", type=float, default=0.85)
@@ -58,23 +60,38 @@ def main(argv: list[str] | None = None) -> int:
 
     counts = {"exact": 0, "fuzzy": 0, "none": 0}
     unmapped: list[str] = []
-    print(f"{'match':<6} {'score':>5}  {'record':<22} {'keyword':<34} -> preferred label")
+    print(
+        f"{'match':<6} {'score':>5}  {'record':<22} {'keyword':<34} -> preferred label"
+    )
     for k in keywords:
         text = norm(k["keyword"])
         if text in index:
             kind, score, label = "exact", 1.0, index[text]
         else:
-            best = max(((difflib.SequenceMatcher(None, text, form).ratio(), label) for form, label in index.items()), default=(0.0, ""))
+            best = max(
+                (
+                    (difflib.SequenceMatcher(None, text, form).ratio(), label)
+                    for form, label in index.items()
+                ),
+                default=(0.0, ""),
+            )
             if best[0] >= args.threshold:
                 kind, score, label = "fuzzy", best[0], best[1]
             else:
                 kind, score, label = "none", 0.0, "-"
                 unmapped.append(f"{k['record_id']}: {k['keyword']!r}")
         counts[kind] += 1
-        print(f"{kind:<6} {score:>5.2f}  {k['record_id']:<22} {k['keyword']!r:<34} -> {label}")
-    print(f"\n{len(keywords)} keywords: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+        print(
+            f"{kind:<6} {score:>5.2f}  {k['record_id']:<22} {k['keyword']!r:<34} -> {label}"
+        )
+    print(
+        f"\n{len(keywords)} keywords: "
+        + ", ".join(f"{k} {v}" for k, v in counts.items())
+    )
     if unmapped:
-        print("unmapped (add an alternate, add a concept, or let a model propose a mapping for review):")
+        print(
+            "unmapped (add an alternate, add a concept, or let a model propose a mapping for review):"
+        )
         for u in unmapped:
             print(f"  {u}")
     return 0

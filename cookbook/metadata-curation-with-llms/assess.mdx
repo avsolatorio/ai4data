@@ -1,15 +1,15 @@
 ---
 id: assess
-title: "3. Assessment of quality"
-sidebar_label: "3. Assess"
-sidebar_position: 4
+title: "4. Assessment of quality"
+sidebar_label: "4. Assess"
+sidebar_position: 5
 description: Scoring of records on completeness, semantic alignment, specificity, and consistency with structured output, calibration of the scores against curators, and catalog reports that drive the work list.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 3. Assessment of quality
+# 4. Assessment of quality
 
 **Question:** Can a model assess metadata quality consistently?
 
@@ -48,7 +48,7 @@ the curator, which is flagged for calibration.
 
 ## Recipes
 
-<Recipe title="3.1 Score records on the four dimensions" level="Foundational" skills="Curator with access to a model; Python for the batch" time="One hour to set up; seconds per record">
+<Recipe title="4.1 Score records on the four dimensions" level="Foundational" skills="Curator with access to a model; Python for the batch" time="One hour to set up; seconds per record">
 
 **Result:** scores from 1 to 5 on completeness, semantic alignment,
 specificity, and consistency for each record, as structured output, with
@@ -71,7 +71,7 @@ and consistent can still be wrong; subject-matter review catches that.
 
 </Recipe>
 
-<Recipe title="3.2 Calibrate the scores against curators" level="AI-ready" skills="Two curators; Python" time="One day for 50 records">
+<Recipe title="4.2 Calibrate the scores against curators" level="AI-ready" skills="Two curators; Python" time="One day for 50 records">
 
 **Result:** per dimension, the agreement between model and curators and
 the direction of any bias, so that scores can be read correctly.
@@ -112,7 +112,7 @@ does not show agreement on reasons; a sample of reasons is read.
 
 </Recipe>
 
-<Recipe title="3.3 Aggregate into a catalog report" level="AI-ready" skills="Python" time="Minutes per period">
+<Recipe title="4.3 Aggregate into a catalog report" level="AI-ready" skills="Python" time="Minutes per period">
 
 **Result:** the catalog's quality by field, dimension, topic, and
 producer, and the work list ordered by it.
@@ -123,11 +123,11 @@ producer, and the work list ordered by it.
    so that the work list puts used, low-scoring records first.
 3. Publish the report internally each period, with the calibration note
    from recipe 3.2.
-4. After decisions are applied ([chapter 4](./review.mdx)), re-score and
+4. After decisions are applied ([chapter 5](./review.mdx)), re-score and
    report the gain.
 
 **What this does not do.** A report orders work; it does not do it. The
-drafts of [chapter 2](./draft.mdx) and the reviews of [chapter 4](./review.mdx)
+drafts of [chapter 3](./draft.mdx) and the reviews of [chapter 5](./review.mdx)
 are the work.
 
 </Recipe>
@@ -143,6 +143,13 @@ are the work.
 
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) and its [notebook](/docs/notebooks/metadata-quality-assessment-with-llm) score indicator records with structured output and aggregate the scores across the catalog.
 - The dissemination cookbook's [completeness check](/cookbook/ai-ready-dissemination/find) is the formal layer under the semantic scores.
+
+## Resources
+
+- [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) and its [notebook](/docs/notebooks/metadata-quality-assessment-with-llm): the four dimensions, the rubric, and the structured-output scoring.
+- [Cohen's kappa and inter-rater agreement](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html): the agreement measure between curators that bounds the calibration.
+- [Agreement script](pathname:///cookbook-files/metadata-curation-with-llms/assess_agreement.py) with the [model](pathname:///cookbook-files/metadata-curation-with-llms/model_scores.csv) and [curator](pathname:///cookbook-files/metadata-curation-with-llms/curator_scores.csv) scores: the running example's calibration.
+- [Findability chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/find): the formal completeness check under the semantic scores.
 
 ## Common mistakes
 

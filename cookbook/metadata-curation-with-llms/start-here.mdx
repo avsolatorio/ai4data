@@ -29,8 +29,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'migrate',
+      title: '2. Migrate',
+      question: 'How are legacy records moved into the schema?',
+      options: [
+        'By retyping, or they stay where they are.',
+        'Columns of one source are mapped by hand and migrated with a script; the report is reviewed.',
+        'A model proposes the mapping with confidence and notes, a curator confirms each row, every source is migrated, validated, and routed into review.',
+        'Mappings are versioned per source, re-run on change, and unplaced columns feed schema change requests.',
+      ],
+    },
+    {
       id: 'draft',
-      title: '2. Draft',
+      title: '3. Draft',
       question: 'How are fields drafted?',
       options: [
         'By hand, or with ad hoc prompts.',
@@ -41,7 +52,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'assess',
-      title: '3. Assess',
+      title: '4. Assess',
       question: 'How is metadata quality assessed?',
       options: [
         'Not systematically.',
@@ -52,7 +63,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'review',
-      title: '4. Review',
+      title: '5. Review',
       question: 'How are suggestions reviewed?',
       options: [
         'Suggestions are applied or ignored without a record.',
@@ -63,7 +74,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'standardize',
-      title: '5. Standardize',
+      title: '6. Standardize',
       question: 'How are keywords and topics standardized?',
       options: [
         'Free text; each curator writes their own.',
@@ -73,8 +84,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'translate',
+      title: '7. Translate',
+      question: 'How are records translated?',
+      options: [
+        'They are not, or the browser translates the page.',
+        'Names and keywords of the most used records are translated with the vocabulary\'s labels and reviewed by a native speaker.',
+        'Definitions and units are translated by a model with the glossary, checked automatically, reviewed, and published per language with status and reviewer.',
+        'Acceptance per language and field is tracked, changes are gated on reviewed translations, and new records are translated at publication.',
+      ],
+    },
+    {
       id: 'improve',
-      title: '6. Improve',
+      title: '8. Improve',
       question: 'How do decisions improve the system?',
       options: [
         'They do not; prompts change when someone has an idea.',
@@ -90,7 +112,10 @@ first. Answers are stored in this browser only.
 
 - Chapter 1 first: the rule on confidential records and on curator
   approval takes a day and prevents the costliest mistakes.
-- Chapter 4 before scaling chapter 2: a drafting run without a review
-  board and recorded decisions produces text nobody checked.
-- Chapter 6 is where the investment pays: without recorded decisions,
+- Chapter 2 where the records are in spreadsheets: nothing else can run
+  on them until they are in the schema.
+- Chapter 5 before scaling chapters 3 and 7: a drafting or translation
+  run without a review board and recorded decisions produces text nobody
+  checked.
+- Chapter 8 is where the investment pays: without recorded decisions,
   every prompt change is a guess.

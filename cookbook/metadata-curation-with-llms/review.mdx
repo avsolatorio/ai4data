@@ -1,15 +1,15 @@
 ---
 id: review
-title: "4. Review of suggestions"
-sidebar_label: "4. Review"
-sidebar_position: 5
+title: "5. Review of suggestions"
+sidebar_label: "5. Review"
+sidebar_position: 6
 description: The Metadata Reviewer's agentic pipeline, its issues with category, severity, and proposed fix, the review board with its diff view, and the recorded decisions that close the loop.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Review of suggestions
+# 5. Review of suggestions
 
 **Question:** How do curators review and decide on suggestions?
 
@@ -29,7 +29,7 @@ word-level diff.
 
 - Suggestions arrive as issues with a description, a category, a severity from 1 to 5, the current value, and a proposed value.
 - Curators review in a board with a diff view, and apply accepted changes through the editor as a separate, deliberate step.
-- Every decision is recorded with the reason, the reviewer, and the date, and the record feeds [chapter 6](./improve.mdx).
+- Every decision is recorded with the reason, the reviewer, and the date, and the record feeds [chapter 8](./improve.mdx).
 
 ## Maturity levels
 
@@ -49,7 +49,7 @@ vocabulary. The curator decides each in the board and records the reason.
 
 ## Recipes
 
-<Recipe title="4.1 Run the review pipeline" level="AI-ready" skills="Developer; curator" time="One day to set up; minutes per batch">
+<Recipe title="5.1 Run the review pipeline" level="AI-ready" skills="Developer; curator" time="One day to set up; minutes per batch">
 
 **Result:** for each record, a list of issues in the reviewer's output
 schema, ready for the board.
@@ -84,7 +84,7 @@ the example shows.
 
 </Recipe>
 
-<Recipe title="4.2 Review in the board" level="AI-ready" skills="Curator" time="One to three minutes per issue">
+<Recipe title="5.2 Review in the board" level="AI-ready" skills="Curator" time="One to three minutes per issue">
 
 **Result:** each issue seen with the current and proposed values side by
 side, decided by a curator.
@@ -109,7 +109,7 @@ subject-matter curator.
 
 </Recipe>
 
-<Recipe title="4.3 Record the decisions" level="Foundational" skills="Curator" time="Part of each review">
+<Recipe title="5.3 Record the decisions" level="Foundational" skills="Curator" time="Part of each review">
 
 **Result:** a decisions file that links every suggestion to a decision, a
 final text, a reason, a reviewer, and a date.
@@ -126,7 +126,7 @@ final text, a reason, a reviewer, and a date.
 
 2. Code the reasons as they recur (wrong flag, invented fact, style,
    wrong vocabulary term); the codes are the error taxonomy of
-   [chapter 6](./improve.mdx).
+   [chapter 8](./improve.mdx).
 3. Apply accepted and edited values in the Metadata Editor, which
    validates the record and publishes to NADA; the decisions file is the
    audit trail of why the record changed.
@@ -148,6 +148,14 @@ measures that, and disagreements refine the typology and the rubric.
 
 - The [Metadata Reviewer](/docs/metadata-reviewer/overview): the agentic approach, the output schema with categories and severity, the client, and the [review board](/docs/metadata-reviewer/user-manual/review-board).
 - The [Metadata Editor](https://github.com/worldbank/metadata-editor) applies the accepted changes with validation.
+
+## Resources
+
+- [Metadata Reviewer](/docs/metadata-reviewer/overview): the agentic pipeline, the output schema with categories and severity, and the [client API](/docs/metadata-reviewer/user-manual/client-api).
+- [Review board](/docs/metadata-reviewer/user-manual/review-board): the HTML board over the issues workbook with the word-level diff.
+- [Agents manifest reference](/docs/metadata-reviewer/user-manual/appendix-agents-manifest): the manifest format, with the default, single-pass, and typo-only manifests shipped with the package.
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): applying accepted changes with validation and publishing to NADA.
+- [Decisions file](pathname:///cookbook-files/metadata-curation-with-llms/decisions_example.csv): the running example's decision record, a template for the organization's own.
 
 ## Common mistakes
 
