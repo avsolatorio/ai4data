@@ -34,11 +34,11 @@ function Hero({counts}) {
           From assessment to action
         </Heading>
         <p className={styles.heroLede}>
-          The AI-readiness assessment tells a statistical office where it
-          stands on twelve dimensions. This page shows, dimension by
-          dimension, which program workstreams, open-source tools, reference
-          implementations, and cookbook recipes an office can use to move up a
-          level, and what each produces as evidence for the assessment form.
+          The AI-readiness assessment scores a statistical office on twelve
+          dimensions. This page lists, for each dimension, the program
+          workstreams, open-source tools, reference implementations, and
+          cookbook recipes an office can use to move up a level. It also
+          names the evidence each one produces for the assessment form.
         </p>
         <div className={styles.heroActions}>
           <Link className={clsx('button button--md', styles.primary)} to="/ai-readiness-assessment">
@@ -101,7 +101,7 @@ function HowItWorks() {
         <div className={styles.head}>
           <span className="eyebrow">How this page works</span>
           <Heading as="h2" className={styles.title}>
-            Three steps, with the program in the third
+            From a score to an action plan
           </Heading>
         </div>
         <ol className={styles.steps}>
@@ -229,7 +229,7 @@ function Explorer({selected, setSelected}) {
         <div className={styles.head}>
           <span className="eyebrow">Dimension by dimension</span>
           <Heading as="h2" className={styles.title}>
-            What to use, and what it produces
+            Resources and evidence by dimension
           </Heading>
         </div>
         <div className={styles.explorer}>
@@ -394,7 +394,7 @@ function Closing() {
         <div className={styles.closingRow}>
           <div>
             <Heading as="h2" className={styles.closingTitle}>
-              Start with the gaps that cost the most
+              Where to start
             </Heading>
             <p className={styles.closingText}>
               The framework's early-stage pathway puts quality control,
