@@ -19,4 +19,13 @@ export const cookbooks = [
     chapters: 6,
     to: '/cookbook/microdata-documentation/',
   },
+  {
+    id: 'data-from-documents',
+    audience: 'Dissemination, library, and research data teams',
+    title: 'Practical Guide to Extracting Data from Documents',
+    description:
+      'Six questions a team can ask about the statistics locked in its reports and PDFs, each answered with recipes for locating, extracting, verifying, publishing, and citing the data. Builds on the Data Snapshots work.',
+    chapters: 6,
+    to: '/cookbook/data-from-documents/',
+  },
 ];

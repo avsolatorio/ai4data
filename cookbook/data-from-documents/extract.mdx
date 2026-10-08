@@ -1,0 +1,177 @@
+---
+id: extract
+title: "3. Extraction of structured data"
+sidebar_label: "3. Extract"
+sidebar_position: 4
+description: Extraction of tables from the text layer and of chart data from snapshots into a structured form with units and notes, and conversion to tidy files with provenance per value.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Extraction of structured data
+
+**Question:** Can the data be extracted into a structured form?
+
+## Rationale
+
+A located table is still a picture of numbers. Extraction turns it into
+rows and columns with labels, units, and notes, and turns a chart into
+categories, series, and values. Two kinds of source need two kinds of
+method: a table in a PDF with a text layer can be parsed from the text and
+its positions; a chart, or a table in a scanned document, has to be read
+from the image.
+
+Whatever the method, the output has to carry its provenance from the first
+step: the document, the page, the bounding box, and the method. A value
+that loses that link cannot be verified in [chapter 4](./verify.mdx) or
+cited in [chapter 6](./cite.mdx).
+
+## Target state
+
+- Tables are extracted into a structured form with column labels, row labels, units from the header or the note, and the footnote.
+- Charts are extracted into chart type, categories, series, and values, with a record of whether the values were printed on the chart or read from the axes.
+- Every extraction is a tidy file with one row per value and the provenance columns, ready for verification.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Extract tables from the text layer with a PDF table parser. Review headers and footnotes by hand. Read charts by hand where their data are needed. |
+| **AI-ready** | Extract charts from snapshots with a vision-language model, recording whether value labels were printed. Convert every extraction to a tidy file with provenance and a status per value. |
+| **AI-native** | Run extraction as a pipeline after detection, with the model choice per class and document type, and with the verification of chapter 4 in the same run. |
+
+:::info[Running example]
+The chart snapshot from the working paper becomes two series over two
+categories, with the four values that are printed on the bars. The
+district table from the fictional report becomes five rows by three
+numeric columns, with units from the header and a footnote, and one value
+that the extraction got wrong.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Extract tables from the text layer" level="Foundational" skills="Python" time="One hour to set up; review time per table">
+
+**Result:** each table as columns, rows, units, and footnote, in a JSON
+record that keeps the page and bounding box.
+
+1. Parse the table region from the text layer with a PDF table tool
+   (pdfplumber and PyMuPDF both extract tables from text positions; the
+   bounding box from [chapter 2](./locate.mdx) restricts the region).
+2. Review the header: merged headers ("Population (thousands)") become one
+   column label with the unit; multi-row headers are joined. Put the units
+   in a `units` map and the footnote in `footnote`.
+3. Mark the total row (`total_row`) and any derived columns (a rate
+   computed from two others, `derived`), because [chapter 4](./verify.mdx)
+   verifies against them. The example table:
+
+```json file=../../website/static/cookbook-files/data-from-documents/example_table.json
+```
+
+4. Record the method in `method`, including that a person reviewed the
+   header and footnote.
+
+**What this does not do.** Text-layer parsing fails on tables whose cells
+are images, on rotated tables, and on scanned pages. Those go through
+recipe 3.2 as images. A parser that returns a grid cannot tell a total row
+from a data row; that is a reading task, done once per table layout.
+
+</Recipe>
+
+<Recipe title="3.2 Extract chart data from snapshots" level="AI-ready" skills="Developer with access to a vision-language model" time="One day to set up; seconds per chart, plus review">
+
+**Result:** each chart as a JSON record with chart type, categories,
+series, values, and a statement of whether the values were printed on the
+chart.
+
+1. Send the snapshot image to a vision-language model with a fixed
+   instruction: return the chart type, the title, the categories, the
+   series with their values, the unit if stated, and whether each value was
+   printed on the chart or read from the axis. Ask for JSON in the form of
+   the example:
+
+```json file=../../website/static/cookbook-files/data-from-documents/example_snapshot.json
+```
+
+2. Keep `value_labels_printed` and `printed_values` honest: when the chart
+   prints its values, the extraction is a transcription that
+   [chapter 4](./verify.mdx) can verify; when it does not, the values are
+   estimates from the axes, and the tidy file says so.
+3. Record the model name and version in `method`; model changes change
+   results.
+4. Review a sample of charts against the snapshot, in particular stacked
+   bars, dual axes, and charts with more than four series, where models
+   fail most.
+
+**What this does not do.** Values read from axes are estimates with an
+error that depends on the chart's resolution; they are published as
+estimates ([chapter 5](./publish.mdx)) and never as the official figure.
+When the underlying series exists in the catalog, the chart's values are
+a pointer to the series, which is the number to use.
+
+</Recipe>
+
+<Recipe title="3.3 Convert extractions to tidy files with provenance" level="AI-ready" skills="Python" time="Minutes">
+
+**Result:** one CSV per extraction with one row per value and the columns
+that trace it to the page: document, page, bounding box, class, title, row,
+column, value, unit, status.
+
+```python file=../../website/static/cookbook-files/data-from-documents/snapshot_to_tidy.py
+```
+
+1. Run the converter on a chart or a table record:
+
+```bash
+python snapshot_to_tidy.py example_table.json -o T3.1.csv
+```
+
+2. The `status` column reads `extracted` until the verification of
+   [chapter 4](./verify.mdx) sets it; the converter takes the verification
+   report and writes `verified`, `flagged`, or `estimated` per value.
+3. Name the file from the document and table identifiers and keep it
+   with the document, the snapshot, and the sidecar record.
+
+**What this does not do.** The tidy file carries the values as extracted.
+It does not correct them; a flagged value stays flagged until a person
+corrects it with the page open, and the correction is a documented edit.
+
+</Recipe>
+
+## Implementation options
+
+- **Table parsing:** pdfplumber, PyMuPDF (`page.find_tables`), Camelot, or Tabula for text-layer tables; a vision-language model for image tables.
+- **Chart reading:** a vision-language model with a fixed instruction and JSON output; open-weight models run locally where documents cannot leave the organization ([Efficient and Inclusive AI](/docs/inclusive-ai/)).
+- **Tidy form:** one row per value with provenance, as in this chapter; the same layout as the values files of the dissemination cookbook, so that extracted data can join the catalog.
+- **Batching:** extraction over a backlog of hundreds of documents runs as a batch job with the review sample drawn from each batch.
+
+## World Bank examples
+
+- The program's [home page](/) shows the chart of the running example extracted into categories, series, and values, with the note that the output is an illustration.
+- [Monitoring of Data Use](/docs/data_use/) parses documents with PyMuPDF and keeps the page structure, which is the same text layer the table parser reads.
+- [Efficient and Inclusive AI](/docs/inclusive-ai/) covers model choice and batch processing for extraction at scale.
+
+## Common mistakes
+
+- **Units lost in the header.** "Population (thousands)" extracted as "Population" multiplies every value by a thousand downstream.
+- **Estimates presented as readings.** A value read from an axis is an estimate; the file has to say so.
+- **A total row treated as data.** It doubles every sum and hides the check that chapter 4 relies on.
+- **Provenance added later.** Page and box recorded at extraction time are reliable; added afterwards they are guesses.
+
+## Verification
+
+- **Structure:** every table record has columns, rows, units, and a footnote; every chart record has categories, series, and `value_labels_printed`.
+- **Tidy files:** every value has document, page, bounding box, and status.
+- **Sample:** a sample of extractions opened next to the snapshot by a person; the error rate recorded ([chapter 4](./verify.mdx), recipe 4.2).
+
+## Checklist
+
+<Checklist id="data-from-documents-extract" items={[
+  'Tables parsed from the text layer with headers and footnotes reviewed',
+  'Units recorded per column; total rows and derived columns marked',
+  'Charts extracted with chart type, categories, series, and values',
+  'Printed values distinguished from values read from axes',
+  'Model or tool and version recorded per extraction',
+  'Tidy file per extraction with provenance columns and a status per value',
+]} />

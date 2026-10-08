@@ -12,7 +12,7 @@ folder so that they run without network access.
 Files: `timeseries-schema.json`, `microdata-schema.json`, `ddi-schema.json`,
 `datafile-schema.json`, `variable-schema.json`, `variable-group-schema.json`,
 `geospatial-schema.json`, `document-schema.json`, `datacite-schema.json`,
-`provenance-schema.json`.
+`provenance-schema.json`, `table-schema.json`.
 
 To refresh, copy the same files from the source repository and update the
 commit line above. The script downloads the current files on first use when

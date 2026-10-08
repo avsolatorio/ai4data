@@ -1,0 +1,134 @@
+---
+id: index
+title: Practical Guide to Extracting Data from Documents
+sidebar_label: Overview
+sidebar_position: 0
+description: A cookbook for dissemination, library, and research data teams whose statistics are published in reports and PDFs and should be available as data, with their provenance, to people and AI systems.
+---
+
+# Practical Guide to Extracting Data from Documents
+
+**A cookbook for dissemination, library, and research data teams.** Version 0.1 (working draft), October 2026.
+
+:::note[Working draft]
+This guide is a working draft from the AI for Data – Data for AI program. It
+collects practical approaches and open standards. Comments and corrections
+are welcome as [GitHub issues](https://github.com/worldbank/ai4data/issues),
+and the [contributing](./contributing.md) page explains how to propose a
+recipe.
+:::
+
+A large share of the statistics a national statistical organization has
+ever published exists only inside documents: reports, bulletins, yearbooks,
+census volumes. The tables and charts in them are read by people and copied
+by hand. Software cannot query them, an AI system that reads the PDF will
+transcribe them with errors, and nothing links a number quoted from a
+report back to the page it came from.
+
+This guide is organized around six questions a team can ask about the data
+in its documents: which documents hold data, whether the tables and figures
+can be located, whether the data can be extracted into a structured form,
+whether the extracted values can be verified against the document, whether
+the data can be published next to the document with their provenance, and
+whether they can be found and cited back to the page. Each chapter answers
+one question with recipes, maturity levels, and a checklist.
+
+The recipes build on the program's Data Snapshots work, which benchmarks
+open-source layout detection models on institutional documents and
+publishes the annotated dataset, and on the World Bank document and table
+schemas, which hold the records for a document and for a table extracted
+from it. The [standards page](./standards.md) lists each standard and where
+it applies.
+
+:::tip[Verification before publication]
+An extracted value without a check is a transcription. The recipes in
+[chapter 4](./verify.mdx) use what the document itself offers (printed value
+labels, row totals, derived rates) to verify values, and the tidy files
+carry the result per value. Values that cannot be verified are published
+as estimates and say so.
+:::
+
+## Self-assessment
+
+The [self-assessment](./start-here.mdx) takes about five minutes and places
+a document collection at a level in each chapter.
+
+## Chapters and questions
+
+| Chapter | Question | Practical topics |
+|---|---|---|
+| [1. Documents that hold data](./inventory.mdx) | Which documents hold data, and which data? | Inventory, document records, text layers and OCR, links to series and surveys |
+| [2. Location of tables and figures](./locate.mdx) | Can the tables and figures be located on the page? | Layout detection, data snapshots, bounding boxes, review against annotations |
+| [3. Extraction of structured data](./extract.mdx) | Can the data be extracted into a structured form? | Table extraction, chart reading, units and notes, tidy files with provenance |
+| [4. Verification of extracted values](./verify.mdx) | Can the extracted values be verified against the document? | Printed labels, totals, derived rates, sample review, status per value |
+| [5. Publication next to the document](./publish.mdx) | Can the extracted data be published with their provenance? | Tidy files, table records, licences, links between document and data |
+| [6. Findability and citation](./cite.mdx) | Can the data be found and cited back to the page? | Catalog records, schema.org, citation to the page, monitoring and corrections |
+
+## Maturity levels
+
+Each chapter describes three levels. A document collection can sit at
+different levels in different chapters, and the first level is a complete,
+useful state on its own.
+
+| Level | Meaning |
+|---|---|
+| **Foundational** | The documents are inventoried and catalogued, with a text layer, and their data are extracted by hand where needed. |
+| **AI-ready** | Tables and figures are located and extracted with tools, verified against the document, and published as tidy files with provenance next to the document. |
+| **AI-native** | Extraction runs as a pipeline on new documents, extracted data are catalogued and searchable, and every value cites its page and bounding box. |
+
+## Running example
+
+The recipes use two documents. The first is real: page 12 of World Bank
+Policy Research Working Paper 4771, from the `data-snapshot` dataset, with
+a bar chart whose values are printed on the bars; the same page is the
+example on the program's home page. The second is fictional: the Food
+security report 2025 of the example organization (`EX-REP-2025-03`), with a
+district table in which one value is planted as an extraction error. A
+small document inventory of eight fictional documents completes the
+example. All values of the fictional documents are invented.
+
+## Scope of the examples
+
+The examples are small on purpose: one chart, one table, eight documents,
+so that a reader can run them in an afternoon and see the shape of each
+check. They are starting points. Each recipe ends with a **What this does
+not do** note that says where the example stops and what the full version
+adds. The scripts handle the structured outputs; the extraction itself
+(layout detection, table parsing, chart reading) uses the tools named in
+each chapter.
+
+## Files
+
+| File | Used in |
+|---|---|
+| [document_inventory.csv](pathname:///cookbook-files/data-from-documents/document_inventory.csv) | Chapter 1: the example inventory |
+| [inventory_report.py](pathname:///cookbook-files/data-from-documents/inventory_report.py) | Chapter 1: report on the inventory and the backlog |
+| [example_snapshot.json](pathname:///cookbook-files/data-from-documents/example_snapshot.json) | Chapters 2 to 4: a chart snapshot with its bounding box and extracted series |
+| [example_table.json](pathname:///cookbook-files/data-from-documents/example_table.json) | Chapters 3 to 5: an extracted table with a total row and a derived column |
+| [verify_extraction.py](pathname:///cookbook-files/data-from-documents/verify_extraction.py) | Chapter 4: verification against printed labels, totals, and derived rates |
+| [snapshot_to_tidy.py](pathname:///cookbook-files/data-from-documents/snapshot_to_tidy.py) | Chapters 3 and 5: tidy CSV with provenance and status per value |
+| [table_record.json](pathname:///cookbook-files/data-from-documents/table_record.json) | Chapter 5: the extracted table as a World Bank table record |
+| [profile_table.json](pathname:///cookbook-files/data-from-documents/profile_table.json) | Chapter 5: completeness profile for table records |
+| [example_document.json](pathname:///cookbook-files/ai-ready-dissemination/example_document.json) | Chapter 1: the document record, from the dissemination cookbook |
+| [check_metadata.py](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) | Chapters 1 and 5: validation of document and table records, from the dissemination cookbook |
+
+## Related resources
+
+| Resource | Purpose |
+|---|---|
+| This guide | What a team can do with the data in its documents, and why, in a sequence of practical steps. |
+| [Data Snapshots](https://arxiv.org/abs/2606.06242) | The benchmark of layout detection models on institutional documents, and the dataset. |
+| [Practical Guide to AI-Ready Data Dissemination](/cookbook/ai-ready-dissemination/) | The dissemination system the extracted data join: catalog, APIs, trust, evaluation. |
+| [Monitoring of Data Use](/docs/data_use/) | The program's document parsing and mention extraction, which read the same documents. |
+| [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |
+
+## Citation
+
+World Bank. 2026. *Practical Guide to Extracting Data from Documents: A
+cookbook for dissemination, library, and research data teams.* Version 0.1.
+AI for Data – Data for AI.
+https://worldbank.github.io/ai4data/cookbook/data-from-documents/
+
+## Version history
+
+- **0.1 (October 2026).** First draft: six chapters, recipes, scripts, self-assessment.

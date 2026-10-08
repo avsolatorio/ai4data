@@ -1,0 +1,204 @@
+---
+id: inventory
+title: "1. Documents that hold data"
+sidebar_label: "1. Inventory"
+sidebar_position: 2
+description: An inventory of the documents that hold tables and figures, a catalog record for each in the document schema, and a text layer so that the documents can be searched and parsed.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Documents that hold data
+
+**Question:** Which documents hold data, and which data?
+
+## Rationale
+
+Extraction starts with a list. An organization that does not know which of
+its documents hold tables and figures, how many, and whether the files have
+a text layer cannot plan the work or measure it. The list also serves a
+second purpose: a catalog record for each document, with the series and
+surveys it draws on, is what lets a user or an AI system move from a report
+to the data behind it and back.
+
+Scanned documents are the usual obstacle. A PDF without a text layer is an
+image; nothing can be extracted from it until optical character
+recognition has produced the text, and the inventory is where that need
+is recorded.
+
+## Target state
+
+- Every published document is in an inventory with its type, year, page count, text-layer status, and counts of tables and figures.
+- Every document has a record in the World Bank document schema, with the series and surveys it draws on in `data_sources`.
+- Every document has a text layer, produced by OCR where the original was scanned, so that it can be searched and parsed.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Build the inventory from the publication list. Record whether each file has a text layer. Estimate table and figure counts from the table of contents. |
+| **AI-ready** | Give each document a record in the document schema with `data_sources`. Run OCR on scanned documents. Extract the text layer for search and for the parsing in [chapter 3](./extract.mdx). |
+| **AI-native** | Keep the inventory current from the publication workflow, with table and figure counts from the layout detection in [chapter 2](./locate.mdx), and expose the records through the catalog. |
+
+:::info[Running example]
+The example organization has eight documents in its inventory, from a
+12-page bulletin to a 310-page yearbook. One, the 2014 census report, has
+no text layer. The report in recipe 1.1 shows where the tables are and what
+the backlog looks like.
+:::
+
+## Recipes
+
+<Recipe title="1.1 Build the document inventory" level="Foundational" skills="Librarian or dissemination officer; Python for the report" time="One day for a few hundred documents">
+
+**Result:** one row per document with the facts that decide the
+extraction work, and a report of where the data are.
+
+1. List the documents from the publication register or the website. The
+   example inventory has the columns the report reads:
+
+```csv file=../../website/static/cookbook-files/data-from-documents/document_inventory.csv
+```
+
+2. For each document, record whether the PDF has a text layer (open it and
+   try to select text; or run a PDF tool that reports it), the page count,
+   and estimated counts of tables and figures from the table of contents.
+3. Record which series and surveys the document draws on (`data_sources`),
+   using the identifiers from the catalog. This is what later links the
+   extracted tables to the indicators they report.
+4. Run the report:
+
+```python file=../../website/static/cookbook-files/data-from-documents/inventory_report.py
+```
+
+Output for the example inventory (abridged):
+
+```text
+8 documents, 315 tables, 88 figures; 7 of 8 with a text layer
+
+type                    docs  tables  figures
+yearbook                   1     142       22
+census report              1      96       31
+report                     4      62       29
+...
+backlog (largest first):
+  EX-YB-2023         2023   142 tables  22 figures  no
+  EX-CEN-2014-01     2014    96 tables  31 figures  no  needs OCR
+```
+
+5. Decide the order of work from the backlog: the yearbook and the census
+   report hold three quarters of the tables; the census report needs OCR
+   first.
+
+**What this does not do.** The counts of tables and figures are estimates
+entered by hand until the layout detection in [chapter 2](./locate.mdx)
+counts them. The inventory does not say which tables matter; that is a
+decision about which data users ask for, informed by the
+[monitoring of data use](/docs/data_use/).
+
+</Recipe>
+
+<Recipe title="1.2 Give each document a catalog record with its data sources" level="AI-ready" skills="Data curator" time="Half an hour per document; less with the Metadata Editor">
+
+**Result:** a record in the World Bank document schema for every document,
+with the series and surveys it draws on, validated against the schema and
+the completeness profile.
+
+1. Document the publication in the [Metadata Editor](https://github.com/worldbank/metadata-editor),
+   which has a template for documents (Dublin Core based), or write the
+   JSON. The running example is the fictional report's record from the
+   dissemination cookbook:
+
+```json file=../../website/static/cookbook-files/ai-ready-dissemination/example_document.json
+```
+
+2. Fill `data_sources` with the series and surveys the document reports,
+   by identifier and URL. This field is what makes a document findable
+   from a series and a series findable from a document.
+3. Validate the record with the metadata checker and the document profile
+   from the dissemination cookbook:
+
+```bash
+python check_metadata.py example_document.json profile_document.json --level ai-ready
+```
+
+4. Publish the record in the catalog (NADA stores documents alongside
+   microdata and tables) so that the document has a stable page and, where
+   possible, a DOI.
+
+**What this does not do.** The record describes the document. The tables
+extracted from it get their own records in [chapter 5](./publish.mdx),
+linked to this one.
+
+</Recipe>
+
+<Recipe title="1.3 Produce the text layer for search and parsing" level="AI-ready" skills="Developer" time="Minutes per document; OCR time for scanned ones">
+
+**Result:** every document has machine-readable text, page by page, that a
+search index can use and that the table extraction in [chapter 3](./extract.mdx)
+can parse.
+
+1. For documents with a text layer, extract the text per page. The
+   program's [document parser](/docs/data_use/) uses PyMuPDF for this and
+   keeps the page structure:
+
+```python
+import fitz  # PyMuPDF
+
+doc = fitz.open("EX-REP-2025-03.pdf")
+pages = [page.get_text() for page in doc]
+```
+
+2. For scanned documents, run OCR (Tesseract is the usual open-source
+   choice) to produce a text layer, and store the OCR confidence with the
+   text; low-confidence pages need review before extraction.
+3. Index the text per page in the site's search, so that a user searching
+   for a table title finds the document and the page.
+4. Keep the extracted text with the document, versioned with it; it is
+   the input to the mention extraction in the
+   [monitoring of data use](/docs/data_use/) as well.
+
+**What this does not do.** A text layer makes text searchable; it does not
+give the structure of a table, which depends on positions on the page.
+Chapter 3 handles that. OCR output on complex layouts (multi-column
+yearbooks, rotated tables) needs review.
+
+</Recipe>
+
+## Implementation options
+
+- **Inventory:** a CSV or a catalog export; the publication register where one exists.
+- **Document records:** the World Bank document schema (Dublin Core based), through the Metadata Editor or JSON; NADA catalogs documents next to data.
+- **Text extraction:** PyMuPDF (used by the program), pdfplumber, or poppler's `pdftotext`; Tesseract for OCR.
+- **Links to data:** `data_sources` in the document record; the reverse link from a series record to the documents that use it comes from the monitoring of data use.
+
+## World Bank examples
+
+- The [document schema](https://github.com/worldbank/metadata-schemas) carries `data_sources`, `toc_structured`, `identifiers`, and `bibliographic_citation` for a document record.
+- [Monitoring of Data Use](/docs/data_use/) parses documents with PyMuPDF and extracts the datasets they mention, which fills `data_sources` for documents the organization did not write.
+- The [Documents and Reports](https://documents.worldbank.org/) repository of the World Bank, from which the `data-snapshot` dataset's policy research working papers come.
+
+## Common mistakes
+
+- **Starting extraction without an inventory.** Effort goes to whatever document is at hand, and the yearbook with 142 tables waits.
+- **Treating a scanned PDF as text.** Nothing can be parsed from an image; OCR comes first and its errors have to be reviewed.
+- **Document records without data sources.** The document stays unlinked to the series it reports.
+- **Counting tables once.** New documents arrive every quarter; the inventory is part of the publication workflow.
+
+## Verification
+
+- **Inventory:** every document on the publication list is in it; a sample of ten checked against the files for text layer and page count.
+- **Records:** the checker reports the document records valid and complete at the target level.
+- **Text layer:** a search for a table title returns the document and the page.
+
+## Checklist
+
+<Checklist id="data-from-documents-inventory" items={[
+  'Inventory with type, year, pages, text layer, tables, figures',
+  'Backlog ordered by the number of tables and figures',
+  'Document record in the document schema for every document',
+  'data_sources filled with series and survey identifiers',
+  'OCR run on scanned documents, with confidence kept',
+  'Text per page extracted, indexed, and versioned with the document',
+]} />

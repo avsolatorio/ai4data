@@ -1,0 +1,173 @@
+---
+id: locate
+title: "2. Location of tables and figures"
+sidebar_label: "2. Locate"
+sidebar_position: 3
+description: Layout detection of tables and figures in institutional documents, data snapshots with bounding boxes, and review against annotated pages.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Location of tables and figures
+
+**Question:** Can the tables and figures be located on the page?
+
+## Rationale
+
+Before a table can be extracted, something has to find it: the page, the
+region on the page, and whether it is a table, a chart, or a map. Layout
+detection models do this from the page image and return a class and a
+bounding box for each region. The region cropped from the page is a **data
+snapshot**: a self-contained image of one table or figure, with its
+coordinates, which the extraction in [chapter 3](./extract.mdx) reads and
+which every later citation points back to.
+
+The program's Data Snapshots work benchmarked open-source layout detection
+models on institutional documents (humanitarian reports, World Bank policy
+research working papers, project documents) and found that models which
+perform well on academic benchmarks struggle on operational documents:
+they confuse analytical and decorative content and cut off context such as
+titles and notes. Detection therefore needs review, and the organization's
+own documents are the right test set.
+
+## Target state
+
+- Every document in the inventory has been processed by a layout detection model that returns page, class, and bounding box per region.
+- Each region is saved as a snapshot image with a sidecar record (document, page, bounding box, class, model, date).
+- Detection quality is measured on a sample of annotated pages from the organization's own documents, and the sample grows with each review.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Locate tables from the text layer (table titles and numbered captions) and figures by hand from the list of figures. Record page numbers in the inventory. |
+| **AI-ready** | Run a layout detection model over the pages, save snapshots with their coordinates, and review a sample of detections against the page. Record precision and recall. |
+| **AI-native** | Run detection on every new document in the publication workflow, keep an annotated set of the organization's pages, and fine-tune or select the model on it. |
+
+:::info[Running example]
+Page 12 of Policy Research Working Paper 4771, from the `data-snapshot`
+dataset: a bar chart detected as a Figure with the normalized bounding box
+`[0.266, 0.525, 0.734, 0.781]`. The home page of the program shows the
+page, the box, and the snapshot.
+:::
+
+## Recipes
+
+<Recipe title="2.1 Run a layout detection model over the pages" level="AI-ready" skills="Developer with Python and a machine with a GPU or patience" time="One to two days to set up; seconds per page after">
+
+**Result:** for every page, a list of detected regions with class and
+bounding box, in the normalized XYXY form used by the `data-snapshot`
+dataset.
+
+1. Render each page to an image (PyMuPDF renders pages; 150 dpi is enough
+   for detection).
+2. Run an open-source layout detection model on the images. The
+   [Data Snapshots benchmark](https://arxiv.org/abs/2606.06242) compares
+   models on institutional documents; choose from its results for the
+   organization's document types, and expect to review the output.
+3. Store each detection as a record: document identifier, page, class
+   (Figure or Table), bounding box normalized to the page with the origin
+   at the top left, model name and version, and date. The example snapshot
+   shows the fields:
+
+```json file=../../website/static/cookbook-files/data-from-documents/example_snapshot.json
+```
+
+4. Keep the detections with the document, versioned, so that a later
+   model run can be compared with them.
+
+**What this does not do.** Detection finds regions; it does not read
+them. It also misses context: a title above a table or a note below it may
+fall outside the box, which is one of the failure modes the benchmark
+reports. Recipe 2.3 reviews for this before extraction.
+
+</Recipe>
+
+<Recipe title="2.2 Save snapshots with their coordinates" level="AI-ready" skills="Developer" time="Part of the detection run">
+
+**Result:** one image per detected region, named so that it can be traced
+to the document and page, with its coordinates in a sidecar file.
+
+1. Crop each detected region from the page image, with a small margin so
+   that titles and notes at the edge are kept, and save it as an image.
+2. Name the file from the document identifier, page, and an index
+   (`EX-REP-2025-03_p024_t01.png`), and write a sidecar JSON with the
+   fields of recipe 2.1.
+3. When the title or the note of a table sits outside the detected box,
+   extend the box to include them and record both boxes (detected and
+   adjusted) in the sidecar; the adjusted box is the one later citations
+   use.
+4. Store the snapshots next to the document and the text layer, under the
+   same version.
+
+**What this does not do.** A snapshot is an image. Its content becomes data
+in [chapter 3](./extract.mdx); until then the snapshot is what a person
+reviews and what a citation shows.
+
+</Recipe>
+
+<Recipe title="2.3 Review detections against annotated pages" level="AI-ready" skills="Dissemination officer; developer for the scoring" time="Half a day for a sample of 50 pages">
+
+**Result:** a measured precision and recall for the detection on the
+organization's own documents, and a growing set of annotated pages to
+measure future runs against.
+
+1. Draw a sample of pages across document types (reports, bulletins,
+   yearbook, census volume) and annotate every table and figure on them by
+   hand, in the same normalized bounding-box form. The `data-snapshot`
+   dataset (476 annotated regions in two classes, MIT licence) shows the
+   annotation format and serves as a second test set.
+2. Compare the detections with the annotations: a detection matches an
+   annotation when their boxes overlap enough (intersection over union of
+   0.5 is the usual threshold) and the classes agree. Count matches, missed
+   annotations, and false detections, per class and per document type.
+3. Read the misses. The benchmark's failure modes (decorative graphics
+   detected as figures, tables cut from their titles, multi-panel figures
+   split or merged) are the ones to expect.
+4. Keep the annotated sample, add to it with each review, and re-run the
+   comparison whenever the model changes.
+
+**What this does not do.** Fifty pages give a first measure; precision and
+recall per document type need more, and a yearbook with dense tables is a
+different test from a report with charts. Annotation itself needs a short
+written rule for what counts as a table or figure, so that two annotators
+agree.
+
+</Recipe>
+
+## Implementation options
+
+- **Page rendering:** PyMuPDF (`page.get_pixmap`) or pdf2image.
+- **Layout detection models:** open-source models benchmarked in the Data Snapshots work; document-layout models trained on academic corpora need the review step on institutional documents.
+- **Annotation:** the `data-snapshot` format (normalized XYXY boxes, classes Figure and Table); the [COCO](https://cocodataset.org/#format-data) format is the common interchange format for detection datasets and tools.
+- **Storage:** snapshots and sidecar records versioned with the document; a simple folder convention is enough until the catalog holds them ([chapter 5](./publish.mdx)).
+
+## World Bank examples
+
+- [Data Snapshots](https://arxiv.org/abs/2606.06242) (Dy and Solatorio) benchmarks open-source layout detection models on institutional documents and publishes the [data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot) dataset: 476 annotated regions from UNHCR reports, World Bank policy research working papers, and refugee documents.
+- The program's [home page](/) shows the detect, crop, extract sequence on the running example's page.
+
+## Common mistakes
+
+- **Trusting detections from academic benchmarks.** The benchmark's result is that these models do worse on operational documents; measure on the organization's pages.
+- **Boxes without the title.** A snapshot without its title is a table with no name; adjust the box or record the title separately.
+- **One class for everything.** A map, a photo, and a chart are all figures to the model; the extraction in chapter 3 needs to know which.
+- **Discarding the page image.** The page is the evidence; keep it with the snapshot.
+
+## Verification
+
+- **Coverage:** every document in the inventory has detections; the counts of tables and figures replace the hand estimates.
+- **Precision and recall:** measured on the annotated sample, per class and document type, and recorded with the model version.
+- **Snapshots:** a sample opened by a person shows the full table or figure with its title.
+
+## Checklist
+
+<Checklist id="data-from-documents-locate" items={[
+  'Pages rendered and run through a layout detection model',
+  'Detections stored with document, page, class, box, model, and date',
+  'Snapshots saved with sidecar records and adjusted boxes where needed',
+  'Annotated sample of the organization\'s own pages',
+  'Precision and recall measured per class and document type',
+  'Detection re-run and re-measured when the model changes',
+]} />
