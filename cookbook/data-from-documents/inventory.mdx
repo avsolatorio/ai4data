@@ -38,8 +38,8 @@ is recorded.
 | Level | Steps |
 |---|---|
 | **Foundational** | Build the inventory from the publication list. Record whether each file has a text layer. Estimate table and figure counts from the table of contents. |
-| **AI-ready** | Give each document a record in the document schema with `data_sources`. Run OCR on scanned documents. Extract the text layer for search and for the parsing in [chapter 3](./extract.mdx). |
-| **AI-native** | Keep the inventory current from the publication workflow, with table and figure counts from the layout detection in [chapter 2](./locate.mdx), and expose the records through the catalog. |
+| **AI-ready** | Give each document a record in the document schema with `data_sources`. Run OCR on scanned documents. Extract the text layer for search and for the parsing in [chapter 4](./extract.mdx). |
+| **AI-native** | Keep the inventory current from the publication workflow, with table and figure counts from the layout detection in [chapter 3](./locate.mdx), and expose the records through the catalog. |
 
 :::info[Running example]
 The example organization has eight documents in its inventory, from a
@@ -92,7 +92,7 @@ backlog (largest first):
    first.
 
 **What this does not do.** The counts of tables and figures are estimates
-entered by hand until the layout detection in [chapter 2](./locate.mdx)
+entered by hand until the layout detection in [chapter 3](./locate.mdx)
 counts them. The inventory does not say which tables matter; that is a
 decision about which data users ask for, informed by the
 [monitoring of data use](/docs/data_use/).
@@ -128,7 +128,7 @@ python check_metadata.py example_document.json profile_document.json --level ai-
    possible, a DOI.
 
 **What this does not do.** The record describes the document. The tables
-extracted from it get their own records in [chapter 5](./publish.mdx),
+extracted from it get their own records in [chapter 7](./publish.mdx),
 linked to this one.
 
 </Recipe>
@@ -136,7 +136,7 @@ linked to this one.
 <Recipe title="1.3 Produce the text layer for search and parsing" level="AI-ready" skills="Developer" time="Minutes per document; OCR time for scanned ones">
 
 **Result:** every document has machine-readable text, page by page, that a
-search index can use and that the table extraction in [chapter 3](./extract.mdx)
+search index can use and that the table extraction in [chapter 4](./extract.mdx)
 can parse.
 
 1. For documents with a text layer, extract the text per page. The
@@ -150,9 +150,9 @@ doc = fitz.open("EX-REP-2025-03.pdf")
 pages = [page.get_text() for page in doc]
 ```
 
-2. For scanned documents, run OCR (Tesseract is the usual open-source
-   choice) to produce a text layer, and store the OCR confidence with the
-   text; low-confidence pages need review before extraction.
+2. For scanned documents, produce the text layer with OCR as
+   [chapter 2](./scanned.mdx) describes, and keep the OCR quality score
+   with each page; pages marked for re-OCR are not extracted.
 3. Index the text per page in the site's search, so that a user searching
    for a table title finds the document and the page.
 4. Keep the extracted text with the document, versioned with it; it is
@@ -161,7 +161,7 @@ pages = [page.get_text() for page in doc]
 
 **What this does not do.** A text layer makes text searchable; it does not
 give the structure of a table, which depends on positions on the page.
-Chapter 3 handles that. OCR output on complex layouts (multi-column
+Chapter 4 handles that. OCR output on complex layouts (multi-column
 yearbooks, rotated tables) needs review.
 
 </Recipe>
@@ -178,6 +178,14 @@ yearbooks, rotated tables) needs review.
 - The [document schema](https://github.com/worldbank/metadata-schemas) carries `data_sources`, `toc_structured`, `identifiers`, and `bibliographic_citation` for a document record.
 - [Monitoring of Data Use](/docs/data_use/) parses documents with PyMuPDF and extracts the datasets they mention, which fills `data_sources` for documents the organization did not write.
 - The [Documents and Reports](https://documents.worldbank.org/) repository of the World Bank, from which the `data-snapshot` dataset's policy research working papers come.
+
+## Resources
+
+- [World Bank document schema](https://github.com/worldbank/metadata-schemas): the record for a publication, with `data_sources` linking it to the series and surveys it uses.
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): documenting publications from the document template and publishing to NADA.
+- [PyMuPDF](https://pymupdf.readthedocs.io/): page text, images, and table detection from PDFs; the parser the program's document tools use.
+- [pdfplumber](https://github.com/jsvine/pdfplumber): character-level access to the text layer, useful to tell a real text layer from an OCR layer.
+- [Monitoring of Data Use](/docs/data_use/): the program's document parsing and mention extraction, which read the same inventory.
 
 ## Common mistakes
 

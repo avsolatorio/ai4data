@@ -1,15 +1,15 @@
 ---
 id: cite
-title: "6. Findability and citation"
-sidebar_label: "6. Cite"
-sidebar_position: 7
+title: "8. Findability and citation"
+sidebar_label: "8. Cite"
+sidebar_position: 9
 description: Extracted tables findable in the catalog and in search by their printed titles, cited to the document and page, with corrections logged as errata and use monitored.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Findability and citation
+# 8. Findability and citation
 
 **Question:** Can the data be found and cited back to the page?
 
@@ -50,12 +50,12 @@ bounding box.
 
 ## Recipes
 
-<Recipe title="6.1 Make extracted tables findable" level="AI-ready" skills="Catalog administrator" time="Part of publication">
+<Recipe title="8.1 Make extracted tables findable" level="AI-ready" skills="Catalog administrator" time="Part of publication">
 
 **Result:** a search for a table's printed title, or for its subject,
 returns the table record and its data.
 
-1. Publish the table records in the catalog ([chapter 5](./publish.mdx)),
+1. Publish the table records in the catalog ([chapter 7](./publish.mdx)),
    with the printed title, the subject keywords, and the series it reports;
    NADA indexes tables with the other data types.
 2. Add schema.org `Dataset` markup to the table's page, with `isBasedOn`
@@ -72,7 +72,7 @@ cookbook covers.
 
 </Recipe>
 
-<Recipe title="6.2 Cite to the document, the page, and the table" level="Foundational" skills="Dissemination officer" time="One hour to set the format">
+<Recipe title="8.2 Cite to the document, the page, and the table" level="Foundational" skills="Dissemination officer" time="One hour to set the format">
 
 **Result:** one citation format for extracted data, used in the record, on
 the page, and by systems that quote the data.
@@ -99,7 +99,7 @@ recipe 6.3 records it.
 
 </Recipe>
 
-<Recipe title="6.3 Log corrections and monitor use" level="AI-ready" skills="Dissemination officer" time="Ongoing">
+<Recipe title="8.3 Log corrections and monitor use" level="AI-ready" skills="Dissemination officer" time="Ongoing">
 
 **Result:** every correction to extracted data is dated and versioned,
 superseded files stay available, and the organization sees where its
@@ -139,6 +139,13 @@ exist.
 - The program's [home page](/) shows a value cited to its page and snapshot, which is the value-level citation of this chapter.
 - [Monitoring of Data Use](/docs/data_use/) extracts dataset mentions from documents and harmonizes name variants, which finds where extracted tables are reused.
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) verifies numbers in generated answers against the record, which an extracted table joins once catalogued.
+
+## Resources
+
+- [schema.org Dataset](https://schema.org/Dataset) and [Google's dataset structured-data guide](https://developers.google.com/search/docs/appearance/structured-data/dataset): the markup a catalog page carries so that an extracted table is found.
+- [DataCite](https://datacite.org/): DOI registration for the extracted tables where the organization registers them; the metadata schema's `relatedIdentifier` links the table to the document.
+- [Findability chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/find): the question set and the AI visibility check applied to extracted tables.
+- [Monitoring of Data Use cookbook](/cookbook/monitoring-data-use/): mention extraction over publications, which finds citations of the extracted tables.
 
 ## Common mistakes
 

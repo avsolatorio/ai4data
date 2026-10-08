@@ -1,0 +1,220 @@
+---
+id: scanned
+title: "2. Text from scanned documents"
+sidebar_label: "2. Scanned"
+sidebar_position: 3
+description: Telling scans from documents with a text layer, choosing an OCR engine for the organization's languages and layouts, scoring OCR quality page by page, and keeping the text layer with the document.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Text from scanned documents
+
+**Question:** Can scanned documents be read reliably?
+
+## Rationale
+
+The oldest and often the most valuable documents are scans: census volumes,
+yearbooks from before desktop publishing, bound reports photographed page
+by page. They have no text layer, or an OCR layer produced years ago by
+whatever engine the scanner shipped with. Every later step (locating
+tables, extracting values, finding mentions) reads text, and OCR errors in
+numbers are the errors that reach a published series: a `1` read as `l`,
+a `0` read as `O`, a digit dropped from a total.
+
+Modern OCR engines read printed tables well when the scan is adequate,
+and the choice of engine depends on the languages and scripts the
+organization publishes in. What matters as much as the engine is knowing
+which pages came out badly, so that they are re-processed or reviewed
+before extraction, and keeping the text layer with the document so that
+the work is done once.
+
+## Target state
+
+- Every document in the inventory is marked as having a real text layer, an OCR layer, or neither, and the inventory says which need OCR.
+- OCR runs with an engine tested on the organization's own pages in each language, at a resolution that preserves digits.
+- Every OCR page has a quality score; pages above the threshold are re-processed or reviewed before extraction.
+- The text layer is stored with the document (a searchable PDF/A) and in the page text used for search and extraction.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Mark scans in the inventory. Run OCR with one engine on the priority documents and keep the output with the document. |
+| **AI-ready** | Test two or three engines on a sample of the organization's pages per language; score every page; re-process or review pages over the threshold; store a searchable PDF/A. |
+| **AI-native** | Run OCR as a pipeline stage with the score as a gate; use a layout-aware model for complex pages; feed corrections back as test pages. |
+
+:::info[Running example]
+The 2014 census main report (`EX-CEN-2014-01`, 220 pages) has no text
+layer. One page of its OCR output, a population table, contains three
+garbled numbers and two garbled words. The quality score marks the page
+for re-OCR, and the lines to review are the table rows that extraction
+would otherwise read as values.
+:::
+
+## Recipes
+
+<Recipe title="2.1 Tell a scan from a text layer and mark it in the inventory" level="Foundational" skills="Developer" time="Minutes for a few hundred documents">
+
+**Result:** the inventory's `text_layer` column is correct for every
+document, and the pages to OCR are counted.
+
+1. For each PDF, extract the text of a few pages with
+   [PyMuPDF](https://pymupdf.readthedocs.io/) and count the characters.
+   A page with no characters, or with only a few, is an image; a page
+   whose text contains long runs of symbols or no spaces has a broken OCR
+   layer from an earlier tool.
+
+```python
+import fitz  # PyMuPDF
+
+doc = fitz.open("EX-CEN-2014-01.pdf")
+chars = [len(page.get_text()) for page in doc]
+text_pages = sum(1 for c in chars if c > 200)
+print(f"{text_pages} of {len(doc)} pages have text")
+```
+
+2. Mark the document `text_layer = no` when most pages are images, and
+   `text_layer = ocr` when an OCR layer exists; keep the page counts, which
+   are the OCR workload of [chapter 9](./operate.mdx).
+3. Where an existing OCR layer is poor (recipe 2.3 scores it), treat the
+   document as a scan and re-run OCR.
+
+**What this does not do.** A character count does not tell whether the
+text is correct. Recipe 2.3 scores quality; recipe 2.2 chooses the engine.
+
+</Recipe>
+
+<Recipe title="2.2 Choose and run the OCR engine for the organization's pages" level="AI-ready" skills="Developer" time="Two days to test; minutes per page to run">
+
+**Result:** an engine, settings, and resolution chosen on the
+organization's own pages per language, and OCR output stored as a
+searchable PDF/A beside the original.
+
+1. Build a test set: twenty pages per language and layout type (prose,
+   tables, two-column), with the correct text of each typed or corrected
+   by hand. Include the worst scans.
+2. Run candidate engines on the test set and compare character error
+   rate overall and on digits:
+   [Tesseract](https://github.com/tesseract-ocr/tesseract) (the widest
+   language coverage, through [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF)
+   which produces a searchable PDF/A);
+   [docTR](https://github.com/mindee/doctr) and
+   [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) (deep-learning
+   engines with layout and table recognition);
+   [Surya](https://github.com/VikParuchuri/surya) (90-plus languages,
+   with reading order and tables; check its licence for the
+   organization's case); [olmOCR](https://github.com/allenai/olmocr) (a
+   vision-language model that returns text with tables as Markdown,
+   strongest on complex layouts and heaviest to run);
+   [Docling](https://github.com/docling-project/docling) wraps several of
+   these with layout analysis in one pipeline.
+3. Choose by digit error rate on tables first, then by language coverage
+   and the hardware available; record the engine, version, and settings
+   in the pipeline's configuration.
+4. Run at 300 dots per inch or the scan's native resolution if higher;
+   deskew and despeckle first (OCRmyPDF does both); keep the output as
+   PDF/A with the text layer positioned on the image, plus the page text
+   as files for search and extraction.
+
+**What this does not do.** A test set of twenty pages per type finds
+large differences between engines; small differences need more pages. A
+language whose script the engine does not support, or a historical
+typeface, needs a model trained for it, which the engines above allow.
+
+</Recipe>
+
+<Recipe title="2.3 Score OCR quality page by page" level="AI-ready" skills="Python" time="Minutes per document">
+
+**Result:** every OCR page has a quality score and a list of lines to
+review, and pages over the threshold are marked for re-OCR before
+extraction.
+
+```python file=../../website/static/cookbook-files/data-from-documents/ocr_quality.py
+```
+
+```bash
+python ocr_quality.py ocr_sample_page.txt
+```
+
+Output for the running example:
+
+```text
+14 lines, 33 number tokens, 3 garbled (9.1%), 4 broken words
+
+lines to review (garbles | line):
+    4  1 | Northern        1,284,310   631,2O5     653,105     412,880     871,430
+    5  0 | Central         2,106,944   1,039,517   1,067,427   1,203,118   903,826
+    6  1 | Southern        98O,775     482,310     498,465     301,224     679,551
+    7  1 | Eastern         l,412,006   697,431     714,575     388,902     1,023,104
+    8  0 | Total           5,784,035   2,850,463   2,933,572   2,306,124   3,477,911
+   12  0 | Tbe census night was 14 to 15 August 2014. Enumeration lasted twelve days
+
+broken words: 2: Tab1e, 9: popu1ation, 11: ~~, 11: ~~
+
+verdict: re-OCR recommended (garble rate 9.1%, threshold 3%)
+```
+
+1. Run the score on every page of the OCR output and store the rate with
+   the page in the inventory or the processing log.
+2. Read the lines to review for a sample: the garbled tokens in the table
+   rows (`631,2O5`, `98O,775`, `l,412,006`) are what the extraction of
+   [chapter 4](./extract.mdx) would otherwise record as values; a page
+   over the threshold is re-processed with another engine or at a higher
+   resolution, or its tables are reviewed cell by cell.
+3. Set the threshold from the test set of recipe 2.2: the garble rate of
+   pages whose digit error rate was acceptable.
+4. Keep corrected pages as test pages for the next engine change.
+
+**What this does not do.** The score finds errors by shape. A `3` read as
+`8` is a digit and invisible here; the total and derived-rate checks of
+[chapter 5](./verify.mdx) catch those, which is why both run.
+
+</Recipe>
+
+## Implementation options
+
+- **Detection of scans:** character counts per page with PyMuPDF or pdfplumber; a stored `text_layer` value of `yes`, `ocr`, or `no` in the inventory.
+- **Engines:** Tesseract through OCRmyPDF for breadth and a searchable PDF/A; docTR, PaddleOCR, or Surya for deep-learning recognition with tables; olmOCR or another vision-language model for complex layouts; Docling as a single pipeline.
+- **Quality:** the shape-based score in this chapter per page; character error rate on a test set for engine choice; engine confidence where the engine reports it.
+- **Storage:** PDF/A with text layer beside the original; page text files; the score in the processing log.
+
+## World Bank examples
+
+- The [Data Snapshots](/docs/data-snapshots/) benchmark covers institutional documents including scanned pages, and its dataset is a source of test pages.
+- The program's [document parser](/docs/data_use/) reads the page text that this chapter produces for scans.
+
+## Resources
+
+- [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF): Tesseract-based OCR that outputs a searchable PDF/A with deskew and clean-up; the default for a first pipeline.
+- [Tesseract](https://github.com/tesseract-ocr/tesseract): the open-source engine with trained data for more than 100 languages.
+- [docTR](https://github.com/mindee/doctr), [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR), and [Surya](https://github.com/VikParuchuri/surya): deep-learning OCR with layout and table recognition, for pages where Tesseract fails.
+- [olmOCR](https://github.com/allenai/olmocr): a vision-language OCR toolkit (Apache 2.0) that returns structured text from complex pages.
+- [Docling](https://github.com/docling-project/docling): document conversion with OCR, layout, and tables in one pipeline.
+- [Character error rate (jiwer)](https://github.com/jitsi/jiwer): the library used to compute error rates against the corrected test pages.
+
+## Common mistakes
+
+- **Trusting the scanner's OCR layer.** Old layers garble digits; score them before using them.
+- **One engine for every language.** Test per language and script on the organization's own pages.
+- **Low resolution.** Digits lose their shape below 300 dots per inch; re-scan or upscale before OCR.
+- **No page score.** Without it, bad pages reach extraction and the errors reach the series.
+
+## Verification
+
+- **Inventory:** every document has a `text_layer` value checked on a sample of pages.
+- **Engine:** the choice is recorded with its digit error rate on the test set.
+- **Scores:** every OCR page has a score; pages over the threshold are listed and handled.
+- **Storage:** the searchable PDF/A opens with selectable text positioned on the image.
+
+## Checklist
+
+<Checklist id="data-from-documents-scanned" items={[
+  'Scans and OCR layers marked in the inventory with page counts',
+  'Test set of corrected pages per language and layout type',
+  'Engine chosen by digit error rate and recorded with settings',
+  'OCR at 300 dpi or better with deskew and clean-up',
+  'Quality score per page; threshold set from the test set',
+  'Searchable PDF/A and page text stored with the document',
+]} />

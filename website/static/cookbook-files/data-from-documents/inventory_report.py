@@ -40,7 +40,9 @@ def main(argv: list[str] | None = None) -> int:
     tables = sum(int(d["tables"] or 0) for d in docs)
     figures = sum(int(d["figures"] or 0) for d in docs)
     text = sum(1 for d in docs if d["text_layer"].strip().lower() == "yes")
-    print(f"{n} documents, {tables} tables, {figures} figures; {text} of {n} with a text layer")
+    print(
+        f"{n} documents, {tables} tables, {figures} figures; {text} of {n} with a text layer"
+    )
 
     by_type: dict[str, Counter] = defaultdict(Counter)
     for d in docs:
@@ -52,7 +54,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{t:<22} {c['documents']:>5} {c['tables']:>7} {c['figures']:>8}")
 
     status = Counter(d["extracted"].strip().lower() for d in docs)
-    print("\nextraction status: " + ", ".join(f"{k} {v}" for k, v in sorted(status.items())))
+    print(
+        "\nextraction status: "
+        + ", ".join(f"{k} {v}" for k, v in sorted(status.items()))
+    )
 
     backlog = [d for d in docs if d["extracted"].strip().lower() != "yes"]
     backlog.sort(key=lambda d: -(int(d["tables"] or 0) + int(d["figures"] or 0)))

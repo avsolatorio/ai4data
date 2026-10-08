@@ -88,15 +88,32 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extraction", type=Path)
-    parser.add_argument("--verification", type=Path, help="output of verify_extraction.py")
+    parser.add_argument(
+        "--verification", type=Path, help="output of verify_extraction.py"
+    )
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args(argv)
 
     with args.extraction.open(encoding="utf-8") as fh:
         x = json.load(fh)
     rows = rows_for(x, read_statuses(args.verification))
-    fields = ["document_id", "page", "bbox", "class", "title", "row", "column", "value", "unit", "status"]
-    out = args.output.open("w", newline="", encoding="utf-8") if args.output else sys.stdout
+    fields = [
+        "document_id",
+        "page",
+        "bbox",
+        "class",
+        "title",
+        "row",
+        "column",
+        "value",
+        "unit",
+        "status",
+    ]
+    out = (
+        args.output.open("w", newline="", encoding="utf-8")
+        if args.output
+        else sys.stdout
+    )
     writer = csv.DictWriter(out, fieldnames=fields)
     writer.writeheader()
     writer.writerows(rows)

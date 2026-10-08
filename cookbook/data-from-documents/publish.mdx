@@ -1,15 +1,15 @@
 ---
 id: publish
-title: "5. Publication next to the document"
-sidebar_label: "5. Publish"
-sidebar_position: 6
+title: "7. Publication next to the document"
+sidebar_label: "7. Publish"
+sidebar_position: 8
 description: Tidy files published with the document under its licence, a record for each extracted table in the World Bank table schema, and links between the document record and the data.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 5. Publication next to the document
+# 7. Publication next to the document
 
 **Question:** Can the extracted data be published with their provenance?
 
@@ -50,7 +50,7 @@ document record.
 
 ## Recipes
 
-<Recipe title="5.1 Publish the tidy file next to the document" level="Foundational" skills="Web editor" time="Half an hour per document">
+<Recipe title="7.1 Publish the tidy file next to the document" level="Foundational" skills="Web editor" time="Half an hour per document">
 
 **Result:** the data of each table and chart downloadable from the
 document's page, with their provenance and status, under a stated licence.
@@ -65,7 +65,7 @@ document's page, with their provenance and status, under a stated licence.
 3. Keep the `status` column in the published file. A user who sees
    `estimated` next to a chart value reads it correctly.
 4. Version the files with the document; a corrected value is a new version
-   with an erratum ([chapter 6](./cite.mdx)).
+   with an erratum ([chapter 8](./cite.mdx)).
 
 **What this does not do.** A file on a page is findable from the document
 and nowhere else. The table record of recipe 5.2 makes it findable from
@@ -73,7 +73,7 @@ the catalog and from the series.
 
 </Recipe>
 
-<Recipe title="5.2 Describe each extracted table as a table record" level="AI-ready" skills="Data curator; Python for the check" time="Half an hour per table">
+<Recipe title="7.2 Describe each extracted table as a table record" level="AI-ready" skills="Data curator; Python for the check" time="Half an hour per table">
 
 **Result:** a record in the World Bank table schema for the extracted
 table, validated against the schema and the profile, linked to the
@@ -111,7 +111,7 @@ the document record, and a curator reviews titles and definitions.
 
 </Recipe>
 
-<Recipe title="5.3 Link the document record and the data in both directions" level="AI-ready" skills="Data curator" time="Minutes per document">
+<Recipe title="7.3 Link the document record and the data in both directions" level="AI-ready" skills="Data curator" time="Minutes per document">
 
 **Result:** from the document a user or a system reaches its tables and the
 series behind them; from a series, the documents that report it.
@@ -131,7 +131,7 @@ series behind them; from a series, the documents that report it.
 
 **What this does not do.** Links describe relations; they do not reconcile
 values. A document figure and a series value can differ by vintage, and
-[chapter 4, recipe 4.3](./verify.mdx) records which is which.
+[chapter 5, recipe 5.3](./verify.mdx) records which is which.
 
 </Recipe>
 
@@ -147,6 +147,14 @@ values. A document figure and a series value can differ by vintage, and
 - The [table schema](https://github.com/worldbank/metadata-schemas) defines `table_description` with columns, rows, data sources, definitions, licence, citation, and relations.
 - NADA catalogs tables and documents as data types next to microdata and indicators, with the links between them.
 - The [Metadata Editor](https://github.com/worldbank/metadata-editor) documents tables with a template and publishes to NADA.
+
+## Resources
+
+- [World Bank table schema](https://github.com/worldbank/metadata-schemas): the record for an extracted table, with sources, definitions, licence, and relations.
+- [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/): a JSON description of a CSV's columns, types, and units published beside the file.
+- [Frictionless Table Schema](https://specs.frictionlessdata.io/table-schema/): a lighter column description, with validation tools, for the same purpose.
+- [W3C PROV](https://www.w3.org/TR/prov-overview/): `wasDerivedFrom` and `wasGeneratedBy` for provenance exchanged as linked data.
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): the table template and publication to NADA.
 
 ## Common mistakes
 

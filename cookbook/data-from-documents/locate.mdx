@@ -1,15 +1,15 @@
 ---
 id: locate
-title: "2. Location of tables and figures"
-sidebar_label: "2. Locate"
-sidebar_position: 3
+title: "3. Location of tables and figures"
+sidebar_label: "3. Locate"
+sidebar_position: 4
 description: Layout detection of tables and figures in institutional documents, data snapshots with bounding boxes, and review against annotated pages.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 2. Location of tables and figures
+# 3. Location of tables and figures
 
 **Question:** Can the tables and figures be located on the page?
 
@@ -20,7 +20,7 @@ region on the page, and whether it is a table, a chart, or a map. Layout
 detection models do this from the page image and return a class and a
 bounding box for each region. The region cropped from the page is a **data
 snapshot**: a self-contained image of one table or figure, with its
-coordinates, which the extraction in [chapter 3](./extract.mdx) reads and
+coordinates, which the extraction in [chapter 4](./extract.mdx) reads and
 which every later citation points back to.
 
 The program's Data Snapshots work benchmarked open-source layout detection
@@ -54,7 +54,7 @@ page, the box, and the snapshot.
 
 ## Recipes
 
-<Recipe title="2.1 Run a layout detection model over the pages" level="AI-ready" skills="Developer with Python and a machine with a GPU or patience" time="One to two days to set up; seconds per page after">
+<Recipe title="3.1 Run a layout detection model over the pages" level="AI-ready" skills="Developer with Python and a machine with a GPU or patience" time="One to two days to set up; seconds per page after">
 
 **Result:** for every page, a list of detected regions with class and
 bounding box, in the normalized XYXY form used by the `data-snapshot`
@@ -84,7 +84,7 @@ reports. Recipe 2.3 reviews for this before extraction.
 
 </Recipe>
 
-<Recipe title="2.2 Save snapshots with their coordinates" level="AI-ready" skills="Developer" time="Part of the detection run">
+<Recipe title="3.2 Save snapshots with their coordinates" level="AI-ready" skills="Developer" time="Part of the detection run">
 
 **Result:** one image per detected region, named so that it can be traced
 to the document and page, with its coordinates in a sidecar file.
@@ -102,12 +102,12 @@ to the document and page, with its coordinates in a sidecar file.
    same version.
 
 **What this does not do.** A snapshot is an image. Its content becomes data
-in [chapter 3](./extract.mdx); until then the snapshot is what a person
+in [chapter 4](./extract.mdx); until then the snapshot is what a person
 reviews and what a citation shows.
 
 </Recipe>
 
-<Recipe title="2.3 Review detections against annotated pages" level="AI-ready" skills="Dissemination officer; developer for the scoring" time="Half a day for a sample of 50 pages">
+<Recipe title="3.3 Review detections against annotated pages" level="AI-ready" skills="Dissemination officer; developer for the scoring" time="Half a day for a sample of 50 pages">
 
 **Result:** a measured precision and recall for the detection on the
 organization's own documents, and a growing set of annotated pages to
@@ -141,18 +141,26 @@ agree.
 - **Page rendering:** PyMuPDF (`page.get_pixmap`) or pdf2image.
 - **Layout detection models:** open-source models benchmarked in the Data Snapshots work; document-layout models trained on academic corpora need the review step on institutional documents.
 - **Annotation:** the `data-snapshot` format (normalized XYXY boxes, classes Figure and Table); the [COCO](https://cocodataset.org/#format-data) format is the common interchange format for detection datasets and tools.
-- **Storage:** snapshots and sidecar records versioned with the document; a simple folder convention is enough until the catalog holds them ([chapter 5](./publish.mdx)).
+- **Storage:** snapshots and sidecar records versioned with the document; a simple folder convention is enough until the catalog holds them ([chapter 7](./publish.mdx)).
 
 ## World Bank examples
 
 - [Data Snapshots](https://arxiv.org/abs/2606.06242) (Dy and Solatorio) benchmarks open-source layout detection models on institutional documents and publishes the [data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot) dataset: 476 annotated regions from UNHCR reports, World Bank policy research working papers, and refugee documents.
 - The program's [home page](/) shows the detect, crop, extract sequence on the running example's page.
 
+## Resources
+
+- [Data Snapshots](https://arxiv.org/abs/2606.06242) and the [data-snapshot dataset](https://huggingface.co/datasets/ai4data/data-snapshot): the benchmark of layout models on institutional documents and the annotated pages to review against.
+- [Docling](https://github.com/docling-project/docling): layout analysis, reading order, and table structure for PDFs, with OCR for scans; a single tool for the foundational pipeline.
+- [Table Transformer](https://github.com/microsoft/table-transformer): table detection and structure recognition models (MIT) for pages where tables are the target.
+- [COCO format](https://cocodataset.org/#format-data): the interchange format for detection annotations, for review and fine-tuning.
+- [Label Studio](https://labelstud.io/): open-source annotation of bounding boxes on pages, for the review sample and for fine-tuning data.
+
 ## Common mistakes
 
 - **Trusting detections from academic benchmarks.** The benchmark's result is that these models do worse on operational documents; measure on the organization's pages.
 - **Boxes without the title.** A snapshot without its title is a table with no name; adjust the box or record the title separately.
-- **One class for everything.** A map, a photo, and a chart are all figures to the model; the extraction in chapter 3 needs to know which.
+- **One class for everything.** A map, a photo, and a chart are all figures to the model; the extraction in chapter 4 needs to know which.
 - **Discarding the page image.** The page is the evidence; keep it with the snapshot.
 
 ## Verification

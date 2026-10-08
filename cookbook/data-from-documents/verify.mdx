@@ -1,15 +1,15 @@
 ---
 id: verify
-title: "4. Verification of extracted values"
-sidebar_label: "4. Verify"
-sidebar_position: 5
+title: "5. Verification of extracted values"
+sidebar_label: "5. Verify"
+sidebar_position: 6
 description: Verification of extracted values against what the document offers, printed labels, totals, and derived rates, a reviewed sample, and a status per value.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Verification of extracted values
+# 5. Verification of extracted values
 
 **Question:** Can the extracted values be verified against the document?
 
@@ -50,7 +50,7 @@ flagged.
 
 ## Recipes
 
-<Recipe title="4.1 Check values against printed labels, totals, and derived rates" level="AI-ready" skills="Python" time="Minutes per batch">
+<Recipe title="5.1 Check values against printed labels, totals, and derived rates" level="AI-ready" skills="Python" time="Minutes per batch">
 
 **Result:** a status per value, from the checks the document itself makes
 possible, and an exit status that a pipeline can act on.
@@ -103,7 +103,7 @@ what the checks cannot.
 
 </Recipe>
 
-<Recipe title="4.2 Review a sample with the page open" level="Foundational" skills="Dissemination officer" time="Half a day per batch">
+<Recipe title="5.2 Review a sample with the page open" level="Foundational" skills="Dissemination officer" time="Half a day per batch">
 
 **Result:** a measured error rate for the extraction, per document type
 and per method, from a sample that a person has compared with the page.
@@ -126,7 +126,7 @@ the sample is drawn again.
 
 </Recipe>
 
-<Recipe title="4.3 Cross-check extracted figures against the catalog" level="AI-native" skills="Developer" time="One day to set up">
+<Recipe title="5.3 Cross-check extracted figures against the catalog" level="AI-native" skills="Developer" time="One day to set up">
 
 **Result:** an extracted figure that the catalog already holds as a series
 value is checked against it, and the published number is the catalog's.
@@ -162,6 +162,13 @@ that.
 
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) applies the same principle to generated answers: every number is verified against the record or flagged.
 - [Anomaly Detection and Explanation](/docs/anomaly-detection/) flags unusual values in series, which catches extraction errors that enter a time series.
+
+## Resources
+
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902): the program's method for binding a stated number to its source so that a reader can check it.
+- [Metadata Reviewer review board](/docs/metadata-reviewer/user-manual/review-board): the review pattern (current and proposed side by side, decision recorded) applied to flagged values.
+- [verify_numbers.py](pathname:///cookbook-files/ai-ready-dissemination/verify_numbers.py) from the dissemination cookbook: checking numbers in text against the catalog, the same check as recipe 5.3 from the other side.
+- [SDMX `OBS_STATUS` code list](https://sdmx.org/?page_id=3215): the published status codes the tidy file's status column maps to when values join the catalog.
 
 ## Common mistakes
 

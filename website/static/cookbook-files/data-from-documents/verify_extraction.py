@@ -43,7 +43,11 @@ def verify_chart(x: dict) -> list[tuple[str, str, str]]:
         for s in x["series"]:
             for cat, v in zip(x["categories"], s["values"]):
                 results.append(
-                    (f"{s['name']}/{cat}", "estimated", f"{v}: no printed label; read from the axis")
+                    (
+                        f"{s['name']}/{cat}",
+                        "estimated",
+                        f"{v}: no printed label; read from the axis",
+                    )
                 )
         return results
     remaining = list(x.get("printed_values", []))
@@ -51,11 +55,25 @@ def verify_chart(x: dict) -> list[tuple[str, str, str]]:
         for cat, v in zip(x["categories"], s["values"]):
             if v in remaining:
                 remaining.remove(v)
-                results.append((f"{s['name']}/{cat}", "verified", f"{v} matches a printed label"))
+                results.append(
+                    (f"{s['name']}/{cat}", "verified", f"{v} matches a printed label")
+                )
             else:
-                results.append((f"{s['name']}/{cat}", "flagged", f"{v} is not among the printed labels"))
+                results.append(
+                    (
+                        f"{s['name']}/{cat}",
+                        "flagged",
+                        f"{v} is not among the printed labels",
+                    )
+                )
     for leftover in remaining:
-        results.append(("printed label", "flagged", f"{leftover} printed on the chart but not extracted"))
+        results.append(
+            (
+                "printed label",
+                "flagged",
+                f"{leftover} printed on the chart but not extracted",
+            )
+        )
     return results
 
 
@@ -76,12 +94,22 @@ def verify_table(x: dict, abs_tol: float, rel_tol: float) -> list[tuple[str, str
             ni, di = cols.index(spec["numerator"]), cols.index(spec["denominator"])
             for r in rows:
                 computed = r[ni] / r[di] * spec.get("scale", 1)
-                status = "verified" if close(r[j], computed, abs_tol, rel_tol) else "flagged"
-                results.append((f"{r[0]}/{col}", status, f"{r[j]} vs computed {computed:.2f}"))
+                status = (
+                    "verified" if close(r[j], computed, abs_tol, rel_tol) else "flagged"
+                )
+                results.append(
+                    (f"{r[0]}/{col}", status, f"{r[j]} vs computed {computed:.2f}")
+                )
         elif total is not None:
             s = sum(r[j] for r in body)
             status = "verified" if close(total[j], s, abs_tol, rel_tol) else "flagged"
-            results.append((f"{total_label}/{col}", status, f"total {total[j]} vs sum of rows {s:g}"))
+            results.append(
+                (
+                    f"{total_label}/{col}",
+                    status,
+                    f"total {total[j]} vs sum of rows {s:g}",
+                )
+            )
             for r in body:
                 results.append(
                     (
@@ -93,7 +121,11 @@ def verify_table(x: dict, abs_tol: float, rel_tol: float) -> list[tuple[str, str
         else:
             for r in rows:
                 results.append(
-                    (f"{r[0]}/{col}", "estimated", f"{r[j]}: no total or derivation to check against")
+                    (
+                        f"{r[0]}/{col}",
+                        "estimated",
+                        f"{r[j]}: no total or derivation to check against",
+                    )
                 )
     return results
 
@@ -120,9 +152,16 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{x['document_id']} page {x['page']}: {x.get('title', '')} ({kind})")
     for where, status, detail in results:
         print(f"  {status:<9} {where:<32} {detail}")
-    counts = {s: sum(1 for _, st, _ in results if st == s) for s in ("verified", "flagged", "estimated")}
-    print(f"\n{counts['verified']} verified, {counts['flagged']} flagged, {counts['estimated']} estimated")
-    print("Not checked here: whether the right table or chart was extracted, or whether labels are correct.")
+    counts = {
+        s: sum(1 for _, st, _ in results if st == s)
+        for s in ("verified", "flagged", "estimated")
+    }
+    print(
+        f"\n{counts['verified']} verified, {counts['flagged']} flagged, {counts['estimated']} estimated"
+    )
+    print(
+        "Not checked here: whether the right table or chart was extracted, or whether labels are correct."
+    )
     return 1 if counts["flagged"] else 0
 
 
