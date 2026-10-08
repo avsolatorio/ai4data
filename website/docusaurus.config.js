@@ -71,12 +71,13 @@ const config = {
         respectPrefersColorScheme: true,
       },
       navbar: {
-        title: 'AI for Data - Data for AI',
+        title: '',
         logo: {
-          alt: 'World Bank Group',
-          src: 'img/logo.png',
-          srcDark: 'img/logo-dark.png',
-          height: 28,
+          alt: 'AI for Data - Data for AI',
+          src: 'img/program-logo.png',
+          srcDark: 'img/program-logo-dark.png',
+          height: 40,
+          width: 119,
         },
         items: [
           {
