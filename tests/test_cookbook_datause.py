@@ -83,3 +83,46 @@ def test_use_report_counts_documents_not_mentions(harmonize, report, tmp_path, c
     line = next(line for line in out.splitlines() if line.startswith("EX-REP-2025-03"))
     assert line.split()[1:3] == ["2", "0"]  # mentioned in D02 and D06, used in none
     assert "'World Development Indicators': 1 document(s)" in out
+
+
+@pytest.fixture(scope="module")
+def access():
+    return load_script("count_access")
+
+
+@pytest.fixture(scope="module")
+def citations():
+    return load_script("merge_citations")
+
+
+@pytest.fixture(scope="module")
+def robots():
+    return load_script("robots_check")
+
+
+def test_access_count_excludes_robots_and_double_clicks(access, capsys):
+    assert access.main([str(SCRIPTS / "access_log.csv")]) == 0
+    out = capsys.readouterr().out
+    assert "30 log rows; excluded: robots 4, double-clicks 6, failed requests 1" in out
+    hbs = next(line for line in out.splitlines() if line.startswith("EX-HBS-2021            2026-09"))
+    assert hbs.split()[2:] == ["4", "3", "1", "1", "0", "4"]
+    fs = next(line for line in out.splitlines() if line.startswith("FS_UNDERNOURISH_PCT    2026-09"))
+    assert fs.split()[2:] == ["2", "1", "1", "3", "3", "3"]
+
+
+def test_citation_merge_dedupes_across_sources(citations, capsys):
+    assert citations.main([str(SCRIPTS / "citation_events.csv")]) == 0
+    out = capsys.readouterr().out
+    assert "12 events -> 7 unique citing documents across 4 datasets" in out
+    assert "found through identifiers 5, through text mining 4, by both 2, by text mining only 2" in out
+    assert "National nutrition strategy 2025 to 2030 (2025) found by text-mining only" in out
+
+
+def test_robots_check_blocks_disallowed_urls(robots, capsys):
+    rc = robots.main([str(SCRIPTS / "robots_example.txt"), str(SCRIPTS / "web_sources.csv"), "--agent", "ai4data-monitor"])
+    assert rc == 1
+    out = capsys.readouterr().out
+    assert "crawl delay 5" in out and "5 URLs, 3 disallowed" in out
+    assert "allowed   https://ministry.example.gov/publications/strategy-2025.pdf" in out
+    assert "DISALLOWED  https://ministry.example.gov/search?q=nutrition" in out
+    assert robots.main([str(SCRIPTS / "robots_example.txt"), str(SCRIPTS / "web_sources.csv"), "--agent", "otherbot"]) == 1

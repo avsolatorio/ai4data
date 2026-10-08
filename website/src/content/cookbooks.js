@@ -33,8 +33,8 @@ export const cookbooks = [
     audience: 'Dissemination teams and management in national statistical organizations',
     title: 'Practical Guide to Monitoring Data Use',
     description:
-      'Six questions an organization can ask about where its data are used, each answered with recipes for defining use, collecting documents, detecting and harmonizing mentions, reporting, and acting on the results. Builds on the Monitoring of Data Use workstream.',
-    chapters: 6,
+      'Nine questions a dissemination team can ask about how its data are used: counting access and citations, collecting research, policy, and web documents, finding and matching mentions, reporting use, and acting on it. Builds on the program\'s Monitoring of Data Use work.',
+    chapters: 9,
     to: '/cookbook/monitoring-data-use/',
   },
   {

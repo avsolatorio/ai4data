@@ -1,15 +1,15 @@
 ---
 id: detect
-title: "3. Detection of mentions"
-sidebar_label: "3. Detect"
-sidebar_position: 4
+title: "6. Detection of mentions"
+sidebar_label: "6. Detect"
+sidebar_position: 7
 description: Named-entity extraction of dataset mentions with the program's extractor, a labelled sample to measure precision and recall, and thresholds and deduplication.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 3. Detection of mentions
+# 6. Detection of mentions
 
 **Question:** Can mentions of the data be found in documents?
 
@@ -50,7 +50,7 @@ outlook) that a person did not count as a mention.
 
 ## Recipes
 
-<Recipe title="3.1 Run the extractor on the collected documents" level="AI-ready" skills="Developer with Python; a machine that runs a small language model" time="One day to set up; seconds per document">
+<Recipe title="6.1 Run the extractor on the collected documents" level="AI-ready" skills="Developer with Python; a machine that runs a small language model" time="One day to set up; seconds per document">
 
 **Result:** one record per mention with the fields the later chapters
 need, for every document in the collection.
@@ -89,7 +89,7 @@ measurement of recipe 3.2 before the counts are trusted.
 
 </Recipe>
 
-<Recipe title="3.2 Measure precision and recall on a labelled sample" level="AI-ready" skills="Dissemination officer for labelling; Python" time="One day for the first hundred sentences">
+<Recipe title="6.2 Measure precision and recall on a labelled sample" level="AI-ready" skills="Dissemination officer for labelling; Python" time="One day for the first hundred sentences">
 
 **Result:** precision, recall, and the lists of what was missed and what
 was wrongly extracted, for the organization's own documents.
@@ -132,7 +132,7 @@ usage flag and the context are scored by review.
 
 </Recipe>
 
-<Recipe title="3.3 Set thresholds and deduplicate" level="AI-ready" skills="Developer" time="Half a day">
+<Recipe title="6.3 Set thresholds and deduplicate" level="AI-ready" skills="Developer" time="Half a day">
 
 **Result:** a confidence threshold chosen on the sample, and one record per
 distinct mention per document.
@@ -166,6 +166,14 @@ labelled sample and, at the AI-native level, for adapting the model.
 
 - [Monitoring of Data Use](/docs/data_use/) documents the extractor, its output fields, and the deduplication step, with the implementation files in the repository.
 - The program publishes its extraction adapter on Hugging Face (`ai4data/datause-extraction`) for reuse.
+
+## Resources
+
+- [Monitoring of Data Use](/docs/data_use/): the program's extraction package, with `extract_from_text`, `extract_from_document`, and `deduplicate_extraction`.
+- [GLiNER](https://arxiv.org/abs/2311.08526) and the [ai4data/datause-extraction adapter](https://huggingface.co/ai4data/datause-extraction): the zero-shot named-entity model and the adapter trained for dataset mentions.
+- [Label Studio](https://labelstud.io/): open-source text annotation for the labelled sample, with inter-annotator agreement.
+- [scikit-learn classification metrics](https://scikit-learn.org/stable/modules/model_evaluation.html): precision, recall, and F1 as computed in the scoring script, with the definitions.
+- [Coleridge Initiative "Show US the Data" competition](https://www.kaggle.com/c/coleridgeinitiative-show-us-the-data): a public benchmark of dataset-mention detection in papers, for comparison of methods.
 
 ## Common mistakes
 

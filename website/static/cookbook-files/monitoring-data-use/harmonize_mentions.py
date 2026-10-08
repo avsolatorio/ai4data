@@ -47,13 +47,17 @@ def load_canonical(path: Path) -> list[dict]:
     with path.open(newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
     for r in rows:
-        names = [r["canonical_name"]] + [v for v in (r.get("variants") or "").split(";") if v.strip()]
+        names = [r["canonical_name"]] + [
+            v for v in (r.get("variants") or "").split(";") if v.strip()
+        ]
         r["_names"] = [norm(n) for n in names if n.strip()]
         r["_acronym"] = norm(r["acronym"]) if r.get("acronym") else ""
     return rows
 
 
-def match(mention: str, canonical: list[dict], threshold: float) -> tuple[str | None, str, float]:
+def match(
+    mention: str, canonical: list[dict], threshold: float
+) -> tuple[str | None, str, float]:
     m = norm(mention)
     # exact
     for r in canonical:
@@ -88,8 +92,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("mentions", type=Path, help="JSON lines, one mention per line")
     parser.add_argument("canonical", type=Path, help="canonical names CSV")
-    parser.add_argument("-o", "--output", type=Path, help="JSON lines with match fields added")
-    parser.add_argument("--threshold", type=float, default=0.8, help="fuzzy match ratio (default 0.8)")
+    parser.add_argument(
+        "-o", "--output", type=Path, help="JSON lines with match fields added"
+    )
+    parser.add_argument(
+        "--threshold", type=float, default=0.8, help="fuzzy match ratio (default 0.8)"
+    )
     args = parser.parse_args(argv)
 
     canonical = load_canonical(args.canonical)
@@ -100,7 +108,9 @@ def main(argv: list[str] | None = None) -> int:
     unmatched: list[str] = []
     for mention in mentions:
         dataset_id, kind, score = match(mention["text"], canonical, args.threshold)
-        mention.update({"dataset_id": dataset_id, "match_type": kind, "match_score": score})
+        mention.update(
+            {"dataset_id": dataset_id, "match_type": kind, "match_score": score}
+        )
         counts[kind] += 1
         if kind == "none":
             unmatched.append(f"{mention['document_id']}: {mention['text']!r}")
@@ -108,7 +118,10 @@ def main(argv: list[str] | None = None) -> int:
             f"{kind:<9} {score:>5.2f}  {mention['document_id']}  {mention['text']!r:<58} -> {dataset_id or '-'}"
         )
 
-    print(f"\n{len(mentions)} mentions: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+    print(
+        f"\n{len(mentions)} mentions: "
+        + ", ".join(f"{k} {v}" for k, v in counts.items())
+    )
     if unmatched:
         print("unmatched (other organizations' data, or variants to add to the table):")
         for u in unmatched:

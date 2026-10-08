@@ -1,15 +1,15 @@
 ---
 id: harmonize
-title: "4. Harmonization of mentions"
-sidebar_label: "4. Harmonize"
-sidebar_position: 5
+title: "7. Harmonization of mentions"
+sidebar_label: "7. Harmonize"
+sidebar_position: 8
 description: Matching of mention variants to canonical identifiers by exact, phrase, fuzzy, and semantic matching, treatment of editions and other organizations' data, and review of unmatched mentions.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Harmonization of mentions
+# 7. Harmonization of mentions
 
 **Question:** Can mentions be matched to the datasets they refer to?
 
@@ -45,7 +45,7 @@ the report keeps as co-use.
 
 ## Recipes
 
-<Recipe title="4.1 Match mentions to canonical names" level="AI-ready" skills="Python" time="One hour; minutes per run">
+<Recipe title="7.1 Match mentions to canonical names" level="AI-ready" skills="Python" time="One hour; minutes per run">
 
 **Result:** every mention assigned an identifier, a match type, and a
 score, with the unmatched listed for review.
@@ -86,7 +86,7 @@ review.
 
 </Recipe>
 
-<Recipe title="4.2 Distinguish editions and track other organizations' data" level="AI-ready" skills="Dissemination officer" time="Part of each review">
+<Recipe title="7.2 Distinguish editions and track other organizations' data" level="AI-ready" skills="Dissemination officer" time="Part of each review">
 
 **Result:** uses counted at the right level (the survey series or a
 specific round) and co-use with other datasets recorded.
@@ -100,7 +100,7 @@ specific round) and co-use with other datasets recorded.
 3. Keep unmatched mentions of other organizations' datasets as **co-use**:
    which external data the organization's data are used with. This is
    informative for partnerships and for the gap analysis in
-   [chapter 6](./act.mdx).
+   [chapter 9](./act.mdx).
 4. When another organization's dataset recurs, add it to a separate table
    with its own canonical name, so that co-use is counted consistently.
 
@@ -111,7 +111,7 @@ sample does.
 
 </Recipe>
 
-<Recipe title="4.3 Review unmatched and low-score matches" level="AI-ready" skills="Dissemination officer" time="One hour per run">
+<Recipe title="7.3 Review unmatched and low-score matches" level="AI-ready" skills="Dissemination officer" time="One hour per run">
 
 **Result:** every unmatched or uncertain mention decided, and the names
 table extended with the confirmed variants.
@@ -128,7 +128,7 @@ table extended with the confirmed variants.
 
 **What this does not do.** Review resolves the mentions found. It does not
 raise the extractor's recall; misses are addressed through the labelled
-sample in [chapter 3](./detect.mdx).
+sample in [chapter 6](./detect.mdx).
 
 </Recipe>
 
@@ -143,6 +143,14 @@ sample in [chapter 3](./detect.mdx).
 
 - [Monitoring of Data Use](/docs/data_use/) harmonizes mentions with fuzzy matching (RapidFuzz) and semantic similarity (sentence-transformers), mapping variants to canonical identifiers with a confidence.
 - The dissemination cookbook's [monitoring chapter](/cookbook/ai-ready-dissemination/monitor-use) places the names table with variants at the AI-ready level.
+
+## Resources
+
+- [RapidFuzz](https://github.com/rapidfuzz/RapidFuzz): fast string similarity for the production version of the matching in this chapter.
+- [Sentence Transformers](https://www.sbert.net/): embeddings for semantic matching of variants that string rules miss, as in the program's `harmonize_datasets`.
+- [Monitoring of Data Use](/docs/data_use/): the harmonization step of the program's pipeline and its outputs.
+- [Metadata Reviewer review board](/docs/metadata-reviewer/user-manual/review-board): the review pattern for the unmatched and low-score queue.
+- [SKOS](https://www.w3.org/TR/skos-reference/): preferred and alternate labels, the standard form of a canonical names table with variants.
 
 ## Common mistakes
 

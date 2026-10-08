@@ -1,15 +1,15 @@
 ---
 id: act
-title: "6. Action on the results"
-sidebar_label: "6. Act"
-sidebar_position: 7
+title: "9. Action on the results"
+sidebar_label: "9. Act"
+sidebar_position: 10
 description: Prioritization of documentation and dissemination work by use, follow-up of misquotes, and links between document records and dataset pages built from the results.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Action on the results
+# 9. Action on the results
 
 **Question:** Can the results improve the data and their documentation?
 
@@ -47,7 +47,7 @@ alone.
 
 ## Recipes
 
-<Recipe title="6.1 Prioritize documentation and dissemination work by use" level="AI-ready" skills="Dissemination lead" time="Half a day per period">
+<Recipe title="9.1 Prioritize documentation and dissemination work by use" level="AI-ready" skills="Dissemination lead" time="Half a day per period">
 
 **Result:** the work lists of the other cookbooks ordered by the use the
 report shows, and the gaps it shows acted on.
@@ -73,7 +73,7 @@ need a judgement about why.
 
 </Recipe>
 
-<Recipe title="6.2 Follow up misquoted figures" level="AI-ready" skills="Dissemination officer" time="One hour per period plus follow-up">
+<Recipe title="9.2 Follow up misquoted figures" level="AI-ready" skills="Dissemination officer" time="One hour per period plus follow-up">
 
 **Result:** figures quoted from the data in documents and AI answers are
 checked against the catalog, and the organization's own causes are fixed
@@ -98,7 +98,7 @@ vintage is correct for its date; the revisions log says so.
 
 </Recipe>
 
-<Recipe title="6.3 Close the loop in the catalog" level="AI-native" skills="Catalog administrator; developer" time="One week to set up">
+<Recipe title="9.3 Close the loop in the catalog" level="AI-native" skills="Catalog administrator; developer" time="One week to set up">
 
 **Result:** the results of monitoring become part of the records: documents
 link to the datasets they use, dataset pages list the documents that use
@@ -134,6 +134,14 @@ only; phrase and fuzzy matches wait for review.
 - The [Microdata Library](https://microdata.worldbank.org/citations) lists citing publications per study.
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) is the number verification that recipe 6.2 applies to quoted figures.
 - The [operationalizing the assessment](/ai-readiness-in-practice) page places monitoring in the dimensions of the AI-readiness assessment.
+
+## Resources
+
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902): the program's method for checking a quoted figure against its source, applied to misquotes.
+- [NADA](https://nada.ihsn.org/): the catalog's citations feature, where "used in" lists are published per study.
+- [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas): `data_sources` in document records and `aliases` in series records, the fields that close the loop.
+- [Findability chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/find) and [chapter 3 of the microdata cookbook](/cookbook/microdata-documentation/variables): the completeness and dictionary checks that use counts prioritize.
+- [Evaluation chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/evaluate): the question sets that misquoted figures feed.
 
 ## Common mistakes
 

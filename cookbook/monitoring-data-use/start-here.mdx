@@ -29,8 +29,30 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'access',
+      title: '2. Access',
+      question: 'How are downloads and API calls counted?',
+      options: [
+        'From raw server hits, or not at all.',
+        'Every access path is logged with dataset, action, client, user agent, and status, and counted monthly with robots and double-clicks excluded.',
+        'Counts follow the COUNTER Code of Practice for Research Data with regular and machine access separate, kept as a series per dataset.',
+        'Usage is reported to DataCite for datasets with DOIs, machine access is attributed to registered integrations, and counts feed prioritization.',
+      ],
+    },
+    {
+      id: 'citations',
+      title: '3. Citations',
+      question: 'How are formal citations counted?',
+      options: [
+        'Datasets have no DOIs; citations are not counted.',
+        'The main datasets have DOIs and a citation format; citations are looked up by hand.',
+        'Citation events are collected from DataCite, Crossref, and OpenAlex on a schedule and merged per dataset.',
+        'Identifier citations are compared with text-mined mentions each run, and one-source documents feed the collection and the DOI backlog.',
+      ],
+    },
+    {
       id: 'collect',
-      title: '2. Collect',
+      title: '4. Collect (research)',
       question: 'How are documents that may use the data collected?',
       options: [
         'They are not collected; mentions come to the organization\'s attention by chance.',
@@ -40,8 +62,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'collect-web',
+      title: '5. Collect (web)',
+      question: 'How are policy, news, and web documents collected?',
+      options: [
+        'By hand, when someone notices a mention.',
+        'Government sites and news archives are searched by hand each quarter for the canonical names.',
+        'Document lists, feeds, and exports are collected on a schedule; crawling runs within robots.txt, identified and rate-limited; news and web datasets add breadth; coverage is measured.',
+        'Collection runs automatically with the robots check as a gate, and coverage per source type is tracked over time.',
+      ],
+    },
+    {
       id: 'detect',
-      title: '3. Detect',
+      title: '6. Detect',
       question: 'How are mentions found in documents?',
       options: [
         'By reading, or by searching for the exact dataset name.',
@@ -52,7 +85,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'harmonize',
-      title: '4. Harmonize',
+      title: '7. Harmonize',
       question: 'How are mentions matched to datasets?',
       options: [
         'They are not; counts are by mention text.',
@@ -63,7 +96,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'report',
-      title: '5. Report',
+      title: '8. Report',
       question: 'How is use reported?',
       options: [
         'Download counts, if anything.',
@@ -74,7 +107,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'act',
-      title: '6. Act',
+      title: '9. Act',
       question: 'How do the results change what the organization does?',
       options: [
         'They do not.',
@@ -90,7 +123,9 @@ first. Answers are stored in this browser only.
 
 - Chapter 1 first: without a canonical names table, detection and
   harmonization measure noise.
-- Chapters 2 and 3 can start small; a few sources and a labelled sample of
+- Chapters 2 and 3 are the cheapest evidence: logging and DOIs take days
+  and the counts arrive every month after that.
+- Chapters 4 to 6 can start small; a few sources and a labelled sample of
   a hundred sentences give the first real numbers.
-- Chapter 6 is where the value is realized; a report that changes nothing is
+- Chapter 9 is where the value is realized; a report that changes nothing is
   a cost.

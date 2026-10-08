@@ -1,15 +1,15 @@
 ---
 id: report
-title: "5. Reporting of use"
-sidebar_label: "5. Report"
-sidebar_position: 6
+title: "8. Reporting of use"
+sidebar_label: "8. Report"
+sidebar_position: 9
 description: Use per dataset by year and document type, combined with access statistics and an AI visibility check, and reported with the coverage and recall caveats that make the numbers interpretable.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 5. Reporting of use
+# 8. Reporting of use
 
 **Question:** Can use be reported and interpreted?
 
@@ -48,7 +48,7 @@ organizations' data alongside.
 
 ## Recipes
 
-<Recipe title="5.1 Produce the use report" level="AI-ready" skills="Python" time="Minutes per run">
+<Recipe title="8.1 Produce the use report" level="AI-ready" skills="Python" time="Minutes per run">
 
 **Result:** use per dataset, mentioned and used, by year and document
 type, with co-use, from the harmonized mentions and the documents table.
@@ -89,45 +89,44 @@ is never read without them.
 
 </Recipe>
 
-<Recipe title="5.2 Add access statistics and the AI visibility check" level="AI-ready" skills="Web analyst; dissemination officer" time="One day to set up; two hours per period">
+<Recipe title="8.2 Add access statistics, citation counts, and the AI visibility check" level="AI-ready" skills="Web analyst; dissemination officer" time="One day to set up; two hours per period">
 
-**Result:** downloads and API calls counted comparably with other data
-repositories, and a record of how AI systems answer questions the data
-answer, next to the use counts.
+**Result:** downloads and API calls, identifier citations, mentions, and
+a record of how AI systems answer questions the data answer, side by side
+per dataset.
 
-1. Count views and downloads following the
-   [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/):
-   filter repeated requests, separate machine access from regular access,
-   and report both. Developed with [Make Data Count](https://makedatacount.org/),
-   it is what data repositories report, so the organization's figures
-   become comparable.
-2. Count API and agent-interface calls per dataset from the logs, with the
-   same machine and regular split.
-3. Run the AI visibility check from the
+1. Take the access counts of [chapter 2](./access.mdx) (regular and
+   machine requests per dataset and month, counted under the COUNTER
+   Code of Practice for Research Data) and the citation counts of
+   [chapter 3](./citations.mdx) (unique citing documents per dataset,
+   with the sources that found them).
+2. Run the AI visibility check from the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/monitor-use):
    a fixed set of questions asked of two or three assistants each month,
    recording whether the organization is cited, whether the figure is
    right, and whether the link resolves.
-4. Present the three measures side by side per dataset; they answer
-   different questions and move differently.
+3. Present the four measures side by side per dataset, each with its
+   unit (requests, citing documents, documents with mentions, answers)
+   and its caveat; they answer different questions and move differently.
 
-**What this does not do.** Downloads count files, mentions count
-documents, and the AI check samples answers. None is a count of users or
-of decisions influenced, and the report says so.
+**What this does not do.** Downloads count files, citations count
+reference lists, mentions count documents, and the AI check samples
+answers. None is a count of users or of decisions influenced, and the
+report says so.
 
 </Recipe>
 
-<Recipe title="5.3 State coverage and recall with every count" level="Foundational" skills="Dissemination officer" time="Part of each report">
+<Recipe title="8.3 State coverage and recall with every count" level="Foundational" skills="Dissemination officer" time="Part of each report">
 
 **Result:** every number in the report is read with the two facts that
 bound it.
 
 1. Coverage: the share of the reference list of known uses that the
-   collection contained, per source type ([chapter 2](./collect.mdx)).
+   collection contained, per source type ([chapter 4](./collect.mdx)).
 2. Recall: the extractor's recall on the labelled sample, per document
-   type and language ([chapter 3](./detect.mdx)).
+   type and language ([chapter 6](./detect.mdx)).
 3. Match rate: the share of mentions resolved to an identifier
-   ([chapter 4](./harmonize.mdx)).
+   ([chapter 7](./harmonize.mdx)).
 4. Print the three with the counts, and when comparing periods, note any
    change in sources, model, or threshold.
 
@@ -150,12 +149,20 @@ guide covers.
 - The [Microdata Library](https://microdata.worldbank.org/citations) publishes the citations of each study.
 - [Monitoring of Data Use](/docs/data_use/) names impact measurement, gap analysis, evidence-base tracking, and catalog enrichment as the downstream uses of harmonized mentions.
 
+## Resources
+
+- [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/): the access counting rules behind the figures in recipe 5.2.
+- [Make Data Count](https://makedatacount.org/): guidance for repositories on presenting usage and citation metrics together.
+- [Microdata Library citations](https://microdata.worldbank.org/citations): a published "used in" list per study, the form recipe 5.1's output takes on a dataset page.
+- [Monitoring chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/monitor-use): the AI visibility question set and log.
+- [Use report script](pathname:///cookbook-files/monitoring-data-use/use_report.py): the per-dataset report by year and document type.
+
 ## Common mistakes
 
 - **A count without coverage.** It reads as a total and is an undercount of unknown size.
 - **Mentions and downloads added together.** They count different things.
 - **A rise after adding a source.** Growth or scope change; the report has to say which.
-- **Reports nobody acts on.** Chapter 6 is the reason the report exists.
+- **Reports nobody acts on.** Chapter 9 is the reason the report exists.
 
 ## Verification
 

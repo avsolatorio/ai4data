@@ -1,152 +1,175 @@
 ---
 id: collect
-title: "2. Collection of documents"
-sidebar_label: "2. Collect"
-sidebar_position: 3
-description: The sources where uses of the data appear, collection within each source's terms, document metadata, and the text layer that extraction reads.
+title: "4. Collection from scholarly sources"
+sidebar_label: "4. Collect (research)"
+sidebar_position: 5
+description: Collecting research papers, working papers, and theses that may use the data from open scholarly indexes and repositories, with their metadata and text, and measuring the collection's coverage.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 2. Collection of documents
+# 4. Collection from scholarly sources
 
-**Question:** Can the documents that use the data be collected?
+**Question:** Can the research documents that use the data be collected?
 
 ## Rationale
 
-Mentions are found in documents the organization has. Which documents it
-has decides what the monitoring can see: a collection of academic papers
-shows research use and nothing of policy or media use. The sources have to
-be listed, collected within their terms, and described (year, type,
-source), because every count in [chapter 5](./report.mdx) is a count over
-this collection.
+Research use is the best-indexed kind of use. Open scholarly indexes
+hold the metadata, abstracts, and often the full text of articles,
+working papers, and theses, with APIs that accept a search by name and by
+reference. A collection built from them is where the text mining of
+[chapter 6](./detect.mdx) finds the surveys named in the methods section
+and the indicators quoted in the introduction, which the identifier
+citations of [chapter 3](./citations.mdx) miss. The collection decides
+what the monitoring can see, so its sources are listed, its documents
+carry metadata, and its coverage is measured.
 
 ## Target state
 
-- The sources in scope are listed with their terms of access and the method of collection.
-- Documents are collected on a schedule with their metadata and stored with a text layer.
-- Coverage is measured: the share of a reference list of known uses that the collection contains.
+- The scholarly sources in scope are listed with their terms and collection method.
+- Documents are collected by name search and by reference on a schedule, deduplicated by identifier, and stored with metadata and a text layer.
+- Coverage is measured as the share of a reference list of known research uses that the collection contains.
 
 ## Maturity levels
 
 | Level | Steps |
 |---|---|
-| **Foundational** | List the sources. Search the main ones by hand each quarter for the canonical names and acronyms, and record the documents found with year, type, and source. |
-| **AI-ready** | Collect from the listed sources with their APIs or exports, within their terms, on a schedule. Store the documents with metadata and a text layer. Build a reference list to measure coverage. |
-| **AI-native** | Run collection automatically, add new sources from the results (a journal that cites often), and track coverage over time. |
+| **Foundational** | Search the main indexes by hand for the canonical names and acronyms each quarter; record the documents found with year, type, and source. |
+| **AI-ready** | Query the indexes' APIs by name and by reference on a schedule; collect open full texts; store metadata and text; measure coverage against a reference list. |
+| **AI-native** | Add sources from the results (journals and repositories that cite often); track coverage over time; feed identifier-only citations from chapter 3 into the collection automatically. |
 
 :::info[Running example]
-Six documents from four kinds of source: an academic index, a government
-website, a media archive, and an international organization's site. Each
-has an identifier, a year, a type, and a source, which the use report
-groups by.
+Two of the six collected documents come from an academic index: a journal
+article and a working paper. Both have DOIs, open full texts, and
+metadata; the working paper is also a citation event in chapter 3, and
+the article's reference list is what the text mining confirms.
 :::
 
 ## Recipes
 
-<Recipe title="2.1 List the sources" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
+<Recipe title="4.1 List the scholarly sources and their terms" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
 
-**Result:** the list of places where uses of the data appear, with the
-terms under which each can be collected.
+**Result:** the list of indexes and repositories where research use of
+the data appears, with the terms under which each can be queried and
+its texts collected.
 
-1. Academic use: open scholarly indexes such as [OpenAlex](https://openalex.org/)
-   (open metadata and an API), national research repositories, and
-   [Crossref](https://www.crossref.org/) for DOIs and references.
-2. Policy use: government document sites, parliamentary records, strategy
-   and budget documents, international organizations' reports.
-3. Media use: news archives and the organization's own press monitoring.
-4. AI use: the assistants users ask, checked with a fixed question set
-   ([chapter 5](./report.mdx)).
-5. For each source, record the terms (API, export, crawling allowed or
-   not, rate limits, licence of the content) and the collection method.
+1. Open indexes: [OpenAlex](https://help.openalex.org/) (works,
+   abstracts, referenced works, open-access locations, free API),
+   [Semantic Scholar](https://api.semanticscholar.org/api-docs/) (papers,
+   citations, an API with a key), [Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/)
+   (DOIs and deposited references), and [CORE](https://core.ac.uk/) for
+   open-access full texts.
+2. National and institutional repositories: the national research
+   repository, university theses collections, and the working paper
+   series of the central bank, ministries, and research institutes, which
+   are the heaviest users of national statistics.
+3. International organizations' research series (the World Bank's
+   [Policy Research Working Papers](https://www.worldbank.org/en/research),
+   the IMF, regional development banks) where the country's data are used.
+4. For each source, record the API or export, the rate limits, the text
+   availability (abstract, open full text, closed), and the licence of
+   the content.
 
-**What this does not do.** The list is the scope. Sources that cannot be
-collected within their terms stay out, and the report says so.
+**What this does not do.** Google Scholar has no API and its terms do not
+allow collection; its results serve the reference list by hand, and the
+collection.
 
 </Recipe>
 
-<Recipe title="2.2 Collect documents within each source's terms" level="AI-ready" skills="Developer" time="One to two weeks to set up; scheduled runs after">
+<Recipe title="4.2 Collect texts by name search and by reference" level="AI-ready" skills="Developer" time="One to two weeks to set up; scheduled runs after">
 
-**Result:** the documents from each source, with metadata, stored for
-extraction.
+**Result:** documents collected from each source by two routes, with
+metadata and text, deduplicated by identifier.
 
-1. Prefer APIs and exports to crawling. OpenAlex and Crossref offer APIs
-   with search by text and by reference; government sites often have
-   document lists; news archives have search exports.
-2. Where crawling is the only way, respect the site's `robots.txt`
-   ([RFC 9309](https://www.rfc-editor.org/rfc/rfc9309)), identify the
-   crawler, rate-limit requests, and keep to the pages that hold documents.
-3. Store each document with a record: identifier, title, year, type,
-   source, country, URL, date collected, and licence of the content. The
-   example documents table has the fields the report uses:
+1. Query by name: search each index for the canonical names, acronyms,
+   and variants of [chapter 1](./define.mdx) in titles, abstracts, and
+   full text where the index searches it. Record every hit with the
+   query that found it.
+2. Query by reference: for datasets and reports with DOIs, ask the index
+   for works that reference them (OpenAlex `referenced_works`, Crossref
+   references, Semantic Scholar citations); these are the events of
+   [chapter 3](./citations.mdx) and belong in the collection too.
+3. Collect the open full text where the index gives a location (OpenAlex
+   open-access locations, CORE, the repository's PDF), and the abstract
+   otherwise; closed texts stay out and the coverage note says so.
+4. Store each document with the fields the report uses:
 
 ```csv file=../../website/static/cookbook-files/monitoring-data-use/documents.csv
 ```
 
-4. Deduplicate across sources (the same paper in two indexes) by DOI or
-   by title and year.
+5. Deduplicate across sources by DOI, then by title and year for records
+   without one; keep every source that found the document.
 
-**What this does not do.** Collection within terms limits what is
-collected. Full texts behind paywalls are out of reach; abstracts and
-reference lists from the indexes still show mentions and citations.
+**What this does not do.** Name search returns every document that
+contains the words, including other countries' surveys with the same
+name; the harmonization of [chapter 7](./harmonize.mdx) sorts them. Full
+texts behind paywalls are out of reach, and the reference lists still
+show the citations.
 
 </Recipe>
 
-<Recipe title="2.3 Produce the text layer and measure coverage" level="AI-ready" skills="Developer; dissemination officer for the reference list" time="One day to set up">
+<Recipe title="4.3 Produce the text layer and measure coverage" level="AI-ready" skills="Developer; dissemination officer for the reference list" time="One day to set up">
 
 **Result:** every collected document has text the extractor can read, and
-a measured share of known uses that the collection contains.
+a measured share of known research uses that the collection contains.
 
 1. Extract text per page with PyMuPDF, as the program's
-   [document parser](/docs/data_use/) does, and run OCR on scanned
-   documents; keep the page structure, because the extractor's context
-   windows and the citation back to the page use it.
-2. Build a reference list of known uses: documents staff know cite the
-   data, references from the organization's own citation tracking, and
-   DataCite citation events for datasets with DOIs.
+   [document parser](/docs/data_use/) does; keep the page structure for
+   the extractor's context windows and the citation back to the page.
+2. Build a reference list of known research uses: papers staff know,
+   the citing documents of chapter 3, and the "cited by" lists the
+   organization already keeps.
 3. Measure coverage as the share of the reference list present in the
-   collection, per source type, and report it with the counts.
-4. Add sources where coverage is low and the type of use matters.
+   collection, per source, and report it with the counts.
+4. Add sources where coverage is low, and re-measure.
 
 **What this does not do.** Coverage against a reference list measures the
-known uses. Unknown uses, in sources nobody listed, remain unknown; the
-measure is a lower bound.
+known uses; the measure is a lower bound, and the report says so.
 
 </Recipe>
 
 ## Implementation options
 
-- **Scholarly indexes:** OpenAlex (open, API), Crossref (DOIs, references), national repositories; DataCite citation events for datasets with DOIs.
-- **Government and policy documents:** document sites and parliamentary records, collected by export or by crawling within terms.
-- **Media:** news archive search exports, press monitoring services.
-- **Text extraction:** PyMuPDF for PDFs, OCR for scans; the same text layer the [documents cookbook](/cookbook/data-from-documents/inventory) produces.
+- **Indexes:** OpenAlex (open, API), Semantic Scholar (API), Crossref (references), CORE (open full texts); national and institutional repositories through OAI-PMH or exports.
+- **Queries:** by name (canonical names and variants) and by reference (DOIs); both recorded with each document.
+- **Text:** open full texts collected; abstracts otherwise; PyMuPDF for the text layer; the same layer the [documents cookbook](/cookbook/data-from-documents/inventory) produces.
+- **Deduplication:** DOI first, then title and year; sources kept per document.
 
 ## World Bank examples
 
 - [Monitoring of Data Use](/docs/data_use/) parses PDFs with PyMuPDF and keeps page structure for extraction.
 - The [Microdata Library](https://microdata.worldbank.org/citations) publishes a citations list per study, built from collected publications.
 
+## Resources
+
+- [OpenAlex](https://help.openalex.org/): works, abstracts, referenced works, and open-access locations through a free API; the first source to connect.
+- [Semantic Scholar Academic Graph API](https://api.semanticscholar.org/api-docs/): paper search and citation graphs, with an API key for higher rates.
+- [Crossref REST API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/): DOIs and deposited reference lists, free and without sign-up.
+- [CORE](https://core.ac.uk/): aggregated open-access full texts from repositories, with an API.
+- [OAI-PMH](https://www.openarchives.org/pmh/): the harvesting protocol most repositories expose, for national and institutional collections.
+- [PyMuPDF](https://pymupdf.readthedocs.io/): page-level text extraction for the collected PDFs.
+
 ## Common mistakes
 
-- **Crawling against the terms.** It risks the organization's access and reputation; APIs and exports exist for most sources.
+- **One index.** Each covers a different set of publishers and languages; combine them.
 - **Documents without metadata.** A mention without a year and a type cannot be reported.
-- **One source type.** Research-only collections miss the policy use that justifies a statistical office.
+- **Name search only.** Reference search finds the papers that cite the DOI without naming the survey in the text.
 - **No coverage measure.** A count without coverage reads as a total.
 
 ## Verification
 
 - **Sources:** each listed source has a recorded method and terms.
-- **Collection:** the scheduled run produces documents with complete metadata; duplicates across sources are merged.
-- **Coverage:** the share of the reference list found, per source type, reported with the latest run.
+- **Collection:** the scheduled run produces documents with complete metadata from both routes; duplicates across sources are merged.
+- **Coverage:** the share of the reference list found, per source, reported with the latest run.
 
 ## Checklist
 
 <Checklist id="monitoring-data-use-collect" items={[
-  'Sources listed with terms and collection method',
-  'APIs and exports preferred; crawling within robots.txt and rate limits',
+  'Scholarly sources listed with terms, rate limits, and text availability',
+  'Queries by name and by reference, recorded per document',
+  'Open full texts collected; abstracts otherwise',
   'Documents stored with identifier, year, type, source, URL, licence',
-  'Duplicates across sources merged',
-  'Text layer per page; OCR for scans',
-  'Reference list built and coverage measured per source type',
+  'Duplicates across sources merged with sources kept',
+  'Text layer per page; reference list built and coverage measured',
 ]} />

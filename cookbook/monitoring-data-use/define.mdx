@@ -60,12 +60,12 @@ data as context.
    **unnamed** mentions ("the labour survey") separately; unnamed
    mentions need harmonization and are less certain.
 4. Add the uses that documents do not show: downloads and API calls, which
-   access statistics cover ([chapter 5](./report.mdx)), and AI systems'
+   access statistics cover ([chapter 8](./report.mdx)), and AI systems'
    answers, which the AI visibility check covers.
 
 **What this does not do.** A typology states categories; applying them is
 a judgement the extractor makes with a confidence and a person confirms on
-a sample ([chapter 3](./detect.mdx)).
+a sample ([chapter 6](./detect.mdx)).
 
 </Recipe>
 
@@ -92,7 +92,7 @@ all use.
 **What this does not do.** The table lists the organization's own data.
 Other organizations' datasets that appear alongside (the Demographic and
 Health Survey, the World Development Indicators) are tracked as co-use in
-[chapter 4](./harmonize.mdx), without a row here.
+[chapter 7](./harmonize.mdx), without a row here.
 
 </Recipe>
 
@@ -104,7 +104,7 @@ can be compared over time.
 1. Count **documents**, one per document per dataset, as the default
    unit; a document that mentions a survey five times is one use. Keep
    the mention count as a secondary figure.
-2. State the **sources** in scope (chapter 2 lists them), the **period**,
+2. State the **sources** in scope (chapters 4 and 5 list them), the **period**,
    and whether the organization's own publications are included (they are
    usually excluded from use counts and tracked separately).
 3. State the **languages** covered; a source in the national language
@@ -113,8 +113,8 @@ can be compared over time.
    in the series of reports.
 
 **What this does not do.** The unit and scope define what is counted. The
-coverage of the sources ([chapter 2](./collect.mdx)) and the recall of the
-extractor ([chapter 3](./detect.mdx)) decide what is found, and both are
+coverage of the sources ([chapter 4](./collect.mdx)) and the recall of the
+extractor ([chapter 6](./detect.mdx)) decide what is found, and both are
 reported with the counts.
 
 </Recipe>
@@ -129,6 +129,14 @@ reported with the counts.
 
 - [Monitoring of Data Use](/docs/data_use/) records the usage flag and context per mention and harmonizes name variants ("WDI", "World Development Indicators", "World Bank Development Data") to one identifier.
 - The [dissemination cookbook](/cookbook/ai-ready-dissemination/monitor-use) places the canonical names table and the recommended citation at the foundational level of its monitoring chapter.
+
+## Resources
+
+- [Monitoring of Data Use](/docs/data_use/): the extractor's fields (`is_used`, `usage_context`, `dataset_tag`) that record the typology.
+- [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas): the `aliases` field of the series record, where name variants belong.
+- [DataCite](https://datacite.org/): DOI registration, which makes a dataset's citations countable through identifiers ([chapter 3](./citations.mdx)).
+- [Make Data Count](https://makedatacount.org/): the research data community's definitions of usage and citation metrics, which the typology aligns with.
+- [Canonical names table](pathname:///cookbook-files/monitoring-data-use/canonical_names.csv): the template with dataset identifier, canonical name, acronym, producer, and variants.
 
 ## Common mistakes
 

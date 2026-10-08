@@ -26,11 +26,14 @@ and, increasingly, the answers of AI systems. Finding those uses tells an
 organization which products matter, where its data are misquoted, and how
 to argue for its budget.
 
-This guide is organized around six questions: what counts as use, whether
-the documents that use the data can be collected, whether mentions of the
-data can be found in them, whether mentions can be matched to the datasets
-they refer to, whether use can be reported and interpreted, and whether the
-results can improve the data and their documentation. Each chapter answers
+This guide is organized around nine questions: what counts as use, whether
+downloads and API calls can be counted consistently, whether citations can
+be counted through identifiers, whether the research documents and the
+policy, news, and web documents that use the data can be collected,
+whether mentions of the data can be found in them, whether mentions can be
+matched to the datasets they refer to, whether use can be reported and
+interpreted, and whether the results can improve the data and their
+documentation. Each chapter answers
 one question with recipes, maturity levels, and a checklist.
 
 The recipes build on the program's [Monitoring of Data Use](/docs/data_use/)
@@ -58,11 +61,14 @@ an organization's monitoring at a level in each chapter.
 | Chapter | Question | Practical topics |
 |---|---|---|
 | [1. Definition of use](./define.mdx) | What counts as use of the data? | Typology of use, canonical names, unit of count, scope |
-| [2. Collection of documents](./collect.mdx) | Can the documents that use the data be collected? | Sources, respectful collection, document metadata, text layers |
-| [3. Detection of mentions](./detect.mdx) | Can mentions of the data be found in documents? | Named-entity extraction, labelled samples, thresholds, deduplication |
-| [4. Harmonization of mentions](./harmonize.mdx) | Can mentions be matched to the datasets they refer to? | Canonical names, variants, acronyms, editions, external datasets, review |
-| [5. Reporting of use](./report.mdx) | Can use be reported and interpreted? | Use reports, access statistics, AI visibility, caveats |
-| [6. Action on the results](./act.mdx) | Can the results improve the data and their documentation? | Prioritization, misquotes, links between documents and data |
+| [2. Access statistics](./access.mdx) | Can downloads and API calls be counted consistently? | Logging, COUNTER rules, robots and double-clicks, regular and machine access |
+| [3. Formal citations through identifiers](./citations.mdx) | Can citations be counted through DOIs and identifiers? | DataCite, Crossref, OpenAlex, Scholix, merging sources, comparison with text mining |
+| [4. Collection from scholarly sources](./collect.mdx) | Can the research documents that use the data be collected? | Indexes and repositories, queries by name and reference, open full texts, coverage |
+| [5. Collection from policy, news, and web sources](./collect-web.mdx) | Can policy documents, news, and reports that use the data be collected? | Sources and terms, robots.txt checks, identified rate-limited crawling, news and web datasets |
+| [6. Detection of mentions](./detect.mdx) | Can mentions of the data be found in documents? | Named-entity extraction, labelled samples, thresholds, deduplication |
+| [7. Harmonization of mentions](./harmonize.mdx) | Can mentions be matched to the datasets they refer to? | Canonical names, variants, acronyms, editions, external datasets, review |
+| [8. Reporting of use](./report.mdx) | Can use be reported and interpreted? | Use reports, access and citation counts, AI visibility, caveats |
+| [9. Action on the results](./act.mdx) | Can the results improve the data and their documentation? | Prioritization, misquotes, links between documents and data |
 
 ## Maturity levels
 
@@ -85,8 +91,9 @@ refer to the organization's own data (its household budget survey, labour
 force survey, two indicators, and a report) and two to other
 organizations' data. A labelled sample of fourteen sentences measures the
 extractor; one mention, of the census, was missed, and one generic phrase
-was extracted. All
-documents and mentions are invented.
+was extracted. An access log of thirty requests, twelve citation events
+from identifier services, and a ministry site's robots.txt complete the
+example. All documents, requests, and mentions are invented.
 
 ## Scope of the examples
 
@@ -101,13 +108,16 @@ scripts here cover what comes before and after it.
 
 | File | Used in |
 |---|---|
-| [canonical_names.csv](pathname:///cookbook-files/monitoring-data-use/canonical_names.csv) | Chapters 1 and 4: canonical names, acronyms, and variants |
-| [documents.csv](pathname:///cookbook-files/monitoring-data-use/documents.csv) | Chapters 2 and 5: the collected documents with year, type, and source |
-| [mentions_example.jsonl](pathname:///cookbook-files/monitoring-data-use/mentions_example.jsonl) | Chapters 3 and 4: the extractor's output for the running example |
-| [labelled_sample.csv](pathname:///cookbook-files/monitoring-data-use/labelled_sample.csv) | Chapter 3: sentences labelled by a person |
-| [score_mentions.py](pathname:///cookbook-files/monitoring-data-use/score_mentions.py) | Chapter 3: precision and recall against the labelled sample |
-| [harmonize_mentions.py](pathname:///cookbook-files/monitoring-data-use/harmonize_mentions.py) | Chapter 4: string matching of mentions to canonical names |
-| [use_report.py](pathname:///cookbook-files/monitoring-data-use/use_report.py) | Chapter 5: use per dataset, by year and document type |
+| [canonical_names.csv](pathname:///cookbook-files/monitoring-data-use/canonical_names.csv) | Chapters 1 and 7: canonical names, acronyms, and variants |
+| [access_log.csv](pathname:///cookbook-files/monitoring-data-use/access_log.csv) and [count_access.py](pathname:///cookbook-files/monitoring-data-use/count_access.py) | Chapter 2: an access log and the COUNTER-style count |
+| [citation_events.csv](pathname:///cookbook-files/monitoring-data-use/citation_events.csv) and [merge_citations.py](pathname:///cookbook-files/monitoring-data-use/merge_citations.py) | Chapter 3: citation events from several services and their merge |
+| [documents.csv](pathname:///cookbook-files/monitoring-data-use/documents.csv) | Chapters 4, 5, and 8: the collected documents with year, type, and source |
+| [robots_example.txt](pathname:///cookbook-files/monitoring-data-use/robots_example.txt), [web_sources.csv](pathname:///cookbook-files/monitoring-data-use/web_sources.csv), and [robots_check.py](pathname:///cookbook-files/monitoring-data-use/robots_check.py) | Chapter 5: a site's robots.txt, candidate URLs, and the check |
+| [mentions_example.jsonl](pathname:///cookbook-files/monitoring-data-use/mentions_example.jsonl) | Chapters 6 and 7: the extractor's output for the running example |
+| [labelled_sample.csv](pathname:///cookbook-files/monitoring-data-use/labelled_sample.csv) | Chapter 6: sentences labelled by a person |
+| [score_mentions.py](pathname:///cookbook-files/monitoring-data-use/score_mentions.py) | Chapter 6: precision and recall against the labelled sample |
+| [harmonize_mentions.py](pathname:///cookbook-files/monitoring-data-use/harmonize_mentions.py) | Chapter 7: string matching of mentions to canonical names |
+| [use_report.py](pathname:///cookbook-files/monitoring-data-use/use_report.py) | Chapter 8: use per dataset, by year and document type |
 
 ## Related resources
 

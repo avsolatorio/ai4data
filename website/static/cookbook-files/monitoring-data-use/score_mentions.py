@@ -43,12 +43,15 @@ def main(argv: list[str] | None = None) -> int:
 
     with args.mentions.open(encoding="utf-8") as fh:
         found = {
-            (m["document_id"], norm(m["text"])) for m in (json.loads(line) for line in fh if line.strip())
+            (m["document_id"], norm(m["text"]))
+            for m in (json.loads(line) for line in fh if line.strip())
         }
     with args.labelled.open(newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
     expected = {
-        (r["document_id"], norm(r["mention_text"])) for r in rows if (r.get("mention_text") or "").strip()
+        (r["document_id"], norm(r["mention_text"]))
+        for r in rows
+        if (r.get("mention_text") or "").strip()
     }
 
     tp = found & expected
@@ -58,7 +61,9 @@ def main(argv: list[str] | None = None) -> int:
     recall = len(tp) / len(expected) if expected else 0.0
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
 
-    print(f"labelled mentions {len(expected)}, extracted {len(found)}, correct {len(tp)}")
+    print(
+        f"labelled mentions {len(expected)}, extracted {len(found)}, correct {len(tp)}"
+    )
     print(f"precision {precision:.2f}  recall {recall:.2f}  F1 {f1:.2f}")
     if fp:
         print("false positives (extracted, not labelled as a mention):")

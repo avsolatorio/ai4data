@@ -63,10 +63,14 @@ def main(argv: list[str] | None = None) -> int:
         f"{len(docs)} documents, {len(mentions)} mentions, {len(mentioning)} datasets of the organization mentioned\n"
     )
     print(f"{'dataset':<22} {'mentioned in':>12} {'used in':>8}  by year / by type")
-    for ds in sorted(mentioning, key=lambda k: (-len(using[k]), -len(mentioning[k]), k)):
+    for ds in sorted(
+        mentioning, key=lambda k: (-len(using[k]), -len(mentioning[k]), k)
+    ):
         years = ", ".join(f"{y}: {len(v)}" for y, v in sorted(by_year[ds].items()))
         types = ", ".join(f"{t}: {len(v)}" for t, v in sorted(by_type[ds].items()))
-        print(f"{ds:<22} {len(mentioning[ds]):>12} {len(using[ds]):>8}  {years} / {types}")
+        print(
+            f"{ds:<22} {len(mentioning[ds]):>12} {len(using[ds]):>8}  {years} / {types}"
+        )
     if external:
         print("\nother organizations' data mentioned alongside (co-use):")
         for name, ds in sorted(external.items(), key=lambda kv: -len(kv[1])):
