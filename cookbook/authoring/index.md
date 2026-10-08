@@ -21,6 +21,10 @@ cookbook from the template in `cookbook/_template/` and registers it on the
 site. `scripts/docs/check_cookbooks.py` verifies that every cookbook has the
 required structure and follows the writing rules; it runs in continuous
 integration and can be run locally.
+`scripts/docs/renumber_cookbook.py` renumbers the chapters of a cookbook
+after a chapter is added, removed, or moved (titles, sidebar positions,
+recipe numbers, and in-page links) and lists the plain-text mentions of
+chapter numbers that need a manual check.
 
 ## Definition and scope
 
