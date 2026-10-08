@@ -199,7 +199,7 @@ export const dimensions = [
   {
     id: 'accessible',
     label: 'Accessible',
-    question: 'Can AI retrieve it, with context?',
+    question: 'Can AI retrieve it with its context?',
     attributes: ['Openly accessible', 'Machine-readable', 'Real-time accessibility'],
     items: ['mcp', 'platforms', 'dataSnapshots'],
   },

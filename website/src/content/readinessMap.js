@@ -391,7 +391,7 @@ export const dimensions = [
       {from: 'B', to: 'C', text: 'Publish code lists and crosswalks, record breaks and provenance as fields, and emit schema.org or DCAT from the catalog (NADA does this on every page).'},
       {from: 'C', to: 'D', text: 'Reach the AI-ready profile across the catalog, link concepts to shared vocabularies, and use AI-assisted review under a curator to keep records consistent.'},
     ],
-    evidence: ['Completeness report at the target level, with the office\'s profile', 'A validated schema.org or DCAT record', 'Published code lists and crosswalks', 'Provenance block in records'],
+    evidence: ['Completeness report at the target level using the office\'s profile', 'A validated schema.org or DCAT record', 'Published code lists and crosswalks', 'Provenance block in records'],
   },
   {
     id: '2.2',
