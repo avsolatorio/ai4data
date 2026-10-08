@@ -1,15 +1,15 @@
 ---
 id: operate
-title: "6. Operation and maintenance"
-sidebar_label: "6. Operate"
-sidebar_position: 7
+title: "9. Operation and maintenance"
+sidebar_label: "9. Operate"
+sidebar_position: 10
 description: Transport and hosting, client configuration and publication, versioning and deprecation, usage statistics, cost, and support for an agent interface in production.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 6. Operation and maintenance
+# 9. Operation and maintenance
 
 **Question:** How is the interface operated and maintained?
 
@@ -47,7 +47,7 @@ monitoring cookbook includes as machine access.
 
 ## Recipes
 
-<Recipe title="6.1 Host the server at a stable endpoint" level="Foundational" skills="Operations; developer" time="One to two days">
+<Recipe title="9.1 Host the server at a stable endpoint" level="Foundational" skills="Operations; developer" time="One to two days">
 
 **Result:** an endpoint clients can rely on, over a transport they
 support, with availability monitored.
@@ -57,7 +57,7 @@ support, with availability monitored.
    a server run locally by a client. The Data360 server runs over HTTP
    with an SSE option.
 2. Put the server behind the organization's gateway with TLS, the rate
-   limits of [chapter 4](./safety.mdx), and a stable path
+   limits of [chapter 6](./safety.mdx), and a stable path
    (`/mcp`), and keep it stateless, as the specification's base protocol
    assumes.
 3. Monitor availability and latency per tool, and alert on failures of the
@@ -70,27 +70,22 @@ stable tool set keeps them working. Recipe 6.2 covers versions.
 
 </Recipe>
 
-<Recipe title="6.2 Publish the client configuration and version the server" level="AI-ready" skills="Developer; dissemination officer" time="Half a day; ongoing">
+<Recipe title="9.2 Version the server and announce changes" level="AI-ready" skills="Developer; dissemination officer" time="Half a day; ongoing">
 
-**Result:** users can connect their assistant by pasting a configuration,
-and changes to the server do not break them without notice.
+**Result:** changes to the server do not break connected clients without
+notice, and every version can be evaluated and rolled back.
 
-1. Publish a client configuration for the common assistants and
-   frameworks; the Data360 server documents connection from several
-   clients. The running example's configuration:
-
-```json file=../../website/static/cookbook-files/serving-statistics-to-agents/client_config_example.json
-```
-
-2. Version the server (semantic versioning) and treat a change to a tool's
+1. Version the server (semantic versioning) and treat a change to a tool's
    name, inputs, or outputs as a breaking change: add the new tool, keep
    the old one for a stated period, and announce the deprecation in the
    changelog and the tool's description.
-3. Keep the manifest, the guidance resource, and the evaluation scores per
-   version.
-4. List the server where clients look for servers (the organization's
-   catalog page, and registries as they mature), with the licence of the
-   data and of the server code.
+2. Keep the manifest, the guidance resource, the listing, and the
+   evaluation scores per version, so that a regression can be traced to a
+   change.
+3. Announce releases where clients were told to look: the developer page
+   of [chapter 8](./distribute.mdx), the registry listing's version, and a
+   release note with the date the old version stops.
+4. Keep the previous version deployable for the deprecation period.
 
 **What this does not do.** Versioning protects clients from changes the
 organization makes. Changes in assistants and in the protocol are tracked
@@ -98,7 +93,7 @@ in recipe 6.3.
 
 </Recipe>
 
-<Recipe title="6.3 Count usage, estimate cost, and maintain" level="AI-ready" skills="Operations; dissemination officer" time="One day to set up; part of each period">
+<Recipe title="9.3 Count usage, estimate cost, and maintain" level="AI-ready" skills="Operations; dissemination officer" time="One day to set up; part of each period">
 
 **Result:** the organization knows who uses the server, what it costs, and
 when its dependencies change.
@@ -139,6 +134,14 @@ where the figures end up.
 
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp) documents its transport (HTTP, with SSE), client connection from several frameworks, configurable timeouts and retries, and its licence (MIT with the World Bank IGO rider).
 - The [dissemination cookbook's sustainability chapter](/cookbook/ai-ready-dissemination/sustain) covers the switch-off test, cost per query, and the handover test that apply to the server.
+
+## Resources
+
+- [MCP specification: transports](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports): streamable HTTP and stdio, and what a hosted server implements.
+- [Semantic Versioning](https://semver.org/): the versioning rule for the server and its tools.
+- [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/): counting machine access from the server log in a comparable way ([monitoring cookbook, chapter 2](/cookbook/monitoring-data-use/access)).
+- [Distribution chapter](./distribute.mdx): the client configurations, the registry listing, and the developer page that announcements go to.
+- [Data360 MCP server](https://github.com/worldbank/data360-mcp): a hosted server's deployment, configuration, and versioning in practice.
 
 ## Common mistakes
 

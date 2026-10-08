@@ -78,7 +78,7 @@ resources, before any code.
    `data360://search-usage` resources are the model for these.
 
 **What this does not do.** A manifest is a plan. Recipe 2.3 checks it
-against the rules; [chapter 5](./evaluate.mdx) checks whether models use
+against the rules; [chapter 7](./evaluate.mdx) checks whether models use
 the tools as intended, which is the only test of a description.
 
 </Recipe>
@@ -99,7 +99,7 @@ and return structured content.
 3. Mark every tool read-only through the SDK's tool annotations, and give
    each a title. The specification treats annotations as hints; the safety
    of the server rests on the tools themselves having no write path
-   ([chapter 4](./safety.mdx)).
+   ([chapter 6](./safety.mdx)).
 4. Serve the resources from the catalog: the guidance text, the code lists
    (from the same source as the API), and the release calendar.
 5. Return tool execution errors with `isError` and a message the model can
@@ -131,7 +131,7 @@ Output for the running example:
 statistics-example 1.0.0: 4 tool(s), 3 resource(s)
 
 0 error(s), 0 warning(s)
-Not checked here: whether the server behaves as the manifest says; the evaluation in chapter 5 does that.
+Not checked here: whether the server behaves as the manifest says; the evaluation in chapter 7 does that.
 ```
 
 1. Run the check on the manifest and on the server's own `tools/list`
@@ -144,7 +144,7 @@ Not checked here: whether the server behaves as the manifest says; the evaluatio
 
 **What this does not do.** The rules are necessary conditions. A
 description can pass the word count and still mislead a model; the
-tool-selection results in [chapter 5](./evaluate.mdx) are the test.
+tool-selection results in [chapter 7](./evaluate.mdx) are the test.
 
 </Recipe>
 
@@ -161,6 +161,15 @@ tool-selection results in [chapter 5](./evaluate.mdx) are the test.
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp): six core tools (`data360_search_indicators`, `data360_get_metadata`, `data360_get_disaggregation`, `data360_get_data`, `data360_find_codelist_value`, `data360_list_indicators`), analysis tools, and resources including a system prompt, databases, code lists, metadata fields, filters, and search usage.
 - The program's [MCP page](/docs/mcp/) sketches `get_indicator`, `search_indicators`, and `list_countries` as the tools a development data server exposes.
 - The [dissemination cookbook's server example](/cookbook/ai-ready-dissemination/retrieve) is the minimal implementation this chapter builds on.
+
+## Resources
+
+- [MCP specification: tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools): tool definitions, input and output schemas, annotations such as `readOnlyHint`, and error handling.
+- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk): the official server library; the TypeScript SDK and others are listed on the specification site.
+- [JSON Schema](https://json-schema.org/): the format of tool input and output schemas.
+- [SDMX cross-domain concepts](https://sdmx.org/?page_id=4345): the field names (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`) the outputs use.
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector): an interactive tool to call a server's tools and read its resources while developing.
+- [Tool manifest](pathname:///cookbook-files/serving-statistics-to-agents/tool_manifest.json) and [manifest check](pathname:///cookbook-files/serving-statistics-to-agents/check_tool_manifest.py): the running example's manifest and the design rules.
 
 ## Common mistakes
 

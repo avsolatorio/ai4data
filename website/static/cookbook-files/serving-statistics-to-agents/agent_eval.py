@@ -66,14 +66,19 @@ def main(argv: list[str] | None = None) -> int:
     with args.questions.open(newline="", encoding="utf-8") as fh:
         questions = list(csv.DictReader(fh))
     with args.traces.open(encoding="utf-8") as fh:
-        traces = {t["question_id"]: t for t in (json.loads(line) for line in fh if line.strip())}
+        traces = {
+            t["question_id"]: t
+            for t in (json.loads(line) for line in fh if line.strip())
+        }
 
     checks = ("tools", "series", "value", "cite", "behave")
     totals = dict.fromkeys(checks, 0)
     applicable = dict.fromkeys(checks, 0)
     failures: list[str] = []
     latencies: list[float] = []
-    print(f"{'id':<4} {'lang':<5} {'tools':<6} {'series':<7} {'value':<6} {'cite':<5} {'behave':<7} question")
+    print(
+        f"{'id':<4} {'lang':<5} {'tools':<6} {'series':<7} {'value':<6} {'cite':<5} {'behave':<7} question"
+    )
     for q in questions:
         t = traces.get(q["question_id"])
         if t is None:
@@ -83,16 +88,23 @@ def main(argv: list[str] | None = None) -> int:
         expected_tools = [x for x in q["expected_tools"].split(";") if x]
         should_decline = q["expected_behaviour"] == "decline"
         results = {}
-        results["tools"] = all(tool in t.get("tools_called", []) for tool in expected_tools)
+        results["tools"] = all(
+            tool in t.get("tools_called", []) for tool in expected_tools
+        )
         results["behave"] = bool(t.get("declined")) == should_decline
         if should_decline:
             results["series"] = results["value"] = results["cite"] = None
         else:
-            results["series"] = (t.get("series") == q["expected_series"]) if q["expected_series"] else None
+            results["series"] = (
+                (t.get("series") == q["expected_series"])
+                if q["expected_series"]
+                else None
+            )
             if q["expected_value"]:
                 target = float(q["expected_value"])
                 results["value"] = any(
-                    abs(n - target) <= args.tolerance for n in numbers_in(t.get("answer", ""))
+                    abs(n - target) <= args.tolerance
+                    for n in numbers_in(t.get("answer", ""))
                 )
             else:
                 results["value"] = None
@@ -104,7 +116,9 @@ def main(argv: list[str] | None = None) -> int:
             if results[c]:
                 totals[c] += 1
             else:
-                failures.append(f"{q['question_id']}: {c} failed ({q.get('note') or q['question']})")
+                failures.append(
+                    f"{q['question_id']}: {c} failed ({q.get('note') or q['question']})"
+                )
         cell = lambda v: "-" if v is None else ("ok" if v else "FAIL")
         print(
             f"{q['question_id']:<4} {q['language']:<5} {cell(results['tools']):<6} {cell(results['series']):<7} "
@@ -114,15 +128,21 @@ def main(argv: list[str] | None = None) -> int:
     print()
     for c in checks:
         if applicable[c]:
-            print(f"{c:<7} {totals[c]}/{applicable[c]}  {totals[c] / applicable[c]:.2f}")
+            print(
+                f"{c:<7} {totals[c]}/{applicable[c]}  {totals[c] / applicable[c]:.2f}"
+            )
     if latencies:
         latencies.sort()
-        print(f"latency median {latencies[len(latencies) // 2]:.1f}s, max {latencies[-1]:.1f}s")
+        print(
+            f"latency median {latencies[len(latencies) // 2]:.1f}s, max {latencies[-1]:.1f}s"
+        )
     if failures:
         print("\nfailures:")
         for f in failures:
             print(f"  {f}")
-    print("\nNot checked here: wording, caveats, and efficiency of the tool calls; a reviewer samples those.")
+    print(
+        "\nNot checked here: wording, caveats, and efficiency of the tool calls; a reviewer samples those."
+    )
     return 1 if failures else 0
 
 

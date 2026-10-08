@@ -74,3 +74,52 @@ def test_agent_eval_scores_the_example_traces(agent_eval, capsys):
 def test_number_parsing_handles_french_decimals_and_thousands(agent_eval):
     assert agent_eval.numbers_in("6,3 % et 12,500 ménages en 2025") == [6.3, 12500.0, 2025.0]
     assert agent_eval.numbers_in("7.6% in 2024") == [7.6, 2024.0]
+
+
+@pytest.fixture(scope="module")
+def guidance():
+    return load_script("check_guidance")
+
+
+@pytest.fixture(scope="module")
+def quota():
+    return load_script("quota_audit")
+
+
+@pytest.fixture(scope="module")
+def listing():
+    return load_script("check_server_listing")
+
+
+def test_guidance_passes_and_names_every_tool(guidance, tmp_path, capsys):
+    assert guidance.main([str(SCRIPTS / "guidance_resource.md"), str(SCRIPTS / "tool_manifest.json")]) == 0
+    out = capsys.readouterr().out
+    assert "tools named: 4/4" in out and "result: PASS" in out
+    broken = tmp_path / "guidance.md"
+    broken.write_text((SCRIPTS / "guidance_resource.md").read_text(encoding="utf-8").replace("## Limitations", "## Notes").replace("`get_observations`", "`fetch_values`"), encoding="utf-8")
+    assert guidance.main([str(broken), str(SCRIPTS / "tool_manifest.json")]) == 1
+    out = capsys.readouterr().out
+    assert "MISSING Limitations" in out and "not named: get_observations" in out and "unknown tool names in guidance: fetch_values" in out
+
+
+def test_quota_audit_reports_unknown_clients_and_missing_terms(quota, capsys):
+    assert quota.main([str(SCRIPTS / "client_registry.csv"), str(SCRIPTS / "agent_requests.csv")]) == 1
+    out = capsys.readouterr().out
+    assert "27 requests from 6 clients; registry lists 5" in out
+    assert "unknown clients: k-0000" in out and "registered without accepted terms: k-2b8e" in out
+    anon = next(line for line in out.splitlines() if line.startswith("pub-anon"))
+    assert anon.split()[2:6] == ["10", "8", "30", "2"]
+
+
+def test_server_listing_check(listing, tmp_path, capsys):
+    assert listing.main([str(SCRIPTS / "server_listing.json")]) == 0
+    assert "0 error(s), 0 warning(s)" in capsys.readouterr().out
+    bad = json.loads((SCRIPTS / "server_listing.json").read_text(encoding="utf-8"))
+    bad["name"] = "statistics-example"
+    bad["remotes"][0]["url"] = "http://stats.example/mcp"
+    del bad["title"]
+    path = tmp_path / "server.json"
+    path.write_text(json.dumps(bad), encoding="utf-8")
+    assert listing.main([str(path)]) == 1
+    out = capsys.readouterr().out
+    assert "name must be reverse-DNS" in out and "remotes[0].url must be an https URL" in out and "title missing" in out

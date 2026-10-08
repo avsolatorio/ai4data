@@ -40,8 +40,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'context',
+      title: '3. Context',
+      question: 'What context does the server give the assistant beyond the tools?',
+      options: [
+        'None; the tool descriptions are all there is.',
+        'A guidance resource states what the server provides, how to cite, the licence, the limitations, and when to refuse; code lists are resources.',
+        'Calendar and per-series notes are resources with templates and annotations; prompts cover the common question types; the guidance is checked against the manifest.',
+        'The effect of each guidance change is measured with the question set, and the guidance is versioned with the server.',
+      ],
+    },
+    {
       id: 'provenance',
-      title: '3. Provenance',
+      title: '4. Provenance',
       question: 'What does a data response carry?',
       options: [
         'Values only.',
@@ -51,8 +62,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'access',
+      title: '5. Access',
+      question: 'Who may call the interface, and how much?',
+      options: [
+        'Anyone, without limits.',
+        'Public access with a per-client rate limit; terms of use published.',
+        'Tiers with keys, quotas, accepted terms, and contacts in a registry; limits enforced; the log audited against the registry.',
+        'OAuth-based authorization for user-level access with scopes per tool group; usage per client reported to the monitoring.',
+      ],
+    },
+    {
       id: 'safety',
-      title: '4. Safety',
+      title: '6. Safety',
       question: 'How is the interface kept safe?',
       options: [
         'No specific measures.',
@@ -63,7 +85,7 @@ first. Answers are stored in this browser only.
     },
     {
       id: 'evaluate',
-      title: '5. Evaluate',
+      title: '7. Evaluate',
       question: 'How is agent access evaluated?',
       options: [
         'It is not.',
@@ -73,8 +95,19 @@ first. Answers are stored in this browser only.
       ],
     },
     {
+      id: 'distribute',
+      title: '8. Distribute',
+      question: 'How do users and developers find and connect to the server?',
+      options: [
+        'By asking the team.',
+        'A developer page gives the endpoint, one configuration, the terms, and a contact.',
+        'Configurations for the common assistants are published and tested each release; the server is listed in the registry with a checked listing.',
+        'A package for local use is published beside the endpoint, and the listing and configurations update from the manifest and version.',
+      ],
+    },
+    {
       id: 'operate',
-      title: '6. Operate',
+      title: '9. Operate',
       question: 'How is the server operated?',
       options: [
         'A prototype on a laptop.',
@@ -88,9 +121,12 @@ first. Answers are stored in this browser only.
 
 ## Interpretation of the result
 
-- Chapters 1 and 4 come first: scope and safety are decisions, and they are
-  cheap compared with their cost when skipped.
+- Chapters 1, 5, and 6 come first: scope, access, and safety are
+  decisions, and they are cheap compared with their cost when skipped.
 - Chapter 2 depends on the API and catalog described in the dissemination
-  cookbook; a server over an undocumented API inherits every gap.
-- Chapter 5 is the gate for publication: a server without an evaluation
+  cookbook; a server over an undocumented API inherits every gap, and
+  chapter 3 is where the gaps the tools cannot close are stated.
+- Chapter 7 is the gate for publication: a server without an evaluation
   suite cannot be changed safely.
+- Chapter 8 is the one most often forgotten; a server nobody can configure
+  has no users.

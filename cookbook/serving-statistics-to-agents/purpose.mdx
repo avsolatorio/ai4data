@@ -23,7 +23,7 @@ values, comparing periods), which data are in scope (public data only, and
 which products), and what counts as success (the right series, the right
 value, the right caveat, a citation, and a refusal when the data do not
 exist). A question set written at this stage represents those decisions
-and becomes the evaluation suite of [chapter 5](./evaluate.mdx).
+and becomes the evaluation suite of [chapter 7](./evaluate.mdx).
 
 ## Target state
 
@@ -73,7 +73,7 @@ exposes.
 
 **What this does not do.** The scope statement is a decision; the tools of
 [chapter 2](./tools.mdx) enforce it, and the safety checks of
-[chapter 4](./safety.mdx) verify that nothing outside it is reachable.
+[chapter 6](./safety.mdx) verify that nothing outside it is reachable.
 
 </Recipe>
 
@@ -98,7 +98,7 @@ agent should answer or decline.
 3. For each question, record the expected tools, series, value, and
    behaviour; a question with no expected value is a metadata question.
 4. Keep the set in version control; it is the suite of
-   [chapter 5](./evaluate.mdx).
+   [chapter 7](./evaluate.mdx).
 
 **What this does not do.** Eight questions describe the scope; a measure
 needs 30 to 50 per language. The questions in languages other than English
@@ -116,6 +116,14 @@ are marked for native-speaker review in the file.
 
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp) scopes its tools to discovery, metadata, data retrieval, analysis, and visualization over public indicators, and guides the agent with a system-prompt resource.
 - The program's [MCP page](/docs/mcp/) describes the uses an MCP server for development data serves.
+
+## Resources
+
+- [Model Context Protocol](https://modelcontextprotocol.io/): the specification and the concepts (hosts, clients, servers; tools, resources, prompts) the scope decision refers to.
+- [Model Context Protocol for statistics](/docs/mcp/): the program's note on what agent access to official statistics should and should not do.
+- [Data360 MCP server](https://github.com/worldbank/data360-mcp): a server in operation over a statistical catalog, with its use cases and tool set as a reference.
+- [AI-use policy template](pathname:///cookbook-files/ai-ready-dissemination/ai_use_policy_template.md) from the dissemination cookbook: where the scope decision is recorded.
+- [Question set](pathname:///cookbook-files/serving-statistics-to-agents/agent_questions.csv): the running example's eight questions with expected tools, series, values, and behaviour.
 
 ## Common mistakes
 

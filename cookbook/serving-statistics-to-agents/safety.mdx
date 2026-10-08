@@ -1,15 +1,15 @@
 ---
 id: safety
-title: "4. Safety of the interface"
-sidebar_label: "4. Safety"
-sidebar_position: 5
+title: "6. Safety of the interface"
+sidebar_label: "6. Safety"
+sidebar_position: 7
 description: Read-only tools over public data, access control and rate limits, input validation and output sanitization, prompt-injection tests, logging, and the server's place in the organization's AI governance.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 4. Safety of the interface
+# 6. Safety of the interface
 
 **Question:** How is the interface kept safe?
 
@@ -22,7 +22,7 @@ implement access controls, rate-limit invocations, sanitize outputs. For a
 statistical organization, two further rules follow from its mandate: the
 server exposes public data only, and no tool can change anything. With
 those in place, the remaining risks are misuse of the data, which
-[chapter 3](./provenance.mdx) addresses through provenance, and
+[chapter 4](./provenance.mdx) addresses through provenance, and
 instructions hidden in content, which this chapter tests for.
 
 ## Target state
@@ -51,7 +51,7 @@ percent.
 
 ## Recipes
 
-<Recipe title="4.1 Make the server read-only over public data" level="Foundational" skills="Developer" time="Half a day">
+<Recipe title="6.1 Make the server read-only over public data" level="Foundational" skills="Developer" time="Half a day">
 
 **Result:** nothing the server can be asked to do changes data or reaches
 data outside the public scope.
@@ -76,30 +76,25 @@ the endpoint, which recipe 4.2 addresses.
 
 </Recipe>
 
-<Recipe title="4.2 Add access control, rate limits, validation, and sanitization" level="AI-ready" skills="Developer; operations" time="Two to three days">
+<Recipe title="6.2 Validate inputs, sanitize outputs, and bound upstream calls" level="AI-ready" skills="Developer; operations" time="One to two days">
 
-**Result:** the server meets the specification's security requirements and
-survives a test from outside.
+**Result:** the server meets the specification's security requirements for
+inputs and outputs and survives a test from outside.
 
-1. Access control: for a public server, an API key or token identifies
-   clients and lets abuse be cut off; the specification's authorization
-   framework applies where the organization needs user-level access.
-   Public data do not require authentication, and the organization may
-   choose to serve them without, with rate limits as the protection.
-2. Rate limits: per client and per tool, with a tool execution error that
-   tells the model to wait. Set them from the API's own limits.
-3. Input validation: codes against the code lists, periods against the
+1. Input validation: codes against the code lists, periods against the
    accepted formats, limits within bounds; reject the rest with an
    execution error the model can act on. Never pass inputs into queries
    unvalidated.
-4. Output sanitization: return only the fields of the output schema;
+2. Output sanitization: return only the fields of the output schema;
    strip free text from upstream systems that could carry instructions.
-5. Timeouts and retries on the API calls, as the Data360 server
+3. Timeouts and retries on the API calls, as the Data360 server
    configures (read timeout, retry attempts), so that a slow upstream does
    not pin the server.
-6. Test from outside: unknown codes, oversized limits, malformed periods,
-   a burst of requests, and a request for a licensed product's data; each
-   is refused as designed.
+4. Access control, quotas, and rate limits are the subject of
+   [chapter 5](./access.mdx); the tests here assume they are in place.
+5. Test from outside: unknown codes, oversized limits, malformed periods,
+   and a request for a licensed product's data; each is refused as
+   designed.
 
 **What this does not do.** These controls protect the server. The client
 side (user consent, confirmation of tool calls, logging) is the
@@ -108,7 +103,7 @@ control for third-party assistants.
 
 </Recipe>
 
-<Recipe title="4.3 Test for prompt injection and review the logs" level="AI-ready" skills="Developer" time="Half a day; repeat with each change">
+<Recipe title="6.3 Test for prompt injection and review the logs" level="AI-ready" skills="Developer" time="Half a day; repeat with each change">
 
 **Result:** evidence that instructions in content do not change what the
 agent does with the server, and a log that shows what was called.
@@ -121,7 +116,7 @@ agent does with the server, and a log that shows what was called.
    tool calls and the answers are unchanged, and that no call outside the
    read-only set occurs (there is none to call, which is the point of
    recipe 4.1).
-3. Keep the inputs in the evaluation suite ([chapter 5](./evaluate.mdx))
+3. Keep the inputs in the evaluation suite ([chapter 7](./evaluate.mdx))
    so that they run with every change.
 4. Log every tool call with client, tool, inputs, and time; review the log
    for unusual patterns (one client, one tool, thousands of calls) and for
@@ -136,16 +131,23 @@ finds wrong answers.
 
 ## Implementation options
 
-- **Access control:** API keys for a public read-only server; the specification's authorization framework (OAuth-based) for user-level access.
-- **Rate limits:** per client and per tool, in the server or in a gateway in front of it.
+- **Access control and rate limits:** [chapter 5](./access.mdx).
 - **Validation:** code lists and formats from the catalog; JSON Schema on inputs.
-- **Logging:** tool, client, inputs, duration, outcome; the same log feeds usage statistics in [chapter 6](./operate.mdx).
+- **Logging:** tool, client, inputs, duration, outcome; the same log feeds usage statistics in [chapter 9](./operate.mdx).
 - **Governance:** the AI-use policy, the component register, and the injection tests of the dissemination cookbook's chapter 8.
 
 ## World Bank examples
 
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp) is read-only over the public Data360 API and configures timeouts and retries on upstream calls.
 - The [dissemination cookbook's governance chapter](/cookbook/ai-ready-dissemination/govern) provides the policy template, the register, and the injection-test recipe the server fits into.
+
+## Resources
+
+- [MCP specification: security and trust](https://modelcontextprotocol.io/specification/2026-07-28): the principles (user consent, data privacy, tool safety) and the server's obligations.
+- [OWASP Top 10 for LLM applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/): prompt injection and the other risks the tests in recipe 4.3 cover.
+- [JSON Schema validation](https://json-schema.org/): input validation at the tool boundary.
+- [Governance chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/govern): the AI-use policy, the component register, and the injection test set.
+- [Access control chapter](./access.mdx): authorization, quotas, and rate limits, which this chapter assumes.
 
 ## Common mistakes
 

@@ -61,10 +61,14 @@ def main(argv: list[str] | None = None) -> int:
     for t in tools:
         name = t.get("name", "?")
         if not NAME.match(name):
-            errors.append(f"{name}: name must be a snake_case verb phrase (search_series, get_observations)")
+            errors.append(
+                f"{name}: name must be a snake_case verb phrase (search_series, get_observations)"
+            )
         words = len((t.get("description") or "").split())
         if words < MIN_WORDS:
-            errors.append(f"{name}: description has {words} words; the model needs at least {MIN_WORDS}")
+            errors.append(
+                f"{name}: description has {words} words; the model needs at least {MIN_WORDS}"
+            )
         if t.get("readOnlyHint") is not True:
             errors.append(f"{name}: not marked read-only (readOnlyHint true)")
         for arg, spec in (t.get("inputs") or {}).items():
@@ -78,8 +82,13 @@ def main(argv: list[str] | None = None) -> int:
         if not t.get("example"):
             errors.append(f"{name}: no example call")
         if name.startswith("search") and "limit" not in (t.get("inputs") or {}):
-            warnings.append(f"{name}: a search tool without a limit input returns unbounded lists")
-    guidance = any("how to use" in (r.get("description") or "").lower() for r in m.get("resources", []))
+            warnings.append(
+                f"{name}: a search tool without a limit input returns unbounded lists"
+            )
+    guidance = any(
+        "how to use" in (r.get("description") or "").lower()
+        for r in m.get("resources", [])
+    )
     if not guidance:
         warnings.append(
             "no guidance resource; a resource that tells the model how to use the tools reduces misuse"

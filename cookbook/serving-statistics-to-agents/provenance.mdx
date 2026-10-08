@@ -1,15 +1,15 @@
 ---
 id: provenance
-title: "3. Provenance in every response"
-sidebar_label: "3. Provenance"
-sidebar_position: 4
+title: "4. Provenance in every response"
+sidebar_label: "4. Provenance"
+sidebar_position: 5
 description: The fields every data response carries so that an agent can cite the source, state the unit and period, repeat caveats, and report freshness, and how answers are verified against the responses.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 3. Provenance in every response
+# 4. Provenance in every response
 
 **Question:** How does every response carry its source?
 
@@ -50,7 +50,7 @@ response.
 
 ## Recipes
 
-<Recipe title="3.1 Return the provenance fields with every data response" level="AI-ready" skills="Developer" time="Half a day">
+<Recipe title="4.1 Return the provenance fields with every data response" level="AI-ready" skills="Developer" time="Half a day">
 
 **Result:** no data leaves the server without the fields an answer needs
 to cite it.
@@ -72,11 +72,11 @@ to cite it.
 **What this does not do.** The fields make citation possible; the model's
 instructions make it happen. The guidance resource and the client's own
 instructions tell the model to cite the source URL and the release in every
-answer, and [chapter 5](./evaluate.mdx) checks that it does.
+answer, and [chapter 7](./evaluate.mdx) checks that it does.
 
 </Recipe>
 
-<Recipe title="3.2 Return the record's caveats with metadata responses" level="AI-ready" skills="Developer; data curator" time="Half a day">
+<Recipe title="4.2 Return the record's caveats with metadata responses" level="AI-ready" skills="Developer; data curator" time="Half a day">
 
 **Result:** an agent reading a series' metadata receives the definition,
 the method, the breaks, and the limitations, and can repeat them.
@@ -92,18 +92,18 @@ the method, the breaks, and the limitations, and can repeat them.
    applies to the period asked about.
 
 **What this does not do.** Caveats in the response do not guarantee
-caveats in the answer; the reviewed sample in [chapter 5](./evaluate.mdx)
+caveats in the answer; the reviewed sample in [chapter 7](./evaluate.mdx)
 checks that answers repeat them.
 
 </Recipe>
 
-<Recipe title="3.3 Verify answers against the logged responses" level="AI-native" skills="Developer" time="One day to set up">
+<Recipe title="4.3 Verify answers against the logged responses" level="AI-native" skills="Developer" time="One day to set up">
 
 **Result:** every number in a logged answer is matched to a value in the
 responses the agent received, or flagged.
 
 1. Log, per question, the tool calls, the responses, and the final answer
-   (the traces of [chapter 5](./evaluate.mdx)).
+   (the traces of [chapter 7](./evaluate.mdx)).
 2. Run the number check from the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/trust) over
    the answer with the logged observations as the values: each number is
@@ -135,6 +135,14 @@ dissemination cookbook, by asking and reading.
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) verifies each number in a generated answer against the record; the home page shows it.
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp) returns data with the Data360 API's metadata and guides citation through its system-prompt resource.
 - The [WDI SDMX API](https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries) returns the structure reference and attributes with values, which an SDMX-backed server passes through.
+
+## Resources
+
+- [SDMX `OBS_STATUS` code list](https://sdmx.org/?page_id=3215): the observation status codes returned with each value.
+- [W3C PROV](https://www.w3.org/TR/prov-overview/): provenance as linked data where responses have to carry it in that form.
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902): the program's method for binding a stated number to its source, which recipe 3.3 applies to logged responses.
+- [verify_numbers.py](pathname:///cookbook-files/ai-ready-dissemination/verify_numbers.py) from the dissemination cookbook: the number check over answer text.
+- [Creative Commons BY 4.0](https://creativecommons.org/licenses/by/4.0/): the licence returned with every response and the attribution it requires.
 
 ## Common mistakes
 

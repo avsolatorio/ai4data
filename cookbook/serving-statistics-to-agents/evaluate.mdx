@@ -1,15 +1,15 @@
 ---
 id: evaluate
-title: "5. Evaluation of agent access"
-sidebar_label: "5. Evaluate"
-sidebar_position: 6
+title: "7. Evaluation of agent access"
+sidebar_label: "7. Evaluate"
+sidebar_position: 8
 description: A question set run through an agent, logged traces scored for tool selection, series, values, citations, refusals, and latency, with a reviewed sample, before every change.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
 import Checklist from '@site/src/components/Cookbook/Checklist';
 
-# 5. Evaluation of agent access
+# 7. Evaluation of agent access
 
 **Question:** How is the interface evaluated?
 
@@ -48,7 +48,7 @@ behaviour check flags: the agent should have declined.
 
 ## Recipes
 
-<Recipe title="5.1 Run the question set and log the traces" level="AI-ready" skills="Developer" time="One day to set up the harness; minutes per run">
+<Recipe title="7.1 Run the question set and log the traces" level="AI-ready" skills="Developer" time="One day to set up the harness; minutes per run">
 
 **Result:** for every question, a trace with the tools called, the series
 used, the answer, whether the agent declined, and the latency.
@@ -74,7 +74,7 @@ dissemination cookbook.
 
 </Recipe>
 
-<Recipe title="5.2 Score the traces" level="AI-ready" skills="Python" time="Minutes">
+<Recipe title="7.2 Score the traces" level="AI-ready" skills="Python" time="Minutes">
 
 **Result:** five scores per run, per language, with the failures listed by
 cause.
@@ -104,7 +104,7 @@ behave  7/8  0.88
 
 1. Read each failure to its cause. The French value failure is a wrong
    figure in the answer, which the number check of
-   [chapter 3](./provenance.mdx) also catches; the regional failure is a
+   [chapter 4](./provenance.mdx) also catches; the regional failure is a
    missing refusal, which the guidance resource and a `list_code_values`
    call before `get_observations` address.
 2. Fix the cause (guidance text, tool description, code-list check,
@@ -118,7 +118,7 @@ a reviewer in recipe 5.3. Eight questions demonstrate; a suite has 30 to
 
 </Recipe>
 
-<Recipe title="5.3 Review a sample and gate changes" level="AI-ready" skills="Subject-matter staff; developer" time="Half a day per run">
+<Recipe title="7.3 Review a sample and gate changes" level="AI-ready" skills="Subject-matter staff; developer" time="Half a day per run">
 
 **Result:** a measured answer quality beyond the automated checks, and a
 rule that no change ships below the current scores.
@@ -153,6 +153,14 @@ guidance, which the dissemination cookbook's chapters cover.
 
 - The [dissemination cookbook's evaluation chapter](/cookbook/ai-ready-dissemination/evaluate) provides the question-set method and the retrieval and answer measures this chapter extends with tool selection and behaviour.
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) provides the number verification applied to logged answers.
+
+## Resources
+
+- [MCP Python SDK client](https://github.com/modelcontextprotocol/python-sdk): drives the server directly in a harness that logs every call.
+- [Evaluation chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/evaluate): the measures, the question-set discipline, and the grader pattern this chapter extends.
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902): the verification of stated numbers against logged responses.
+- [Agent evaluation script](pathname:///cookbook-files/serving-statistics-to-agents/agent_eval.py) and [traces](pathname:///cookbook-files/serving-statistics-to-agents/agent_traces.jsonl): the scoring of the running example.
+- [Inspect](https://inspect.ai-safety-institute.org.uk/): an open-source framework for evaluating language model agents with tool use, for larger suites.
 
 ## Common mistakes
 
