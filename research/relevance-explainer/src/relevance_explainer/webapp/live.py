@@ -110,7 +110,7 @@ def render(url: str, search: str, language: str | None) -> dict:
     lang = language if language in LANGS else detect_language(search)
     t0 = time.time()
     sim = similarity(search, rec)
-    text = to_input(rec, search, lang, sim=sim, fmt="itemfirst")
+    text = to_input(rec, search, lang, sim=sim, fmt="itemfirst", render_version=3)
     return {"input": text, "language": lang, "detected": language not in LANGS, "similarity": round(sim, 2),
             "record": {"title": rec["name"], "type": RENDERERS[rec["kind"]].label, "kind": rec["kind"], "link": page,
                        "countries": len(rec.get("countries") or []), "years": [rec.get("year_start"), rec.get("year_end")]},

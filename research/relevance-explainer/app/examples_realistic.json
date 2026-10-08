@@ -57,7 +57,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBu anket, 2025 yılında Gabon'da gerçekleştirilen bir Dünya Bankası çalışmasıdır. Aradığınız Monako ve Curacao coğrafyaları ile 2010 yılı kriterleri karşılanmamaktadır. Ayrıca konu, liman altyapı maliyetleri yerine Dünya Bankası'nın algılanan etkinliğidir.",
+   "text": "irrelevant\nBu anket, Gabon'daki paydaşların Dünya Bankası Grubu'na yönelik görüşlerini ölçmektedir. Aradığınız Monako ve Curacao ülkeleri ile 2010 yılı kriterleri karşılanmamaktadır. Ayrıca konu alanı tamamen farklıdır.",
    "judged": {}
   },
   "unseen": true,
@@ -104,7 +104,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nتتعلق البيانات بمسح الحماية للاجئين الفنزويليين في عام 2019-2020، وتركز على التعليم وسبل العيش. لا يوجد أي ذكر لبيانات استerahية الق aynı أو التركيز على النساء، مما يجعلها غير مرتبطة بالبحث المطلوب.",
+   "text": "irrelevant\nيقيس هذا الاستطلاع حماية اللاجئين والمهاجرين من فنزويلا في جمهورية الدومينيكان خلال عامي 2019-2020. لا يتناول البيانات است uainishajiية الق uainishaji، ولا يذكر أي متغيرات تتعلق بالنساء، مما يجعله غير مطابق لموضوع البحث.",
    "judged": {}
   },
   "unseen": true,
@@ -332,7 +332,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nThe indicator measures the percentage of firms citing tax rates as their biggest obstacle, matching the topic and population group. However, the specific year 2022 is not stated in the metadata, so it cannot be confirmed that the data covers that period.",
+   "text": "partly_relevant\nThe indicator measures the percentage of firms citing tax rates as their biggest obstacle, matching the topic and location. However, the specific year 2022 is not stated in the metadata, so it cannot be confirmed that the data covers that specific period.",
    "judged": {}
   },
   "unseen": true,
@@ -379,7 +379,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe dataset covers Venezuela, not Germany, so it fails the geographic constraint. While it measures household poverty, the location mismatch makes it unsuitable for the search.",
+   "text": "irrelevant\nThe dataset covers Venezuela, not Germany, so it fails the geographic constraint. Although it measures the percentage of households living under the poverty line, the location mismatch makes it unsuitable for the search.",
    "judged": {}
   },
   "unseen": true,
@@ -429,7 +429,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nO item é um microdados de pesquisa sobre empoderamento feminino na Serra Leoa, não em Sint Maarten. Embora mencione áreas rurais, a cobertura geográfica não corresponde à sua busca.",
+   "text": "irrelevant\nO item é um microdados de pesquisa sobre empoderamento feminino em Serra Leoa, não em Sint Maarten. Embora mencione áreas rurais, o foco é em gênero e segurança alimentar, não em posse de terra.",
    "judged": {}
   },
   "unseen": true,
@@ -476,7 +476,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nEl conjunto de datos contiene estimaciones mensuales de precios de energía en 97 mercados de la República Árabe Siria, no información sobre gastos en salud. Aunque la ubicación coincide con la búsqueda, el tema económico no responde a la solicitud de datos de salud.",
+   "text": "irrelevant\nEl conjunto de datos contiene estimaciones mensuales de precios de energía en Siria, no registros de salud. Aunque la ubicación coincide con la búsqueda, el tema económico no responde a la solicitud de records de salud para ese país.",
    "judged": {}
   },
   "unseen": true,
@@ -639,7 +639,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe item provides annual indicator data on perceived capabilities for 116 countries from 2001 to 2024. It does not cover the 1991-1994 period, nor does it offer subnational detail for Limassol, nor is it a survey microdata study.",
+   "text": "irrelevant\nThe item provides GEM Adult Population Survey data for 2001-2024, which does not cover the 1991-1994 period requested. It is an aggregated indicator series, not the microdata survey specified in the search.",
    "judged": {}
   },
   "unseen": true,
@@ -863,7 +863,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nيقيس المؤشر إطار تشريعات التشريعات الممنوحة في 177 دولة، وهو ما لا يتطابق مع طلب \"فعالية اللجان\". لا توجد أي إشارة في البيانات إلى فعالية اللاجان أو أي بيانات تتعلق باللجان أو أي مؤشرات اقتصادية مرتبطة باللاجئين.",
+   "text": "partly_relevant\nالمؤشر يقيس فعالية الإلجان القانوني على مستوى 177 دولة، وهو ما يتوافق مع موضوع البحث. ومع ذلك، لا يحدد البيانات الوصفية ما إذا كانت البيانات متاحة حسب فئة \"الأحدث\"، مما يجعل التغطية الزمنية جزئية فقط.",
    "judged": {}
   },
   "unseen": true,
@@ -905,7 +905,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nДокумент напрямую рассматривает оптимальный портфель кредитных инструментов помогает странам Африки к югу от Сахары с низким и нестанционным товаром. Извлеченный фрагмент подтверждает, что работа анализирует риски волатильности цен на экспортные товары, что полностью соответствует запросу.",
+   "text": "relevant\nДокумент напрямую отвечает на запрос, анализируя уязвимость стран Африки к югу от Сахары снизить риски волатильности цен на экспортные товары. Работа анализирована в контексте стихийных бедствий и обсуждает механизмы, влияющие на экспорту, что полностью соответствует теме и географическому охвату.",
    "judged": {}
   },
   "unseen": true,
@@ -959,7 +959,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe item is the Labour Force Survey 2000 for South Africa, not a 2006 report. It fails the time constraint and is survey microdata rather than a document.",
+   "text": "irrelevant\nThe Labour Force Survey 2000 is a microdata study from South Africa, not a document. It covers the year 2000, not the 2006 period requested in the search. Consequently, it fails both the time and data type constraints.",
    "judged": {}
   },
   "unseen": true,
@@ -1008,7 +1008,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nيغطي هذا المؤشر بيانات بيئية لبورتوريكو من البنك الدولي، مما يتوافق مع الموقع المطلوب. ومع ذلك، لا يوجد ذكر صريح لمتغيرات انبعاثات الكربون أو التغطية الريفية في الوصف، مما يجعله مرتبطاً جزئياً فقط.",
+   "text": "partly_relevant\nيغطي هذا المؤشر بورتوريكو كما طلبت، لكنه يركز على البيئة العامة مثل الموارد الطبيعية والغابات. لا يذكر الوصف صراحةً بيانات انبعاثات الكربون أو المناطق الريفية تحديداً، مما يجعله غير كافٍ للإجابة على استفسارك المحدد.",
    "judged": {}
   },
   "unseen": true,
@@ -1194,7 +1194,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह आंकड़ा $8.30 प्रतिदिन की गरीबी रेखा पर गरीबी, निम्न की गहराई (poverty gap) को मापता है, न कि रोज़गार में अंतर को। इसमें विस्थापित लोगों का कोई उल्लेख नहीं है और ग्रामीण क्षेत्रों का उल्लंघन नहीं हो सकता।",
+   "text": "irrelevant\nयह आंकड़ा $8.30 प्रतिदिन की गरीबी रेखा के सापेक्ष गरीब रहने वाले लोगों के प्रत्यक्ष गर गरीबतम गहराई (poverty gap) को मापता है, न कि ग्रामीण रोज़गार को। खोज में मांगी गई विस्थापित लोग समूह और ग्रिमीण क्षेत्र की जानकारी इसमें उपलब्ध नहीं है।",
    "judged": {}
   },
   "unseen": true,
@@ -1236,7 +1236,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\n该政策研究论文直接探讨了约旦叙利亚难民营内外生活质量对其质量的影响。文档基于叙利亚 Refugee and Host Community Survey数据，分析了生活质量与 material生存状况，完全符合查询中关于地点、人群及主题的要求。",
+   "text": "relevant\n该政策研究论文直接探讨了约旦叙利亚难民营内外生活质量对生活质量的影响。研究利用叙利亚 Refugee and Host Community Survey数据，分析了难民在约旦境内受影响人群的生活质量，完全符合查询中关于地点、人群及主题的要求。",
    "judged": {}
   },
   "unseen": true,
@@ -1376,7 +1376,7 @@
    "thinking"
   ],
   "offline": {
-   "text": "partly_relevant\nयह आइटम 1960-1985 के दौरान 109 देशों के लिए शिक्षा प्राप्ति (educational attainment) का आंकड़ा प्रदान करता है, जिसमें महिलाओं का उल्लेख है। हालांकि, यह एक एग्रीगेट डेटासेट है, जबकि आपकी खोज में सर्वेक्षण सूक्ष्म डेटा, इसलिए यह पूर्ण रूप से संगत नहीं है।",
+   "text": "irrelevant\nयह आइटम 1960-1985 के दौरान 109 देशों के लिए शैक्षणिक प्राप्ति (educational attainment) का आँकड़ा प्रदान करता है, न कि जनगणना या सर्वेक्षण सूक्ष्म डेटा। खोज में मांगी गई महिलाओं की जनगणना, सर्विक डेटा या माइक्रोडेटा इसमें उपलब्ध नहीं है।",
    "judged": {}
   },
   "unseen": true,
@@ -1416,7 +1416,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nNyaraka hii ni ripoti ya utafiti kuhusu matumizi ya umma na fedha, si seti ya data. Inachunguza athari za msaada wa serikali, si matumizi ya wanawake. Mwaka wa utangulizi ni 1995, ambao haifanyi kazi na mwaka 2022 ulioulizwa.",
+   "text": "irrelevant\nNyaraka hii ya mwaka 1995 inachunguza matumizi ya umma na maskini, si data ya 2022. Inaangalia utafiti wa 1995, hivyo haikidhi kiwango cha muda kilichotakiwa. Pia ni nyaraka ya utafiti, si seti ya data.",
    "judged": {}
   },
   "unseen": true,
@@ -1458,7 +1458,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBelge, Brezilya'da kadınların ücret eşitsizliğini ve cinsiyete dayalı şiddet üzerindeki etkisini inceleyen bir araştırma makalesidir. Aranan 2023 yılına ait engellilik göstergeleri verisi içermez; metinde engellilik durumu veya istatistiksel gösterge bulunmamaktadır.",
+   "text": "irrelevant\nBelge, Brezilya'da cinsiyete dayalı ücret eşitsizliği ve yasal eşitlik üzerine 2011-16 dönemi anket verilerini analiz eder. Aradığınız 2023 yılına ait engellilik göstergesi ile ilgili değildir; metinde engellilik durumu veya istatistiksel veri seti bulunmamaktadır.",
    "judged": {}
   },
   "unseen": true,
@@ -1500,7 +1500,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nNyaraka hii inachunguza sera za ukuaji na uchumi wa Marekani, si masharti ya wakimbizi. Ingawa inajumuisha nchi za Marekani, mada ya utafiti haifanani na ulichotafuta.",
+   "text": "irrelevant\nNyaraka hii inachunguza sera za ukuaji na uchambuzi wa kimataifa, ikielekeza kwenye Marekani, Japani, Japani na China. Haina taarifa kuhusu masharti ya wakimbizi, ambayo ndiyo ulichotafuta. Mada ya utafiti ni tofauti kabisa na inayotakiwa.",
    "judged": {}
   },
   "unseen": true,
@@ -1542,7 +1542,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nДокумент посвящен государственному сектору в Карибском бассейне и не содержит данных переписи населения. Исследование не содержит информации о молодежи или микроданных, поэтому не отвечает на запрос.",
+   "text": "irrelevant\nДокумент посвящен государственному сектору Карибского бассейна и реформам, а не молодежи. Материал представляет собой аналитическую работу, а не набор микроданных переписи населения. Тематика и тип данных не соответствуют запросу.",
    "judged": {}
   },
   "unseen": true,
@@ -1590,7 +1590,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nCe jeu de données géospatiales fournit des images satellites de satellite des inondations en Afghanistan, et non des microdonnées d'enquête. Il ne contient aucune information relative au handicap, ce qui ne répond pas à la demande spécifique de données individuelles.",
+   "text": "irrelevant\nCe jeu de données géospatial liste les inondations inondées en Afghanistan en 2014, et non des microdonnées d'enquête. Il ne contient aucune information relative à la population handicapée, ce qui ne répond pas à la recherche.",
    "judged": {}
   },
   "unseen": true,
@@ -1632,7 +1632,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该文档发表于2014年，不符合您查询的2017-2020年时间段。内容主要探讨印度城市的土地对住房空间集中度及经济影响，未提及老年人或医疗保健趋势。",
+   "text": "irrelevant\n该文档探讨了印度和全球范围内的住房空间集中度，而非医疗保健趋势。其发布时间为2014年，不符合2017-2020年的时间要求，且元数据中未提及老年人群体。",
    "judged": {}
   },
   "unseen": true,
@@ -1674,7 +1674,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nDokumen ini membahas liberalisasi perdagangan pertanian di negara berkembang, bukan neraca perdagangan. Publikasi tahun 1997 juga tidak sesuai dengan permintaan tahun 2022.",
+   "text": "irrelevant\nDokumen ini membahas liberalisasi perdagangan pertanian di negara berkembang, namun diterbitkan pada tahun 1997. Publikasi ini tidak memenuhi batasan waktu 2022 yang diminta dalam pencarian Anda.",
    "judged": {}
   },
   "unseen": true,
@@ -1723,7 +1723,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该数据集涵盖2020-2022年，但主题为性别平等与无偿家务工作，而非政体类型。虽然地理范围包含厄瓜多尔、图瓦卢及突尼斯，但数据频率为“按需”而非季度，且主题与查询要求不符。",
+   "text": "irrelevant\n该数据集为2020-2022年家庭性别平等调查，涵盖厄瓜多尔、格鲁多尔和泰瓦卢，符合地点和时间要求。然而，其内容聚焦于性别平衡、无偿照护工作及无偿家务工作，与查询中的“政体类型”主题完全不符。此外，数据更新频率为“按需”，不满足季度频率要求。",
    "judged": {}
   },
   "unseen": true,
@@ -1765,7 +1765,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nDokumen ini membahas secara langsung topik 'biodiversiti' dalam konteks iklim, dengan menganalisis dampaknya terhadap biodiversitas dan produktivitas pangan. Abstrak dan cuplikan teks mengonfirmasi bahwa peningkatan biodiversitasi memengaruhi biodiversity dan pertanian, yang sesuai dengan pencarian Anda.",
+   "text": "relevant\nDokumen ini membahas perubahan iklim dan biodiversitas, yang sesuai dengan pencarian Anda. Abstrak dan bagian yang diambil secara spesifik menyoroti dampak perubahan biodiversitasi terhadap produktivitas dan produk hutan, tanpa batasan wilayah atau waktu yang dilanggar.",
    "judged": {}
   },
   "unseen": true,
@@ -2000,7 +2000,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nA série cobre gastos internacionais com turismo para 192 países, alinhando-se ao tópico da busca. No entanto, os dados anuais disponíveis abrangem apenas o período de 1995 a 2020, não incluindo os últimos 10 anos solicitados.",
+   "text": "partly_relevant\nA série cobre gastos em turismo internacional para 192 países, alinhando-se ao tópico e à localização solicitados. No entanto, o período de 1995 a 2020 não atende totalmente à janela de 10 anos (2016-2026), pois os dados disponíveis terminam em 2020.",
    "judged": {}
   },
   "unseen": true,
@@ -2238,7 +2238,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nLa serie cubre la participación laboral joven en Laos para el período 2016-2024, cumpliendo con las restricciones de lugar y tiempo. Sin embargo, es un indicador estadístico y no un dataset de microdatos, por lo que no satisface la solicitud específica de un dataset.",
+   "text": "partly_relevant\nLa serie cubre Laos y el período 2016-2024, pero mide la tasa de participación en la fuerza laboral para hombres de 15 a 24 años. No proporciona datos específicos para la población joven, que es el grupo demográfico solicitado en la búsqueda.",
    "judged": {}
   },
   "unseen": true,
@@ -2452,7 +2452,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह आंकड़ा $8.30 प्रतिदिन की गरीबी रेखा पर गरीबी, निम्न की गहराई (poverty gap) को मापता है, न कि रोज़गार में अंतर को। इसमें विस्थापित लोगों का कोई उल्लेख नहीं है और ग्रामीण क्षेत्रों का उल्लंघन नहीं हो सकता।",
+   "text": "irrelevant\nयह आंकड़ा $8.30 प्रतिदिन की गरीबी रेखा के सापेक्ष गरीब रहने वाले लोगों के प्रत्यक्ष गर गरीबतम गहराई (poverty gap) को मापता है, न कि ग्रामीण रोज़गार को। खोज में मांगी गई विस्थापित लोग समूह और ग्रिमीण क्षेत्र की जानकारी इसमें उपलब्ध नहीं है।",
    "judged": {}
   },
   "unseen": true,
@@ -2624,7 +2624,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nArama Kanal Adaları için 2020 yılına ait anket mikro verisi talep ederken, bu kayıt Open Budget Index Rank'ın yıllık bir istatistiksel gösterge serisidir. Kayıt, 125 ülkeyi kapsayan bir veri tabanı olup mikro veri değildir ve Kanal Adalar'a özgü bir anket verisi sunmaz.",
+   "text": "irrelevant\nArama Kanal Adaları için 2020 yılına ait anket mikro verilerini talep ederken, bu kayıt IBP_OBS veritabanından yıllık bir istatistiksel gösterge serisidir. Kayıt, 125 ülke için 2006-2023 yıllarını kapsayan bir oran serisidir ve mikro veri değildir.",
    "judged": {}
   },
   "unseen": true,
@@ -2683,7 +2683,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nUtafiti huu wa Jamaica wa 1994 haujibu utafutaji wako kwa sababu ya tofauti kubwa ya eneo na muda. Ingawa mwaka wa 1994 unalingana na kipindi kilichotakiwa, data hii haitajibu swali la utajiri vijana nchini Bosnia and Herzegovina.",
+   "text": "irrelevant\nUtafiti huu wa Jamaica unahusu maisha ya kaya na afya, si utajiri wa vijana. Nchi ya Bosnia na Herzegovina haiko kati ya nchi zinazofikiwa, na hakuna taarifa ya vijana kama kikundi maalum.",
    "judged": {}
   },
   "unseen": true,
@@ -2735,7 +2735,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nCe jeu de données est le recensement de la population et du logement de Malawi de 2018. Il ne contient pas de microdonnées issues d'un recensement, et la métadonnée ne mentionne pas de segmentation par niveau de revenu, rendant impossible la vérification de la pertinence pour les plus pauvres.",
+   "text": "irrelevant\nCe jeu de données est le recensement de la population et du logement de Malawi de 2018, et non un recensement. Il ne contient aucune information spécifique sur les populations les plus pauvres, ce qui ne répond pas à la demande de microdonnées démographiques pour cette population.",
    "judged": {}
   },
   "unseen": true,
@@ -2777,7 +2777,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe document is a policy review of investment climate in post-conflict situations, published in 2006. It does not contain child mortality rates or data from the 1991-2002 period requested in the search.",
+   "text": "irrelevant\nThe document is a 2006 policy review on investment climate in post-conflict situations, not a study on child mortality rates. It does not address the 1991-2002 period or the specific population group requested in the search.",
    "judged": {}
   },
   "unseen": true,
@@ -2834,7 +2834,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nO item é uma avaliação de necessidades de refugiados rohingya em Bangladesh em 2020, focada em segurança alimentar e meios de subsistência. Não atende à busca por dados de pesquisa domiciliar dos países da OCDE na década de 2010, pois a geografia, o período e o tipo de dado são totalmente distintos.",
+   "text": "irrelevant\nO item é um dataset de avaliação de necessidades de refugiados rohingya em Cox's Bazar, Bangladesh, em 2020. Não atende à busca por dados de pesquisa domiciliar dos países da OCDE na década de 2010, pois a geografia, o período e o tipo de dado não correspondem.",
    "judged": {}
   },
   "unseen": true,
@@ -2876,7 +2876,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nBu çalışma, Ermenistan'da hanehalkı anketi ve yerinde anket verilerini kullanarak su-based recreation konusunu doğrudan ele almaktadır. Metin, hanehalke düzeyinde anketin tasarımını ve büyüme etkilerini analiz ederek aranan konuyu doğrudanı karşılar.",
+   "text": "relevant\nBu çalışma, Ermenistan'da hanehalkı ve on-site anketi için hanehalta ankete ve yerinde anketlerin kullanımını analiz eder. Aranan hanehalki anketi ve yerinde uygulanan bu metrik, aranan konuya doğrudan yanıt verir.",
    "judged": {}
   },
   "unseen": true,
@@ -2923,7 +2923,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nUtafiti huu unachunguza umaskini wa watoto katika nchi 4 za kipato cha chini, si ubora wa utumishi wa umma. Mwaka wa 2009 haufanani na 2015 ulioulizwa, na mada ya utumishi haipo kwenye data hii ya uchumi na elimu.",
+   "text": "irrelevant\nUtafiti huu unachunguza umaskini wa watoto katika nchi 4 za Ethiopia, India, Peru na Vietnam, lakini ulifanyika mwaka 2009, si 2015 kama ulivyoomba. Hivyo, data hii haikubali kiwango cha muda kilichotakiwa.",
    "judged": {}
   },
   "unseen": true,
@@ -2974,7 +2974,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe dataset covers health indicators for North Macedonia, not Spain, and focuses on mortality, disease, and health systems rather than disaster risk financing. It does not address the requested geography or topic.",
+   "text": "irrelevant\nThe dataset covers health indicators for North Macedonia, not Spain, and focuses on mortality and disease rather than disaster risk financing. It does not address the requested geography or topic.",
    "judged": {}
   },
   "unseen": true,
@@ -3018,7 +3018,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nDokumen ini membahas reformasi kredit dan subsidi pertanian di Rusia pasca-1992, bukan kesehatan masyarakat di District Selatan Belize. Lokasi dan topik tidak sesuai dengan pencarian Anda.",
+   "text": "irrelevant\nDokumen ini membahas pertumbuhan kredit dan subsidi di Rusia, bukan kesehatan masyarakat di District Selatan Belize. Publikasi tahun 1995 juga tidak sesuai dengan filter tahun 2024 yang diminta.",
    "judged": {}
   },
   "unseen": true,
@@ -3060,7 +3060,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe document analyzes China's GDP per capita, published in 1995, which falls outside the requested 2023-2026 timeframe. It does not address rural migration, focusing instead on economic growth and GDP estimates.",
+   "text": "irrelevant\nThe document analyzes China's GDP in US dollars based on price estimates, published in 1995. It does not address rural migration, nor does it cover the last three years (2023-2026) as requested.",
    "judged": {}
   },
   "unseen": true,
@@ -3108,7 +3108,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nيغطي هذا المؤشر بيانات القطاع العام في البرازيل من البنك الدولي، مثل الصحة والتعليم، لكنه لا يذكر النازحين أو الميزان التجاري. البحث يطلب بيانات محددة عن الميزان، وهو موضوع مختلف تماماً عن البيانات الاقتصادية العامة.",
+   "text": "irrelevant\nيحتوي هذا المستند على بيانات اقتصادية عامة للقطاع العام في البرازيل من البنك الدولي، ولا يذكر أي معلومات تتعلق بالنازحين أو الميزان التجاري. البحث يطلب بيانات محددة عن النازحين، بينما يركز هذا المصدر على مؤشرات الحوكمة العامة.",
    "judged": {}
   },
   "unseen": true,
@@ -3155,7 +3155,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该数据集为2023年全球范围的模拟和培训数据，主要涵盖家庭、个人及家庭层面的社会经济指标。其内容不涉及养老金可持续性，且年份与2014年不符，无法回答关于中高收入国家养老金的查询。",
+   "text": "irrelevant\n该数据集为2023年单一国家的 synthetic数据，主要涵盖家庭、个人及家庭层面的人口统计和生育特征。其地理范围仅为全球，未覆盖中高收入国家，且年份为2023年而非2014年，完全不符合查询要求。",
    "judged": {}
   },
   "unseen": true,
@@ -3245,7 +3245,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBelge, Latin Amerika ve Karayipler'deki cinsiyete dayalı şiddetin kadınların artışını inceleyen bir politika araştırmasıdır. Aranan 1993 yılına ait bir veri seti değildir; metin 2023 Lobarómetro Survey verilerini kullanır ve istatistiksel bir veri sunmaz.",
+   "text": "irrelevant\nBelge, Latin Amerika ve Karayipler'de cinsiyet eşitliğini inceleyen bir politika araştırma çalışmasıdır. Aradığınız 1993 yılına ait Amerika Kadınların Civic Engagement Düzeyi Dataseti ile ilgisi yoktur; hem coğrafya hem de veri türü (rapor yerine belge) açısından aramayla örtüşmemektedir.",
    "judged": {}
   },
   "unseen": true,
@@ -3285,7 +3285,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nالمستند يركز على التوسع المالي في المكسيك، وهو جزء من دول OECD، مما يغطي جزءاً من نطاق البحث الجغرافي. ومع ذلك، لا يوجد دليل في الملخص على أن الدراسة تقيس مخاطر النظامية تحديداً، بل تقدم تحليلًا لقياس التوسع العام.",
+   "text": "partly_relevant\nيبحث هذا التقرير في استجابة التمويل المالي في المكسيك، وهو جزء من دول OECD، مما يغطي جزءاً من نطاق البحث الجغرافي. ومع ذلك، يركز النص على التمويل المحلي وليس على مخاطر النظام بشكل مباشر، كما أن التغطية تقتصر على دولة واحدة فقط.",
    "judged": {}
   },
   "unseen": true,
@@ -3456,7 +3456,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nThe item provides the pupil-trained teacher ratio in pre-primary education, not unemployment rates. While the geographic coverage includes Albania, the topic is education enrollment, which does not address the labor market indicator requested in the search.",
+   "text": "irrelevant\nThe item provides the pupil-trained teacher ratio in pre-primary education for Albania. It does not contain data on the unemployment rate, which is the specific indicator requested in the search.",
    "judged": {}
   },
   "unseen": true,
@@ -3504,7 +3504,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该数据集提供美属萨摩亚2020年的人口密度地图，而非注册率数据。虽然时间范围部分覆盖2020年代，但主题与查询要求的注册指标完全不符。",
+   "text": "irrelevant\n该数据集提供美属萨摩亚2020年的人口密度地图，而非注册率。虽然时间范围部分覆盖2020年代，但主题完全不符，无法回答关于注册比率的查询。",
    "judged": {}
   },
   "unseen": true,
@@ -3725,7 +3725,7 @@
    "thinking"
   ],
   "offline": {
-   "text": "partly_relevant\nL'indicateur fournit le taux de pauvreté au Nigéria pour 2022, couvrant ainsi la géographie, la période et le groupe cible. Cependant, la fréquence est annuelle, ce qui ne correspond pas à la demande spécifique d'une étude sur les inégalités.",
+   "text": "relevant\nCette série de données de la Banque mondiale fournit le taux de pauvreté au Nigéria pour l'année 2022, couvrant la période 1963-2025. L'unité est le pourcentage de la population vivant sous le seuil de 4,20 dollars par jour, répondant ainsi à la demande de données sur les inégalités.",
    "judged": {}
   },
   "unseen": true,
@@ -3959,7 +3959,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBu veri, kadın istihdamının yüzde kaçının ücretli çalışanların istihdam içindeki payını ölçer ve 1991-1996 dönemini kapsar. Ancak aramanızda belirtilen Encamp bölgesi bu kapsamda yer almamaktadır. Bu nedenle, istenen coğrafi bölgeye özgü veri sunmaz.",
+   "text": "irrelevant\nBu veri serisi, 1991-1996 dönemini kapsayan kadın istihdamının yüzde kaçının ücretli olduğunu ölçmektedir. Ancak aramanızda belirtilen Encamp (Andorra) coğrafi kapsamda yer almamaktadır. Dolayısıyla, istenen bölgeye özgü veri sunmamaktadır.",
    "judged": {}
   },
   "unseen": true,
@@ -4001,7 +4001,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nEl documento analiza la financiación forestal en la República del Congo, un país en desarrollo, lo que coincide con la ubicación y el tema general de la búsqueda. Sin embargo, no se centra específicamente en las fuentes de financiación climática disponibles para países en desarrollo que buscan transicionar hacia una economía baja, sino que aborda el financiamiento forestal general.",
+   "text": "relevant\nEl documento analiza específicamente las fuentes de financiación climática para la República del Congo, un país en desarrollo. Examina cómo las transparencias y las timberas afectan el desarrollo, lo cual responde directamente a la consulta sobre fuentes de transición para economía baja en ese contexto.",
    "judged": {}
   },
   "unseen": true,
@@ -4041,7 +4041,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nEl documento analiza el impacto de la集中程度 urbana en el crecimiento económico de países en desarrollo entre 1960 y 1995. No contiene información sobre jóvenes, por lo que no responde a la búsqueda solicitada.",
+   "text": "irrelevant\nEl documento analiza el impacto de la concentración urbana en el crecimiento económico en países entre 1960 y 1995. No contiene información sobre juventud ni aborda el grupo de edad solicitado en la búsqueda.",
    "judged": {}
   },
   "unseen": true,
@@ -4205,7 +4205,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nThe item provides international tourism inbound receipts for Indonesia, covering the year 2020. However, the data is annual, not quarterly as requested, and it is a statistical indicator series rather than a raw dataset.",
+   "text": "partly_relevant\nThe item provides international tourism inbound receipts for Indonesia, covering the 2020 period. However, the data is annual, which does not satisfy the quarterly frequency requirement specified in the search facets.",
    "judged": {}
   },
   "unseen": true,
@@ -4260,7 +4260,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह डेटासेट तुर्की के स्वास्थ्य संकेतकों पर आधारित है, जबकि आपकी खोज डिजिटल कौशल के लिए थी। समय अवधि 2013 शामिल है, लेकिन विषय और जनसंख्या समूह पूरी तरह अलग हैं।",
+   "text": "irrelevant\nयह डेटासेट तुर्की के स्वास्थ्य संकेतकों पर आधारित है, जबकि खोज डिजिटल कौशल के लिए थी। समय अवधि 2013 शामिल है, लेकिन विषय और जनसंख्या समूह पूरी तरह अलग हैं।",
    "judged": {}
   },
   "unseen": true,
@@ -4302,7 +4302,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nNyaraka hii ya utafiti inachunguza mwingiliano wa huduma za msingi za kupikia kwa umeme, umeme na telefones nchini Afrika Mashariki ya Jangwa la Sahara. Ingawa inahusu Afrika na inatoa data ya utafutaji, ni nyaraka ya utafuzi badala ya seti ya data, hivyo haikidhi kiwango cha data kilichotakiwa.",
+   "text": "partly_relevant\nNyaraka hii inachunguza mwenendo wa huduma za miundombinu ya modern Afrika, ambayo inalingana na mada ya utafiti wako. Hata hivyo, ni ripoti ya utafutaji badala ya seti ya data, hivyo haikidhi kiwango cha aina ya data uliyotafuta.",
    "judged": {}
   },
   "unseen": true,
@@ -4344,7 +4344,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nBelge, Liberya'nın altyapı durumunu ve enerji erişimini ele alarak coğrafi kısıtı karşılar. Ancak metadata'da erkek nüfusuna özel bir veri veya analiz bulunmadığı için aranan demografik grup filtresini karşılamaz.",
+   "text": "partly_relevant\nDoküman, Liberya'nın altyapı durumunu ve elektrik erişimini ele alarak coğrafi kısıtı karşılar. Ancak metin, erkek nüfusa özel bir analiz sunmadığından aranan demografik grup kısıtlamasını karşılamaz.",
    "judged": {}
   },
   "unseen": true,
@@ -4386,7 +4386,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBelge, Rusya'da demografik büyüme kontrolü üzerindeki etkisini inceleyen bir politika araştırmasıdır. Aranan 'Kuraklık' konusuyla doğrudan bir bağlantısı bulunmamaktadır. Ayrıca yayın tarihi 2015 olup 1994-1999 aralığını kapsamamaktadır.",
+   "text": "irrelevant\nBelge, Rusya'da demografik büyüme ve nüfus dinamiklerini incelemektedir. Aranan 'Curaklık' konusuyla ilgisi yoktur ve 1994-1999 dönemi kapsam dışıdır.",
    "judged": {}
   },
   "unseen": true,
@@ -4629,7 +4629,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nيقيس المؤشر متوسط التعرض السنوي لتلوث الهواء PM2.5، وهو موضوع مختلف تماماً عن بيانات التعداد السكاني المطلوبة. كما أن التغطية الجغرافية لا تشمل سينت مارتن، والبيانات متاحة لعام 2020 فقط، مما يجعلها غير مناسبة للبحث.",
+   "text": "irrelevant\nيقيس هذا المؤشر متوسط التعرض السنوي لتلوث الهواء PM2.5، وهو موضوع بيئي لا علاقة له ببيانات التعداد السكاني أو مسوحات. كما أن التغطية الجغرافية لا تشمل سينت مارتن، والبيانات السنوية لا تُعدّ من عام 2020.",
    "judged": {}
   },
   "unseen": true,
@@ -4874,7 +4874,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nO item apresenta o conceito de conta financeira líquida (BoP, current US$), que mede a conta finansa e não os custos de transferências transfronteiriças. Embora cubra o Caribe e o ano de 2021, o conceto econômico não corresponde à solicitação de dados financeiros transfronteeriços.",
+   "text": "irrelevant\nO item apresenta a conta financeira líquida, medindo o acesso e disposição de ativos, e não os custos de transferências transfronteiriças. Embora cubra o Caribe e o ano de 2021, o conceito econômico não corresponde à solicitação de dados financeiros.",
    "judged": {}
   },
   "unseen": true,
@@ -4927,7 +4927,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nThe dataset provides education indicators for the Netherlands, matching the requested location and topic. It covers the period 1970-2019 with a static update frequency, satisfying the request for indicators in this specific country.",
+   "text": "relevant\nThe dataset provides education indicators for the Netherlands, matching the requested location and data type. It covers the period 1970-2019 with no updates, sourced from UNESCO Institute for Statistics.",
    "judged": {}
   },
   "unseen": true,
@@ -4969,7 +4969,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nالمستند يتناول آليات المساعدة الإنسانية في دول محددة، ولا يذكر النازحين في العنوان أو الملخص أو المقطع المسترجع. لا يوجد في الملخص أي إشارة إلى النازحون أو النازحات، مما يجعله غير مرتبط بالبحث المطلوب.",
+   "text": "irrelevant\nالمستند يتناول حالة المساعدة الإنسانية في الدول النامية، ولا يذكر النازحين في العنوان أو الملخص. البحث يركز على تحديات المخاطر الإنسانية والتحديات الإنسانية، مما يجعله غير مرتبط بمجموعة النازحون المطلوبة في البحث.",
    "judged": {}
   },
   "unseen": true,
@@ -5155,7 +5155,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nL'indicateur concerne les personnes déplacées internes (PDI) de l'UNHCR, et non les transferts de fonds. Bien qu'il couvre la Fédération Russe, il s'agit d'une série statistique annuelle et non d'un jeu de données micro ou d'un dataset.",
+   "text": "irrelevant\nL'indicateur porte sur les personnes déplacées internes (PDI) de l'UNHCR, et non sur les transferts de fonds. De plus, il s'agit d'une série statistique annuelle et non d'un jeu de données micro.",
    "judged": {}
   },
   "unseen": true,
@@ -5393,7 +5393,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nИндикатор Vulnerability to food insecurity охватывает 191 страну, но данные доступны только за 2024 год, что не соответствует запросу на 2022 год. В метаданных отсутствует информация о разбивке по городской местности, поэтому фильтр по группе не подтверждается.",
+   "text": "irrelevant\nПоказатель охватывает только 2024 год, что не соответствует запросу на 2022 год. В метаданных отсутствует информация о разбивке по городской продовольственной безопасности, а также ограничение по группе «городская» не подтверждается.",
    "judged": {}
   },
   "unseen": true,
@@ -5668,7 +5668,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nПоказатель отражает общее конечное потребление энергии в петаджоules в гектарах, а не численность городского населения. Хотя Бутана входит в охват данных, тематика энергетической инфраструктуры не отвечает на запрос о демографической статистике.",
+   "text": "irrelevant\nПоказатель отражает общую энергетическую потребление в пetaJoules, а не численность городского населения. Хотя Бутана входит в охват данных, тема и единица измерения не соответствуют запросу.",
    "judged": {}
   },
   "unseen": true,
@@ -5717,7 +5717,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nDataset ini berisi struktur usia dan gender untuk Greenland, bukan pemetaan permukiman kumuh. Meskipun metadata menyebutkan data perempuan, topik data tidak sesuai dengan permintaan pencarian.",
+   "text": "irrelevant\nDataset ini berisi struktur usia dan gender untuk Greenland, bukan pemetaan permukiman kumuh. Meskipun metadata menyebutkan data perempuan, topik demografi tidak menjawab permintaan spesifik tentang permukiman permukiman.",
    "judged": {}
   },
   "unseen": true,
@@ -5860,7 +5860,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该指标系列衡量的是企业在非正规部门竞争对竞争的百分比，属于宏观经济与增长领域。用户搜索的是非正规住区制图数据集，两者在主题和数据类型上均不匹配。",
+   "text": "irrelevant\n该指标衡量的是企业将非正规部门竞争对手的百分比，属于企业调查数据。搜索要求的是非正规住区制图数据集，两者在主题上完全不相关，且该条目为统计指标而非数据集。",
    "judged": {}
   },
   "unseen": true,
@@ -6013,7 +6013,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\n该指标衡量的是外部债务占国民总收入（GNI）的百分比，而非债务总额。虽然主题与债务相关，但数据仅覆盖109个国家，未提供全球层面的细分数据，无法满足查询对全球债务的具体需求。",
+   "text": "relevant\n该指标提供了124个国家和经济体的外部债务占国民总收入（GNI）百分比数据，时间范围为2024年。数据覆盖全球范围，符合搜索中关于全球债务的要求。",
    "judged": {}
   },
   "unseen": true,
@@ -6055,7 +6055,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nNyaraka hii inachunguza mada ya mapato ya asili na mapato katika Jamhuri ya Afrika ya Kati, ambayo inalingana na mada ya utafutaji wako. Hata hivyo, haielezei kwa uwazi ikiwa data inapatikana kwa kiwango cha mkoa wa Ouham-Pendé, na ni nyaraka ya utafiti badala ya vipimo vya takwimu.",
+   "text": "partly_relevant\nNyaraka hii inachunguza mifumo ya misitu na mapato ya madini katika Jamhuri ya Afrika ya Kati, ikijumuisha maelezo ya kiutawala. Hata hivyo, haielezei kwa uwazi ikiwa data inapatikana kwa kiwango cha mkoa wa Ouham-Pendé, na ni nyaraka ya utafiti badala ya kiashiria cha takwimu.",
    "judged": {}
   },
   "unseen": true,
@@ -6245,7 +6245,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nAinisho hili la GCI 4.0 lina data ya Haiti kwa mwaka 2017, kulingana na kipindi cha 2017-2019. Inatoa takwimu za kila mwaka kuhusu utulivu wa serikali, ambayo inakidhi mahitaji ya eneo, muda na mzunguko ulioombwa.",
+   "text": "relevant\nKipengele hiki kina data ya Haiti kwa mwaka wa 2017, kama ilivyoombwa. Inatoa takwimu za utawala wa kitaifa kwa kiwango cha 1 hadi 7, na inakidhi vigezo vyote vya eneo, muda na mzunguko.",
    "judged": {}
   },
   "unseen": true,
@@ -6298,7 +6298,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nBu veri serisi, Çad için 2019-2023 yılları arasında öğretmenlerin varlığını ölçen yıllık bir istatistiksel göstergedir. Aradığınız 2020-2023 dönemi kapsamı karşılanmakla birlikte, istenen bir rapor yerine veri serisidir.",
+   "text": "partly_relevant\nBu veri serisi, Çad için 2019-2023 yılları arasında öğretmenlerin varlığını ölçen yıllık bir istatistiksel göstergedir. Aradığınız 2020-2023 dönemi kapsamındadır ancak veri tipi belge değil, gösterge serisidir.",
    "judged": {}
   },
   "unseen": true,
@@ -6340,7 +6340,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\n该研究文档评估了刚果民主共和国的人道主义援助中的现金转移与代金券对比，符合主题和地点要求。但文档发布于2015年，且元数据未明确说明研究年份是否涵盖2018年，因此无法确认其满足时间约束。",
+   "text": "partly_relevant\n该研究文档评估了刚果民主共和国人道主义援助中的现金转移与代金券对比，符合主题和地点要求。然而，文档发表于2015年，且研究数据覆盖期为2011年，无法确认是否包含2018年的具体数据。",
    "judged": {}
   },
   "unseen": true,
@@ -6387,7 +6387,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nCe jeu de données contient des estimations mensuelles des prix alimentaires en République centrafricaine, et non des indicateurs de chômage. Il ne répond donc pas à la demande de données sur le taux de chômment urbain.",
+   "text": "irrelevant\nCe jeu de données contient des estimations mensuelles des prix alimentaires en République centrafricaine, et non des taux de chômage. Bien que la localisation corresponde à la recherche, le sujet économique ne répond pas à la demande sur le marché du travail urbain.",
    "judged": {}
   },
   "unseen": true,
@@ -6639,7 +6639,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nL'indicateur couvre bien la jeunesse (15-24 ans) pour l'année 2018, mais il s'agit d'une série statistique annuelle et non d'un jeu de données micro. La recherche demandait spécifiquement un jeu de microdonnées, ce que cet item ne fournit pas.",
+   "text": "partly_relevant\nL'indicateur couvre bien la période 2018 et la population des jeunes (15-24 ans). Cependant, il s'agit d'une série statistique sur le chômage, non d'un jeu de données micro sur l'inactivité inactive, ce qui ne correspond pas au type de données recherché.",
    "judged": {}
   },
   "unseen": true,
@@ -6692,7 +6692,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nPakistan'daki okul yönetimi politikası gostergeleri konusunu doğrudan ele alan bu gösterge, 2019-2023 yıllarını kapsayan yıllık veriler sunmaktadır. Aranan 2020 yılı bu zaman dilimi içinde yer almakta olup, ülke filtresi Pakistan için karşılanmaktadır.",
+   "text": "relevant\nPakistan'da okul yönetimi politikalarını ölçen bu gösterge, 2019-2023 yıllarını kapsayan yıllık veriler sunmaktadır. Aramanızda belirtilen 2020 yılı bu zaman dilimi içinde yer almakta olup, ülke filtresi de karşılanmaktadır.",
    "judged": {}
   },
   "unseen": true,
@@ -6929,7 +6929,7 @@
    "thinking"
   ],
   "offline": {
-   "text": "irrelevant\nKipengele hiki hupima uwezekano wa hatari za hali ya hewa (Climate-Driven Hazard & Exposure) kwa nchi 188, si idadi ya watu waliokimbia makazi yaoreshiki. Hivyo, hali ya majanga ya tabianchi haijajibiwa na data hii ya hatari za asili.",
+   "text": "irrelevant\nKipengele hiki hutoa takwimu za hatari na utulivu wa hali ya hewa, si idadi ya watu waliokimbia makazi ya tabianchi. Hivyo, halijibu swali lako kuhusu idadi ya watu wanaokimbia nyumbani kutokana na majanga ya tabiande.",
    "judged": {}
   },
   "unseen": true,
@@ -7053,7 +7053,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nيقيس المؤشر القيمة المضافة المحلية في الصادرات الأجنبية كنسبة مئوية من إجمالي الصادرات، وهو ما لا علاقة له بالقطاع الصناعي. رغم تغطية الأردن وألمانيا، فإن الموضوع مختلف تماماً عن طلب المستخدم.",
+   "text": "partly_relevant\nيغطي المؤشر الأردن وألمانيا كما هو مطلوب، لكنه يقيس القيمة المضافة المحلية في الصادرات الأجنبية كنسبة من إجمالي الصادرات، وليس القيمة الم value المضافة الصناعية. لا يمكن تأكيد توفر البيانات للسنوات المحددة من الوصف المتاح.",
    "judged": {}
   },
   "unseen": true,
@@ -7099,7 +7099,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nДокумент посвящен ограничениям иностранных прямых инвестиций в экономику, а не валютным регулированием. Географический охват указан как «World», что не соответствует вашему запросу по Западному берегу и Газе. Тематика не совпадает с искомой.",
+   "text": "irrelevant\nДокумент посвящен конвертингу и трансфертированной ограничениям для экономик в целом, а не в Западном берегу и Газе. Географический охват указан как «World», что не соответствует вашему запросу по Западному берегру.",
    "judged": {}
   },
   "unseen": true,
@@ -7363,7 +7363,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nA série estatística fornece dados anuais sobre mulheres migrantes internacionais na Botsuana, cobrindo o período de 1960 a 2023. Embora o tópico e a localização correspondam à busca, o item é uma série estatísticas, não um relatório documentado como solicitado.",
+   "text": "partly_relevant\nA série de indicadores cobre a Botswana e a população migante, alinhando-se ao tópico e à localização da busca. No entanto, trata-se de dados estatísticos anuais e não de um relatório, o que não atende ao tipo de documento solicitado.",
    "judged": {}
   },
   "unseen": true,
@@ -7582,7 +7582,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\n该指标系列涵盖accessibility verification指标，主题与数字身份验证相关，且覆盖169个国家，包含 Island，符合地点要求。但用户明确寻找的是数据集，而此项为统计指标序列，非原始微观数据集，因此仅部分相关。",
+   "text": "partly_relevant\n该指标系列涵盖 Island，且时间范围为2021年，符合“近年”的要求。但其定义为“数字身份验证”的“数据 kategorical”，而非用户查询的“数据集”，且未明确区分东北区，因此仅部分满足需求。",
    "judged": {}
   },
   "unseen": true,
@@ -7831,7 +7831,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nLa serie de activos estructurales de IED cubre Moldavia, pero no incluye Venezuela. El indicador mide activos estrangeiros como cartera equity, no la inversión extranjera directa solicitada en la búsqueda.",
+   "text": "partly_relevant\nLa serie Foreign assets cubre Moldavia, RB, satisfaciendo parcialmente la búsqueda geográfica. Sin embargo, no incluye datos para Venezuela, por lo que solo responde parcialmente a la consulta.",
    "judged": {}
   },
   "unseen": true,
@@ -8107,7 +8107,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nBu veri seti, 26 ülkede endüstriyel su withdrawalının toplam su çekimindeki payını yıllık olarak ölçer. Pakistan'ı kapsamadığı ve şehir şebeke suyu ile ilgili bir içerik sunmaz; yalnızca su kaynakları yönetimi verisi sunar.",
+   "text": "irrelevant\nBu veri seti, 26 ülke için endüstriyel su kaynaklarının toplam suihindeki payını yıllık olarak ölçer. Aradığınız Pakistan şehir şebeke suyu verisi ile coğrafi kapsam ve veri türü açısından örtüşme yoktur.",
    "judged": {}
   },
   "unseen": true,
@@ -8154,7 +8154,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nSurvei ini mencakup kesehatan keluarga di India, namun periode 2005-2006 tidak memenuhi permintaan data terbaru. Selain itu, cakupan subnasional untuk Chennai tidak disebutkan secara eksplisit dalam metadata, sehingga tidak dapat dikonfirmasi apakah data tersedia untuk wilayah tersebut.",
+   "text": "irrelevant\nSurvei ini mencakup India secara nasional, namun tidak menyebutkan detail subnasional untuk Chennai. Selain itu, data tahun 2005-2006 tidak memenuhi permintaan data tahun-tahun terakhir.",
    "judged": {}
   },
   "unseen": true,
@@ -8396,7 +8396,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह आइटम मॉरिटानिया के लिए प्रति व्यक्ति स्वास्थ्य व्यय (Current health expenditure per capita) का वार्षिक डेटा प्रदान करता है, जिसमें 1996-2005 अवधि शामिल है। हालाँकि, यह स्वच्छता कार्यकर्ता वितरण (care workforce finance) से संबंधित नहीं है, इसलिए यह खोज के विषय का उत्तर नहीं देता।",
+   "text": "partly_relevant\nयह आइटम मॉरिटानिया के लिए 1996-2005 की वार्षिक स्वास्थ्य खर्च (Current health expenditure per capita) प्रदान करता है, जो स्थान, समय और आवृत्ति की शर्तों को पूरा करता है। हालाँकि, यह स्वीकार्यकर्ताओं के वितरण के बजाय सामान्य स्व्यय व्यय (Current Health expenditure) को मापता है, इसलिए यह पूछे गए विशिष्ट विषय को प्रत्यक्ष रूप से नहीं पकड़ता।",
    "judged": {}
   },
   "unseen": true,
@@ -8443,7 +8443,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nThe survey covers Kenya and measures electricity access, matching the topic and location. However, the data collection period is 2016-2018, which does not satisfy the 2010 time constraint specified in the search.",
+   "text": "partly_relevant\nThe survey covers Kenya and addresses energy access, matching the topic and location. However, the data collection period is 2016-2018, which does not satisfy the 2010 time constraint specified in the search.",
    "judged": {}
   },
   "unseen": true,
@@ -8703,7 +8703,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\n该指标衡量的是移动货币账户账户的受访者比例，而非道主义需求。数据年份为2024年，未覆盖2020年，且未针对孤儿人群体。",
+   "text": "irrelevant\n该指标衡量的是受访者中移动货币账户的金融需求，而非孤儿人道主义需求。数据年份为2024年，未覆盖2020年，且主题与查询中的人道主义主题不符。",
    "judged": {}
   },
   "unseen": true,
@@ -8873,7 +8873,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nالمؤشر يقيس تغطية برامج شبكات الأمان الاجتماعي كنسبة مئوية من السكان، وهو ما يتوافق مع فئة الإعاقة المطلوبة. ومع ذلك، لا يوفر البيانات للسنوات 1996-2006، بل تغطي الفترة من 2000 إلى 2023 فقط. كما أن البيانات على مستوى الدول ولا تحدد فئة كبار السن تحديداً.",
+   "text": "partly_relevant\nالمؤشر يقيس تغطية برامج شبكة الأمان الاجتماعي كنسبة من السكان، وهو ما يتوافق مع فئة الإعاقة المطلوبة. ومع ذلك، لا يغطي الفترة المحددة 1996-2006 حيث تنتهي البيانات عند 2023، كما لا يحدد الوصف إن كانت البيانات مخصصة لكبار السن تحديداً.",
    "judged": {}
   },
   "unseen": true,
@@ -9036,7 +9036,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह आइटम न्यूक्लियर स्रोतों से बिजली उत्पादन का प्रतिशत मापता है, जबकि खोज फसफेट के लिए थी। समय अवधि 2010-2024 शामिल है, लेकिन विषय-वस्तु पूरी तरह भिन्न है।",
+   "text": "irrelevant\nयह आइटम न्यूक्लियर स्रोतों से बिजली उत्पादन का प्रतिशत मापता है, जबकि खोज फसफेट (fosfet) के लिए थी। समय अवधि 2010-2024 इसकी उपलब्धता (1990-2024) में शामिल है, लेकिन विषय-वस्तु पूरी तरह अलग है।",
    "judged": {}
   },
   "unseen": true,
@@ -9270,7 +9270,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "irrelevant\nयह आइटम 15-64 वर्ष की आयु वर्ग की जनसंख्या के लिए श्रम बल भागीदारी दर का एक सांख्यिकीय संकेतक है, न कि माइक्रोडेटा। खोज में माइग्रो डेटा या जनगणना आंकड़ों की मांग है, जबकि यह आइटम केवल एक संकालित संकीतक श्रृंखला है।",
+   "text": "irrelevant\nयह आइटम 15-64 वर्ष की आयु वर्ग की जनसंख्या का प्रतिशत दर्शाता है, न कि पुरुषों की श्रम बल भागीदारी दर। यह एक सांख्यिकीय संकेतक श्रृंखला है, जबकि आपकी खोज में सर्वेक्षण माइक्रोडेटा या जनगणना आंकड़ों की मांग है।",
    "judged": {}
   },
   "unseen": true,
@@ -9312,7 +9312,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nO documento aborda diretamente as ligações entre energia e gênero no desenvolvimento, analisando como o acesso à eletricidade afeta o bem-estar e o bem-être das mulheres. A passagem recuperada detalha como o projeto de energia rural afeta o acesso ao longo do tempo e a participação das mulérias em projetos de energia, alinhando-se perfeitamente ao tema da busca.",
+   "text": "relevant\nO documento aborda diretamente as ligações entre energia e gênero no desenvolvimento, revisando a literatura sobre o impacto da acesso à eletricidade. A passagem recuperada detalha especificamente os resultados do projeto, como a eletricité, o que atende ao tópico central da busca.",
    "judged": {}
   },
   "unseen": true,
@@ -9354,7 +9354,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nयह दस्तावेज़ सार्वजनिक शिक्षा व्यय और शिकारा व्यवहार के दक्षता के बीच दक्षता, क्षेत्रीय विश्लेषण के लिए दक्षता। यह विशेष रूप से विकासशील देशों के लाभों का विशिष्ट प्रभाव मापता है, जो आपकी खोज के विषय से पूरी तरह मेल खाता है।",
+   "text": "relevant\nयह दस्तावेज़ सार्वजनिक शिक्षा व्यय और शिकक्षकों की गुणवत्ता के बीच दक्षता का विश्लेषण करता है, जो आपकी खोज के विषय से पूरी तरह मेल खाता है। इसमें विशेष रूप से दक्षता, सारांशित विशिष्ट चर्चा शामिल है, जिससे यह प्रश्न का सीधा उत्तर देता है कि सारंभिक साराँशित सारक्षित व्यापक आर्थिक विशालेषण की तुलनात्मक विशस्तृत विस्तता होती है।",
    "judged": {}
   },
   "unseen": true,
@@ -9402,7 +9402,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nSeti hii ya data ya World Bank inaonyesha takwimu za soko la kazi na ulinzi wa kijamii nchini Venezuela. Inakidhi mahitaji ya eneo na aina ya data uliyotafuta, ikitoa taarifa za kila mwaka kutoka 1961 hadi 2025.",
+   "text": "relevant\nSeti hii ya data ya World Bank ina vigezo vya usalama wa kijamii na kazi kwa Venezuela, ikijumuisha data ya kila mwaka kutoka 1961 hadi 2025. Inakidhi mahitaji ya eneo na aina ya data uliyotafuta, ingawa inazingatia usalama badala ya jumla ya soko la kazi.",
    "judged": {}
   },
   "unseen": true,
@@ -9444,7 +9444,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nEl documento analiza directamente la política fiscal y la desigualdad en Jordania, analizando el impacto de los impuestos y subsidios públicos en la pobreza y la desequilibración. La abstracción confirma que el estudio examina cómo los gastos públicos afectan la pobrez y la deserción de ingresos, satisfaciendo la búsqueda sobre política fiscales y desigualda.",
+   "text": "relevant\nEl documento analiza directamente la política fiscal y la desigualdad en Jordania, examinando el impacto de los impuestos y gastos públicos en la pobreza y la desequilibrio. La investigación se centra en los países del sistema fiscal, incluyendo específicamente a Jordania y evalúa cómo las subvenciones y subsidios afectan la pobrece y la desinfluencia, satisfaciendo los criterios de lugar y tema de la búsqueda.",
    "judged": {}
   },
   "unseen": true,
@@ -9486,7 +9486,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nيحلل هذا الورقة البحثية الأثر على الوفاة بين الأجيال الناتجة عن سياسات الإغلاق الجمركية (SIR) خلال جائحة كوفيد-19. يوضح النص المسترجع أن سياسات اقتصادية لجائحة كورونا في 85 دولة، مما يجيب مباشرة على استفسارك حول الأثر على الأطفال.",
+   "text": "relevant\nيحلل هذا الورقة البحثية الأثر على الوفاة بين الأجيال الناتجة عن سياسات الإغلاق، وهو ما يطابق موضوع البحث بدقة. تغطي الدراسة 85 دولة على مستوى العالم، دون قيود جغرافية أو زمنية محددة في الاستعلام.",
    "judged": {}
   },
   "unseen": true,
@@ -9528,7 +9528,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nयह दस्तावेज़ ऋण भेद्यता विश्लेषण पद्धति का विषय है, जो आपकी खोज से पूरी तरह मेल खाता है। इसमें देशों के बाहर ऋण भंडारण के लिए एक माध्यमिक विशिष्ट चर्चा की गई है।",
+   "text": "relevant\nयह दस्तावेज़ ऋण भेद्यता विश्लेषण पद्धति का विधि प्रस्तुत करता है, जो आपकी खोज के विषय से पूरी तरह मेल खाता है। इसमें देशों के लिए एक बहु-निर्देशी विधायित विशिष्ट चर्चा शामिल है।",
    "judged": {}
   },
   "unseen": true,
@@ -9570,7 +9570,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nयह Policy Research Working Paper ताजिकिस्तान में जलवायु परिवर्तन adaptation के लिए एक राष्ट्रीय राषेट्र का विश्लेषण करता है। दस्तेवेज़ में जल संसाधन, खर्च और सार्वजनिक वित्तपोषण के संदर्भ में सारांश दिया गया है, जो आपकी खोज के अनुरूप है।",
+   "text": "relevant\nयह Policy Research Working Paper ताजिकिस्तान में जलवायु परिवर्तन के लिए क्रेडिट प्राथमिकताओं की समीक्षा करता है, जो आपकी खोज के विषय से पूरी तरह मेल खाता है। दस्ततावेज़ राष्ट्रीय रूप से ताजikिस्दान के घरेलू सर्वेक्षण का उपयोग करके जल संसाधनों और सार्वजनिक प्रबंधन पर चर्चा करता था।",
    "judged": {}
   },
   "unseen": true,
@@ -9612,7 +9612,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\n该政策研究论文直接探讨了条件现金转移项目对农村母亲时间分配的影响。文档明确指出，条件现 mon转移项为性别维度的影响，与查询主题完全一致。",
+   "text": "relevant\n该政策研究论文直接探讨了条件现金转移项目对巴基斯坦农村母亲时间分配的影响。研究利用实证实证实研究，分析了有条件现有条件转移项为性别差异，完全契合搜索主题。",
    "judged": {}
   },
   "unseen": true,
@@ -9654,7 +9654,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nيحلل هذا الورقة البحثية إدارة المالية العامة لإعادة الإعمار بعد الكوارث، وهو ما يطابق موضوع البحث بدقة. تؤكد المقتطفات المسترجعة أن المشروع يركز على استراتيجيات إدارة المخاطر المالية العاملة في إدارة المعلومات بعد الكوارد، مما يجعله مصدراً مباشراً للإجابة على استفسارك.",
+   "text": "relevant\nيحلل هذا الورقة البحثية إدارة المالية العامة لإعادة الإعمار بعد الكوارث، وهو ما يطابق موضوع البحث بدقة. تؤكد المقتطف المسترجع أن التقدم يحدد أن المشروع يؤثر على إدارة المخاطر المحلية، مما يجيب مباشرة على سؤال المستخدم حول كيفية إدارة هذه إدارة المياه.",
    "judged": {}
   },
   "unseen": true,
@@ -9709,7 +9709,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nEl conjunto de datos cubre Líbano en 2020, cumpliendo con las restricciones de lugar y tiempo de la búsqueda. Incluye información sobre las condiciones económicas de refugiados sirios y no sirios, lo que responde directamente a la consulta sobre el sector económico.",
+   "text": "relevant\nEl conjunto de datos cubre Líbano en 2020, cumpliendo con las restricciones de lugar y tiempo de la búsqueda. Incluye información sobre condiciones económicas y vulnerabilidad de hogares de refugiados sirios y no sirios, lo que responde directamente a la consulta sobre economía en ese año.",
    "judged": {}
   },
   "unseen": true,
@@ -9753,7 +9753,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "partly_relevant\nNyaraka hii inachunguza uhamiaji wa kimataifa nchini Uzbekistan, ambayo inalingana na mada ya utafutaji wako. Hata hivyo, imechapishwa mwaka 2019, si 2017 kama ulivyoomba, na data inayotumika ni ya utafiti wa kaya, si ya mwaka 2017.",
+   "text": "partly_relevant\nNyaraka hii inachunguza uhamiaji wa kimataifa nchini Uzbekistan, ambayo inalingana na mada ya utafiti wako. Hata hivyo, ilichapishwa mwaka 2019, si 2017 kama ulivyoomba, na data inayotumika ni ya utafutaji wa utafiti badala ya takwimu za mwaka 2017.",
    "judged": {}
   },
   "unseen": true,
@@ -9795,7 +9795,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nDokumen ini adalah tinjauan kebijakan subnasional untuk negara berkembang, yang secara langsung menjawab pencarian mengenai subnasional credit ratings. Abstrak dan cuplikan teks secara eksplisit membahas metodologi untuk menguji peringkat kredit subnasional dan tantangannya, serta memberikan tinjau untuk menilai keberadaan transparansi modal.",
+   "text": "relevant\nDokumen ini adalah Policy Research Working Paper yang membahas metodologi untuk mengukur tingkat kredit subnasional, yang sesuai dengan pencarian Anda. Abstrak dan bagian yang diambil secara spesifik menyoroti peran subnasional dalam kredit ratings subnasional dan target reformasi, tanpa batasan wilayah atau waktu yang dilanggar.",
    "judged": {}
   },
   "unseen": true,
@@ -9998,7 +9998,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nO indicador QI4SD People component mede o componente de People, alinhando-se ao tópico da busca. A série anual cobre o período de 2022 a 2024, satisfazendo o filtro temporal solicitado. Os dados estão disponíveis para 160 países e economias.",
+   "text": "relevant\nO indicador QI4SD People component do banco de dados UNIDO_QI4Sd cobre o período de 2022 a 2024, satisfazendo a restrição temporal da busca. A série anual avalia a contribuição da infraestrutura de qualidade para bem-estar social e inclusão, alinhando-se ao tópico solicitado.",
    "judged": {}
   },
   "unseen": true,
@@ -10131,7 +10131,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nИндикатор CPIA Macroeconomic management rating из базы CPI A. Economic Management ratings предоставляет ежегодные данные за 2005–2024 годы для 90 стран. Это соответствует запросу на последние данные, так как последний доступный год — 2024.",
+   "text": "relevant\nПоказатель CPIA Macroeconomic management rating из базы WB_WDI соответствует запросу на рейтинг макроэкономического управления. Данные доступны ежегодно за период 2005–2024 годов, что удовлетворяет условию актуальности информации.",
    "judged": {}
   },
   "unseen": true,
@@ -10173,7 +10173,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nDokumen ini menganalisis dampak restrictions emisi karbon di Mesir, yang sesuai dengan topik pencarian. Studi ini menggunakan model equilibrium untuk mengevaluasi dampak ekonomi dari emisi karbon di Mesir.",
+   "text": "relevant\nDokumen ini menganalisis dampak restrictions emisi karbon terhadap kesejahteraan di Mesir menggunakan model equilibrium umum. Studi ini menggunakan model equalitibrium untuk mengevaluasi dampak emisi karbbon, yang sesuai dengan permintaan pencarian Anda mengenai wilayah Mesir.",
    "judged": {}
   },
   "unseen": true,
@@ -10215,7 +10215,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nEl documento analiza el impacto del Green Watch en China, evaluando un programa de calidad ambiental. La investigación utiliza datos de panel para evaluar la eficacia de las emisiones de PROPER, lo que responde directamente a la búsqueda sobre pollution en China.",
+   "text": "relevant\nEl documento analiza el programa Green Watch en China, evaluando el impacto de un programa de desempeño verde. La investigación evalúa la eficacia de las emisiones de PROPER y su impacto en las empresas, lo que responde directamente a la búsqueda sobre pollution en ese país.",
    "judged": {}
   },
   "unseen": true,
@@ -10257,7 +10257,7 @@
   },
   "labels_missing": [],
   "offline": {
-   "text": "relevant\nEl documento analiza directamente el impacto global de la exposición a inundaciones en 189 países durante el período de 1 a 100 años. La abstracción confirma que el estudio examina cómo el riesgo de intenciones fluviales afectan la pobreza, satisfaciendo la consulta sobre el impacto global en la pobrez.",
+   "text": "relevant\nEl documento analiza directamente el impacto global de la exposición a inundaciones en el PIB, utilizando estimaciones globales de 189 países. La abstracción confirma que el estudio examina cómo la exposição a desastres afecta la población, satisfaciendo la consulta sobre la relación entre inundaciones y pobreza.",
    "judged": {}
   },
   "unseen": true,

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[3]
 def main() -> None:
     rows = [json.loads(l) for l in (ROOT / "data/real_test/examples_labeled.jsonl").read_text().splitlines()]
     gen = {}
-    p = ROOT / "runs/v2d-nosim-dpo/realtest_generations_int8.jsonl"
+    p = ROOT / "runs/v2e-nosim-dpo/realtest_v3_generations_int8.jsonl"
     if p.exists():
         for r, g in zip(rows, [json.loads(l) for l in p.read_text().splitlines()]):
             gen[r["id"]] = g["generated"]

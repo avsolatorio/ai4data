@@ -968,3 +968,30 @@ Commit: 8b360af (round D chain); this commit (app). Run `runs/v2d-nosim-dpo`: on
 - Round E slices (`data/real_phen/p1`): 13,376 searches labelled, Gemma 4 agrees with the teacher on 75.1%; 10,046 agreed rows kept (about 1,000 to 1,200 for each of the eight weak phenomena). Replacement new-type chunks c9, c13 to c16 complete.
 
 **Implication.** `runs/v2d-nosim-dpo` replaces the no-score model in the app. The concept-vocabulary failures persist for specific concepts (population and inhabitants, income and GDP per capita), which supports the concept-inventory approach; threshold, negation and look-alike remain the targets for deterministic checks.
+
+## 2026-10-08 04:15 UTC — Round E: deterministic constraints, concept rules and concept inventory; challenge suite 64% to 71%
+
+Commits: 14df8ad and 4c3031b (render version 3: `synth/constraints.py`, `Understander.parse(level=3)`, checks; concept rules in NARRATE_V2), a58128f (round E driver), eea1da7 (keep-alive in tmux). Runs `runs/v2e-nosim`, `runs/v2e-nosim-dpo`.
+
+**Question/Context.** Round D left the challenge phenomena that need number comparison or negation flat (threshold 45%, negation 50%, look-alike 52%) and synonyms at 53%. Would deterministic checks plus concept-vocabulary data fix them?
+
+**What was done.**
+1. Render version 3: query understanding states money-per-day thresholds, age bands, units (percentage, count, per person or population, money value), excluded places, groups and terms (explicit cues only, in 11 languages, including CJK and postpositions), and named periods (2008 crisis, Ebola, Arab Spring, last decade, fiscal years); the checks compare each with the record. Rows narrated earlier keep their version. 156 tests. On 20,000 earlier searches the new constraints fire rarely and the samples read were almost all correct after removing "without/sans/sin/без" and "how much" words (which name concepts, for example "sans emploi", "без гражданства"). On the challenge suite they fire on 97 of 150 threshold and 118 of 149 negation searches.
+2. Concept rules added to the teacher's prompt (synonyms and common names are the same concept; the standard measure answers a broad concept; proxies and different thresholds are partly relevant with the difference stated). On the user's ten probes the teacher and Gemma 4 then agree on all ten (8 relevant; "$2 a day" for a $1.90 line and "average income per person" for GDP per capita partly relevant).
+3. Data: the 13,376 phenomenon searches relabelled at version 3 with the new rules (agreed rows kept, twice); a concept inventory of 2,000 Data360 indicators (everyday names, synonyms, acronyms, broader terms, proxies, threshold variants, related concepts, look-alikes) turned into searches and labelled (agreed rows kept, twice); replacement new-type chunks. Training split 966,387 (concepts 19,742 and phenomena 16,674 counting repeats; types 80,084).
+4. Continued `runs/v2d-nosim`, lr 2e-4, 2 epochs; DPO as before. Evaluated on version-3 copies of the test sets (same searches, records and labels; Understood and Checks lines re-rendered).
+
+**Result.** Version-3 test sets (round D evaluated on the same inputs as the baseline):
+| Test set | D + DPO | E (supervised) | E + DPO |
+|---|---|---|---|
+| Realistic (unanimous) | 84.9% (92.5%) | 85.5% (91.5%) | 84.5% (91.7%) |
+| Paraphrase set | 79.7% | 81.5% | 80.5% |
+| Nine-type NADA set | 79.8% | 80.4% | 80.4% |
+| Challenge suite (unanimous) | 63.8% (69.4%) | 70.6% (77.0%) | 69.5% (77.1%) |
+| Faithful, teacher / Gemma 4 judge | 4.50 / 4.66 | not judged | 4.55 / 4.70 |
+
+Challenge by phenomenon, D + DPO / E supervised: threshold 46.7% / 68.0%; synonym 52.7% / 66.7%; proxy 40.0% / 52.7%; group definition 46.0% / 60.0%; standard measure 56.0% / 64.0%; time phrase 59.1% / 66.4%; acronym 70.0% / 77.3%; multi-ask 74.5% / 82.6%; question 87.3% / 90.7%; negation 49.7% / 50.3%; look-alike 54.4% / 55.0%.
+
+Ten probes, against the teacher-and-Gemma labels under the new rules: E + DPO agrees on 8 (D + DPO on 6). Still wrong: "extreme poverty rate" (partly relevant; label relevant) and "average income per person Peru" (irrelevant; label partly relevant). Narrative glitches seen: "$1.000 a day" for $1.90, and an Indonesian stem inside a French verb.
+
+**Implication.** Explicit threshold and unit checks moved the threshold phenomenon by 21 points and the concept data moved synonyms, proxies and standard measures by 8 to 14 points, with the realistic test unchanged. Negation and look-alike did not move although exclusions are now stated: the next step there is to read the challenge errors and the labels (Gemma 4 and the teacher agree least on these). The challenge suite is now partly in-distribution (same phenomenon definitions in training), so an independent check is still needed. `runs/v2e-nosim-dpo` with version-3 inputs replaces the app's no-score model.
