@@ -46,4 +46,13 @@ export const cookbooks = [
     chapters: 6,
     to: '/cookbook/serving-statistics-to-agents/',
   },
+  {
+    id: 'metadata-curation-with-llms',
+    audience: 'Metadata curators and their managers in national statistical organizations',
+    title: 'Practical Guide to Metadata Curation with Language Models',
+    description:
+      'Six questions a curation team can ask before and after using language models to draft, assess, and standardize metadata, each answered with recipes that keep the curator in charge. Builds on the Generative AI for Metadata Quality work and the Metadata Reviewer.',
+    chapters: 6,
+    to: '/cookbook/metadata-curation-with-llms/',
+  },
 ];
