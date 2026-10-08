@@ -56,6 +56,8 @@ with every AI component stopped.
    never depend on the AI layer.
 4. Repeat after any architecture change.
 
+**What this does not do.** The switch-off test proves that the data layer stands without the AI layer. The AI layer's own failure modes, such as a model update that changes answers, are the evaluation suite's to catch.
+
 </Recipe>
 
 <Recipe title="9.2 Estimate the cost per query before launch" level="AI-ready" skills="Developer; finance" time="Half a day">
@@ -73,6 +75,8 @@ users, and a basis for choosing between hosted and local models.
 4. Multiply by expected queries per month, with a low and a high estimate.
 5. Record the estimate with the date and prices used. Revisit quarterly;
    prices and usage both change.
+
+**What this does not do.** An estimate from fifty questions at today's prices is a planning figure. Usage, prices, and tokens per answer all change, the quarterly revisit is part of the recipe, and the measured cost per query after launch replaces the estimate.
 
 </Recipe>
 
@@ -96,6 +100,8 @@ The program's [Efficient and Inclusive AI Applications](/docs/inclusive-ai/)
 page compares model sizes by task and describes batch processing and locally
 hosted models.
 
+**What this does not do.** The smallest model that passes the suite is tested on what the suite covers. A new task needs new questions before a smaller model is trusted on it, and the scores of the larger models stay on file as the reference.
+
 </Recipe>
 
 ## Implementation options
@@ -112,6 +118,14 @@ hosted models.
 - [Efficient and Inclusive AI Applications](/docs/inclusive-ai/) compares model sizes by task and describes batch processing and local models.
 - The program publishes its methods and software as open resources in the [GitHub repository](https://github.com/worldbank/ai4data).
 - The [PI-FT deployment guide](/pift-toolkit/deployment) describes serving and refreshing a fine-tuned embedding model.
+
+## Resources
+
+- [GSBPM](https://unece.org/statistics/modernstats/gsbpm): the production model each AI component is placed in.
+- [Efficient and Inclusive AI Applications](/docs/inclusive-ai/): model size by task, batch processing, and local open-weight deployment, the basis of recipes 9.2 and 9.3.
+- [litellm](https://github.com/BerriAI/litellm): a provider-agnostic client that lets a model be replaced without rewriting the application.
+- [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard) and [MTEB](https://huggingface.co/spaces/mteb/leaderboard): where to find candidate open-weight generation and embedding models to run through the suite.
+- [Evaluation chapter](./evaluate.mdx): the suite that the switch-off test, the cost estimate, and the model choice all run against.
 
 ## Common mistakes
 

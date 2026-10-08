@@ -61,6 +61,8 @@ for in dissemination, and who decides.
 4. Publish the policy. Transparency about AI use is part of the method
    documentation.
 
+**What this does not do.** A policy states what is allowed. Whether it is followed shows in the register (recipe 8.2) and the tests (recipe 8.3), and a policy without a named approver and a review date is a statement of intent.
+
 </Recipe>
 
 <Recipe title="8.2 Keep an AI component register" level="AI-ready" skills="Whoever owns the policy" time="One hour per component; review twice a year">
@@ -76,6 +78,8 @@ model it uses, what data it sees, and how it would be replaced.
    tests, and data are in version control and a second provider has been
    tried ([chapter 9](./sustain.mdx)).
 3. Review every row on the `next_review` date and record the result.
+
+**What this does not do.** The register lists components and does not evaluate them. A component's scores live in the evaluation suite of [chapter 6](./evaluate.mdx), and the register's next-review date is the prompt to look at them.
 
 </Recipe>
 
@@ -100,6 +104,8 @@ content.
 4. Limit the damage a successful injection could do: read-only tools, no
    access to unpublished data, rate limits, and logging.
 
+**What this does not do.** The test inputs cover the injections the organization thought of. New forms appear, and a system that passes today's set is protected against today's set; the damage limits in step 4 are what hold when a new form gets through.
+
 </Recipe>
 
 ## Implementation options
@@ -116,6 +122,14 @@ content.
 
 - [Efficient and Inclusive AI Applications](/docs/inclusive-ai/) describes provider-agnostic configuration and the use of locally hosted open-weight models.
 - The [Metadata Reviewer](/docs/metadata-reviewer/overview) keeps the reviewer in the loop through a review board for AI suggestions.
+
+## Resources
+
+- [ISO/IEC 42001](https://www.iso.org/standard/42001) and the [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework): management and risk frameworks the policy and the register fit into.
+- [UN Fundamental Principles of Official Statistics](https://unstats.un.org/fpos/): the professional responsibility the policy restates for AI use.
+- [OWASP Top 10 for LLM applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/): prompt injection and the other risks the tests of recipe 8.3 cover.
+- [sdcMicro practice guide](https://sdcpractice.readthedocs.io/): statistical disclosure control before data reach any tool.
+- [AI-use policy template](pathname:///cookbook-files/ai-ready-dissemination/ai_use_policy_template.md) and [AI component register](pathname:///cookbook-files/ai-ready-dissemination/ai_component_register.csv): the running example's policy and register.
 
 ## Common mistakes
 

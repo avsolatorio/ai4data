@@ -73,6 +73,8 @@ https://stats.example/series/FS_UNDERNOURISH_PCT. Accessed [date].
 6. When a series is discontinued or replaced, keep the page and add a notice
    that names the replacement.
 
+**What this does not do.** A citation block tells people how to cite and cannot make them cite. The monitoring of [chapter 7](./monitor-use.mdx) shows whether the format is used, and the DOI is what makes citations countable through the identifier services.
+
 </Recipe>
 
 <Recipe title="5.2 Return provenance with every API response" level="AI-ready" skills="Backend developer" time="One day">
@@ -100,6 +102,8 @@ response to cite it correctly.
 3. For a superseded series, return the replacement id in the error or the
    record.
 4. Test: fetch any value and write the citation from the response alone.
+
+**What this does not do.** The provenance fields identify the source of a response; they do not show that the values were quoted unchanged afterwards. Recipe 5.3 checks the numbers in an answer against the response, which is the second half.
 
 </Recipe>
 
@@ -158,6 +162,14 @@ part that needs the paper's approach.
 - The [Microdata Library](https://microdata.worldbank.org/) assigns a DataCite DOI and a citation requirement to each dataset, and [World Bank datasets](https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets) carry the CC BY 4.0 licence by default.
 - [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) checks each number in a chatbot answer against the official record and marks it as verified or flagged. The [home page](/) shows an example.
 - [Anomaly Detection and Explanation](/docs/anomaly-detection/) classifies unusual values in a series and cites the evidence, which supports review before publication.
+
+## Resources
+
+- [DataCite](https://datacite.org/) and the [DataCite metadata schema](https://schema.datacite.org/): DOI registration and the citation metadata for datasets.
+- [Creative Commons BY 4.0](https://creativecommons.org/licenses/by/4.0/) and the [World Bank terms of use for datasets](https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets): the licence text and a published example of its application.
+- [W3C PROV](https://www.w3.org/TR/prov-overview/) and [DDI-CDI](https://ddialliance.org/ddi-cdi): provenance vocabularies for exchange as linked data.
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902): the method behind recipe 5.3.
+- [verify_numbers.py](pathname:///cookbook-files/ai-ready-dissemination/verify_numbers.py): the number check of recipe 5.3; [dataset.jsonld](pathname:///cookbook-files/ai-ready-dissemination/dataset.jsonld): the page markup with source and licence.
 
 ## Common mistakes
 

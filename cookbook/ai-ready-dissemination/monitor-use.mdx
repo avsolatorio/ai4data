@@ -62,6 +62,8 @@ HBS,Household Budget Survey,HBS,household survey;budget survey;HBS 2021
    citations of DOIs from the literature, which gives a second source of
    use next to text mining.
 
+**What this does not do.** The table makes mentions matchable and finds none. The extraction of recipe 7.2 and the [monitoring cookbook](/cookbook/monitoring-data-use/) use it, and the variants column grows from what they find.
+
 </Recipe>
 
 <Recipe title="7.2 Find mentions in publications" level="AI-ready" skills="Analyst; Python for the automated version" time="One day a quarter by hand; one week to automate">
@@ -79,6 +81,8 @@ document, with a measured accuracy.
    with GLiNER and its harmonization step.
 3. Measure: label 50 documents by hand and compute precision and recall of
    the extraction. Report use counts with that accuracy next to them.
+
+**What this does not do.** Hand search finds what the searcher thinks to look for; the extraction finds what the collected documents contain. Neither sees documents nobody collected, and the accuracy measured in step 3 holds for the labelled documents' types and languages.
 
 </Recipe>
 
@@ -104,6 +108,8 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 4. Treat the results as a sample that changes month to month. Report trends
    over several months, and avoid conclusions from one run.
 
+**What this does not do.** Ten questions to two or three assistants sample what assistants said in one month, and assistants change without notice. Trends over several months are the evidence; a single run is an anecdote.
+
 </Recipe>
 
 ## Implementation options
@@ -117,6 +123,14 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
 ## World Bank examples
 
 - [Monitoring of Data Use](/docs/data_use/) documents dataset-mention extraction with GLiNER, harmonization of name variants, and structured output.
+
+## Resources
+
+- [Practical Guide to Monitoring Data Use](/cookbook/monitoring-data-use/): the full workflow this chapter summarizes, from access statistics and identifier citations to mention extraction and reporting.
+- [COUNTER Code of Practice for Research Data](https://coprd.countermetrics.org/) and [Make Data Count](https://makedatacount.org/): the counting rules and the metrics initiative.
+- [DataCite Event Data guide](https://support.datacite.org/docs/eventdata-guide) and [OpenAlex](https://help.openalex.org/): citation events for datasets with DOIs.
+- [Monitoring of Data Use](/docs/data_use/): the program's mention extraction with GLiNER and harmonization of name variants.
+- [Canonical names table](pathname:///cookbook-files/monitoring-data-use/canonical_names.csv) from the monitoring cookbook: the template for recipe 7.1.
 
 ## Common mistakes
 

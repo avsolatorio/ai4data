@@ -142,6 +142,8 @@ those suggestions in front of a curator. Run the three layers above first,
 because a semantic check on records with empty fields has nothing to work
 with.
 
+**What this does not do.** The three layers check form. A record can pass all of them with a definition that is wrong, and the profile is only as good as the fields the organization chose to require. The assessment of the [curation cookbook](/cookbook/metadata-curation-with-llms/assess) and a subject-matter review judge the content.
+
 </Recipe>
 
 <Recipe title="1.2 Publish a schema.org Dataset record on every series page" level="AI-ready" skills="Web developer with access to the page template" time="Half a day for the template, then automatic">
@@ -178,6 +180,8 @@ catalog. DCAT and schema.org markup can coexist. For datasets that are
 published for model training, [Croissant](https://mlcommons.org/croissant/)
 extends the same schema.org record with the fields machine-learning tools
 need to load the data.
+
+**What this does not do.** Markup makes a page readable by crawlers; it does not get the page indexed or ranked. Indexing depends on the sitemap, crawlability, and the search engine's own policies, and takes weeks, so the check in step 5 is the only evidence that it worked.
 
 </Recipe>
 
@@ -264,6 +268,15 @@ model on structured records when a general model is not good enough.
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) scores indicator metadata on completeness, semantic alignment, specificity, and consistency.
 - [Metadata Augmentation](/docs/metadata-augmentation/) groups survey variables into DDI-style themes.
 - [Data Discoverability](/docs/data-discoverability/) describes semantic search over indicator catalogs, and the [PI-FT toolkit](/pift-toolkit/pipeline) fine-tunes embedding models for structured metadata.
+
+## Resources
+
+- [World Bank metadata schemas](https://github.com/worldbank/metadata-schemas): the record schemas for every data type, the JSON Schema files the checker validates against, and the Python library.
+- [Metadata Editor user and practice guide](https://worldbank.github.io/metadata-editor-docs): documenting records in these schemas with templates and validation, and publishing to NADA.
+- [schema.org Dataset](https://schema.org/Dataset), [Google's dataset structured-data guide](https://developers.google.com/search/docs/appearance/structured-data/dataset), and the [Rich Results Test](https://search.google.com/test/rich-results): the markup and the tool to verify it on a page.
+- [DCAT 3](https://www.w3.org/TR/vocab-dcat-3/) and [Croissant](https://mlcommons.org/croissant/): catalog and machine-learning dataset descriptions, exported by the Metadata Editor.
+- [Sentence Transformers](https://www.sbert.net/) and [rank_bm25](https://github.com/dorianbrown/rank_bm25): the embedding and keyword components of the search in recipe 1.3; the [PI-FT toolkit](/pift-toolkit/pipeline) for fine-tuning.
+- [Metadata checker](pathname:///cookbook-files/ai-ready-dissemination/check_metadata.py) and the [profiles](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json): the three-layer check of recipe 1.1.
 
 ## Common mistakes
 

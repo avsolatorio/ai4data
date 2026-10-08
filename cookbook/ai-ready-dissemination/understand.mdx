@@ -72,6 +72,8 @@ without translation:
 3. Add the template to the release checklist so that new indicators arrive
    with it filled.
 
+**What this does not do.** The template produces consistent text and says nothing about whether the text is right. The subject-matter statistician writes the method, and the assessment of the [curation cookbook](/cookbook/metadata-curation-with-llms/assess) checks that the name and the definition agree.
+
 </Recipe>
 
 <Recipe title="3.2 Publish code lists and crosswalks" level="AI-ready" skills="Data manager; classification specialist for the crosswalk" time="One to two days per code list">
@@ -113,6 +115,8 @@ national_code,national_label,target_classification,target_code,mapping
    already defines the structure and code lists for SDG indicator reporting.
    For surveys, DDI Codebook holds the variable labels and value codes.
 
+**What this does not do.** The lists and crosswalks cover the codes in the data files, and the audit in step 3 finds codes without a list, never codes with a wrong label. A crosswalk between versions of the same classification (ISIC Rev. 3 to Rev. 4) is a separate table, published the same way.
+
 </Recipe>
 
 <Recipe title="3.3 Record breaks and revisions as data" level="AI-ready" skills="Data manager" time="Half a day to set up; part of each release">
@@ -136,6 +140,8 @@ FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
 4. Make the API return `OBS_STATUS` with each observation (see the OpenAPI
    example in [chapter 2](./retrieve.mdx)).
 
+**What this does not do.** Status codes and the revisions file record what changed, without the reasons. The series record's break and errata fields and the methodology note carry those, and a system that reads only the values file sees the flags without them.
+
 </Recipe>
 
 ## Implementation options
@@ -153,6 +159,15 @@ FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
 - [Metadata Augmentation](/docs/metadata-augmentation/) generates DDI-style variable groups from data dictionaries, with human review.
 - [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality) checks that an indicator's name and definition describe the same concept.
 - The [AI-ready data framework](/docs/ai-ready-framework) lists the attributes, including standards and semantic knowledge, that make data interpretable.
+
+## Resources
+
+- [SDMX Content-Oriented Guidelines](https://sdmx.org/?page_id=4345): cross-domain concepts and code lists to reuse.
+- [DDI Codebook 2.5](https://ddialliance.org/Specification/DDI-Codebook/2.5/) and [DDI Lifecycle 3.3](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/): variable-level documentation and reusable questions and concepts; the [microdata cookbook](/cookbook/microdata-documentation/) applies them.
+- [UN classifications registry](https://unstats.un.org/unsd/classifications/): ISIC, CPC, COICOP, and correspondence tables; [ISCED](https://uis.unesco.org/en/topic/international-standard-classification-education-isced) and [ISCO](https://www.ilo.org/public/english/bureau/stat/isco/).
+- [SKOS](https://www.w3.org/TR/skos-reference/), [XKOS](https://ddialliance.org/xkos), and [GSIM](https://unece.org/statistics/modernstats/gsim): concept schemes, classifications, and the names of statistical information objects.
+- [SDMX `OBS_STATUS` code list](https://sdmx.org/?page_id=3215): the status codes for breaks, revisions, and estimates in recipe 3.3.
+- [Metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv): the definition and method template of recipe 3.1.
 
 ## Common mistakes
 

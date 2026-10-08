@@ -78,6 +78,8 @@ that does not change between releases.
    or [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/) metadata,
    so that tools know the column types.
 
+**What this does not do.** A tidy file at a stable URL serves one series; a catalog of hundreds needs the bulk file and the API of recipe 2.2 for selection by area and period. The example has five columns; each added dimension (sex, age group) is a column with its own code list in [chapter 3](./understand.mdx).
+
 </Recipe>
 
 <Recipe title="2.2 Describe the API with OpenAPI" level="AI-ready" skills="Backend developer" time="One to two days for an existing API">
@@ -122,6 +124,8 @@ The steps below are for an organization with a custom REST API.
 4. State the terms of use, the rate limit, and a contact in the `info` block.
 5. Test: a colleague who did not build the API retrieves one known value
    using only the description.
+
+**What this does not do.** The minimal description covers three endpoints and leaves out authentication, pagination beyond a limit parameter, and bulk queries. An SDMX web service covers those through the standard; a custom API adds them as the [agents cookbook](/cookbook/serving-statistics-to-agents/access) describes for access control.
 
 </Recipe>
 
@@ -181,6 +185,15 @@ architecture and the tools an MCP server for official statistics can expose.
 - The [Data360 MCP server](https://github.com/worldbank/data360-mcp) exposes Data360 to AI clients through the Model Context Protocol.
 - [Model Context Protocol for AI-centric data dissemination](/docs/mcp/) describes the architecture and the tools an MCP server for official statistics can expose.
 - [Data Snapshots](https://arxiv.org/abs/2606.06242) covers layout detection models that locate figures and tables in PDF documents so that the data inside them can be extracted. The [home page](/) shows an example.
+
+## Resources
+
+- [SDMX](https://sdmx.org/) standards and the [SDMX REST API](https://github.com/sdmx-twg/sdmx-rest): the exchange format and the API for aggregate statistics; [sdmx-csv](https://github.com/sdmx-twg/sdmx-csv) for the file form.
+- [OpenAPI](https://www.openapis.org/) and [Swagger UI](https://swagger.io/tools/swagger-ui/): describing a REST API and publishing its documentation from the description.
+- [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/) and [Frictionless Table Schema](https://specs.frictionlessdata.io/table-schema/): column descriptions published beside a CSV file.
+- [Model Context Protocol](https://modelcontextprotocol.io/) and the [Python SDK](https://github.com/modelcontextprotocol/python-sdk): the agent interface standard and its server library; the [agents cookbook](/cookbook/serving-statistics-to-agents/) covers the full design.
+- [Data360 MCP server](https://github.com/worldbank/data360-mcp): a server in operation over a statistical API.
+- [Example values file](pathname:///cookbook-files/ai-ready-dissemination/example_values.csv), [OpenAPI description](pathname:///cookbook-files/ai-ready-dissemination/openapi_minimal.yaml), and [MCP server example](pathname:///cookbook-files/ai-ready-dissemination/mcp_server_example.py): the running example's files.
 
 ## Common mistakes
 

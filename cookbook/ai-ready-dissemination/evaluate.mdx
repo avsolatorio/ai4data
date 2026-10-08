@@ -68,6 +68,8 @@ Guidelines for writing questions:
    its French and Spanish rows as unreviewed.
 6. Keep the file in version control and record who added each question.
 
+**What this does not do.** A question set written by the organization reflects what the organization expects users to ask. Real queries from search logs (recipe 4.1) and failed answers (recipe 4.3) correct it over time; a set that is never extended measures last year's users.
+
 </Recipe>
 
 <Recipe title="6.2 Score retrieval automatically" level="AI-ready" skills="Python" time="Two hours">
@@ -135,6 +137,8 @@ step that reports Recall@k, MRR, and nDCG@k and compares several embedding
 models on the same queries, and its [method page](/pift-toolkit/method)
 describes graded evaluation with an LLM judge.
 
+**What this does not do.** Automatic scores cover numbers, citations, and refusals; the grader covers the rest with an error rate known from the reviewer's checks. An answer that is right and unhelpful (the right series without the caveat the user needed) scores as right unless the rubric names the caveat.
+
 </Recipe>
 
 ## Measures
@@ -151,6 +155,21 @@ describes graded evaluation with an LLM judge.
 - **Citation validity:** the share of citations that resolve and support the statement.
 - **Refusal accuracy:** the share of unanswerable questions that the system declines.
 - **Hallucination rate:** the share of answers that contain a claim with no support in the retrieved records.
+
+## Implementation options
+
+- **Question sets:** a versioned CSV with expected ids, languages, paraphrase flags, and `NONE` rows; real queries added each month.
+- **Retrieval scoring:** the script in this chapter (Recall@k, MRR); ranx or the PI-FT pipeline's evaluation step for larger suites and more measures.
+- **Answer scoring:** automatic checks for numbers, citations, and refusals; a language-model grader with a rubric and a reviewed share of grades; Inspect or a similar framework for suites with tool use.
+- **Gates:** scores kept per change of model, index, prompt, or metadata; publication blocked below the previous run.
+
+## Resources
+
+- [Evaluation questions](pathname:///cookbook-files/ai-ready-dissemination/eval_questions.csv) and [score_retrieval.py](pathname:///cookbook-files/ai-ready-dissemination/score_retrieval.py): the running example's question set and the retrieval scorer.
+- [BEIR](https://github.com/beir-cellar/beir) and [MTEB](https://huggingface.co/spaces/mteb/leaderboard): retrieval benchmarks and the measures (recall, MRR, nDCG) the scorer follows, for comparison with published models.
+- [ranx](https://github.com/AmenRa/ranx): a library for information retrieval evaluation with the standard measures, for suites larger than the script here.
+- [Inspect](https://inspect.ai-safety-institute.org.uk/): an open-source framework for answer-level evaluation of language model systems with graders.
+- [Data Discoverability](/docs/data-discoverability/) and the [PI-FT toolkit](/pift-toolkit/pipeline): the program's evaluation of search by meaning over structured records.
 
 ## Common mistakes
 
