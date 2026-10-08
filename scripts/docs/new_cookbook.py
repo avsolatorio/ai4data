@@ -40,6 +40,11 @@ def camel(slug: str) -> str:
     return head + "".join(p.capitalize() for p in rest)
 
 
+def js(text: str) -> str:
+    """Escape a value for a single-quoted JavaScript string."""
+    return text.replace("\\", "\\\\").replace("'", "\\'")
+
+
 def fill(text: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         text = text.replace("{{" + key + "}}", value)
@@ -141,9 +146,9 @@ def main(argv: list[str] | None = None) -> int:
         card = (
             "  {\n"
             f"    id: '{args.id}',\n"
-            f"    audience: '{args.audience}',\n"
-            f"    title: '{args.title}',\n"
-            f"    description:\n      '{description}',\n"
+            f"    audience: '{js(args.audience)}',\n"
+            f"    title: '{js(args.title)}',\n"
+            f"    description:\n      '{js(description)}',\n"
             f"    chapters: {len(chapters)},\n"
             f"    to: '/cookbook/{args.id}/',\n"
             "  },\n"

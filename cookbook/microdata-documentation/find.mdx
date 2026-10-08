@@ -1,0 +1,159 @@
+---
+id: find
+title: "1. Findability of surveys"
+sidebar_label: "1. Find"
+sidebar_position: 2
+description: Study-level documentation in the DDI-based World Bank schema, catalog publication, persistent identifiers, and schema.org markup so that people and AI systems find the survey.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Findability of surveys
+
+**Question:** Can people and AI find the survey?
+
+## Rationale
+
+A survey that exists only as a report and a data file on a shared drive is
+invisible to search engines, to catalog harvesters, and to AI systems. The
+study-level record is what all of them read: the title, the abstract, the
+collection dates, the coverage, the universe, and the sampling. When the
+record follows a published schema and sits in a catalog, it can be found by
+a person typing a question, harvested by another catalog, and cited with a
+persistent identifier.
+
+Microdata have a second findability problem that indicators do not: users
+look for a variable ("age of household head") as often as for a survey.
+That part is handled in [chapter 4](./navigate.mdx); this chapter makes the
+survey itself findable.
+
+## Target state
+
+- Every survey has a study record in the World Bank microdata schema (DDI Codebook), with the fields of the recommended profile filled.
+- The record is published in a catalog that exposes it to crawlers and harvesters, with schema.org markup on the page.
+- The survey has a persistent identifier, with a DOI where the organization can register one.
+- The record is kept current across versions and editions.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write a study record with title, abstract, collection dates, country, universe, analysis unit, sampling, and citation requirement. Publish it on a page with a permanent URL. |
+| **AI-ready** | Store the record in the World Bank microdata schema, through the Metadata Editor or as JSON. Publish it in NADA or an equivalent catalog that emits schema.org markup. Register a DOI. Check the record against the completeness profile. |
+| **AI-native** | Keep the record current through versions, expose the variables to variable-level search ([chapter 4](./navigate.mdx)), and let the catalog's API and agent interface serve the record to software. |
+
+:::info[Running example]
+The study record for `EX-LFS-2025-Q2` already passes the schema and the
+foundational profile. The recipes here show what the record contains, how
+it is validated, and what the AI-ready profile still asks for.
+:::
+
+## Recipes
+
+<Recipe title="1.1 Write the study record in the World Bank microdata schema" level="Foundational" skills="Data curator; the Metadata Editor or a text editor" time="Half a day per survey">
+
+**Result:** a study record that a catalog can import and that passes the
+schema and the organization's completeness profile.
+
+1. Document the survey in the [Metadata Editor](https://github.com/worldbank/metadata-editor),
+   which has a template for microdata, validates the record, and exports
+   the JSON. Alternatively, write the JSON directly; the running example is
+   a minimal record:
+
+```json file=../../website/static/cookbook-files/ai-ready-dissemination/example_microdata.json
+```
+
+2. Fill at least the fields of the foundational level of the
+   [recommended microdata profile](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json):
+   identifier, title, authoring entity, abstract, collection dates, nation,
+   universe, analysis unit, sampling procedure, citation requirement, and
+   a contact.
+3. Validate the record with the metadata checker from the dissemination
+   cookbook, which checks structure against the schema, completeness
+   against the profile, and the validity of dates and URLs:
+
+```bash
+python check_metadata.py example_microdata.json profile_microdata.json
+```
+
+   Output for the running example: valid against `microdata-schema.json`,
+   complete at the foundational level, no validity issues. At the AI-ready
+   level the same record reports `data_files` and `variables` missing; those
+   come from [chapter 2](./variables.mdx).
+
+4. Keep the record in version control next to the data documentation, and
+   re-run the check whenever it changes.
+
+**What this does not do.** The check verifies that fields are present and
+well-formed. Whether the abstract describes the survey correctly, whether
+the sampling text is accurate, and whether the universe matches the
+questionnaire are review tasks; the [Metadata Reviewer](/docs/metadata-reviewer/overview)
+puts AI-generated suggestions on such text in front of a curator.
+
+</Recipe>
+
+<Recipe title="1.2 Publish the record in a catalog with a persistent identifier" level="AI-ready" skills="Catalog administrator" time="Two hours per survey once the catalog exists">
+
+**Result:** the survey is visible to crawlers, harvesters, and AI systems,
+and citable by a persistent identifier.
+
+1. Import the record into [NADA](https://nada.ihsn.org/) (or an equivalent
+   DDI-aware catalog). NADA stores the record in the World Bank schema,
+   writes a schema.org `Dataset` block on the study page, exposes the
+   record through its REST API, and manages access requests.
+2. Register a DOI through [DataCite](https://schema.datacite.org/), as the
+   World Bank [Microdata Library](https://microdata.worldbank.org/) does
+   (prefix 10.48529), and put it in the record's `datacite` block and in
+   the citation requirement.
+3. Give the study page a permanent URL and add it to the site map. If the
+   organization runs its own site, add schema.org markup as in
+   [recipe 1.2 of the dissemination cookbook](/cookbook/ai-ready-dissemination/find).
+4. Verify with a structured-data validator that the page's record is
+   parsed, and search for the survey's title in a general search engine
+   after a few weeks.
+
+**What this does not do.** Catalog publication makes the survey findable by
+title and abstract. Users who search for a variable will still not find it
+until the variables are documented ([chapter 2](./variables.mdx)) and
+searchable ([chapter 4](./navigate.mdx)).
+
+</Recipe>
+
+## Implementation options
+
+- **Record schema:** the World Bank microdata schema is DDI Codebook 2.5 expressed as JSON Schema. Organizations that already produce DDI XML can convert; the Metadata Editor imports it.
+- **Catalog:** NADA is open source and used by the Microdata Library and many national data archives. Any catalog that stores DDI and emits schema.org or DCAT serves the same purpose.
+- **Identifiers:** DataCite DOIs are the common choice for datasets. Where a DOI is not available, a persistent URL under the organization's domain with a stated policy against change is the minimum.
+- **Harvesting:** DCAT or OAI-PMH exports let other catalogs harvest the record; NADA's API serves the same need.
+
+## World Bank examples
+
+- The [Microdata Library](https://microdata.worldbank.org/) publishes thousands of studies in NADA with DDI records and DataCite DOIs.
+- The [metadata schemas](https://github.com/worldbank/metadata-schemas) repository holds the microdata schema and a Python library for building records.
+- The [Metadata Editor](https://github.com/worldbank/metadata-editor) documents microdata with templates and validation and publishes to NADA.
+
+## Common mistakes
+
+- **A report in place of a record.** A PDF report cannot be harvested, searched by field, or cited by a persistent identifier.
+- **Study identifiers that change between editions.** Each edition is a new study with its own identifier; the series links them.
+- **An abstract that describes the organization.** The abstract describes what the survey measures, for whom, and when.
+- **Registering a DOI without a landing page.** The DOI must resolve to the study page, which must stay at its URL.
+
+## Verification
+
+- **Schema and profile:** the metadata checker reports the record valid and complete at the target level.
+- **Catalog page:** the study page carries a schema.org record that a validator parses.
+- **Identifier:** the DOI resolves to the study page.
+- **Known-item search:** the survey appears in the top results for its title and for two paraphrases of its subject.
+
+## Checklist
+
+<Checklist id="microdata-documentation-find" items={[
+  'Study record in the World Bank microdata schema',
+  'Foundational profile fields filled and checked',
+  'Record published in a DDI-aware catalog',
+  'schema.org record on the study page',
+  'DOI or persistent URL registered and in the citation requirement',
+  'Record under version control and re-checked on change',
+]} />

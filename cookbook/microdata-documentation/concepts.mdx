@@ -1,0 +1,169 @@
+---
+id: concepts
+title: "3. Questions, concepts, and classifications"
+sidebar_label: "3. Concepts"
+sidebar_position: 4
+description: Question text attached to variables, concept maps to international classifications with versions, and harmonized names for reuse across surveys.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Questions, concepts, and classifications
+
+**Question:** Can AI relate questions to concepts and standards?
+
+## Rationale
+
+Two surveys can both have a variable called `educ` with values 0 to 5 and
+mean different things: one follows ISCED 2011, the other a national scheme.
+A user comparing them needs the classification and its version. An AI
+system combining them needs the same, in a field it can read. Concepts and
+classifications are what make a variable comparable across surveys, years,
+and countries, and what let a system relate "highest education level" in a
+question to `educ` in a file.
+
+The question text is the other half: it states exactly what was asked, in
+the words the respondent heard, which no label fully captures.
+
+## Target state
+
+- Every collected variable carries the literal question text and, where relevant, the interviewer instruction.
+- Every variable that follows a classification names it, with the version and the level (ISCO-08 sub-major group).
+- A concept map links variables to concepts in a shared vocabulary, so that the same concept can be found across surveys.
+- Harmonized variable names are used for the concepts the organization measures repeatedly.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Publish the questionnaire with the data. Name the classifications used in the study record's method section. |
+| **AI-ready** | Attach the question text to each variable (`var_qstn_qstnlit`). Publish a concept map that links variables to classifications with versions and URIs, and store it in `var_concept`. Publish the crosswalk where a national classification is used. |
+| **AI-native** | Maintain a question bank and a concept scheme (SKOS or XKOS) shared across surveys, with harmonized names, so that a system can find every survey that measures a concept. |
+
+:::info[Running example]
+Four variables of `EX-LFS-2025-Q2` follow international classifications:
+`educ` (ISCED 2011), `lfs_status` (the 19th ICLS resolution), `occupation`
+(ISCO-08), and `industry` (ISIC Rev.4). The concept map records each with
+its version, level, and URI, and gives each a harmonized name.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Attach the question text to every collected variable" level="Foundational" skills="Data curator with the questionnaire" time="Two to four hours per survey">
+
+**Result:** each variable record states the question as asked, so that a
+label can be checked against it and a user can see the wording.
+
+1. Take the question text from the final questionnaire, including the
+   question number and the placeholders as printed ("Q4. How old was
+   [NAME] at last birthday?").
+2. Put it in the `question` column of the dictionary (recipe 2.1), which
+   the converter maps to `var_qstn_qstnlit`. Add pre-question and
+   post-question text and interviewer instructions where they change the
+   meaning (`var_qstn_preqtxt`, `var_qstn_postqtxt`, `var_qstn_ivulnstr`).
+3. For derived variables, put the derivation rule in the same column
+   ("Derived from Q10 to Q16") and the full rule in `var_derivation`.
+4. Record the questionnaire version in the study record, and re-attach the
+   text when the questionnaire changes.
+
+**What this does not do.** Question text in the dictionary does not make
+the questionnaire itself machine-readable (skip patterns, response
+options, routing). DDI Lifecycle and a question bank do that; recipe 3.3
+starts there.
+
+</Recipe>
+
+<Recipe title="3.2 Map variables to concepts and classifications" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="One day per survey the first time">
+
+**Result:** a concept map, one row per variable, that names the concept,
+the classification, its version, a URI, and a harmonized name, stored in
+the variable records.
+
+1. Start from the concept map of the running example:
+
+```csv file=../../website/static/cookbook-files/microdata-documentation/concept_map.csv
+```
+
+2. For each variable, name the concept in plain words and the
+   classification it follows, with version and level. Where a national
+   classification is used, link the crosswalk to the international one
+   (see [chapter 3 of the dissemination cookbook](/cookbook/ai-ready-dissemination/understand)
+   for the crosswalk format and XKOS).
+3. Store the concept in the variable record (`var_concept`, with `title`,
+   `vocab`, and `uri`) through the `concept` column of the dictionary, and
+   publish the map with the data.
+4. Check that the value codes in the dictionary are consistent with the
+   named classification (ISCED levels 0 to 5, ISCO-08 two-digit codes).
+
+**What this does not do.** A concept map names the classification; it does
+not verify that the coding followed it. A sample check of coded values
+against the classification's definitions, or AI-assisted coding review
+(the program's classification and coding workstream), does that.
+
+</Recipe>
+
+<Recipe title="3.3 Reuse questions and concepts across surveys" level="AI-native" skills="Methodologist; data curator" time="Ongoing; one week to set up">
+
+**Result:** the organization's recurring concepts have one definition, one
+harmonized name, and one question wording, so that a system can find every
+survey that measures a concept and compare them.
+
+1. List the concepts measured in more than one survey (labour force
+   status, educational attainment, household composition) and give each a
+   harmonized variable name (`educ_isced11`, `lfs_status_icls19`).
+2. Publish the concept definitions as a concept scheme ([SKOS](https://www.w3.org/TR/skos-reference/)
+   or [XKOS](https://ddialliance.org/xkos)) with multilingual labels, and
+   reference it from `var_concept.uri`.
+3. Keep the question wordings in a question bank, with the concept each
+   measures and the surveys that use each wording. The program's Global
+   Question Bank workstream develops this for development surveys.
+4. When a new survey is designed, draw questions from the bank, so that the
+   concept links exist before the data do.
+
+**What this does not do.** Harmonized names and shared definitions do not
+make data from two surveys comparable when the samples, modes, or reference
+periods differ; the quality statements in [chapter 5](./fitness.mdx) carry
+that information.
+
+</Recipe>
+
+## Implementation options
+
+- **Classifications:** [ISCED](https://uis.unesco.org/en/topic/international-standard-classification-education-isced), [ISCO](https://www.ilo.org/public/english/bureau/stat/isco/), [ISIC](https://unstats.un.org/unsd/classifications/Econ/isic), [COICOP](https://unstats.un.org/unsd/classifications/Econ/coicop), and the [ICLS resolutions](https://www.ilo.org/resource/19th-icls-resolution-i) on work statistics, each with a version.
+- **Concept schemes:** SKOS for concepts with multilingual labels; XKOS for statistical classifications and the correspondences between them.
+- **DDI Lifecycle** models questions, concepts, and variables as reusable objects across studies; DDI Codebook holds the links per study.
+- **Question banks:** a shared repository of question wordings keyed by concept; the Global Question Bank workstream is the program's contribution.
+
+## World Bank examples
+
+- The [microdata schema](https://github.com/worldbank/metadata-schemas) carries `var_concept` (title, vocabulary, URI) and `var_std_catgry` (standard categories) per variable.
+- The program's Global Question Bank and ontologies and knowledge graphs workstreams develop reusable questions and concept links ([program overview](/)).
+- The [AI-ready data framework](/docs/ai-ready-framework) names semantic knowledge, including concepts and classifications, among the attributes of AI-ready data.
+
+## Common mistakes
+
+- **A classification without a version.** ISCED 1997 and ISCED 2011 differ; a system that does not know which was used will combine them.
+- **Labels in place of question text.** The label is a summary; the question is the evidence of what was measured.
+- **Concepts only in the report.** A concept that is not in the variable record is not findable by concept.
+- **Harmonization by renaming.** Giving two variables the same name without checking the definitions makes them look comparable when they are not.
+
+## Verification
+
+- **Question text:** every collected variable has it; a sample compared with the questionnaire matches word for word.
+- **Concept map:** every classified variable has a classification, a version, and a resolving URI.
+- **Code consistency:** the value codes of each classified variable are valid codes of the named classification at the stated level.
+- **Cross-survey search:** a query for a concept returns every survey that measures it ([chapter 4](./navigate.mdx)).
+
+## Checklist
+
+<Checklist id="microdata-documentation-concepts" items={[
+  'Questionnaire published with the data',
+  'Question text attached to every collected variable',
+  'Derivation rule for every derived variable',
+  'Concept map with classification, version, level, and URI per variable',
+  'Crosswalks published for national classifications',
+  'Concepts stored in the variable records',
+  'Harmonized names for recurring concepts',
+  'Question bank or concept scheme shared across surveys',
+]} />
