@@ -1,0 +1,135 @@
+---
+id: index
+title: Practical Guide to Serving Official Statistics to AI Agents
+sidebar_label: Overview
+sidebar_position: 0
+description: A cookbook for developers and dissemination teams in national statistical organizations that expose their statistics to AI agents through the Model Context Protocol, with tool design, provenance, safety, evaluation, and operation.
+---
+
+# Practical Guide to Serving Official Statistics to AI Agents
+
+**A cookbook for developers and dissemination teams in national statistical organizations.** Version 0.1 (working draft), October 2026.
+
+:::note[Working draft]
+This guide is a working draft from the AI for Data – Data for AI program. It
+collects practical approaches and open standards. Comments and corrections
+are welcome as [GitHub issues](https://github.com/worldbank/ai4data/issues),
+and the [contributing](./contributing.md) page explains how to propose a
+recipe.
+:::
+
+AI assistants answer questions about statistics whether or not the
+organization that produces them takes part. When they cannot reach the
+official figures, they answer from training data, from copies on other
+sites, or from guesses. An agent interface changes that: the assistant
+calls the organization's own tools, receives the official values with their
+unit, release, source, and licence, and cites them. The
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is the
+open standard for this. One server serves every compatible assistant.
+
+This guide is organized around six questions an organization can ask before
+and after exposing its statistics to agents: what an agent should be able
+to do with the data, which tools to offer with which inputs and outputs,
+how every response carries its source, how the interface is kept safe, how
+it is evaluated, and how it is operated and maintained. Each chapter
+answers one question with recipes, maturity levels, and a checklist.
+
+The recipes build on the program's [MCP work](/docs/mcp/) and on two
+servers in operation: the World Bank's
+[Data360 MCP server](https://github.com/worldbank/data360-mcp) and the MCP
+interface of [NADA](https://nada.ihsn.org/). The
+[dissemination cookbook](/cookbook/ai-ready-dissemination/) covers what
+has to be in place underneath: a catalog, an API, and documented meaning.
+The [standards page](./standards.md) lists each standard and where it
+applies.
+
+:::tip[A thin layer over a solid API]
+An MCP server is a small program that wraps the organization's existing
+API and catalog in tools a model can call. The quality of what the agent
+returns is the quality of the API, the metadata, and the provenance behind
+it. Where those are weak, the agent interface makes the weakness visible
+faster; the dissemination cookbook's chapters 1 to 5 come first.
+:::
+
+## Self-assessment
+
+The [self-assessment](./start-here.mdx) takes about five minutes and places
+an organization's agent access at a level in each chapter.
+
+## Chapters and questions
+
+| Chapter | Question | Practical topics |
+|---|---|---|
+| [1. Purpose and scope of agent access](./purpose.mdx) | What should an agent be able to do with the data? | Use cases, scope, the question set, success criteria |
+| [2. Design of the tools](./tools.mdx) | Which tools, with which inputs and outputs? | Tool manifest, names and descriptions, structured outputs, resources, the manifest check |
+| [3. Provenance in every response](./provenance.mdx) | How does every response carry its source? | Provenance fields, observation status, licence and citation, freshness |
+| [4. Safety of the interface](./safety.mdx) | How is the interface kept safe? | Read-only tools, access control, rate limits, input validation, prompt injection, logging |
+| [5. Evaluation of agent access](./evaluate.mdx) | How is the interface evaluated? | Question set, traces, tool and value correctness, refusals, citations, latency |
+| [6. Operation and maintenance](./operate.mdx) | How is the interface operated and maintained? | Transport and hosting, client configuration, versioning, usage statistics, cost, support |
+
+## Maturity levels
+
+Each chapter describes three levels. An organization can sit at different
+levels in different chapters, and the first level is a complete, useful
+state on its own.
+
+| Level | Meaning |
+|---|---|
+| **Foundational** | The organization's API and catalog are documented and public, and the scope of agent access is decided; agents reach the data through the API without a dedicated interface. |
+| **AI-ready** | An MCP server with read-only tools, provenance in every response, access control, and an evaluation suite is in operation for public data. |
+| **AI-native** | The server is published for clients, versioned, monitored, evaluated on every change, and its usage feeds the organization's monitoring and documentation work. |
+
+## Running example
+
+The example organization of the dissemination cookbook exposes its five
+published series through a server with four read-only tools (search,
+metadata, observations, code lists) and three resources (guidance, code
+lists, release calendar). A question set of eight questions, including one
+the organization cannot answer and one about a region the series does not
+cover, is run through an agent, and the logged traces are scored: six
+questions pass, one answer gives a wrong value, and one answers a regional
+figure the series does not have. All values are invented.
+
+## Scope of the examples
+
+The examples are small on purpose: four tools, eight questions, eight
+traces, so that a reader can run them in an afternoon and see the shape of
+each check. They are starting points. Each recipe ends with a **What this
+does not do** note that says where the example stops and what the full
+version adds. The server code itself is the
+[MCP example of the dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve)
+and the Data360 server; the scripts here check its design and its
+behaviour.
+
+## Files
+
+| File | Used in |
+|---|---|
+| [tool_manifest.json](pathname:///cookbook-files/serving-statistics-to-agents/tool_manifest.json) | Chapter 2: the tools and resources of the running example |
+| [check_tool_manifest.py](pathname:///cookbook-files/serving-statistics-to-agents/check_tool_manifest.py) | Chapter 2: design rules for tools |
+| [agent_questions.csv](pathname:///cookbook-files/serving-statistics-to-agents/agent_questions.csv) | Chapters 1 and 5: the question set with expected tools, series, values, and behaviour |
+| [agent_traces.jsonl](pathname:///cookbook-files/serving-statistics-to-agents/agent_traces.jsonl) | Chapter 5: logged traces of an agent run |
+| [agent_eval.py](pathname:///cookbook-files/serving-statistics-to-agents/agent_eval.py) | Chapter 5: scoring of traces against the question set |
+| [client_config_example.json](pathname:///cookbook-files/serving-statistics-to-agents/client_config_example.json) | Chapter 6: a client configuration for the server |
+| [mcp_server_example.py](pathname:///cookbook-files/ai-ready-dissemination/mcp_server_example.py) | Chapters 2 and 3: the server, from the dissemination cookbook |
+
+## Related resources
+
+| Resource | Purpose |
+|---|---|
+| This guide | What an organization can do to serve its statistics to agents, and why, in a sequence of practical steps. |
+| [Model Context Protocol for statistics](/docs/mcp/) | The program's description of the architecture and the tools a statistics server exposes. |
+| [Data360 MCP server](https://github.com/worldbank/data360-mcp) | A server in operation over the World Bank's Data360 API. |
+| [Practical Guide to AI-Ready Data Dissemination](/cookbook/ai-ready-dissemination/) | The catalog, API, provenance, and evaluation the server builds on. |
+| [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |
+
+## Citation
+
+World Bank. 2026. *Practical Guide to Serving Official Statistics to AI
+Agents: A cookbook for developers and dissemination teams in national
+statistical organizations.* Version 0.1. AI for Data – Data for AI.
+https://worldbank.github.io/ai4data/cookbook/serving-statistics-to-agents/
+
+## Version history
+
+- **0.1 (October 2026).** First draft: six chapters, recipes, scripts, self-assessment.

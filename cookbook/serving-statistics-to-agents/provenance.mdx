@@ -1,0 +1,161 @@
+---
+id: provenance
+title: "3. Provenance in every response"
+sidebar_label: "3. Provenance"
+sidebar_position: 4
+description: The fields every data response carries so that an agent can cite the source, state the unit and period, repeat caveats, and report freshness, and how answers are verified against the responses.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Provenance in every response
+
+**Question:** How does every response carry its source?
+
+## Rationale
+
+An agent cites what it receives. If a data response carries the series
+identifier, the unit, the release date, the source URL, the licence, and
+the citation, the answer can cite them; if it carries values only, the
+answer attributes them to nothing, or to the wrong thing. Provenance in
+every response is the difference between an answer a user can check and
+one they cannot. It also lets the organization verify answers afterwards:
+a number in an answer either matches a value in a logged response or it
+does not.
+
+## Target state
+
+- Every data response carries `SERIES`, `REF_AREA`, `UNIT_MEASURE`, `RELEASE`, `SOURCE_URL`, `license`, and `citation`, and `OBS_STATUS` per value.
+- Every metadata response carries the definition, methodology, breaks, limitations, and citation requirement of the record.
+- Responses state freshness: the release date and the next release where known.
+- Answers are verified against the logged responses, and numbers that do not match are flagged.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | The API returns unit, period, release, and source URL with values; the catalog record carries definition, licence, and citation. |
+| **AI-ready** | The server's data tool returns the provenance fields with every response and `OBS_STATUS` per value; the guidance resource tells the model to cite them. |
+| **AI-native** | Responses carry version identifiers and the next release date; answers are verified against logged responses, and the verification result is reported with the evaluation. |
+
+:::info[Running example]
+The `get_observations` tool returns, for the undernourishment series, the
+three values of 2022 to 2024 with `OBS_STATUS` A, the unit, the release of
+14 March 2025, the source URL, the CC BY 4.0 licence, and the citation
+text. The agent's answer to "Is hunger going down?" cites the URL and the
+release; the evaluation checks that each number in it appears in the
+response.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Return the provenance fields with every data response" level="AI-ready" skills="Developer" time="Half a day">
+
+**Result:** no data leaves the server without the fields an answer needs
+to cite it.
+
+1. Make the data tool's output a fixed object: `SERIES`, `REF_AREA`,
+   `UNIT_MEASURE`, `RELEASE`, `SOURCE_URL`, `license`, `citation`, and
+   `observations`, each observation with `TIME_PERIOD`, `OBS_VALUE`, and
+   `OBS_STATUS`. The server example of the dissemination cookbook returns
+   this shape from its CSV files; over an API, the fields come from the
+   series record and the release.
+2. Fill `citation` with the citation requirement of the record, in the
+   form users should copy ([chapter 5 of the dissemination cookbook](/cookbook/ai-ready-dissemination/trust)).
+3. Return `OBS_STATUS` from the SDMX code list so that the model can say
+   "provisional" or "break in series" where the record does. The
+   guidance resource tells it to.
+4. Declare the object as the tool's output schema, so that clients can
+   validate it and so that the manifest check sees the provenance fields.
+
+**What this does not do.** The fields make citation possible; the model's
+instructions make it happen. The guidance resource and the client's own
+instructions tell the model to cite the source URL and the release in every
+answer, and [chapter 5](./evaluate.mdx) checks that it does.
+
+</Recipe>
+
+<Recipe title="3.2 Return the record's caveats with metadata responses" level="AI-ready" skills="Developer; data curator" time="Half a day">
+
+**Result:** an agent reading a series' metadata receives the definition,
+the method, the breaks, and the limitations, and can repeat them.
+
+1. Make the metadata tool return the fields of the World Bank indicator
+   schema that an answer needs: `definition_long`, `methodology`,
+   `measurement_unit`, `periodicity`, `universe`, `series_break`,
+   `limitation`, `license`, `citation_requirement`.
+2. Fill those fields in the catalog; the completeness check of the
+   dissemination cookbook at the AI-ready level is the test.
+3. In the guidance resource, instruct the model to read the metadata
+   before interpreting values, and to repeat a break or a limitation that
+   applies to the period asked about.
+
+**What this does not do.** Caveats in the response do not guarantee
+caveats in the answer; the reviewed sample in [chapter 5](./evaluate.mdx)
+checks that answers repeat them.
+
+</Recipe>
+
+<Recipe title="3.3 Verify answers against the logged responses" level="AI-native" skills="Developer" time="One day to set up">
+
+**Result:** every number in a logged answer is matched to a value in the
+responses the agent received, or flagged.
+
+1. Log, per question, the tool calls, the responses, and the final answer
+   (the traces of [chapter 5](./evaluate.mdx)).
+2. Run the number check from the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/trust) over
+   the answer with the logged observations as the values: each number is
+   verified or flagged.
+3. Report the share of flagged numbers with the evaluation, and read the
+   flagged answers: a model that computes a change or an average has
+   introduced a number the responses did not contain, which the guidance
+   resource should either allow with the inputs shown or forbid.
+4. Where the organization operates the assistant, show flagged numbers as
+   unverified or regenerate the answer, as [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902)
+   describes.
+
+**What this does not do.** The organization can verify answers from
+assistants it operates or logs. Answers from third-party assistants that
+call the server are verifiable only through the AI visibility check of the
+dissemination cookbook, by asking and reading.
+
+</Recipe>
+
+## Implementation options
+
+- **Provenance fields:** the fixed object above; W3C PROV where provenance has to be exchanged as linked data.
+- **Status codes:** SDMX `OBS_STATUS` (A normal, P provisional, B break, E estimated).
+- **Licence and citation:** from the record (`license`, `citation_requirement`); CC BY 4.0 is the World Bank default.
+- **Verification:** the number check of the dissemination cookbook over logged traces; Proof-Carrying Numbers for the full method.
+
+## World Bank examples
+
+- [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) verifies each number in a generated answer against the record; the home page shows it.
+- The [Data360 MCP server](https://github.com/worldbank/data360-mcp) returns data with the Data360 API's metadata and guides citation through its system-prompt resource.
+- The [WDI SDMX API](https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries) returns the structure reference and attributes with values, which an SDMX-backed server passes through.
+
+## Common mistakes
+
+- **Values without release.** An answer that cannot say which release it used is wrong the day after the next release.
+- **Citation left to the model.** Models write plausible citations; the citation text comes from the record.
+- **Status dropped in the server.** A provisional value becomes final in the answer.
+- **Derived numbers unflagged.** A change computed by the model carries the organization's name without a source.
+
+## Verification
+
+- **Output schema:** every data response validates against the schema with the provenance fields present.
+- **Citation test:** a sample of answers cites the source URL and release of the logged response.
+- **Number check:** the share of flagged numbers in logged answers, reported per evaluation run.
+
+## Checklist
+
+<Checklist id="serving-statistics-to-agents-provenance" items={[
+  'Data tool returns SERIES, REF_AREA, UNIT_MEASURE, RELEASE, SOURCE_URL, license, citation',
+  'OBS_STATUS per observation from the SDMX code list',
+  'Metadata tool returns definition, method, breaks, limitations, citation requirement',
+  'Guidance resource instructs citation and caveats',
+  'Output schema declared and validated',
+  'Answers verified against logged responses; flagged share reported',
+]} />

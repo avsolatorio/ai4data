@@ -37,4 +37,13 @@ export const cookbooks = [
     chapters: 6,
     to: '/cookbook/monitoring-data-use/',
   },
+  {
+    id: 'serving-statistics-to-agents',
+    audience: 'Developers and dissemination teams in national statistical organizations',
+    title: 'Practical Guide to Serving Official Statistics to AI Agents',
+    description:
+      'Six questions an organization can ask before and after exposing its statistics to AI agents through the Model Context Protocol, each answered with recipes for tool design, provenance, safety, evaluation, and operation. Builds on the program\'s MCP work and the Data360 MCP server.',
+    chapters: 6,
+    to: '/cookbook/serving-statistics-to-agents/',
+  },
 ];
