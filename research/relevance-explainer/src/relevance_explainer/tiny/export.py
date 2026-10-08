@@ -45,24 +45,40 @@ def load_int8(path: str | Path, device: str = "cpu") -> tuple[TinyLM, Tokenizer]
 
 
 def explain(model: TinyLM, tk: Tokenizer, inputs: list[str], max_new: int = 260, batch: int = 32,
-            script_guard: bool = True) -> list[tuple[str, str]]:
+            script_guard: bool = True, num_guard: bool = True) -> list[tuple[str, str]]:
     """Return (verdict, narrative) for each rendered input text. `script_guard` blocks stray characters of scripts
-    that neither the requested language nor the input uses (see scriptguard)."""
+    that neither the requested language nor the input uses (see scriptguard); `num_guard` allows only numbers that
+    occur in the input and repairs backward year ranges (see numguard)."""
+    from .numguard import repair_ranges, unsupported
     sep = "\n\n### Judgment\n"
     prompts = [tk.encode(t + sep).ids for t in inputs]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))
     masks = token_masks(tk) if script_guard else None
-    res: dict[int, tuple[str, str]] = {}
-    for s in range(0, len(order), batch):
-        ch = order[s : s + batch]
-        ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
-        outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban)
-        for i, o in zip(ch, outs):
-            text = tk.decode(o).strip()
-            if model.c.verdict_last:
-                text = from_verdict_last(text)
-            head, _, rest = text.partition("\n")
-            res[i] = (head.strip(), rest.strip())
+    texts: dict[int, str] = {}
+
+    def run(idx: list[int], temperature: float = 0.0) -> dict[int, str]:
+        out = {}
+        for s in range(0, len(idx), batch):
+            ch = idx[s : s + batch]
+            ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
+            for i, o in zip(ch, model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban, temperature=temperature)):
+                t = tk.decode(o).strip()
+                out[i] = from_verdict_last(t) if model.c.verdict_last else t
+        return out
+
+    texts = run(order)
+    if num_guard:  # resample explanations with numbers absent from the input; keep the greedy verdict
+        todo = [i for i in order if unsupported(texts[i], inputs[i])]
+        for r in range(6):
+            if not todo:
+                break
+            torch.manual_seed(1000 + r)
+            for i, c in run(todo, 0.7).items():
+                if c.split("\n")[0].strip() == texts[i].split("\n")[0].strip() and not unsupported(c, inputs[i]):
+                    texts[i] = c
+            todo = [i for i in todo if unsupported(texts[i], inputs[i])]
+        texts = {i: repair_ranges(t, inputs[i]) for i, t in texts.items()}
+    res = {i: tuple(x.strip() for x in t.partition("\n")[::2]) for i, t in texts.items()}
     return [res[i] for i in range(len(inputs))]
 
 

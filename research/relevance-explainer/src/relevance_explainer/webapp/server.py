@@ -162,12 +162,29 @@ def _events(text: str, model_name: str, temperature: float, guard: bool):
                 yield json.dumps({"type": "token", "text": tk.decode(toks)}) + "\n"
         total = time.time() - t1
         out = tk.decode(toks).strip()
+        resampled = 0
+        if guard:  # an explanation with a number absent from the input is resampled (tiny/numguard.py)
+            from ..tiny.numguard import repair_ranges, unsupported
+            for r in range(6):
+                if not unsupported(out, text):
+                    break
+                cand = []
+                for tok, _ in V.stream(model, prompt, banned=ban, temperature=0.7, seed=1000 + r):
+                    if tok == V.EOS:
+                        break
+                    cand.append(tok)
+                c = tk.decode(cand).strip()
+                resampled += 1
+                if c.split("\n")[0].strip() == out.split("\n")[0].strip() and not unsupported(c, text):
+                    out = c
+            out = repair_ranges(out, text)
+            total = time.time() - t1
         head, _, rest = out.partition("\n")
         verdict = head.strip() if head.strip() in V.VERDICTS else "invalid"
         yield json.dumps({"type": "done", "text": out, "verdict": verdict, "narrative": rest.strip(), "stats": {
             "prompt_tokens": len(prompt), "output_tokens": len(toks), "first_token_ms": round(first * 1000),
             "total_s": round(total, 2), "per_token_ms": round((total - first) / max(1, len(toks) - 1) * 1000, 1),
-            "model_mb": round(size / 1e6, 1)}}) + "\n"
+            "model_mb": round(size / 1e6, 1), "resampled": resampled}}) + "\n"
     except Exception as exc:  # report to the page instead of breaking the stream
         yield json.dumps({"type": "error", "message": f"{type(exc).__name__}: {exc}"}) + "\n"
     finally:

@@ -201,7 +201,7 @@ class TinyLM(nn.Module):
     @torch.no_grad()
     def generate_batch(self, prompts: list[list[int]], eos: int, max_new: int, no_repeat: int = 4, pad: int = 0,
                        copy_bias: float = 0.0, copy_skip: int = 4, temperature: float = 0.0, top_k: int = 40,
-                       banned: torch.Tensor | None = None) -> list[list[int]]:
+                       banned: torch.Tensor | None = None, numguard=None, guard_states: list | None = None) -> list[list[int]]:
         """Greedy decoding for several prompts at once with a KV cache.
 
         Prompts are left-padded; padding is masked out of attention and does not shift rotary positions,
@@ -210,7 +210,8 @@ class TinyLM(nn.Module):
         `copy_bias` adds a bonus to the logit of every token that occurs in the prompt, from the `copy_skip`-th
         generated token on (the verdict line is left alone). It nudges the narrative towards terms of the input.
 
-        `banned` is an optional [B, vocab] boolean mask of tokens that may never be generated (see scriptguard)."""
+        `banned` is an optional [B, vocab] boolean mask of tokens that may never be generated (see scriptguard).
+        `numguard` with one `guard_states` entry per prompt restricts numbers to those in the input (see numguard)."""
         dev, B = self.emb.weight.device, len(prompts)
         L = max(len(p) for p in prompts)
         ids = torch.full((B, L), pad, dtype=torch.long, device=dev)
@@ -259,6 +260,12 @@ class TinyLM(nn.Module):
                         banned = seen[i].get(tuple(o[len(o) - no_repeat + 1 :]), ())
                         if banned:
                             logits[i, list(banned)] = float("-inf")
+            if numguard is not None and step >= 1:  # the verdict line has no numbers
+                lc = logits.cpu()
+                for i in range(B):
+                    if not done[i]:
+                        numguard.apply(guard_states[i], lc[i])
+                logits = lc.to(dev)
             if temperature > 0:  # sample from the top-k of the tempered distribution
                 top = logits.topk(min(top_k, logits.size(-1)), dim=-1)
                 pick = torch.multinomial(torch.softmax(top.values / temperature, dim=-1), 1)
@@ -275,6 +282,8 @@ class TinyLM(nn.Module):
                 if no_repeat and len(o) >= no_repeat - 1:
                     seen[i].setdefault(tuple(o[len(o) - no_repeat + 1 :]), set()).add(nxt[i])
                 o.append(nxt[i])
+                if numguard is not None:
+                    numguard.advance(guard_states[i], nxt[i])
             if all(done):
                 break
             last = last + 1

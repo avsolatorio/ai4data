@@ -120,7 +120,7 @@ def load(name: str):
 
 @torch.no_grad()
 def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | None = None, no_repeat: int = 4,
-           temperature: float = 0.0, top_k: int = 40, seed: int = 0):
+           temperature: float = 0.0, top_k: int = 40, seed: int = 0, numguard=None, guard_state: dict | None = None):
     """Yield (token, step_logits) one token at a time with a KV cache; same rules as TinyLM.generate_batch."""
     g = torch.Generator().manual_seed(seed)
     ids = torch.tensor([prompt])
@@ -143,6 +143,8 @@ def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | 
             block = seen.get(tuple(out[len(out) - no_repeat + 1 :]), ())
             if block:
                 logits[list(block)] = float("-inf")
+        if numguard is not None and out:  # numbers only where the input has them (not on the verdict step)
+            numguard.apply(guard_state, logits)
         if temperature > 0:
             top = logits.topk(top_k)
             nxt = top.indices[torch.multinomial(torch.softmax(top.values / temperature, -1), 1, generator=g)].item()
@@ -154,6 +156,8 @@ def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | 
         if no_repeat and len(out) >= no_repeat - 1:
             seen.setdefault(tuple(out[len(out) - no_repeat + 1 :]), set()).add(nxt)
         out.append(nxt)
+        if numguard is not None:
+            numguard.advance(guard_state, nxt)
         x = model.emb(torch.tensor([[nxt]]))
         at = torch.tensor([pos])
         cos, sin = model.cos[at][:, None], model.sin[at][:, None]  # (1, 1, head_dim/2): this token's position

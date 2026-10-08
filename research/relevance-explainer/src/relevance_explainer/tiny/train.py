@@ -142,7 +142,7 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 
 @torch.no_grad()
 def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48,
-             copy_bias: float = 0.0, script_guard: bool = False) -> tuple[dict, list[dict]]:
+             copy_bias: float = 0.0, script_guard: bool = False, num_guard: bool = False) -> tuple[dict, list[dict]]:
     model.eval()
     prompts = [tk.encode(e["row"]["input"] + SEP).ids for e in enc]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
@@ -157,6 +157,25 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
             gens[i] = tk.decode(o).strip()
             if model.c.verdict_last:
                 gens[i] = from_verdict_last(gens[i])
+    if num_guard:  # resample explanations that write numbers absent from the input (tiny/numguard.py)
+        from .numguard import repair_ranges, unsupported
+        inputs = [e["row"]["input"] for e in enc]
+        todo = [i for i in range(len(gens)) if unsupported(gens[i], inputs[i])]
+        for r in range(6):
+            if not todo:
+                break
+            torch.manual_seed(1000 + r)
+            for s in range(0, len(todo), batch):
+                ch = todo[s : s + batch]
+                ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
+                with torch.autocast("cuda", dtype=torch.bfloat16):
+                    outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban, temperature=0.7)
+                for i, o in zip(ch, outs):
+                    cand = tk.decode(o).strip()
+                    if cand.split("\n")[0].strip() == gens[i].split("\n")[0].strip() and not unsupported(cand, inputs[i]):
+                        gens[i] = cand
+            todo = [i for i in todo if unsupported(gens[i], inputs[i])]
+        gens = [repair_ranges(g, x) for g, x in zip(gens, inputs)]
     rows = [e["row"] for e in enc]
     pred = [parse(g) for g in gens]
     gold, pv = [r["verdict"] for r in rows], [p[0] for p in pred]

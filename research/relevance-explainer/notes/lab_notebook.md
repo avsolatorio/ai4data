@@ -995,3 +995,26 @@ Challenge by phenomenon, D + DPO / E supervised: threshold 46.7% / 68.0%; synony
 Ten probes, against the teacher-and-Gemma labels under the new rules: E + DPO agrees on 8 (D + DPO on 6). Still wrong: "extreme poverty rate" (partly relevant; label relevant) and "average income per person Peru" (irrelevant; label partly relevant). Narrative glitches seen: "$1.000 a day" for $1.90, and an Indonesian stem inside a French verb.
 
 **Implication.** Explicit threshold and unit checks moved the threshold phenomenon by 21 points and the concept data moved synonyms, proxies and standard measures by 8 to 14 points, with the realistic test unchanged. Negation and look-alike did not move although exclusions are now stated: the next step there is to read the challenge errors and the labels (Gemma 4 and the teacher agree least on these). The challenge suite is now partly in-distribution (same phenomenon definitions in training), so an independent check is still needed. `runs/v2e-nosim-dpo` with version-3 inputs replaces the app's no-score model.
+
+## 2026-10-08 14:08 UTC — Numbers in explanations: a token-level constraint made text worse; resampling halves unsupported numbers
+
+Commit: this commit (`tiny/numguard.py`; `train.evaluate(num_guard)`, `export.explain(num_guard=True)`, the app). Model `runs/v2e-nosim-dpo`, version-3 test sets.
+
+**Question/Context.** The user saw garbled numbers ("four provinces" for seven; "$1.000 a day" for $1.90) and asked whether decoding could make number tokens more reliable.
+
+**What was done.**
+1. Measured explanations containing a digit number absent from the input (decimal comma and point, thousands separators and trailing zeros treated as equal; integers up to 20 allowed): realistic 0.6% (9 of 1,495), paraphrase 1.0%, nine-type 1.9%, challenge 1.2%. Word numbers ("four") are not counted.
+2. Token-level constraint: at number positions, allow only tokens that keep the number a prefix of a number in the input. First version: faithfulness fell from 4.55 / 4.70 to 4.40 / 4.65 (teacher / Gemma 4 judge), because a number followed by a comma ("2010,") was treated as an unfinished decimal and forced to continue with the only "digit" left, the superscript "²" (`str.isdigit` is true for it). Fixed version: 7 of 1,495 outputs changed, mostly for the worse (when the model wants a number the input lacks, the forced alternative is another wrong number or garbled text: "49 countries" to "4 developing countries", "21,000" to "21,�ther").
+3. Sequence-level resampling instead: after the greedy explanation, if a number is absent from the input, draw up to 6 samples (temperature 0.7) and keep the first whose verdict is the greedy one and whose numbers all occur in the input; then swap year ranges written backwards when both years are in the input.
+
+**Result.**
+| Test set | Unsupported numbers, greedy | With resampling |
+|---|---|---|
+| Realistic, 1,495 | 0.6% of explanations | 0.3% |
+| Paraphrase, 2,175 | 1.0% | 0.6% |
+| Nine-type, 475 | 1.9% | 0.8% |
+| Challenge, 2,244 | 1.2% | 0.8% |
+
+Verdicts unchanged by construction (84.5%, 80.5%, 80.4%, 69.5%). Faithfulness on the realistic test: 4.56 / 4.70 with resampling against 4.55 / 4.70 greedy.
+
+**Implication.** Constraining tokens cannot supply a number the model does not know; resampling whole explanations removes 40 to 60% of unsupported numbers at no cost to verdicts or faithfulness and only adds time for the 1 to 2% of explanations that need it. It is on by default in `explain()` and in the app (with the script constraint switch). The remaining cases, and numbers written as words, are left for a later data fix (copying numbers verbatim from the metadata in teacher narratives).
