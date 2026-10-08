@@ -164,6 +164,7 @@ const config = {
         id: 'cookbook',
         path: '../cookbook',
         routeBasePath: 'cookbook',
+        exclude: ['**/_*/**', '**/_*.{md,mdx}'],
         sidebarPath: path.join(__dirname, 'sidebars-cookbook.js'),
         remarkPlugins: [
           [codeImport, {rootDir: repoRoot, allowImportingFromOutside: true}],

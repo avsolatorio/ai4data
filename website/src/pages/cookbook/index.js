@@ -50,6 +50,11 @@ export default function CookbookLanding() {
               </Link>
             ))}
           </div>
+          <p className={styles.authoring}>
+            New cookbooks follow the{' '}
+            <Link to="/cookbook/authoring/">authoring guide</Link>, which sets
+            the structure and writing rules and names the scaffold and checker.
+          </p>
         </div>
       </main>
     </Layout>

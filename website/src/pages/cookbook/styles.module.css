@@ -87,3 +87,9 @@
   height: 48px;
   width: auto;
 }
+
+.authoring {
+  margin: 2rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}

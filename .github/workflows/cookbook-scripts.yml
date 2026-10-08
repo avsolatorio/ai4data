@@ -8,12 +8,16 @@ on:
     branches: [main]
     paths:
       - "website/static/cookbook-files/**"
+      - "cookbook/**"
+      - "scripts/docs/check_cookbooks.py"
       - "tests/test_cookbook_scripts.py"
       - "tests/fixtures/wb-schemas/**"
       - ".github/workflows/cookbook-scripts.yml"
   pull_request:
     paths:
       - "website/static/cookbook-files/**"
+      - "cookbook/**"
+      - "scripts/docs/check_cookbooks.py"
       - "tests/test_cookbook_scripts.py"
       - "tests/fixtures/wb-schemas/**"
       - ".github/workflows/cookbook-scripts.yml"
@@ -29,6 +33,8 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest "jsonschema>=4.18" "mcp[cli]" ruff
       - name: Lint
-        run: ruff check website/static/cookbook-files/ai-ready-dissemination
+        run: ruff check website/static/cookbook-files/ai-ready-dissemination scripts/docs/new_cookbook.py scripts/docs/check_cookbooks.py
+      - name: Check cookbook structure and writing rules
+        run: python scripts/docs/check_cookbooks.py
       - name: Test
         run: pytest tests/test_cookbook_scripts.py -p no:cacheprovider --noconftest -q

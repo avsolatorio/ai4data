@@ -110,8 +110,11 @@ const QUESTIONS = [
 
 const LEVELS = ['Not yet', 'Foundational', 'AI-ready', 'AI-native'];
 
-export default function SelfAssessment() {
-  const key = 'cookbook-self-assessment-ai-ready-dissemination';
+// `questions` has one entry per chapter: {id, title, question, options[4]}
+// with the options ordered from the lowest level to the highest. `base` is
+// the cookbook's URL prefix. Both default to the dissemination cookbook.
+export default function SelfAssessment({questions = QUESTIONS, base = BASE, storageKey}) {
+  const key = storageKey || `cookbook-self-assessment-${base.replace(/\W+/g, '-')}`;
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
 
@@ -136,16 +139,16 @@ export default function SelfAssessment() {
     }
   };
 
-  const answered = QUESTIONS.filter((q) => answers[q.id] !== undefined);
-  const complete = answered.length === QUESTIONS.length;
+  const answered = questions.filter((q) => answers[q.id] !== undefined);
+  const complete = answered.length === questions.length;
   const lowest = complete
-    ? Math.min(...QUESTIONS.map((q) => answers[q.id]))
+    ? Math.min(...questions.map((q) => answers[q.id]))
     : null;
-  const next = complete ? QUESTIONS.filter((q) => answers[q.id] === lowest) : [];
+  const next = complete ? questions.filter((q) => answers[q.id] === lowest) : [];
 
   return (
     <div className={styles.assessment}>
-      {QUESTIONS.map((q) => (
+      {questions.map((q) => (
         <fieldset className={styles.aq} key={q.id}>
           <legend className={styles.aqTitle}>
             <span>{q.title}</span> {q.question}
@@ -167,7 +170,7 @@ export default function SelfAssessment() {
 
       <div className={styles.aBar}>
         <span>
-          {answered.length} of {QUESTIONS.length} answered
+          {answered.length} of {questions.length} answered
         </span>
         <button
           type="button"
@@ -203,12 +206,12 @@ export default function SelfAssessment() {
               </tr>
             </thead>
             <tbody>
-              {QUESTIONS.map((q) => {
+              {questions.map((q) => {
                 const lvl = answers[q.id];
                 return (
                   <tr key={q.id}>
                     <td>
-                      <Link to={`${BASE}${q.id}`}>{q.title}</Link>
+                      <Link to={`${base}${q.id}`}>{q.title}</Link>
                     </td>
                     <td>{LEVELS[lvl]}</td>
                     <td>
@@ -226,7 +229,7 @@ export default function SelfAssessment() {
             {next.map((q, i) => (
               <span key={q.id}>
                 {i > 0 && ', '}
-                <Link to={`${BASE}${q.id}`}>{q.title}</Link>
+                <Link to={`${base}${q.id}`}>{q.title}</Link>
               </span>
             ))}
             . Chapters 1 to 3 come first when they are at the same level as
