@@ -229,6 +229,7 @@ def main() -> None:
     ap.add_argument("--prefix-lm", action="store_true", help="bidirectional attention within the input (prefix LM)")
     ap.add_argument("--verdict-last", action="store_true", help="target is the narrative followed by 'Verdict: <verdict>'")
     ap.add_argument("--prompt-loss", type=float, default=0.0, help="loss weight on the input tokens (0: output only)")
+    ap.add_argument("--test-limit", type=int, default=0, help="evaluate at most this many test rows (fixed sample) after training")
     a = ap.parse_args()
     assert not (a.prompt_loss and a.prefix_lm), "the prefix LM takes the prompt length from the labels"
 
@@ -322,9 +323,13 @@ def main() -> None:
 
     results = {"params_million": round(model.n_params() / 1e6, 2), "config": cfg.to_dict(), "data": info,
                "best_epoch": best_ep, "best_val_loss": best, "train_log": log, "precision": {}}
+    test_enc = enc["test"]
+    if a.test_limit and len(test_enc) > a.test_limit:  # the data's own test split can be large; a fixed sample suffices
+        import random as _random
+        test_enc = _random.Random(0).sample(test_enc, a.test_limit)
     for name, bits in (("fp32", None), ("int8", 8), ("int4", 4)):
         m, size = (model, model.n_params() * 4) if bits is None else quantize(model, bits)
-        metrics, gens = evaluate(m, tk, enc["test"], a.max_new)
+        metrics, gens = evaluate(m, tk, test_enc, a.max_new)
         metrics["size_mb"] = round(size / 1e6, 2)
         results["precision"][name] = metrics
         with (out / f"test_generations_{name}.jsonl").open("w") as f:

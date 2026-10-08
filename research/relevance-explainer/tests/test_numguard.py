@@ -64,6 +64,13 @@ def test_no_superscripts_or_empty_tokens_as_digits():
     assert all(NG.strs[i][:1] in "0123456789.," and NG.strs[i] for i in NG.cont_ids)
 
 
+def test_unsupported_handles_formats():
+    from relevance_explainer.tiny.numguard import unsupported
+    inp = "Result: Physicians (per 1 000 people)\nYears: 1960-85; Coverage: 143 000 households"
+    assert unsupported("relevant\nPhysicians per 1 000 people, 1960 to 1985, 143 000 households.", inp) == []
+    assert unsupported("relevant\nCovers 1990 to 1999.", inp) == ["1990", "1999"]
+
+
 def test_repair_ranges():
     assert repair_ranges("covers 2019-1981 annually", INPUT) == "covers 1981-2019 annually"
     assert repair_ranges("from 2019 to 1981", INPUT) == "from 1981 to 2019"

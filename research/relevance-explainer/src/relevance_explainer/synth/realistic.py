@@ -556,7 +556,9 @@ CONCEPT_RULE = (
     "partly: say what it approximates (GDP per capita for average income). A different threshold, age band or unit answers "
     "only partly: state both (the search's $3 a day and the item's $1.90). Do not call two names of the same thing "
     "\"related but distinct\".\n- If the Checks line says a place or group is excluded by the search, the item can still "
-    "answer it when it covers other places or groups as well; say whether the excluded part can be left out.")
+    "answer it when it covers other places or groups as well; say whether the excluded part can be left out.\n"
+    "- Numbers: copy every number exactly as it appears in the input (years, counts, thresholds, percentages) and write it "
+    "in digits; do not state a number that is not in the input and do not compute new ones.")
 NARRATE_V2 = G.NARRATE_SYSTEM.replace(
     "- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
     ORDER_RULE + "\n" + CONCEPT_RULE + "\n- For partly_relevant, say exactly which part of the query is satisfied and which is not.",

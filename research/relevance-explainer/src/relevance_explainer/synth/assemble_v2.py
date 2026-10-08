@@ -74,6 +74,7 @@ def main() -> None:
     ap.add_argument("--old-share", type=float, default=0.6, help="largest share of old-round rows in the training split")
     ap.add_argument("--extra", nargs="*", default=[],
                     help="targeted sets as origin=glob[:repeat], e.g. para=data/real_para/c*:2 types=data/real_types/c*:2 metatrans=data/real_meta/m*")
+    ap.add_argument("--drop-invented-numbers", action="store_true", help="drop rows whose narrative states a number absent from the input")
     ap.add_argument("--procs", type=int, default=24)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -123,6 +124,11 @@ def main() -> None:
         if rep > 1 and G.split_of(row["seed"]) == "train":  # repeated targeted rows count once in val and test
             rows += [{**row, "repeat": k} for k in range(1, rep)]
 
+    if a.drop_invented_numbers:  # narratives that state a number absent from their input (tiny/numguard.py)
+        from ..tiny.numguard import unsupported
+        before = len(rows)
+        rows = [r for r in rows if not unsupported(r["output"], r["input"])]
+        print(f"dropped {before - len(rows)} of {before} rows whose narrative states a number absent from the input")
     splits = {"train": [], "val": [], "test": []}
     for r in rows:
         splits[G.split_of(r["seed"])].append(r)

@@ -19,6 +19,7 @@ from tokenizers import Tokenizer
 
 from ..tiny.judge import SYSTEM as JUDGE_SYSTEM
 from ..tiny.model import Config, TinyLM
+from ..tiny.numguard import unsupported
 from ..synth.llm import parse_json
 from .teacher_checks import MODEL, post, urls
 
@@ -107,18 +108,25 @@ def cmd_pairs(a) -> None:
         if len(cand) < 2:
             stats["no_pair"] += 1
             continue
-        cand.sort(key=lambda c: quality(c[1]))
+        inp = rows[d["i"]]["input"]
+        bad_num = lambda t: bool(unsupported("x\n" + t, inp))  # noqa: E731  a number absent from the input
+        # a sample with an invented number ranks below every sample without one, so it is preferred as the rejected side
+        cand.sort(key=lambda c: (not bad_num(c[0]), quality(c[1])))
         worst, best = cand[0], cand[-1]
         teacher = rows[d["i"]]["output"].split("\n", 1)[1]
-        if worst[1]["faithful"] > a.max_rejected_faithful and worst[1]["coherent"] > 2:
+        if worst[1]["faithful"] > a.max_rejected_faithful and worst[1]["coherent"] > 2 and not bad_num(worst[0]):
             stats["no_pair"] += 1  # nothing clearly bad to push away from
             continue
-        if best[1]["faithful"] >= 5 and best[1]["coherent"] >= 4 and best[1]["consistent"] and best[1]["language_ok"]:
+        if best[1]["faithful"] >= 5 and best[1]["coherent"] >= 4 and best[1]["consistent"] and best[1]["language_ok"] and not bad_num(best[0]):
             chosen = best[0]
             stats["chosen_from_student"] += 1
-        else:
+        elif not bad_num(teacher):
             chosen = teacher
             stats["chosen_from_teacher"] += 1
+        else:
+            stats["no_pair"] += 1
+            continue
+        stats["rejected_with_invented_number"] = stats.get("rejected_with_invented_number", 0) + bad_num(worst[0])
         pairs.append({"i": d["i"], "verdict": d["verdict"], "chosen": chosen, "rejected": worst[0]})
     with (data / a.out).open("w") as f:
         for p in pairs:

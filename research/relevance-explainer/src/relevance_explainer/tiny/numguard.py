@@ -104,10 +104,30 @@ def repair_ranges(text: str, input_text: str) -> str:
 # Measured 2026-10-08: the token constraint above changed 7 of 1,495 realistic-test explanations, mostly for the worse
 # (when the model wants a number the input lacks, a forced alternative is another wrong number or garbled text), and its
 # first version also broke "2010," into "2010,²". Resampling whole explanations keeps the text natural.
+_SPACE_THOUSANDS = re.compile(r"(\d)[   ](\d{3})(?!\d)")
+_SHORT_RANGE = re.compile(r"(?<!\d)((?:19|20)\d\d)\s*[-–/]\s*(\d\d)(?!\d)")
+
+
+def _join_thousands(s: str) -> str:
+    """"143 000" and "1 000" (space as thousands separator) as one number."""
+    prev = None
+    while prev != s:
+        prev, s = s, _SPACE_THOUSANDS.sub(r"\1\2", s)
+    return s
+
+
+def supported_numbers(input_text: str) -> set[str]:
+    full = set(FREE)
+    text = _join_thousands(input_text)
+    for m in NUM.findall(text):
+        full |= _forms(m)
+    for m in _SHORT_RANGE.finditer(text):  # "1960-85", "2019/20": the second year written out
+        full.add(m.group(1)[:2] + m.group(2))
+    return full
+
+
 def unsupported(text: str, input_text: str) -> list[str]:
     """Numbers in the narrative (after the verdict line) that occur nowhere in the input."""
-    full = set(FREE)
-    for m in NUM.findall(input_text):
-        full |= _forms(m)
-    narrative = text.split("\n", 1)[-1]
+    full = supported_numbers(input_text)
+    narrative = _join_thousands(text.split("\n", 1)[-1])
     return [r for r in (m.rstrip(".,") for m in NUM.findall(narrative)) if r not in full]
