@@ -52,6 +52,25 @@ errors found, is what turns a demonstration into a service the
 organization can maintain.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- At least one AI component in use or planned (a search, an assistant, an extractor, a drafting tool) and the people who own it.
+- Dissemination staff who can write questions and label answers, speakers of each supported language, and a person who can run Python scripts.
+- For the AI-ready level, a developer to run suites in continuous integration; for graders, access to a language model under the AI-use policy.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. List the components and set the required score for the most important one ([chapter 1](./inventory.mdx)) (half a day).
+2. Build a set of fifty questions from real queries, including ten with no answer, and version it ([chapter 2](./questions.mdx)) (one day).
+3. Score the component with the chapter that fits it ([chapters 3](./retrieval.mdx), [4](./answers.mdx), or [5](./extraction.mdx)) and keep the scores with the versions (half a day).
+4. Run the suite before and after the next change and compare the runs ([chapter 7](./gates.mdx)).
+
+Graders ([chapter 6](./judges.mdx)), production sampling ([chapter 8](./production.mdx)), and report cards ([chapter 9](./reporting.mdx)) come once the suite gates at least one change.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

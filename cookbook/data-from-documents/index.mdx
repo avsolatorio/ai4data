@@ -51,6 +51,24 @@ carry the result per value. Values that cannot be verified are published
 as estimates and say so.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- The publications the organization has produced, as PDF files, and a list of them (a publication register or a folder).
+- A person who can run Python scripts and install open-source tools (OCR engines, layout models), and a dissemination officer who knows which tables users ask for.
+- For the AI-ready level, a machine with a GPU or patience for layout detection, and access to a vision-language model for charts; for the AI-native level, a developer to run the pipeline.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Build the inventory of [chapter 1](./inventory.mdx) (one day). It says where the data are, which files are scans, and how large the work is.
+2. Pick the five most requested tables, extract them from the text layer ([chapter 4](./extract.mdx)), and run the verification of [chapter 5](./verify.mdx) (two days). Publish them next to the documents with their provenance ([chapter 7](./publish.mdx)).
+3. For scanned documents, run OCR on one priority document and score it ([chapter 2](./scanned.mdx)) before investing in the rest.
+
+Layout detection ([chapter 3](./locate.mdx)), series across documents ([chapter 6](./series.mdx)), and the pipeline ([chapter 9](./operate.mdx)) come once the first tables are published and used.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

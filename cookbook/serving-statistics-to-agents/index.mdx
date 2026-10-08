@@ -53,6 +53,25 @@ it. Where those are weak, the agent interface makes the weakness visible
 faster; the dissemination cookbook's chapters 1 to 5 come first.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A documented data API or an SDMX service over published data, and a catalog with records that carry definitions and licences ([dissemination cookbook, chapters 1 to 3](/cookbook/ai-ready-dissemination/)).
+- A Python developer, a dissemination officer who can write tool descriptions and questions, and the AI-use policy that says what may be served.
+- For the AI-ready level, a server to host the interface at a stable endpoint; for the AI-native level, identity management for user-level access.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Decide the uses and the scope and write ten questions with expected answers ([chapter 1](./purpose.mdx)) (half a day).
+2. Write the tool manifest and the guidance resource before any code ([chapters 2](./tools.mdx) and [3](./context.mdx)) (one day).
+3. Build the prototype over the API, read-only over public data, with provenance in every response ([chapters 2](./tools.mdx), [4](./provenance.mdx), and [6](./safety.mdx)) (one week).
+4. Run the ten questions through an assistant and score the traces ([chapter 7](./evaluate.mdx)) before anyone outside the team connects.
+
+Access tiers ([chapter 5](./access.mdx)), distribution ([chapter 8](./distribute.mdx)), and operation ([chapter 9](./operate.mdx)) follow once the prototype passes its questions.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

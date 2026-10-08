@@ -47,6 +47,25 @@ optional later layer, and chapters 4 and 5 explain what has to be in place
 before one is safe to run.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A published catalog of indicators or datasets, on a website the organization controls, with someone who can edit its pages or records.
+- One person who can run a Python script (the checks in this guide use the standard library and one package) and one who knows the statistics well enough to write definitions and judge answers.
+- For the AI-ready level, a developer who can change the website template or the API; for the AI-native level, a server that can run a small open-weight model, or access to a hosted model under the AI-use policy of chapter 8.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Run the completeness check of [chapter 1](./find.mdx) on the catalog export (half a day). Its output is the work list.
+2. Write the one-page AI-use policy of [chapter 8](./govern.mdx) (one day). Nothing else in this guide is safe to start without it.
+3. Write thirty known-item questions and score the current search with [chapter 6](./evaluate.mdx) (one day). Every later change is measured against this baseline.
+4. Publish the series as tidy files at stable URLs with source and citation on the page ([chapters 2](./retrieve.mdx) and [5](./trust.mdx)). This serves every user and every AI system at once.
+
+A conversational interface ([chapter 4](./ask.mdx)) comes last, after the four steps above are at the AI-ready level.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes. It places

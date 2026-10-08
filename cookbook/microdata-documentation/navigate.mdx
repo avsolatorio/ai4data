@@ -25,7 +25,7 @@ names finds `jobsearch` only for users who guess the name.
 Two things make a large dictionary navigable: thematic groups, which let a
 user browse by topic, and variable-level search by meaning, which lets a
 user ask. Both read the labels, question text, and concepts from
-[chapters 2](./variables.mdx) and [3](./concepts.mdx).
+[chapters 3](./variables.mdx) and [3](./concepts.mdx).
 
 ## Target state
 
@@ -121,7 +121,7 @@ fr       2   0.00   0.00
    and question say "completed years" and "last birthday"; "employed or
    unemployed" fails because the label says "Labour force status". Each
    miss is a documentation fix (add a keyword or a concept) or a search
-   improvement (recipe 4.3), and the next run shows which worked.
+   improvement (recipe 5.3), and the next run shows which worked.
 4. Extend the set across surveys, so that it measures cross-survey search,
    and keep it in version control.
 
@@ -138,7 +138,7 @@ without a native speaker and are marked as such in the file.
 unemployed" and `age` for "age of household member", across every survey in
 the catalog, scored against the keyword baseline.
 
-1. Build the question set and baseline first (recipe 4.2).
+1. Build the question set and baseline first (recipe 5.2).
 2. Embed each variable as one text: label, question text, concept, and the
    survey title, with a multilingual sentence-embedding model. The
    [PI-FT toolkit](/pift-toolkit/pipeline) fine-tunes such a model on

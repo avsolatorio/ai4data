@@ -51,6 +51,25 @@ semantic search, assisted review) work on that documentation and have
 nothing to work with without it.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- Survey data files in a statistical format (Stata, SPSS, CSV) and their questionnaires, for at least one survey.
+- A data curator who can use the Metadata Editor or a spreadsheet, and a person who can run a Python script for the checks.
+- For the AI-ready level, a catalog that stores DDI records (NADA or an equivalent) and the right to register DOIs; for the AI-native level, a developer with Python.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Adopt the access policy with tiers of [chapter 8](./access.mdx) (one day). It makes every later publication safe.
+2. Take the most requested survey, draft its dictionary from the data file ([chapter 2](./produce.mdx)), and run the dictionary check of [chapter 3](./variables.mdx) (one day). The errors it finds are the first work list.
+3. Write the study record and publish it in the catalog with a persistent identifier ([chapter 1](./find.mdx)) (half a day).
+4. Attach the question text and the classifications used ([chapter 4](./concepts.mdx)) and document the design and weights ([chapter 7](./fitness.mdx)).
+
+Variable-level search and thematic groups ([chapter 5](./navigate.mdx)) and crosswalks between rounds ([chapter 6](./rounds.mdx)) build on that documentation and come after it.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

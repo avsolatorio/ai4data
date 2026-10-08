@@ -17,6 +17,8 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **Draft status.** The mark on a model-written field that keeps it out of the published catalog until a decision.
 
+**Embedding.** A list of numbers that a model assigns to a text so that texts with similar meaning have similar numbers; the basis of search by meaning.
+
 **Error taxonomy.** The coded reasons for rejections and edits: wrong flag, invented fact, wrong vocabulary term, style, and others.
 
 **Evaluation set.** Decided records kept to test changes to prompts, manifests, rubrics, and models.
@@ -24,6 +26,10 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 **Grounding.** The property of a draft that uses only what the record and its named sources support.
 
 **Issue.** The review pipeline's output: a detected problem with a category, a severity from 1 to 5, the current value, and a proposed value.
+
+**Language model.** A model that reads and writes text; used in these guides to draft, flag, code, explain, and translate, with a person deciding.
+
+**Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under its published licence.
 
 **Quality dimensions.** Completeness, semantic alignment, specificity, and consistency, scored from 1 to 5 with a rubric.
 

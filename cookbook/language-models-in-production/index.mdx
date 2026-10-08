@@ -57,6 +57,24 @@ commentary. The model's role is named in each case, and a role of
 "decide" is not among them.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A production process with defined steps (the organization's own or GSBPM), and the methodologists and production managers who run it.
+- Access to a language model that can run inside the production network for confidential text (an open-weight model on a local server), and a hosted model for public inputs under the AI-use policy.
+- A developer who can run Python scripts and batch jobs; for the AI-ready level, coders and editors willing to label a sample and rate outputs.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Write the map of model-assisted tasks and the list of tasks that stay with people ([chapter 1](./map.mdx)) (one day).
+2. Start with coding ([chapter 3](./coding.mdx)): a model proposes codes for one survey's open text, coders accept or change, accuracy is measured against the final codes (one week).
+3. Publish a statement of model use with that survey's release ([chapter 7](./assurance.mdx)) (an hour).
+
+Edit explanations and anomaly explanations ([chapter 4](./editing.mdx)), commentary ([chapter 5](./commentary.mdx)), and questionnaire review ([chapter 2](./design.mdx)) follow the same pattern; [chapter 6](./running.mdx) covers the server and the batch jobs they need.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

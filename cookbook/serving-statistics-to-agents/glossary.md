@@ -17,6 +17,8 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Harness.** A program that sends questions to an agent connected to the server and logs the traces.
 
+**Language model.** A model that reads and writes text; used in these guides to draft, flag, code, explain, and translate, with a person deciding.
+
 **Manifest.** The design document listing the server's tools, inputs, outputs, examples, and resources.
 
 **MCP.** The Model Context Protocol, an open protocol over JSON-RPC 2.0 through which AI applications discover and call tools, read resources, and use prompts offered by servers.
@@ -30,6 +32,10 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 **Streamable HTTP.** The transport for servers used over the network; stdio is the transport for servers run locally by a client.
 
 **Structured content.** A tool result returned as JSON that conforms to the tool's output schema, alongside a text rendering.
+
+**Structured output.** Model output returned as data in a declared shape (a JSON object with named fields) so that it can be checked and used by software.
+
+**Token.** The unit in which language models read and write text, roughly three quarters of a word; model prices and context limits are counted in tokens.
 
 **Tool execution error.** A tool result marked as an error with a message the model can act on, as distinct from a protocol error.
 

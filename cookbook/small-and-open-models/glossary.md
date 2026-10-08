@@ -15,11 +15,17 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Digest.** The SHA-256 hash of a model file, recorded in the lock file and verified before loading.
 
+**Embedding.** A list of numbers that a model assigns to a text so that texts with similar meaning have similar numbers; the basis of search by meaning.
+
 **Key-value cache.** The memory a model uses per token of context during generation; grows with context length and concurrency.
+
+**Language model.** A model that reads and writes text; used in these guides to draft, flag, code, explain, and translate, with a person deciding.
 
 **Lock file.** The record of a model's source, version, and file digests that the server verifies before loading.
 
 **Open-weight model.** A model whose weights can be downloaded and run by the organization, under a licence that may be permissive or restricted.
+
+**Prompt.** The instructions and context given to a language model for one task; kept as a versioned file when it is part of a workflow.
 
 **Quantization.** Storing weights at fewer bits (8 or 4 in place of 16) to reduce memory, with a suite check for any loss.
 
@@ -28,3 +34,5 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 **Serving stack.** The software that loads a model and answers requests (a single-machine runtime or a batching server).
 
 **Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+
+**Structured output.** Model output returned as data in a declared shape (a JSON object with named fields) so that it can be checked and used by software.

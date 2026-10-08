@@ -44,12 +44,13 @@ chapter numbers that need a manual check.
 1. Title and subtitle. The title names the guide ("Practical Guide to ..."); the subtitle names the audience ("A cookbook for ...").
 2. Version and date, and a note stating that the guide is a working draft where that is the case.
 3. An introduction of two or three paragraphs: the problem, the organizing questions, the standards the recipes build on.
-4. A "Chapters and questions" table: chapter, question, practical topics.
-5. The maturity levels, using the shared vocabulary below.
-6. The running example: one small, fictional dataset or case that every chapter uses, with its files.
-7. "Scope of the examples": a statement that the examples are small on purpose and that each recipe states its limits.
-8. A files table listing every downloadable file with the chapter that uses it.
-9. Related resources, a suggested citation, and a version history.
+4. "Prerequisites": the data, systems, people, and skills the recipes assume, at the foundational level and at the higher levels. "First steps": the three or four first steps for a team with limited time, with chapter links and time estimates, and one sentence on what comes after.
+5. A "Chapters and questions" table: chapter, question, practical topics.
+6. The maturity levels, using the shared vocabulary below.
+7. The running example: one small, fictional dataset or case that every chapter uses, with its files.
+8. "Scope of the examples": a statement that the examples are small on purpose and that each recipe states its limits.
+9. A files table listing every downloadable file with the chapter that uses it.
+10. Related resources, a suggested citation, and a version history.
 
 ### Chapters
 

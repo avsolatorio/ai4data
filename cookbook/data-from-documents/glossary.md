@@ -17,11 +17,15 @@ description: Terms used in the Practical Guide to Extracting Data from Documents
 
 **Estimated.** The status of an extracted value for which the document offers no check: no printed label, total, or derivation.
 
+**Fine-tuning.** Training an existing model further on the organization's own labelled data so that it follows the organization's conventions.
+
 **Flagged.** The status of an extracted value that failed a check and awaits correction with the page open.
 
 **Inventory.** The list of documents with their type, year, page count, text-layer status, and counts of tables and figures.
 
 **Layout detection.** A model that finds regions of a page image and returns their class and bounding box.
+
+**Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under its published licence.
 
 **Printed value label.** A number printed on a chart next to its bar or point, which makes the extracted value verifiable.
 
@@ -30,6 +34,8 @@ description: Terms used in the Practical Guide to Extracting Data from Documents
 **Text layer.** The machine-readable text inside a PDF; absent in scanned documents until OCR produces it.
 
 **Tidy file.** A CSV with one row per value and provenance columns (document, page, bounding box, class, title, row, column, value, unit, status).
+
+**Token.** The unit in which language models read and write text, roughly three quarters of a word; model prices and context limits are counted in tokens.
 
 **Total row.** The row of a table that sums the others; a check for extracted values.
 

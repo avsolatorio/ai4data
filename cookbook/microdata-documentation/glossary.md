@@ -21,11 +21,21 @@ description: Terms used in the Practical Guide to AI-Ready Microdata Documentati
 
 **Disclosure control.** The steps that reduce the risk of identifying a person or business in released microdata: removal of identifiers, top-coding, coarsening of geography, suppression.
 
+**Embedding.** A list of numbers that a model assigns to a text so that texts with similar meaning have similar numbers; the basis of search by meaning.
+
+**Fine-tuning.** Training an existing model further on the organization's own labelled data so that it follows the organization's conventions.
+
 **Harmonized name.** A variable name used for the same concept across surveys, tied to one definition.
 
 **Known-variable question set.** Questions the way users ask for variables, each with the variable that should come first, used to score variable search.
 
+**Language model.** A model that reads and writes text; used in these guides to draft, flag, code, explain, and translate, with a person deciding.
+
 **Missing-value code.** A code in a variable that marks a missing, inapplicable, refused, or unknown response, which has to be labelled so that it is never read as a value.
+
+**Model Context Protocol (MCP).** An open standard through which AI assistants discover and call an organization's tools and read its resources.
+
+**Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under its published licence.
 
 **Public use file.** A microdata file released to anyone under terms of use, after disclosure control.
 

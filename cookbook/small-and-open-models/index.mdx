@@ -53,6 +53,25 @@ suite, in the organization's languages. Size, openness, and hosting are
 means to that rule.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- At least one narrow task that uses or could use a language model (coding, extraction, embeddings, drafting) with its question set from the evaluation suites cookbook.
+- A data scientist or developer with Python and a machine with a GPU or a modern CPU, and someone who can read a licence.
+- For the AI-ready level, a server inside the production network and a person to run it; for the AI-native level, a shared service and a budget line.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Describe the tasks and apply the rule of [chapter 1](./when.mdx) (two hours). It says which tasks start small.
+2. Shortlist two candidates for one narrow task, read their licences, and check their cards ([chapter 2](./candidates.mdx)) (one day).
+3. Run one of them on an existing machine, measure throughput ([chapter 3](./serving.mdx)), and run the task's suite ([chapter 5](./comparison.mdx)) (one day).
+4. Lock the model files and isolate the server before anything depends on it ([chapter 6](./security.mdx)) (half a day).
+
+Fine-tuning ([chapter 4](./adaptation.mdx)) and the cost and staffing plan ([chapter 7](./cost.mdx)) follow once the first task runs on a small model and passes.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

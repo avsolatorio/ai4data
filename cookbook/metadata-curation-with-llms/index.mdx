@@ -55,6 +55,24 @@ and the record of those decisions is what makes the system better over
 time. A workflow that skips the decision is faster and worse.
 :::
 
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A catalog of records in a published schema (or legacy records to migrate, which [chapter 2](./migrate.mdx) covers) and a curator who owns them.
+- Access to a language model under the organization's AI-use policy: a hosted model for public records, a local open-weight model for unpublished ones.
+- A person who can run Python scripts; for the AI-ready level, a developer to run the review pipeline and the Metadata Editor to apply decisions.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Write the task typology and the two rules of [chapter 1](./scope.mdx) and choose twenty records (one day).
+2. Draft the missing definitions of those records ([chapter 3](./draft.mdx)) and review every draft in a spreadsheet, recording accept, edit, or reject ([chapter 5](./review.mdx)) (two days).
+3. Compute the acceptance rate ([chapter 8](./improve.mdx)) (minutes). This number decides whether to scale up.
+
+Quality scoring ([chapter 4](./assess.mdx)), vocabularies ([chapter 6](./standardize.mdx)), and translation ([chapter 7](./translate.mdx)) each start the same way: twenty records, every output reviewed, the rate measured.
+
 ## Self-assessment
 
 The [self-assessment](./start-here.mdx) takes about five minutes and places

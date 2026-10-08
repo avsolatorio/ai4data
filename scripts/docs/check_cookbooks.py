@@ -5,8 +5,8 @@ checker verifies:
 
 errors (exit status 1)
   - index.mdx exists with title and description, and has the required
-    sections (Chapters and questions, Maturity levels, Files, Citation,
-    Version history)
+    sections (Prerequisites, First steps, Chapters and questions,
+    Maturity levels, Files, Citation, Version history)
   - each chapter (a file that uses the Recipe component) has front matter
     (title "N. ...", sidebar_position, description), a **Question:** line,
     the required sections (Rationale, Target state, Maturity levels,
@@ -48,7 +48,7 @@ STATIC = REPO / "website" / "static" / "cookbook-files"
 SKIP = {"_template", "authoring"}
 
 LEVELS = {"Foundational", "AI-ready", "AI-native"}
-INDEX_SECTIONS = ["Chapters and questions", "Maturity levels", "Files", "Citation", "Version history"]
+INDEX_SECTIONS = ["Prerequisites", "First steps", "Chapters and questions", "Maturity levels", "Files", "Citation", "Version history"]
 CHAPTER_REQUIRED = ["Rationale", "Target state", "Maturity levels", "Recipes", "Common mistakes", "Checklist"]
 CHAPTER_RECOMMENDED = ["Implementation options", "Resources", "Verification"]
 

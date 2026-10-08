@@ -80,7 +80,7 @@ dataset.
 **What this does not do.** Detection finds regions; it does not read
 them. It also misses context: a title above a table or a note below it may
 fall outside the box, which is one of the failure modes the benchmark
-reports. Recipe 2.3 reviews for this before extraction.
+reports. Recipe 3.3 reviews for this before extraction.
 
 </Recipe>
 
@@ -93,7 +93,7 @@ to the document and page, with its coordinates in a sidecar file.
    that titles and notes at the edge are kept, and save it as an image.
 2. Name the file from the document identifier, page, and an index
    (`EX-REP-2025-03_p024_t01.png`), and write a sidecar JSON with the
-   fields of recipe 2.1.
+   fields of recipe 3.1.
 3. When the title or the note of a table sits outside the detected box,
    extend the box to include them and record both boxes (detected and
    adjusted) in the sidecar; the adjusted box is the one later citations

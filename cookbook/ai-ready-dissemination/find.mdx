@@ -130,19 +130,17 @@ python check_metadata.py example_document.json   profile_document.json
    check monthly at the target level and keep the counts; the trend is the
    evidence that the catalog is improving.
 
-**What this does not check.** Whether the definition is correct, whether the
-name and the definition describe the same concept, whether the unit matches
-the values, whether the text is specific enough to be useful, and whether
-the keywords are the ones users search for. These are semantic checks. The
+**What this does not do.** The three layers check form. A record can pass
+all of them with a definition that is wrong, a name that does not match the
+definition, a unit that does not match the values, text too vague to be
+useful, or keywords nobody searches for. Those are semantic checks: the
 program's [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality)
 work scores records on completeness, semantic alignment, specificity, and
-consistency with a language model and returns structured, auditable
-results; the [Metadata Reviewer](/docs/metadata-reviewer/overview) puts
-those suggestions in front of a curator. Run the three layers above first,
-because a semantic check on records with empty fields has nothing to work
-with.
-
-**What this does not do.** The three layers check form. A record can pass all of them with a definition that is wrong, and the profile is only as good as the fields the organization chose to require. The assessment of the [curation cookbook](/cookbook/metadata-curation-with-llms/assess) and a subject-matter review judge the content.
+consistency with a language model, the [Metadata Reviewer](/docs/metadata-reviewer/overview)
+puts its suggestions in front of a curator, and the
+[curation cookbook](/cookbook/metadata-curation-with-llms/assess) describes
+the workflow. Run the three layers first, because a semantic check on
+records with empty fields has nothing to work with.
 
 </Recipe>
 
