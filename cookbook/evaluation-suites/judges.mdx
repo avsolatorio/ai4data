@@ -1,0 +1,188 @@
+---
+id: judges
+title: "6. Validation of automatic graders"
+sidebar_label: "6. Graders"
+sidebar_position: 7
+description: Using a language model as a grader only after measuring its agreement with human scores, its false passes and false fails, and its biases toward long answers and positions, and re-validating it on every rubric or model change.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 6. Validation of automatic graders
+
+**Question:** How are automatic graders validated?
+
+## Rationale
+
+A rubric applied by readers scales to thirty answers a month; a language
+model applied as a grader scales to every answer of every run. The
+grader is a second system that can be wrong, and it is wrong in
+characteristic ways: it passes long, confident answers more often than
+readers do, it prefers the first of two answers it is shown, and it
+agrees with itself across runs while disagreeing with people. None of
+this makes graders unusable; it makes validation a requirement. A grader
+is validated against human scores on a sample, its biases are measured
+and corrected in the rubric, a share of its grades is reviewed every run,
+and it is validated again whenever the rubric or the model changes.
+
+## Target state
+
+- Every grader in use has a validation record: agreement and kappa with human scores on at least a hundred items per task, false-pass and false-fail rates, and bias checks.
+- The rubric contains the rules that the bias checks required (a length rule, randomized positions).
+- A share of grades is reviewed by a person each run, and the grader is re-validated on every rubric or model change.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Use readers for the rubric; no grader. |
+| **AI-ready** | Validate a grader on a hundred human-scored items per task; check length and position bias; review a share of grades per run. |
+| **AI-native** | Re-validate automatically when the rubric or the model changes; track grader agreement over time; use two graders where they disagree as a signal for review. |
+
+:::info[Running example]
+Twenty answers scored by a reader and by a grader. They agree on
+fifteen; the grader passes four answers the reader failed and fails one
+the reader passed. The bias check shows the grader passing every long
+answer while the reader passed six in ten, and the rubric gains a
+length rule.
+:::
+
+## Recipes
+
+<Recipe title="6.1 Measure agreement with human scores and the bias checks" level="AI-ready" skills="Python; readers for the human scores" time="One day for a hundred items">
+
+**Result:** agreement, kappa, false passes, false fails, and the length
+and position checks for the grader, with the rubric change each implies.
+
+```python file=../../website/static/cookbook-files/evaluation-suites/judge_agreement.py
+```
+
+```bash
+python judge_agreement.py judge_vs_human.csv
+```
+
+Output for the running example:
+
+```text
+20 items: agreement 0.75, kappa 0.44; grader passes what humans fail 4, fails what humans pass 1
+
+group                      n  human pass  grader pass
+short answers             10        0.60         0.50
+long answers              10        0.60         1.00
+position A                10        0.50         0.70
+position B                10        0.70         0.80
+
+length bias: the grader passes long answers 0.50 more often than humans do, relative to short ones; add a length rule to the rubric
+
+The grader is bounded by the humans' own agreement; validate on a hundred items per task and after every rubric or model change.
+```
+
+1. Have readers score a hundred answers per task with the rubric
+   ([chapter 4](./answers.mdx)), two readers on a part of them so that
+   their own agreement is known ([chapter 2](./questions.mdx)).
+2. Run the grader on the same answers with the same rubric; run the
+   script.
+3. Read the false passes first: a grader that passes what readers fail
+   lets errors through the gate. Read the bias groups: a grader that
+   passes long answers more than readers do needs a rubric rule that
+   length is not evidence; a position effect needs randomized order.
+4. Fix the rubric or the prompt, re-run, and keep the validation record
+   with the grader's version.
+
+**What this does not do.** Agreement with readers is bounded by the
+readers' agreement with each other. A grader that matches one reader at
+0.85 when two readers match at 0.85 is as good as a reader, and no
+better.
+
+</Recipe>
+
+<Recipe title="6.2 Write the grader's rubric and prompt to resist its biases" level="AI-ready" skills="Developer; subject-matter staff" time="Half a day">
+
+**Result:** a grading prompt that states the rubric's questions, the
+evidence the grader may use, and the rules the bias checks required.
+
+1. Give the grader the question, the retrieved records, and the answer,
+   and ask for each rubric question as a yes-or-no with a one-line
+   reason, as structured output; never a single overall score.
+2. State the rules: length is not evidence; an answer is right only if
+   the number appears in the retrieved records; a missing caveat that
+   the metadata has is a fail; the order of answers carries no
+   information.
+3. Randomize the order where answers are compared, and grade each
+   answer alone where possible.
+4. Keep the prompt and rubric under version control; a change
+   triggers recipe 6.3.
+
+**What this does not do.** A prompt reduces the biases the organization
+measured. New biases appear with new models, which is why the
+validation is repeated.
+
+</Recipe>
+
+<Recipe title="6.3 Review a share each run and re-validate on change" level="AI-ready" skills="Readers; developer" time="An hour per run">
+
+**Result:** each run's grades carry a reviewed share with the agreement
+on it, and a change to the rubric or the model re-runs the validation
+before the grader is used.
+
+1. Each run, a reader scores a random fifth of the graded answers (all
+   of the failed ones where few); record the agreement on that share
+   with the run.
+2. When the agreement on the share drops below the validation's, stop
+   using the grader's grades for the gate until re-validated.
+3. On any change to the rubric, the prompt, or the model, re-run recipe
+   6.1 before the grader grades a gate run.
+4. Where two graders are available, use their disagreement as a signal
+   for human review; averaging them hides it.
+
+**What this does not do.** The reviewed share catches drift in the
+grader; it does not catch a failure mode the rubric does not name. The
+production review of [chapter 8](./production.mdx) is where those
+appear.
+
+</Recipe>
+
+## Implementation options
+
+- **Validation:** the script in this chapter; a hundred items per task; readers' own agreement measured.
+- **Bias checks:** length, position, verbosity, self-preference where the grader and the graded system share a model; randomized order.
+- **Prompting:** per-question structured output with reasons; rules against the measured biases; versioned.
+- **Operation:** a reviewed share per run; re-validation on change; disagreement between graders as a review signal.
+
+## World Bank examples
+
+- The [PI-FT toolkit's method page](/pift-toolkit/method) describes graded evaluation with a model as judge for retrieval results.
+- The [dissemination cookbook's evaluation chapter](/cookbook/ai-ready-dissemination/evaluate) uses a model as first-pass grader with a reviewer checking a fifth of the grades, the pattern of recipe 6.3.
+- The [Metadata Reviewer](/docs/metadata-reviewer/overview) uses a critic agent to filter detections, a grader whose false passes the review board's decisions measure.
+
+## Resources
+
+- [Judging LLM-as-a-judge (Zheng et al., 2023)](https://arxiv.org/abs/2306.05685): the measured biases of model graders (position, verbosity, self-enhancement) and agreement with human judgements.
+- [Inspect](https://inspect.ai-safety-institute.org.uk/): model-graded scoring with rubrics, and the logging needed for a reviewed share.
+- [Cohen's kappa](https://doi.org/10.1177/001316446002000104): the agreement measure used for the validation.
+- [Grader validation file and script](pathname:///cookbook-files/evaluation-suites/judge_agreement.py): the running example.
+
+## Common mistakes
+
+- **A grader trusted because it is consistent.** Consistent with itself; validate against people.
+- **One overall score.** Per-question grades with reasons are what readers can check.
+- **Validation done once.** The model behind the grader changes; validate again.
+- **Averaging two graders.** Their disagreement is the signal; use it for review.
+
+## Verification
+
+- **Record:** every grader in use has a validation with agreement, kappa, false passes, and bias checks, with the grader's version.
+- **Rubric:** contains the rules the checks required; order randomized.
+- **Operation:** each run has a reviewed share with its agreement; re-validation ran after the last change.
+
+## Checklist
+
+<Checklist id="evaluation-suites-judges" items={[
+  'Human scores on a hundred items per task, with readers\' own agreement',
+  'Agreement, kappa, false passes, and false fails measured',
+  'Length and position bias checked; rubric rules added',
+  'Grader prompt with per-question structured output and reasons, versioned',
+  'Reviewed share each run with agreement recorded',
+  'Re-validation on every rubric or model change',
+]} />

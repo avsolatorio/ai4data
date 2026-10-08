@@ -1,0 +1,188 @@
+---
+id: gates
+title: "7. Gates on changes"
+sidebar_label: "7. Gates"
+sidebar_position: 8
+description: A paired comparison of the suite before and after a change, intervals on the difference per slice, a tolerance for regression, a review rule for slices too small to decide, and the gate run in continuous integration.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Gates on changes
+
+**Question:** How does the suite gate changes?
+
+## Rationale
+
+A suite that reports is read once; a suite that gates is run every time.
+The gate is a rule: the same questions through the version before and
+the version after a change, the difference per slice, an interval around
+the difference that says what thirty or three hundred questions can
+decide, a tolerance for regression the organization accepts, and what
+happens when a slice is too small to decide. A change that passes ships;
+a change that regresses a slice is blocked; a change that may have
+regressed a small slice goes to a person, and the set grows there. The
+rule is written down and run by a machine, so that it applies to every
+change of model, prompt, index, or metadata, including the ones made in
+a hurry.
+
+## Target state
+
+- Every change to a component runs the suite before and after, paired by question, with the difference per slice and a bootstrap interval.
+- A tolerance for regression is set per component, and a slice whose interval shows a regression beyond it blocks the change.
+- Slices too small to decide send the change to a person, and the question set grows in that slice.
+- The gate runs in continuous integration, and the component and the set are versioned together.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Run the suite before and after a change by hand; do not ship a lower overall score. |
+| **AI-ready** | Pair the runs; compute differences per slice with intervals; set the tolerance; apply the review rule; record every decision. |
+| **AI-native** | Run the gate in continuous integration on every change; version the component with the set; report the held-out part separately. |
+
+:::info[Running example]
+Two runs of thirty questions. Overall the change gains three points
+with an interval from minus seventeen to plus twenty-three; French goes
+from two in six to five in six; Spanish drops from four in six to two in
+six. Nothing is decidable at thirty questions; the Spanish drop and a
+drop on the no-answer questions send the change to a person.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Compare paired runs with intervals and a tolerance" level="AI-ready" skills="Python" time="Minutes per change">
+
+**Result:** per slice, the pass rate before and after, the difference,
+its interval, and a verdict; overall, a gate decision with a reason.
+
+```python file=../../website/static/cookbook-files/evaluation-suites/compare_runs.py
+```
+
+```bash
+python compare_runs.py run_scores_v1.csv run_scores_v2.csv --tolerance 0.05
+```
+
+Output for the running example:
+
+```text
+30 paired questions; tolerance 0.05
+
+group                n  before  after   diff     95% interval  verdict
+all                 30    0.70   0.73  +0.03   [-0.17, +0.23]  ok
+language=en         18    0.83   0.83  +0.00   [-0.22, +0.22]  ok (small)
+slice=official       8    0.75   0.75  +0.00   [-0.50, +0.50]  ok (small)
+slice=paraphrase    17    0.65   0.76  +0.12   [-0.12, +0.35]  ok (small)
+slice=none           5    0.80   0.60  -0.20   [-0.60, +0.00]  possible regression, too few to decide
+language=fr          6    0.33   0.83  +0.50   [+0.17, +0.83]  ok (small)
+language=es          6    0.67   0.33  -0.33   [-0.67, +0.00]  possible regression, too few to decide
+
+gate: REVIEW (slice=none, language=es dropped beyond the tolerance on too few questions to decide; a person decides, and the set grows there)
+```
+
+1. Score both versions on the same set version (the scorers of
+   [chapters 3](./retrieval.mdx) to [5](./extraction.mdx) write the
+   per-question pass files) and run the comparison.
+2. Read the verdicts: a regression beyond the tolerance with the whole
+   interval below it blocks; a drop beyond the tolerance on too few
+   questions sends the change to a person; the rest passes.
+3. Set the tolerance per component from [chapter 1](./inventory.mdx): a
+   public assistant tolerates less than a search.
+4. Record the decision, the person where one decided, and the reason
+   with the change.
+
+**What this does not do.** Thirty questions decide almost nothing, and
+the script says so; the intervals are the honest statement of that. The
+answer is more questions in the slices that matter, which is
+[chapter 2](./questions.mdx).
+
+</Recipe>
+
+<Recipe title="7.2 Put the gate in continuous integration" level="AI-native" skills="Developer" time="One day">
+
+**Result:** every change to the component's code, prompts, index, or
+configuration runs the gate automatically, and a blocked gate stops the
+change from reaching production.
+
+1. Keep the question set, the scorers, the required scores, and the
+   tolerance in the component's repository, versioned with it.
+2. On every change, run the suite on the previous and the new version
+   (or against the stored scores of the previous version on the same set
+   version) and the comparison; fail the pipeline on BLOCKED, hold on
+   REVIEW with the output attached for a person.
+3. Report the held-out part separately, so that a change tuned on the
+   development part is seen on questions it never touched.
+4. Store the run files and the decision with the change, so that a
+   regression found later can be traced to the change that passed it.
+
+**What this does not do.** A gate protects what the set covers. A
+change that breaks a question type the set lacks passes, which is why
+the production review of [chapter 8](./production.mdx) feeds the set.
+
+</Recipe>
+
+<Recipe title="7.3 Decide the review cases and grow the set where they occur" level="AI-ready" skills="Head of the unit; dissemination staff" time="An hour per review case">
+
+**Result:** a recorded decision for every change the gate sent to
+review, and more questions in the slice that could not decide.
+
+1. For a REVIEW verdict, a person reads the failed questions of the
+   slice with the answers before and after; a change that fixes one
+   kind of question and breaks another is a change to split.
+2. Decide: ship with the regression accepted and recorded, ship after a
+   fix, or hold; record the decision with the reason.
+3. Add questions to the slice that could not decide, from logs and from
+   native speakers, so that the next change is decidable there.
+4. Review the tolerance and the required scores each period from the
+   decisions.
+
+**What this does not do.** A review case is a judgement; the record of
+judgements is what makes the next one consistent. The set growth is the
+only thing that reduces the number of review cases.
+
+</Recipe>
+
+## Implementation options
+
+- **Comparison:** the script in this chapter; paired bootstrap on per-question outcomes; a tolerance per component.
+- **Verdicts:** BLOCKED (interval below the tolerance), REVIEW (drop beyond the tolerance, too few questions), PASS.
+- **Integration:** the gate in the repository's continuous integration; run files and decisions stored with the change; the held-out part reported separately.
+- **Records:** decisions with reasons; tolerance and required scores reviewed per period.
+
+## World Bank examples
+
+- The program's [continuous integration for cookbook scripts](https://github.com/worldbank/ai4data) runs the scripts of every cookbook on their examples on each change, the same mechanism applied to a suite.
+- The [curation cookbook](/cookbook/metadata-curation-with-llms/improve) gates prompt, manifest, and model changes on an evaluation set built from curator decisions.
+- The [agents cookbook](/cookbook/serving-statistics-to-agents/evaluate) keeps scores per version and blocks publication below the previous run.
+
+## Resources
+
+- [Bootstrap methods (Efron and Tibshirani, 1993)](https://doi.org/10.1201/9780429246593): the paired bootstrap the comparison uses.
+- [GitHub Actions](https://docs.github.com/actions) or any continuous integration service: where the gate runs on every change.
+- [Inspect](https://inspect.ai-safety-institute.org.uk/): evaluation logs and comparisons for suites with many measures.
+- [Runs and comparison script](pathname:///cookbook-files/evaluation-suites/compare_runs.py): the running example.
+
+## Common mistakes
+
+- **Comparing different question sets.** The difference is then between sets; pair by question on one set version.
+- **A gate on the overall score.** The slice that broke is invisible.
+- **No tolerance.** Every change regresses something by one question; the tolerance says what matters.
+- **Review cases decided and not recorded.** The next decision contradicts the last.
+
+## Verification
+
+- **Pairing:** every comparison is on the same set version with per-question pairing.
+- **Verdicts:** per slice with intervals; BLOCKED and REVIEW produce the stated actions.
+- **Integration:** the gate runs on every change; decisions and run files are stored with the change.
+
+## Checklist
+
+<Checklist id="evaluation-suites-gates" items={[
+  'Paired runs on the same set version',
+  'Differences per slice with bootstrap intervals',
+  'Tolerance per component set from the cost of error',
+  'BLOCKED, REVIEW, and PASS rules applied and recorded',
+  'Gate in continuous integration; held-out part reported separately',
+  'Set grown in the slices that could not decide',
+]} />

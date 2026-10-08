@@ -1,0 +1,172 @@
+---
+id: inventory
+title: "1. Components and decisions to evaluate"
+sidebar_label: "1. Inventory"
+sidebar_position: 2
+description: An inventory of the AI components an organization runs, the decision each makes and what an error costs, the order in which to build their suites, and the required scores set before any testing.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Components and decisions to evaluate
+
+**Question:** What should be evaluated, and in what order?
+
+## Rationale
+
+An organization that has deployed a search, an assistant, an extractor,
+and a drafting tool has four components making decisions, and rarely the
+capacity to build four suites at once. The order follows from what an
+error costs: a wrong number stated to the public by an assistant costs
+more than a search result in third place, and a confidential record sent
+to a model costs more than either. The inventory names each component,
+the decision it makes, the cost of a wrong decision, and the score it has
+to reach, before any suite is built, so that the first suite is the one
+that matters and the required score is set by the organization and not
+by what the first run happened to achieve.
+
+## Target state
+
+- Every AI component in production or planned is listed with the decision it makes, the kind of error it can make, and what that error costs.
+- The components are ordered for evaluation by cost of error, and the order is recorded in the AI component register.
+- Each component has a required score per measure, set before testing, with the reason.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | List the components and their decisions; set a required score for the most important one. |
+| **AI-ready** | Order the list by cost of error; set required scores per measure for every component; record them in the register. |
+| **AI-native** | Review the inventory each period from incidents and production samples; adjust the required scores from measured costs. |
+
+:::info[Running example]
+The example organization lists a search, an assistant, a mention
+extractor, and a metadata drafting tool. The assistant comes first (a
+wrong public number), then the search (a missed series), the drafter (a
+wrong definition reaches a curator), and the extractor (a wrong use
+count). The assistant's required scores are set at 98 percent numeric
+accuracy and 100 percent refusal on confidential questions.
+:::
+
+## Recipes
+
+<Recipe title="1.1 List the components and the decisions they make" level="Foundational" skills="Head of the unit; developer" time="Half a day">
+
+**Result:** one table with every component, its decision, its possible
+errors, and who is affected.
+
+| Component | Decision | Error | Affected |
+|---|---|---|---|
+| Catalog search | Which series are shown first | The right series is missing or low | Users who leave without finding it |
+| Assistant | Which number is stated, with which caveat | A wrong number, a wrong period, a missing caveat, an answer where none exists | The public, who quote it |
+| Mention extractor | Which spans are dataset mentions | Missed mentions, spurious ones | The use report and its readers |
+| Metadata drafter | What text a curator sees | An invented fact in a draft | The curator, and the record if accepted |
+
+1. Start from the AI component register of the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/govern);
+   every row is a component to evaluate.
+2. For each, write the decision in one sentence and the errors in the
+   user's terms, as in the table.
+3. Add the data the component sees, because a component that sees
+   confidential data has a refusal decision to evaluate as well.
+
+**What this does not do.** The table names decisions; the measures of
+[chapters 3](./retrieval.mdx) to [5](./extraction.mdx) quantify them. A
+component that makes several decisions (an assistant retrieves, answers,
+and refuses) gets a row per decision.
+
+</Recipe>
+
+<Recipe title="1.2 Order the components by the cost of error" level="AI-ready" skills="Head of the unit; dissemination lead" time="Two hours">
+
+**Result:** the order in which the suites are built, with the reason for
+each place.
+
+1. For each error in the table, estimate the cost in three bands: public
+   harm (a wrong figure published or quoted), internal harm (a wrong
+   value in a record or report that a person may catch), and
+   inconvenience (a user retries).
+2. Weight by exposure: how many decisions per month the component makes,
+   and whether a person reviews each one before it takes effect. A
+   drafter whose output a curator always reviews has a lower effective
+   cost than its error band suggests.
+3. Order by cost times exposure; the first suite is for the component at
+   the top. Record the order and the reasoning in the register.
+
+**What this does not do.** The estimate is a judgement in bands; it does
+not need to be precise to be useful, and it is revised when a production
+sample ([chapter 8](./production.mdx)) shows an error the bands did not
+anticipate.
+
+</Recipe>
+
+<Recipe title="1.3 Set the required scores before testing" level="AI-ready" skills="Head of the unit; subject-matter staff" time="Two hours per component">
+
+**Result:** for each component, the measures of the later chapters with
+the score each has to reach, and why.
+
+1. Choose the measures from the chapter that fits the component: search
+   ([chapter 3](./retrieval.mdx)), answers ([chapter 4](./answers.mdx)),
+   extraction and classification ([chapter 5](./extraction.mdx)).
+2. Set each required score from the cost of error, before any run: a
+   public-facing assistant needs numeric accuracy near 100 percent and
+   full refusal on questions it must not answer; a search needs Recall@5
+   high enough that most users find the series on the first page; an
+   extractor that feeds a report needs the precision the report's
+   readers expect, with the coverage caveat stated.
+3. Set the scores per slice where it matters: per language, and for the
+   questions with no answer.
+4. Write the scores into the register with the date; a run that reaches
+   them is a pass, and a run that does not is a known gap, never a
+   reason to move the score.
+
+**What this does not do.** A required score is a decision about
+acceptable risk; it does not say whether the score is reachable. The
+first runs show that, and an unreachable score is a reason to change the
+component's scope ([dissemination cookbook, chapter 8](/cookbook/ai-ready-dissemination/govern)),
+never the score.
+
+</Recipe>
+
+## Implementation options
+
+- **Inventory:** the AI component register with columns for decision, error, cost band, exposure, order, and required scores.
+- **Cost bands:** public harm, internal harm, inconvenience; exposure as decisions per month and whether a person reviews each.
+- **Required scores:** per measure and per slice; recorded with the date and the reason.
+
+## World Bank examples
+
+- The [AI-use policy](/cookbook/ai-ready-dissemination/govern) and the component register of the dissemination cookbook hold the inventory and the required scores.
+- The [agents cookbook](/cookbook/serving-statistics-to-agents/purpose) sets success criteria for an agent interface before the tools are built, the same order as this chapter.
+
+## Resources
+
+- [AI component register](pathname:///cookbook-files/ai-ready-dissemination/ai_component_register.csv): the register template, to be extended with the columns of this chapter.
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework): the map, measure, manage structure the inventory and the required scores fit into.
+- [ISO/IEC 42001](https://www.iso.org/standard/42001): the management system standard that requires measured performance per AI system.
+- [Evaluation chapter of the dissemination cookbook](/cookbook/ai-ready-dissemination/evaluate): the first suite most organizations build, for catalog search and answers.
+
+## Common mistakes
+
+- **Evaluating what is easiest first.** Search is easy to score; the assistant's wrong numbers are what reach the public.
+- **Required scores set after the first run.** They become whatever the run achieved.
+- **One score for all languages.** A component that works in one language is evaluated in the others before it serves them.
+- **Reviewed components treated as unreviewed.** A drafter under curator review has a lower effective cost; an assistant without review has the full one.
+
+## Verification
+
+- **Inventory:** every row of the component register has a decision, an error, a cost band, and an exposure.
+- **Order:** the first suite built is for the top component.
+- **Scores:** each component has required scores per measure and slice, dated, in the register.
+
+## Checklist
+
+<Checklist id="evaluation-suites-inventory" items={[
+  'Every AI component listed with its decision and possible errors',
+  'Cost band and exposure per error',
+  'Components ordered for evaluation with the reasoning recorded',
+  'Required scores per measure and slice set before testing',
+  'Scores recorded in the AI component register with the date',
+  'Inventory reviewed each period from incidents and samples',
+]} />

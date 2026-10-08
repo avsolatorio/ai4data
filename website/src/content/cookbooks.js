@@ -55,4 +55,13 @@ export const cookbooks = [
     chapters: 8,
     to: '/cookbook/metadata-curation-with-llms/',
   },
+  {
+    id: 'evaluation-suites',
+    audience: 'Teams that deploy AI components in national statistical organizations',
+    title: 'Practical Guide to Evaluation Suites for Statistical AI',
+    description:
+      'How to build, run, and maintain the evaluation suites that decide whether search, assistants, extraction, and curation tools are good enough to publish and safe to change.',
+    chapters: 9,
+    to: '/cookbook/evaluation-suites/',
+  },
 ];
