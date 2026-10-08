@@ -50,8 +50,18 @@ published with the numbers for them to be read.
 
 <Recipe title="9.1 Produce the report card" level="AI-ready" skills="Python" time="Minutes per release">
 
-**Result:** a report card with pass rates and intervals per slice, ready
-to paste into a release note, with the fields that make it readable.
+**Result:** a short, fixed-format summary of a run that gives the pass
+rate for each slice with an interval around it, and the facts a reader
+needs to interpret the rates.
+
+A score alone ("Recall@5 is 0.86") cannot be compared with anything:
+the set may have changed since last quarter, and another organization's
+set differs. The report card states, with every score, the version and
+size of the question set, the versions of the system, the date, and
+the interval that says how precise the score is.
+
+The script reads a run file (one row per question with pass or fail,
+language, and slice) and prints the card:
 
 ```python file=../../website/static/cookbook-files/evaluation-suites/report_card.py
 ```
@@ -77,63 +87,74 @@ language=es          6      0.33   [0.00, 0.67]
 Publish with: the question set version, the measure definitions, the model and index versions, and the date.
 ```
 
-1. Run the card on the release's run file; add the set version and
-   size, the measure definitions (or a link to them), the component
-   versions (model, index, prompt), and the date.
+1. Run the script on the release's run file. Add the question set's
+   version and size, the definitions of the measures (or a link to
+   them), the versions of the system (model, search index, prompt), and
+   the date.
 2. Add the production scores of the period ([chapter 8](./production.mdx))
    and the gate decision ([chapter 7](./gates.mdx)) with its reason.
-3. Keep the cards in the repository with the releases; the series of
-   cards is the component's history.
+3. Add a line with the required score beside the measured score for
+   each measure, so that the card says whether the release meets the
+   standard set in [chapter 1](./inventory.mdx).
+4. Keep the cards with the releases. The series of cards is the
+   system's history.
 
-**What this does not do.** The card reports the run; it does not say
-whether the required scores of [chapter 1](./inventory.mdx) were met.
-Add that line, with the required score beside the measured one.
+**What this does not do.** The card reports a run. It does not improve
+the system, and a card with wide intervals is a reminder that the set
+is small, which is [chapter 2](./questions.mdx).
 
 </Recipe>
 
 <Recipe title="9.2 Publish what is measured about each public component" level="AI-ready" skills="Dissemination lead" time="Half a day per component">
 
-**Result:** a public statement, in the method documentation, of what
-each public AI component does, how it is evaluated, and the latest
-scores.
+**Result:** a public statement, in the organization's method
+documentation, of what each public AI component does, how it is tested,
+and its latest results.
 
-1. For each public component (search, assistant, agent interface),
-   publish: what it does and does not do, the measures and the set in
-   outline (size, languages, question types), the latest report card's
-   headline rates with intervals, and the date.
-2. State the limits in users' terms: the languages covered, the question
-   types that fail most, what the assistant declines.
-3. Update with each release; keep the previous statements.
-4. Use the model card and datasheet formats as the outline, so that
-   readers familiar with them find what they expect.
+1. For each public component (the search, the assistant, the agent
+   interface), publish four things:
+   - what it does and does not do;
+   - the measures and an outline of the question set (its size,
+     languages, and kinds of question);
+   - the headline rates from the latest report card with their
+     intervals;
+   - the date.
+2. State the limits in users' terms: which languages are covered, which
+   kinds of question fail most, what the assistant declines.
+3. Update the statement with each release and keep the previous ones.
+4. Follow the outline of a model card and a datasheet (two widely used
+   formats for describing a model and a dataset), so that readers who
+   know them find what they expect.
 
-**What this does not do.** A public statement is accountability, not
-assurance. The assurance is the gate and the production review; the
+**What this does not do.** A public statement is accountability. The
+assurance behind it is the gate and the production review; the
 statement reports them.
 
 </Recipe>
 
 <Recipe title="9.3 Use a shared set format and exchange results" level="AI-native" skills="Developer; dissemination lead" time="One day to adopt the format">
 
-**Result:** question sets documented and formatted so that other
-organizations can run them, and results that can be compared across
-organizations that use the same sets.
+**Result:** question sets in a documented, shared format that other
+organizations can run, and results that can be compared with theirs.
 
-1. Keep sets in the CSV and JSON lines formats of this guide and the
-   other cookbooks, with the slice fields and provenance; document each
-   set with a datasheet (purpose, sources, composition, labelling,
-   agreement, licence).
-2. Publish sets whose questions and answers are public data (catalog
-   questions with expected identifiers) under an open licence; keep sets
-   with confidential content internal.
-3. Run other organizations' public sets against the component where
-   the catalogs overlap in concept, and report the results as a separate
-   card; differences in catalogs explain most differences in scores.
-4. Contribute questions and failure modes back through the program.
+1. Keep sets in the file formats of this guide and the other cookbooks,
+   with the slice fields and the source of each question. Describe each
+   set in a datasheet: its purpose, where its questions came from, what
+   it contains, how it was labelled, the labellers' agreement, and its
+   licence.
+2. Publish the sets whose questions and answers are public data
+   (catalog questions with expected identifiers) under an open licence.
+   Keep sets with confidential content internal.
+3. Run other organizations' public sets against the system where the
+   catalogs cover similar concepts, and report the results on a separate
+   card. Differences between catalogs explain most differences in
+   scores.
+4. Send new questions and newly found kinds of failure back through the
+   program.
 
-**What this does not do.** Comparability across organizations is
-approximate: catalogs, languages, and users differ. A shared format makes
-the differences inspectable; it does not remove them.
+**What this does not do.** Comparison across organizations is rough,
+because catalogs, languages, and users differ. A shared format makes
+the differences visible; it does not remove them.
 
 </Recipe>
 

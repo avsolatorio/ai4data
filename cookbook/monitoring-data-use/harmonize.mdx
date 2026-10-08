@@ -47,13 +47,17 @@ the report keeps as co-use.
 
 <Recipe title="7.1 Match mentions to canonical names" level="AI-ready" skills="Python" time="One hour; minutes per run">
 
-**Result:** every mention assigned an identifier, a match type, and a
-score, with the unmatched listed for review.
+**Result:** every mention assigned to a dataset identifier where
+possible, with the kind of match and a score, and the unmatched
+mentions listed for review.
+
+The matcher reads the mentions of [chapter 6](./detect.mdx) and the
+names table of [chapter 1](./define.mdx). It tries an exact match
+against the names and variants first, then a match where the mention
+contains a name, then a fuzzy match by string similarity:
 
 ```python file=../../website/static/cookbook-files/monitoring-data-use/harmonize_mentions.py
 ```
-
-1. Run the matcher:
 
 ```bash
 python harmonize_mentions.py mentions_example.jsonl canonical_names.csv -o harmonized.jsonl
@@ -68,67 +72,70 @@ contains   0.63  D03  'the labour survey'                                    -> 
 none       0.00  D04  'Demographic and Health Survey 2016'                   -> -
 exact      1.00  D05  'unemployment rate from the LFS'                       -> LF_UNEMP_PCT
 none       0.00  D06  'World Development Indicators'                         -> -
-
 12 mentions: exact 8, contains 2, fuzzy 0, none 2
 ```
 
-2. Read the match types. Exact matches are safe; phrase and fuzzy matches
-   are checked on a sample; unmatched mentions go to recipe 7.3.
+1. Run the matcher.
+2. Read the match types. Exact matches are safe; "contains" and fuzzy
+   matches are checked on a sample; unmatched mentions go to recipe
+   7.3.
 3. For large collections, use the program's harmonization step, which
-   adds semantic similarity with sentence embeddings and clusters
-   mentions before matching, and run this script as the baseline to see
-   what string rules alone resolve.
+   adds matching by meaning (sentence embeddings) and clusters mentions
+   before matching. Run this script as the baseline, to see what string
+   rules alone resolve.
 
-**What this does not do.** String matching resolves known variants. A new
-way of naming a dataset is unmatched until a person adds it; the semantic
-matching in the program's pipeline narrows that gap and still ends in
-review.
+**What this does not do.** String matching resolves known variants. A
+new way of naming a dataset is unmatched until a person adds it. The
+matching by meaning in the program's pipeline narrows that gap and
+still ends in review.
 
 </Recipe>
 
 <Recipe title="7.2 Distinguish editions and track other organizations' data" level="AI-ready" skills="Dissemination officer" time="Part of each review">
 
-**Result:** uses counted at the right level (the survey series or a
-specific round) and co-use with other datasets recorded.
+**Result:** uses counted at the right level (the survey series, or one
+specific round of it), and the other datasets the organization's data
+are used with recorded as co-use.
 
 1. Decide per dataset whether to count at the series level (the Labour
-   Force Survey) or the edition level (the 2021 Household Budget Survey),
-   and give both levels identifiers in the table, with the edition as a
-   child of the series.
+   Force Survey) or the edition level (the 2021 Household Budget
+   Survey). Give both levels identifiers in the names table, with the
+   edition as a child of the series.
 2. Match a mention with a year to the edition, and a mention without one
-   to the series; report both levels.
-3. Keep unmatched mentions of other organizations' datasets as **co-use**:
-   which external data the organization's data are used with. This is
-   informative for partnerships and for the gap analysis in
+   to the series. Report both levels.
+3. Keep unmatched mentions of other organizations' datasets as
+   **co-use**: which external data the organization's data are used
+   with. This informs partnerships and the gap analysis of
    [chapter 9](./act.mdx).
-4. When another organization's dataset recurs, add it to a separate table
-   with its own canonical name, so that co-use is counted consistently.
+4. When another organization's dataset recurs, add it to a separate
+   table with its own canonical name, so that co-use is counted
+   consistently.
 
-**What this does not do.** Editions distinguished by year in the text are
-the easy case. A mention that names the series while the analysis used one
-round is resolved only by reading the methods section, which the review
-sample does.
+**What this does not do.** Editions distinguished by a year in the text
+are the easy case. A mention that names the series while the analysis
+used one round is resolved only by reading the methods section, which
+the review sample does.
 
 </Recipe>
 
 <Recipe title="7.3 Review unmatched and low-score matches" level="AI-ready" skills="Dissemination officer" time="One hour per run">
 
-**Result:** every unmatched or uncertain mention decided, and the names
-table extended with the confirmed variants.
+**Result:** every unmatched or uncertain mention decided by a person,
+and the names table extended with the variants that were confirmed.
 
-1. List the unmatched mentions and the phrase and fuzzy matches below a
-   chosen score; the matcher prints both.
-2. For each, decide: a variant of the organization's dataset (add it to the
-   table), another organization's dataset (co-use), or a false positive
-   from extraction (add the sentence to the labelled sample as a negative
-   example).
-3. Re-run the matcher; the mentions now match exactly.
-4. Keep the decisions with the date and the person; disagreements between
-   reviewers refine the rules.
+1. List the unmatched mentions and the "contains" and fuzzy matches
+   below a chosen score. The matcher prints both.
+2. For each, decide: a variant of the organization's dataset (add it to
+   the table), another organization's dataset (co-use), or a false
+   positive from extraction (add the sentence to the labelled sample as
+   a negative example).
+3. Re-run the matcher. The mentions now match exactly.
+4. Keep the decisions with the date and the person. Disagreements
+   between reviewers refine the rules.
 
-**What this does not do.** Review resolves the mentions found. It does not
-raise the extractor's recall; misses are addressed through the labelled
-sample in [chapter 6](./detect.mdx).
+**What this does not do.** Review resolves the mentions found. It does
+not raise the extractor's recall; misses are addressed through the
+labelled sample in [chapter 6](./detect.mdx).
 
 </Recipe>
 

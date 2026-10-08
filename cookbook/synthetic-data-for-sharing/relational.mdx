@@ -53,33 +53,44 @@ file goes back to the method before any utility is measured.
 
 <Recipe title="5.1 Synthesize linked tables with a relational generator" level="AI-ready" skills="Data scientist with Python" time="Two to three days for the first survey">
 
-**Result:** a parent table and a child table generated so that every
-child belongs to a generated parent, with the parent's characteristics
-conditioning the children.
+**Result:** a synthetic household table and a synthetic person table in
+which every person belongs to a generated household and the persons'
+characteristics depend on their household's.
 
-1. Prepare the real pair with the key: the household table with its
-   variables and the person table with the household identifier and the
-   within-household position.
+1. Prepare the real pair of tables with the key that links them: the
+   household table with its variables, and the person table with the
+   household identifier and each person's position in the household.
 2. Fit the relational mode of [REaLTabFormer](https://github.com/worldbank/REaLTabFormer):
-   a model for the parent table and a sequence-to-sequence model that
-   generates each household's persons conditional on the household
-   record; or the HMA synthesizer of SDV for a copula-based alternative.
-3. Generate households first, then their persons; keep the seed and the
-   parameters.
-4. Recompute the derived variables (household size, number of children,
-   head's age) from the generated persons; they are not synthesized.
+   one model for the household table and a second model that generates
+   each household's persons given the household record. The HMA
+   synthesizer of SDV is a copula-based alternative.
+3. Generate the households first, then their persons. Keep the seed and
+   the settings.
+4. Compute the derived variables (household size, number of children,
+   the head's age) from the generated persons. They are never
+   synthesized directly.
 
 **What this does not do.** A relational generator preserves the
-dependence of children on their parent record; it does not know the
-survey's rules (one head per household, children younger than the
-head) unless the data make them nearly certain. Recipe 5.2 checks them.
+dependence of persons on their household. It does not know the survey's
+logical rules (one head per household, children younger than the head)
+unless the data make them nearly certain. Recipe 5.2 checks them.
 
 </Recipe>
 
 <Recipe title="5.2 Check integrity and structure before anything else" level="Foundational" skills="Python" time="Minutes per file">
 
-**Result:** every integrity and structure fault in the synthetic pair
-listed, and the structural distributions compared with the real pair.
+**Result:** a list of every structural fault in the synthetic pair of
+tables, and a comparison of its household-size distribution with the
+real one, produced before any utility is measured.
+
+The script reads a synthetic household table (one row per household:
+identifier, region, size) and a synthetic person table (one row per
+person: household identifier, position, relationship to the head, age,
+sex). It checks that every person's household exists, that every
+household has persons, that recorded sizes match person counts, that
+each household has exactly one head, that children are younger than the
+head, and that spouses are within 25 years of the head. Given the real
+pair, it also compares the distributions of household size:
 
 ```python file=../../website/static/cookbook-files/synthetic-data-for-sharing/relational_check.py
 ```
@@ -101,45 +112,47 @@ Output for the running example:
 household size distribution: TVD 0.025; persons per household: TVD 0.022
 ```
 
-1. Run the check on every synthetic pair; a fault is a method problem
+1. Run the check on every synthetic pair. A fault points to the method
    (a generator that invents identifiers, a derived size that was
-   synthesized) and the file goes back.
-2. Add the survey's own rules to the script: school age and attendance,
-   labour force status by age, marital status and age, whatever the
-   questionnaire's routing enforces.
-3. Read the structural distributions: household size and persons per
-   household are the first things users of the file tabulate.
-4. Run the utility and risk reports of [chapters 3](./utility.mdx) and
-   [4](./risk.mdx) on each table and on the joined file only after the
-   structure holds.
+   synthesized), and the file goes back.
+2. Add the survey's own rules to the script: school age and
+   attendance, labour force status by age, marital status by age,
+   whatever the questionnaire's routing enforces.
+3. Read the distributions. Household size and persons per household are
+   the first things users of the file will tabulate.
+4. Only once the structure holds, run the utility and risk reports of
+   [chapters 3](./utility.mdx) and [4](./risk.mdx) on each table and on
+   the joined file.
 
-**What this does not do.** The check enforces the rules it has; a rule
-nobody wrote (a plausible age gap between siblings) is not checked, and
-a relational file passes with implausibilities a demographer would
+**What this does not do.** The check enforces the rules it has been
+given. A rule nobody wrote (a plausible age gap between siblings) is not
+checked, and a file can pass with implausibilities a demographer would
 notice. The rules grow from such findings.
 
 </Recipe>
 
 <Recipe title="5.3 Synthesize panel data wave by wave" level="AI-native" skills="Methodologist; data scientist" time="One week for the first panel">
 
-**Result:** a synthetic panel in which each person's records across
-waves are consistent and the transitions between states resemble the
-real ones.
+**Result:** a synthetic panel in which each person's records are
+consistent from one wave to the next, and the transitions between
+states resemble those in the real panel.
 
-1. Synthesize the first wave as a cross-section ([chapter 2](./method.mdx)).
-2. For each later wave, synthesize the wave's variables conditional on
-   the same person's previous wave (sequential synthesis with the
-   previous wave's variables first in the visit sequence), with fixed
-   characteristics carried over and ages advanced by rule.
-3. Check transitions: the matrix of labour force status from wave to
-   wave, and the share of implausible changes (a fall in age, a change
-   of sex), against the real panel.
-4. Apply attrition as the real panel had it, by rule, so that the
-   synthetic panel has the same shape over time.
+1. Synthesize the first wave as a single table ([chapter 2](./method.mdx)).
+2. For each later wave, synthesize its variables conditional on the
+   same person's previous wave: in sequential synthesis, put the
+   previous wave's variables first in the visit sequence. Carry fixed
+   characteristics (sex, year of birth) over unchanged and advance ages
+   by rule.
+3. Check the transitions against the real panel: the table of labour
+   force status in one wave against the next, and the share of
+   impossible changes (a fall in age, a change of sex).
+4. Apply attrition (people leaving the panel) by rule, matching the
+   real panel, so that the synthetic panel keeps the same shape over
+   time.
 
-**What this does not do.** Wave-by-wave synthesis preserves first-order
-dynamics; longer dependencies (a return to a state after two waves) are
-attenuated, and the record says so. A sequence model over whole
+**What this does not do.** Synthesizing wave by wave preserves the link
+between consecutive waves and weakens longer patterns, such as a return
+to a state after two waves; the record says so. A model over whole
 person histories is the alternative for panels with many waves.
 
 </Recipe>

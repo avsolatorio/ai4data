@@ -53,11 +53,24 @@ to pass. The server loads nothing until the lock verifies.
 
 <Recipe title="6.1 Record provenance and verify digests before every load" level="Foundational" skills="Infrastructure; Python" time="An hour per model">
 
-**Result:** a lock file per model, and a verification that runs before
-the server loads the files.
+**Result:** for each model, a lock file that records where it came from
+and a fingerprint of each of its files, and a check that runs before the
+server loads the files and stops the server if any file differs.
+
+A model is a set of large files downloaded from the internet. Before
+they run on the organization's data, the organization needs to know
+that the files in use are the ones it reviewed. A digest (a SHA-256
+fingerprint, a string that changes if a single byte of the file
+changes) answers that. The lock file below records, for one model, its
+identifier, version, source, and the digest of each file:
 
 ```json file=../../website/static/cookbook-files/small-and-open-models/model_lock.json
 ```
+
+The script below computes the digest of every file in a model directory
+and compares it with the lock file. It reports files that match, files
+that differ, files that are missing, and files present in the directory
+that the lock file does not list:
 
 ```python file=../../website/static/cookbook-files/small-and-open-models/verify_model_files.py
 ```
@@ -66,8 +79,8 @@ the server loads the files.
 python verify_model_files.py model_lock.json /path/to/model-dir
 ```
 
-Output for the running example (a test directory with one altered file
-and one unlisted file):
+Output for the running example, run on a test directory in which one
+file was altered and one file was added:
 
 ```text
 example-org/stats-coder-3b 1.2.0 from internal registry, imported from the base model's publisher on 2026-09-10
@@ -80,69 +93,79 @@ example-org/stats-coder-3b 1.2.0 from internal registry, imported from the base 
 2 verified, 1 mismatched, 0 missing, 1 unlisted
 ```
 
-1. At import, record the source (publisher, URL, date), the version, the
-   licence classification ([chapter 2](./candidates.mdx)), and the
-   digest of each file; store the files in the organization's own
-   registry (an internal object store or artifact repository), never
-   served from the internet at run time.
-2. Run the verification as the first step of every deployment and
-   restart; a mismatch stops the start.
-3. Prefer safe weight formats (safetensors, GGUF) that load without
-   executing code; refuse formats that can.
-4. Where the publisher signs releases, verify the signature at import
-   and record it in the lock file.
+1. When a model is imported, record its source (publisher, address,
+   date), its version, its licence class ([chapter 2](./candidates.mdx)),
+   and the digest of each file. Store the files in the organization's
+   own registry (an internal file store). The server never downloads
+   from the internet at start-up.
+2. Run the verification as the first step of every deployment and every
+   restart. A mismatch stops the start.
+3. Use only weight formats that cannot run code when loaded
+   (`safetensors`, GGUF). Refuse formats that can.
+4. Where the publisher signs its releases, verify the signature at
+   import and record it in the lock file.
 
-**What this does not do.** A verified digest proves the files are the
-ones recorded; the trust in the recorded files comes from the import
-review (publisher, licence, card). An internal fine-tuned model is
-locked the same way, with the organization as publisher.
+**What this does not do.** A matching digest proves that the files are
+the ones recorded. Whether the recorded files deserve trust was decided
+at import, by reading the publisher, the licence, and the model card. A
+model the organization fine-tuned is locked the same way, with the
+organization as its publisher.
 
 </Recipe>
 
 <Recipe title="6.2 Update models through the suite's gate" level="AI-ready" skills="Developer" time="Part of each update">
 
-**Result:** a new model version reaches production only after the suite
-passes, with the previous version kept and the switch recorded.
+**Result:** a new version of a model reaches production only after it
+has passed the task's test questions, with the previous version kept
+ready and the switch recorded.
 
-1. Treat a new version (a publisher's release, a new fine-tune, a new
-   quantization) as a candidate: import, verify, card, licence re-read.
-2. Run the suite and the frontier ([chapter 5](./comparison.mdx)); the
-   gate of the [evaluation cookbook](/cookbook/evaluation-suites/gates)
+Publishers release new versions often. Each one is a change like a
+change of prompt: it can improve one task and quietly break another.
+
+1. Treat every new version (a publisher's release, a new fine-tune, a
+   new quantization) as a new candidate: import it, verify it, write its
+   card, and read its licence again.
+2. Run the suite and redraw the frontier ([chapter 5](./comparison.mdx)).
+   The comparison rule of the [evaluation cookbook](/cookbook/evaluation-suites/gates)
    decides.
-3. Deploy with the previous version kept deployable for the rollback
-   period; record the switch in the AI component register with the lock
+3. Deploy with the previous version kept ready to restore for an agreed
+   period. Record the switch in the AI component register with the lock
    file version.
-4. Pin the serving stack with the model; a stack update is also a
-   gated change.
+4. Update the serving stack together with the model; a stack update is
+   also a change the suite has to pass.
 
-**What this does not do.** The gate measures the suite's questions. A
-version that changes behaviour the suite does not cover (a different
-refusal style) is caught by the production review of the evaluation
-cookbook, and the rollback exists for it.
+**What this does not do.** The suite measures what its questions cover.
+A new version that changes something the questions do not cover (how it
+phrases a refusal, for example) is caught by the production review of
+the evaluation cookbook, and the kept previous version is the remedy.
 
 </Recipe>
 
 <Recipe title="6.3 Isolate the serving environment" level="AI-ready" skills="Infrastructure; security" time="One day">
 
-**Result:** a model server that can read its weights and answer its
-callers, and nothing else.
+**Result:** a model server that can read its own files and answer the
+jobs that call it, and can do nothing else.
 
-1. Run the server under a service account with the model directory
-   read-only and no access to the data stores; the jobs that call it
-   send the inputs.
-2. Limit the network: inbound from the jobs' and the gateway's addresses
-   only; outbound to nothing, so that a compromised server cannot
-   exfiltrate or fetch.
-3. Log requests with the caller, the model version, timings, and token
-   counts; log the content only where it is not confidential, and
-   state the retention.
-4. Keep the server's dependencies pinned and scanned like any service;
-   rebuild from the pinned definition; patching in place drifts.
+A server that runs on confidential data is a target. Limiting what it
+can reach limits what a compromise could do.
+
+1. Run the server under its own service account, with the model
+   directory read-only and no access to any data store. The jobs that
+   call the server send it the inputs it needs.
+2. Restrict the network: accept connections only from the addresses of
+   the jobs and the gateway; allow no outbound connections, so that a
+   compromised server can neither send data out nor fetch anything.
+3. Log each request with the caller, the model version, the timing, and
+   the token counts. Log the content only where it is not confidential,
+   and state how long logs are kept.
+4. Keep the server's software dependencies pinned and scanned like any
+   other service, and rebuild it from its definition when something
+   changes; a server patched in place drifts from its definition.
 
 **What this does not do.** Isolation limits what a compromised server
-can do; the inputs it receives are the jobs' responsibility (prompt
-injection is covered by the
-[dissemination cookbook's governance chapter](/cookbook/ai-ready-dissemination/govern)),
+can do. The inputs it receives are the responsibility of the jobs that
+send them (prompt injection, the hiding of instructions inside content,
+is covered by the [dissemination cookbook's governance chapter](/cookbook/ai-ready-dissemination/govern)),
 and the outputs are checked by the workflows that use them.
 
 </Recipe>

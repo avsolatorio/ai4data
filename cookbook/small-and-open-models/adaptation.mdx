@@ -55,82 +55,108 @@ three times the cost per query.
 
 <Recipe title="4.1 Prompt with the context the task needs" level="Foundational" skills="Developer; task owner" time="Half a day per task">
 
-**Result:** a versioned prompt per task that gives a small model the
-instructions, the context, and the output format, tested on the suite.
+**Result:** a written prompt for the task, kept as a versioned file,
+that gives the model its instructions, the reference material it needs,
+and the format of the answer, with its score on the task's test
+questions recorded.
 
-1. Write the prompt from the task's cookbook recipe: the instruction,
-   the context (the schema field definitions for drafting, the
-   classification index for coding, the rules for edit explanations),
-   two or three examples from the organization's own data, and the
-   output schema for structured output.
-2. Keep the prompt short enough for the model's context at the planned
-   concurrency ([chapter 3](./serving.mdx)); the context budget is
-   spent on examples and reference material, never on prose.
-3. Version the prompt file; run the suite; record the score with the
-   prompt and model versions.
-4. Change one thing at a time and re-run; the gate of the
-   [evaluation cookbook](/cookbook/evaluation-suites/gates) decides.
+A prompt is the text sent to the model with each request: the
+instruction, any reference material, examples, and the form the answer
+should take. A small model does well on a narrow task when the prompt
+gives it what it needs: the classification's index for coding, the
+schema's field definitions for drafting, the edit rules for
+explanations. Prompting is the first adaptation to try because it costs
+a day and needs no training.
 
-**What this does not do.** Prompting cannot add knowledge the model
-lacks about the organization's catalog; retrieval does that (recipe
-4.2). A prompt that grows past a page is a sign that the task needs
-retrieval or fine-tuning.
+1. Write the prompt in four parts: the instruction; the reference
+   material (taken from the task's recipe in its own cookbook); two or
+   three examples from the organization's own data; and the output
+   format, as a JSON structure the software can check.
+2. Keep the prompt short enough to fit the model's context at the
+   planned concurrency ([chapter 3](./serving.mdx)). Spend the space on
+   reference material and examples, never on prose.
+3. Save the prompt as a file under version control. Run the task's test
+   questions and record the score with the prompt version and the model
+   version.
+4. Change one thing at a time and run the questions again. The
+   comparison rule of the [evaluation cookbook](/cookbook/evaluation-suites/gates)
+   decides whether the change stays.
+
+**What this does not do.** A prompt cannot teach the model facts about
+the organization's catalog that it has never seen; retrieval does that
+(recipe 4.2). A prompt that has grown past a page is a sign that the
+task needs retrieval or fine-tuning.
 
 </Recipe>
 
 <Recipe title="4.2 Retrieve the organization's material at query time" level="AI-ready" skills="Developer" time="One to two days per task">
 
-**Result:** the task's prompts carry the records, definitions, or index
-entries retrieved for each input, with the retrieval scored on its own.
+**Result:** for each request, the model receives the few records,
+definitions, or index entries that are relevant to it, found by a search
+over the organization's own material, and the search itself is scored
+separately from the model.
 
-1. Build the index over the material the task needs: catalog records
-   for the assistant and the drafter, classification index entries for
-   coding, question bank entries for design; the
+Retrieval means searching the organization's material for each request
+and putting the results into the prompt, so that the model writes from
+what the organization published and nothing else. For an assistant, the
+material is the catalog records; for coding, the classification's index
+entries; for questionnaire design, the question bank.
+
+1. Build a search index over the material the task needs. The
    [dissemination cookbook](/cookbook/ai-ready-dissemination/find)
-   builds the catalog index.
-2. Retrieve a few candidates per input (keyword plus embeddings) and
-   put them in the prompt; the model chooses among or writes from them.
-3. Score the retrieval separately with the measures of the
-   [evaluation cookbook](/cookbook/evaluation-suites/retrieval): a
-   wrong answer with the right material retrieved is the model's; with
-   the wrong material, the retrieval's.
-4. Fine-tune the embedding model on the organization's queries and
-   records where the retrieval scores are the limit; the
+   describes the catalog index, which combines keyword search with search
+   by meaning.
+2. For each request, retrieve a few candidates and put them in the
+   prompt. The model chooses among them or writes from them.
+3. Score the retrieval on its own, with the measures of the
+   [evaluation cookbook](/cookbook/evaluation-suites/retrieval). When the
+   answer is wrong and the right material was retrieved, the model is at
+   fault; when the wrong material was retrieved, the search is.
+4. Where the retrieval scores are the limit, fine-tune the embedding
+   model on the organization's own queries and records. The
    [PI-FT toolkit](/pift-toolkit/pipeline) does this for structured
    metadata.
 
 **What this does not do.** Retrieval grounds the model in the
-organization's material; it does not make the model follow the
-organization's conventions (the style of a definition, the code a
-coder would choose), which fine-tuning teaches.
+organization's material. It does not teach the model the organization's
+conventions, such as the style of a definition or the code a coder would
+choose; fine-tuning does that (recipe 4.3).
 
 </Recipe>
 
 <Recipe title="4.3 Fine-tune on the organization's labelled data" level="AI-ready" skills="Data scientist with a GPU" time="One to two weeks for the first model">
 
-**Result:** a derived model that follows the organization's conventions
-on its own data, with a card, a licence, and suite results, gated like
-any change.
+**Result:** a version of the model trained further on the
+organization's own labelled examples, so that it follows the
+organization's conventions, with a model card, a licence, and test
+scores, and approved through the same comparison as any other change.
 
-1. Collect the labelled data the workflows already produce: coder
+Fine-tuning changes the model's weights by training it on examples the
+organization has: responses with the codes coders gave them, drafts with
+the versions curators approved, documents with the mentions labellers
+marked. It is the most expensive adaptation and the one that makes a
+small model match a large one on the organization's own data.
+
+1. Collect the labelled examples the workflows already produce: coder
    decisions ([production cookbook, chapter 3](/cookbook/language-models-in-production/coding)),
    curator decisions ([curation cookbook, chapter 8](/cookbook/metadata-curation-with-llms/improve)),
-   labelled mentions; tens of thousands of examples for a generator,
-   thousands for an embedding model.
-2. Fine-tune with parameter-efficient methods (adapters) on the
-   organization's hardware; hold out a part of the data; keep the
-   training configuration under version control.
+   labelled mentions. A text-generating model needs tens of thousands;
+   an embedding model needs thousands.
+2. Train with a parameter-efficient method (an adapter, which trains a
+   small addition to the model and leaves the rest unchanged) on the
+   organization's hardware. Hold back a part of the data for testing.
+   Keep the training settings under version control.
 3. Write the model card as the publisher ([chapter 2](./candidates.mdx)),
-   with the training data statement and the suite results; choose a
-   licence the base model's licence allows.
-4. Gate the model with the suite against the prompt-only and the
-   larger candidates; record the result on the cost-quality frontier
-   ([chapter 5](./comparison.mdx)).
+   with the training data statement and the test scores, and choose a
+   licence that the base model's licence allows.
+4. Compare the fine-tuned model with the prompt-only version and with
+   the larger candidates on the test questions, and record the result on
+   the cost-quality comparison of [chapter 5](./comparison.mdx).
 
-**What this does not do.** Fine-tuning on one survey's responses
-specializes to that survey's language; a new survey or a new
-classification version needs new data and a new run. The decisions the
-workflows keep recording are what make the next run cheap.
+**What this does not do.** A model fine-tuned on one survey's responses
+learns that survey's language. A new survey or a new version of the
+classification needs new examples and a new training run; the decisions
+the workflows keep recording are what make the next run cheap.
 
 </Recipe>
 

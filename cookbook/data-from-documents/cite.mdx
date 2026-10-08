@@ -56,13 +56,14 @@ bounding box.
 returns the table record and its data.
 
 1. Publish the table records in the catalog ([chapter 7](./publish.mdx)),
-   with the printed title, the subject keywords, and the series it reports;
-   NADA indexes tables with the other data types.
+   with the printed title, the subject keywords, and the series the
+   table reports. NADA indexes tables with the other data types.
 2. Add schema.org `Dataset` markup to the table's page, with `isBasedOn`
-   pointing to the document and `distribution` pointing to the tidy file,
-   as in [recipe 1.2 of the dissemination cookbook](/cookbook/ai-ready-dissemination/find).
+   pointing to the document and `distribution` pointing to the tidy
+   file, as in
+   [recipe 1.2 of the dissemination cookbook](/cookbook/ai-ready-dissemination/find).
 3. Add the tables to the known-item question set of the dissemination
-   cookbook ([chapter 6](/cookbook/ai-ready-dissemination/evaluate)) so
+   cookbook ([chapter 6](/cookbook/ai-ready-dissemination/evaluate)), so
    that search over extracted data is scored with the rest.
 
 **What this does not do.** Findability by title serves users who know
@@ -74,28 +75,31 @@ cookbook covers.
 
 <Recipe title="8.2 Cite to the document, the page, and the table" level="Foundational" skills="Dissemination officer" time="One hour to set the format">
 
-**Result:** one citation format for extracted data, used in the record, on
-the page, and by systems that quote the data.
+**Result:** one citation format for extracted data, used in the record,
+on the page, and by systems that quote the data.
 
-1. Set the format: organization, year, document title, table number, page,
-   and the document's URL or DOI with the page fragment:
+The format names the organization, the year, the document, the table,
+the page, and the document's address with a page fragment that opens
+the PDF at the right page:
 
 ```text
 National Statistics Office (example). 2025. Food security report 2025,
 Table 3.1, page 24. https://stats.example/documents/EX-REP-2025-03.pdf#page=26
 ```
 
+1. Set the format as above.
 2. Put the citation in the table record (`citation`) and on the table's
    page, and add the DOI of the document where it has one.
-3. For a value, the tidy file's `page` and `bbox` columns are the
-   citation at value level: a system that quotes the value can show the
+3. For a single value, the tidy file's `page` and `bbox` columns are the
+   citation at value level. A system that quotes the value can show the
    snapshot, which is what the home page's example does.
-4. Use the PDF page number in URLs (`#page=26`) and the printed page number
-   in the citation text; they differ, and both are in the records.
+4. Use the PDF page number in URLs (`#page=26`) and the printed page
+   number in the citation text. They differ, and both are in the
+   records.
 
 **What this does not do.** A citation to a page does not freeze the
-document. If the document is corrected, the citation needs the version;
-recipe 8.3 records it.
+document. If the document is corrected, the citation needs the version,
+which recipe 8.3 records.
 
 </Recipe>
 
@@ -106,24 +110,24 @@ superseded files stay available, and the organization sees where its
 extracted data are used.
 
 1. When a value is corrected after publication (an extraction error, a
-   document erratum, a series revision), publish a new version of the tidy
-   file and the record, keep the old one, and log the change: table, value,
-   old and new, reason, date.
+   document erratum, a series revision), publish a new version of the
+   tidy file and the record, keep the old one, and log the change:
+   table, value, old and new, reason, date.
 2. State on the table's page which version is current and list the
    errata, as the series pages do in the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/trust).
 3. Monitor mentions of the document and its tables with the program's
-   [Monitoring of Data Use](/docs/data_use/), and run the monthly check of
-   how AI systems answer questions the tables answer
+   [Monitoring of Data Use](/docs/data_use/), and run the monthly check
+   of how AI systems answer questions the tables answer
    ([chapter 7 of the dissemination cookbook](/cookbook/ai-ready-dissemination/monitor-use)).
-4. When an AI system quotes an old or wrong figure from the document, check
-   first whether the table record and the tidy file are findable and
-   current; most fixes are on the organization's side.
+4. When an AI system quotes an old or wrong figure from the document,
+   check first whether the table record and the tidy file are findable
+   and current. Most fixes are on the organization's side.
 
-**What this does not do.** Monitoring finds mentions of the document and
-the tables by name. Values quoted without attribution are not traceable,
-which is the reason the citation format and the page-level provenance
-exist.
+**What this does not do.** Monitoring finds mentions of the document
+and the tables by name. Values quoted without attribution are not
+traceable, which is the reason the citation format and the page-level
+provenance exist.
 
 </Recipe>
 

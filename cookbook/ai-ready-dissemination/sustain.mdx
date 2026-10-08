@@ -45,62 +45,85 @@ the register with an exit plan.
 
 <Recipe title="9.1 Run the switch-off test" level="Foundational" skills="Operations" time="One hour">
 
-**Result:** proof that the catalog, the API, and the downloads keep working
-with every AI component stopped.
+**Result:** proof that the catalog, the API, and the downloads keep
+working with every AI component stopped.
 
-1. In a test environment, stop every AI component: search index, assistant,
-   metadata drafting.
-2. Check that series pages load, the API answers, bulk files download, and
-   keyword search returns results.
-3. Fix any dependency found. The authoritative data store and API must
-   never depend on the AI layer.
+1. In a test environment, stop every AI component: the semantic search
+   index, the assistant, the metadata drafting.
+2. Check that series pages load, the API answers, bulk files download,
+   and keyword search returns results.
+3. Fix any dependency found. The authoritative data store and the API
+   must never depend on the AI layer.
 4. Repeat after any architecture change.
 
-**What this does not do.** The switch-off test proves that the data layer stands without the AI layer. The AI layer's own failure modes, such as a model update that changes answers, are the evaluation suite's to catch.
+**What this does not do.** The switch-off test proves that the data
+layer stands without the AI layer. The AI layer's own failure modes,
+such as a model update that changes answers, are the evaluation
+suite's to catch.
 
 </Recipe>
 
 <Recipe title="9.2 Estimate the cost per query before launch" level="AI-ready" skills="Developer; finance" time="Half a day">
 
-**Result:** a number that management can compare with the expected number of
-users, and a basis for choosing between hosted and local models.
+**Result:** a cost per query that management can compare with the
+expected number of users, and a basis for choosing between a hosted
+model and a local one.
 
-1. Measure, for 50 questions from the test set, the tokens sent and received
-   per answer (including retrieved records), and the time per answer.
-2. For a hosted model: cost per query = input tokens × input price + output
-   tokens × output price, at the provider's current prices. Add the share of
-   fixed costs (search index, server) per expected query.
-3. For a local model: cost per query = (server cost per month + staff time
-   for operation) divided by expected queries per month.
-4. Multiply by expected queries per month, with a low and a high estimate.
-5. Record the estimate with the date and prices used. Revisit quarterly;
-   prices and usage both change.
+A hosted model is paid per token (roughly three quarters of a word)
+sent and received. A local model costs a server and the staff to run
+it, whatever the number of queries.
 
-**What this does not do.** An estimate from fifty questions at today's prices is a planning figure. Usage, prices, and tokens per answer all change, the quarterly revisit is part of the recipe, and the measured cost per query after launch replaces the estimate.
+1. Measure, for 50 questions from the test set, the tokens sent and
+   received per answer (including the retrieved records), and the time
+   per answer.
+2. For a hosted model, the cost per query is the input tokens times
+   the input price plus the output tokens times the output price, at
+   the provider's current prices. Add the share of fixed costs (search
+   index, server) per expected query.
+3. For a local model, the cost per query is the server cost per month
+   plus the staff time for operation, divided by the expected queries
+   per month.
+4. Multiply by the expected queries per month, with a low and a high
+   estimate.
+5. Record the estimate with the date and the prices used. Revisit
+   quarterly; prices and usage both change.
+
+**What this does not do.** An estimate from fifty questions at today's
+prices is a planning figure. Usage, prices, and tokens per answer all
+change, the quarterly revisit is part of the recipe, and the measured
+cost per query after launch replaces the estimate.
 
 </Recipe>
 
 <Recipe title="9.3 Choose the smallest model that passes the suite" level="AI-native" skills="Developer" time="One to three days per task">
 
 **Result:** for each task, the smallest model that reaches the required
-scores, with the evidence kept.
+scores, with the scores of every model tried kept as evidence.
 
-1. Set the required scores for the task from [chapter 6](./evaluate.mdx)
-   before testing any model, for example Recall@5 of 0.85 per language for
-   search, or 98% numeric accuracy for answers.
+1. Set the required scores for the task from
+   [chapter 6](./evaluate.mdx) before testing any model, for example
+   Recall@5 of 0.85 per language for search, or 98% numeric accuracy
+   for answers.
 2. Test candidate models from small to large: a small open-weight model
-   first, then larger ones, then hosted models. Use the same questions and
+   (one whose files the organization downloads and runs itself) first,
+   then larger ones, then hosted models. Use the same questions and
    catalog for each.
-3. Stop at the first model that meets the requirement, and record the scores
-   of every model tried.
-4. Repeat when a task changes, or once a year, since small models improve
-   quickly.
+3. Stop at the first model that meets the requirement, and record the
+   scores of every model tried.
+4. Repeat when a task changes, or once a year, since small models
+   improve quickly.
 
-The program's [Efficient and Inclusive AI Applications](/docs/inclusive-ai/)
-page compares model sizes by task and describes batch processing and locally
-hosted models.
+The program's
+[Efficient and Inclusive AI Applications](/docs/inclusive-ai/) page
+compares model sizes by task and describes batch processing and locally
+hosted models, and the
+[small and open models cookbook](/cookbook/small-and-open-models/)
+gives the full procedure.
 
-**What this does not do.** The smallest model that passes the suite is tested on what the suite covers. A new task needs new questions before a smaller model is trusted on it, and the scores of the larger models stay on file as the reference.
+**What this does not do.** The smallest model that passes the suite is
+tested on what the suite covers. A new task needs new questions before
+a smaller model is trusted on it, and the scores of the larger models
+stay on file as the reference.
 
 </Recipe>
 

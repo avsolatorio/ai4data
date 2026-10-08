@@ -56,8 +56,23 @@ The file goes back to the method.
 
 <Recipe title="4.1 Run the risk report" level="Foundational" skills="Python; disclosure control unit for the limits" time="Minutes per file">
 
-**Result:** exact copies, closest-record distances against the baseline,
-and attribute inference against the baseline, for the file.
+**Result:** three checks on the synthetic file: whether any synthetic
+record is an exact copy of a real one, whether synthetic records sit
+suspiciously close to real ones, and whether the file reveals a
+sensitive attribute of real people.
+
+The checks use two ideas. Quasi-identifiers are the variables an
+attacker could know about a person from elsewhere (region, sex, age,
+education); a sensitive attribute is what they want to learn (income).
+The script reads the real and the synthetic file and reports three
+things. First, exact copies. Second, for each synthetic record, the
+distance to the closest real record on the quasi-identifiers. The same
+distance between two halves of the real file is printed beside it as the
+baseline, because real people also resemble each other. Third, how well
+the income band of real people can be guessed from their
+quasi-identifiers by looking up the most similar synthetic record. The
+accuracy of guessing the most common band for everyone is the baseline
+for that:
 
 ```python file=../../website/static/cookbook-files/synthetic-data-for-sharing/risk_report.py
 ```
@@ -83,68 +98,74 @@ attribute inference of income band from the quasi-identifiers through the synthe
   an accuracy far above the baseline means the synthetic file reveals the attribute for people like the quasi-identifiers; the disclosure control unit sets the limit
 ```
 
-1. Run the report on the organization's infrastructure with the real
-   file; set the quasi-identifiers and the sensitive attributes as the
-   disclosure control unit defines them for the survey.
-2. Exact copies: any number above zero fails; the fix is the method
-   (leaf size, smoothing, stopping rule), never deletion of the copies,
-   which leaves the near-copies.
-3. Closest-record distance: compare the synthetic-to-real distribution
-   with the real-half-to-half one; a synthetic file markedly closer has
-   copied in part.
+1. Run the report where the real file is. Set the quasi-identifiers and
+   the sensitive attributes as the disclosure control unit defines them
+   for the survey.
+2. Exact copies: any number above zero fails. The fix is in the method
+   (a larger minimum leaf size, more smoothing, a stricter stopping
+   rule). Deleting the copies by hand leaves the near-copies in place.
+3. Closest-record distance: compare the synthetic-to-real figures with
+   the real-half-to-half ones. A synthetic file markedly closer to the
+   real file than the real halves are to each other has copied in part.
 4. Attribute inference: compare the accuracy with the majority
-   baseline; the unit sets how far above the baseline is acceptable
-   for each sensitive attribute.
+   baseline. The disclosure control unit sets how far above the
+   baseline is acceptable for each sensitive attribute.
 
-**What this does not do.** The three checks catch copying and simple
-inference. Membership inference (whether an attacker can tell that a
-given person was in the training data) and formal guarantees need the
-methods of recipe 4.3, and the unit decides which the release tier
+**What this does not do.** These three checks catch copying and simple
+inference. A membership inference test (can an attacker tell that a
+given person was in the real file?) and formal privacy guarantees are
+the subject of recipe 4.3, and the unit decides which the release tier
 requires.
 
 </Recipe>
 
 <Recipe title="4.2 Set the limits and record the review" level="AI-ready" skills="Disclosure control unit; methodologist" time="Half a day per survey">
 
-**Result:** limits per check for the survey's synthetic files, and a
-recorded review of each file against them.
+**Result:** written limits for each check, set by the disclosure
+control unit for the survey's synthetic files, and a recorded review of
+each file against them.
 
-1. With the disclosure control unit, set: zero exact copies; the
-   closest-record distance distribution no closer than the real baseline
-   by more than a stated margin; attribute inference no more than a
-   stated amount above the baseline per sensitive attribute; and any
-   survey-specific rule (no synthetic record in a small area with a rare
-   combination that exists once in the real file).
+1. Set the limits with the unit. At minimum:
+   - no exact copies;
+   - closest-record distances no nearer than the real baseline by more
+     than a stated margin;
+   - attribute inference no more than a stated amount above the
+     baseline for each sensitive attribute;
+   - any rule specific to the survey, for example no synthetic record
+     in a small area with a rare combination that occurs once in the
+     real file.
 2. Record the limits in the survey's disclosure control documentation
    ([microdata cookbook, chapter 8](/cookbook/microdata-documentation/access)).
-3. Review each file's report against the limits; record the reviewer,
+3. Review each file's report against the limits. Record the reviewer,
    the date, and the decision in the synthesis record.
 
-**What this does not do.** Limits are the unit's judgement for the
-release tier (public download, registered users, partners). A stricter
-tier has stricter limits, and a file can be released to a narrower tier
-when it fails the public one.
+**What this does not do.** The limits are the unit's judgement for the
+release tier: open download, registered users, or partners. A stricter
+tier has stricter limits, and a file that fails the open tier can still
+be released to a narrower one.
 
 </Recipe>
 
 <Recipe title="4.3 Add membership inference and formal methods where the tier requires" level="AI-native" skills="Data scientist; disclosure control unit" time="One to two weeks to set up">
 
-**Result:** for public releases, a membership inference test with a
-measured advantage, and, where the method supports it, a formal privacy
-parameter recorded.
+**Result:** for files released openly, a membership inference test with
+its measured result, and, where the method supports it, a formal
+privacy guarantee with its parameter recorded.
 
-1. Membership inference: train a classifier to distinguish records that
-   were in the training data from held-out real records, using only the
-   synthetic file; report its advantage over chance; a large advantage
-   fails.
-2. Where the organization uses a differentially private synthesizer,
-   record the privacy parameter and the accounting; the utility report
-   shows what it cost.
-3. Keep the tests with the file's record and re-run at every synthesis.
+1. Membership inference: train a classifier to tell records that were
+   in the real file from real records that were held out, using only
+   the synthetic file as its information. Report how much better than
+   chance it does. A large advantage fails the file.
+2. Where the organization uses a differentially private synthesizer (a
+   method with a mathematical bound on what any output can reveal about
+   any one record), record the privacy parameter and its accounting.
+   The utility report shows what the guarantee cost.
+3. Keep the tests with the file's record and run them again at every
+   synthesis.
 
-**What this does not do.** Formal guarantees cover what they define;
-they do not remove the need for the purpose statement, the label, and
-the terms, which address misuse, a different risk from disclosure.
+**What this does not do.** Formal guarantees cover what they define.
+They do not replace the purpose statement, the label, and the terms of
+use, which address misuse, a different risk from disclosure.
 
 </Recipe>
 

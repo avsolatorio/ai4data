@@ -52,31 +52,49 @@ go back with the rule named. Nothing is applied.
 
 <Recipe title="4.1 Explain edit failures in plain language" level="Foundational" skills="Editing supervisor; developer" time="One day to set up">
 
-**Result:** every edit failure an editor sees carries an explanation
-that names the fields, the rule, and what the record says, drafted by a
-model from the rule and the record.
+**Result:** every edit failure shown to an editor comes with a
+two-sentence explanation, written by a model from the rule and the
+record, that names the fields involved and a plausible cause.
 
-1. Give the model the rule (identifier, fields, condition, message)
-   and the record's relevant fields, and ask for two sentences: what
-   failed and which values, and what a plausible cause is, with the
-   rule to cite only fields present in the record.
-2. Show the explanation beside the record in the editing tool; the
+An edit rule is a condition a record has to satisfy, such as "age is
+between 0 and 110" or "hours worked are reported only for employed
+persons". When a record fails one, the editor sees a rule identifier and
+has to work out what happened. A plain-language explanation saves that
+reading.
+
+1. Give the model the rule (its identifier, the fields it involves, the
+   condition, the message) and the relevant fields of the record. Ask
+   for two sentences: what failed and with which values, and what a
+   plausible cause is. Add the rule that it may cite only fields present
+   in the record.
+2. Show the explanation beside the record in the editing tool. The
    editor decides as before.
-3. Measure: a sample of explanations rated by editors as right, partly
-   right, or wrong, each round; a wrong explanation is a prompt or a
-   rule problem.
+3. Each round, have editors rate a sample of explanations as right,
+   partly right, or wrong. A wrong explanation points to a problem in
+   the model's instructions or in the rule's wording.
 
-**What this does not do.** An explanation says why the rule fired, in
-words; the editor still judges whether the rule or the record is wrong.
-Rules remain the organization's, written and versioned as before.
+**What this does not do.** The explanation says, in words, why the rule
+fired. The editor still judges whether the record or the rule is wrong.
+The rules remain the organization's, written and versioned as before.
 
 </Recipe>
 
 <Recipe title="4.2 Propose values and check them against the rules" level="AI-ready" skills="Python; editing supervisor" time="Half a day to set up; minutes per batch">
 
-**Result:** model-proposed values that pass every rule reach the editor
-as proposals with grounded reasons; the rest go back with the rule
-named; nothing is applied automatically.
+**Result:** for a record that failed an edit, a value the model proposes
+with a reason, checked against every edit rule before an editor sees
+it. Proposals that pass reach the editor as suggestions, and proposals
+that fail go back. Nothing is applied to the data without an editor's
+decision.
+
+The example uses two files. The edit rules file has one rule per row:
+the field it applies to, the type of rule (`range` for an allowed
+interval, `lte` for "no greater than another field", `consistency` for a
+condition on another field), its parameters, and the message. The
+suggestions file has one model proposal per row: the record, the field,
+the current value, the proposed value, the model's reason, and the
+record's other fields that the rules refer to. The script checks each
+proposal against the rules:
 
 ```python file=../../website/static/cookbook-files/language-models-in-production/check_suggestions.py
 ```
@@ -100,21 +118,22 @@ H0012-4   income       (empty) -> 1200   to editor as proposal
 4 suggestions pass the rules and go to the editor; 2 still fail and go back with the rule named; nothing is applied automatically
 ```
 
-1. Keep the edit rules in a machine-readable form (the file in this
-   chapter is a minimum: field, rule type, parameters, message); most
-   editing systems can export them.
+1. Keep the edit rules in a file the script can read. The file in this
+   chapter is a minimum; most editing systems can export their rules in
+   a similar form.
 2. Ask the model for a proposed value with a reason that cites the
-   record (other fields, the roster, the respondent's other answers);
-   run the check.
-3. Editors see passing proposals as suggestions and decide; failing
-   proposals go back to the model with the rule, or to the editor as a
-   failure without a proposal.
-4. Where the organization imputes by method (donor, regression, cell
-   median), the method produces the value and the model explains it;
-   the method of record does not change because a model is present.
+   record: other fields, the household roster, the respondent's other
+   answers. Run the check.
+3. Show the proposals that pass to editors as suggestions. Send the
+   proposals that fail back to the model with the rule named, or to the
+   editor as a failure without a proposal.
+4. Where the organization fills missing values by a documented method
+   (a donor record, a regression, the median of a cell), that method
+   produces the value and the model only explains it. The method of
+   record does not change because a model is available.
 
-**What this does not do.** A value that passes the rules can still be
-wrong for the person; the editor's knowledge of the survey is the
+**What this does not do.** A value that satisfies every rule can still
+be wrong for that person; the editor's knowledge of the survey is the
 check. The imputation method and its documentation stay the
 organization's.
 
@@ -122,28 +141,37 @@ organization's.
 
 <Recipe title="4.3 Draft anomaly explanations with cited evidence" level="AI-ready" skills="Analyst; developer" time="One day to set up">
 
-**Result:** each flagged aggregate reaches the analyst with a drafted
-explanation that classifies the likely cause and cites the evidence,
-and the analyst's verdict is recorded.
+**Result:** when an aggregate is flagged as unusual, the analyst
+receives a drafted explanation that names the most likely cause, with
+the evidence it rests on, and records a verdict on it.
 
-1. Detect anomalies with the organization's methods (thresholds,
-   seasonal residuals, isolation forests); the program's
+An anomaly is a value in a series that differs from what its history
+would predict: a jump, a fall, a value out of line with related series.
+Detecting anomalies is a statistical task the organization already
+does. Explaining them is reading: release notes, methodology changes,
+the revisions log, neighbouring periods. A model can do that reading
+and draft the explanation; the analyst judges it.
+
+1. Detect anomalies with the organization's existing methods
+   (thresholds, seasonal residuals, outlier detection). The program's
    [Anomaly Detection and Explanation](/docs/anomaly-detection/) work
-   separates detection from explanation for this reason.
-2. For each flag, give the model the series, the neighbouring periods,
-   the related series, the known events (release notes, methodology
-   changes, the revisions log), and ask for structured output: a cause
-   class (data entry, methodology change, real change, coverage,
-   unknown), a confidence, and the evidence cited from the inputs.
-3. The analyst reads the draft with the evidence and records a verdict;
-   verdicts feed the explanation classes and the few-shot examples.
+   keeps detection and explanation as separate steps for this reason.
+2. For each flagged value, give the model the series, the neighbouring
+   periods, the related series, and the known events (release notes,
+   methodology changes, the revisions log). Ask for a fixed-format
+   answer: a cause class (data entry error, methodology change, real
+   change, coverage change, unknown), a confidence, and the evidence
+   cited from the inputs.
+3. The analyst reads the draft with its evidence and records a verdict.
+   The verdicts refine the cause classes and the examples shown to the
+   model.
 4. Publish the confirmed explanations with the release where they
    matter ([dissemination cookbook, chapter 3](/cookbook/ai-ready-dissemination/understand)).
 
 **What this does not do.** An explanation drafted from the evidence
-given is bounded by that evidence; a cause outside it (a field event
-nobody recorded) is the analyst's to know. "Unknown" is a valid class,
-and the analyst's verdict is the record.
+given cannot reach a cause outside it, such as a field event nobody
+wrote down; the analyst knows those. "Unknown" is a valid class, and
+the analyst's verdict is the record.
 
 </Recipe>
 

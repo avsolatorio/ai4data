@@ -55,81 +55,95 @@ method the chapter recommends as the first real attempt.
 
 <Recipe title="2.1 Choose the method by data and use" level="Foundational" skills="Methodologist" time="Half a day">
 
-**Result:** the method for a file, chosen by a written rule, with the
-alternatives recorded.
+**Result:** the synthesis method for a file, chosen by a written rule
+from the shape of the data and the intended uses, with the alternative
+that will be compared.
+
+Four families of method exist. Sequential synthesis builds the
+synthetic file one variable at a time: it fits a model of the first
+variable, generates it, then fits the second variable given the first,
+and so on. The models are usually classification and regression trees
+(CART), and the method is transparent and fast. Copula methods fit each
+variable's distribution and the pattern of dependence between
+variables separately. Generative networks and transformer-based
+generators learn the whole joint distribution from the records at once;
+they handle complex structure and need more records, more tuning, and a
+check that they did not memorize. Relational generators extend these to
+linked tables. The table gives a first choice for each situation:
 
 | Data and use | First choice | Why |
 |---|---|---|
-| One table, up to a few hundred thousand records, mixed types, uses need marginals and main relationships | Sequential synthesis (CART) | Transparent, fast, handles mixed types, measures built in |
-| One table, mostly numeric, uses need correlations | Copula (Gaussian copula) | Fits marginals and dependence directly |
-| One table, many records, complex interactions, uses need higher-order structure | Transformer-based generator (REaLTabFormer) or a tabular generative network | Learns the joint distribution; needs tuning and memorization checks |
-| Several linked tables (households and persons, firms and establishments) | Relational generator (REaLTabFormer relational mode, HMA) | Models parent-child structure ([chapter 5](./relational.mdx)) |
-| Panel or longitudinal records | Sequential synthesis by wave with the previous wave as predictor, or a sequence model | Preserves within-person consistency |
+| One table, up to a few hundred thousand records, mixed variable types; uses need the distributions and the main relationships | Sequential synthesis (CART) | Transparent, fast, handles mixed types, comes with its own measures |
+| One table, mostly numeric; uses need the correlations | Copula (Gaussian copula) | Fits distributions and dependence directly |
+| One table, many records, complex interactions; uses need higher-order structure | Transformer-based generator (REaLTabFormer) or a tabular generative network | Learns the joint distribution; needs tuning and memorization checks |
+| Several linked tables (households and persons, firms and establishments) | Relational generator (REaLTabFormer relational mode, HMA) | Models the parent-child structure ([chapter 5](./relational.mdx)) |
+| Panel or longitudinal records | Sequential synthesis wave by wave, with the previous wave as predictor, or a sequence model | Keeps each person's records consistent across waves |
 
-1. Describe the data: records, variables by type, linked tables, panel
-   structure; and the uses: the analyses that must give similar
-   answers ([chapter 1](./purpose.mdx)).
-2. Pick the first choice from the table and one alternative; both will
+1. Describe the data: number of records, variables by type, linked
+   tables, panel structure. Describe the uses: the analyses that have to
+   give similar answers ([chapter 1](./purpose.mdx)).
+2. Take the first choice from the table and one alternative. Both will
    be measured.
 3. Record the choice and the reason in the synthesis record
    ([chapter 6](./release.mdx)).
 
-**What this does not do.** The table gives a first choice; the measures
-decide. A file whose uses need one relationship the method does not
-preserve is a file whose record says so.
+**What this does not do.** The table gives a starting point. The
+measures of [chapters 3](./utility.mdx) and [4](./risk.mdx) decide, and a
+file whose uses need a relationship the method cannot preserve is a
+file whose record says so.
 
 </Recipe>
 
 <Recipe title="2.2 Run a sequential synthesis with the parameters recorded" level="Foundational" skills="Methodologist with R or Python" time="One day for the first file">
 
-**Result:** a synthetic file produced by a sequential method with the
-visit sequence, the method per variable, the seed, and the smoothing
-recorded.
+**Result:** a synthetic file produced by sequential synthesis, with the
+settings that produced it recorded so that the run can be repeated.
 
-1. Set the visit sequence: variables in the order that makes the
-   conditioning sensible (geography, demographics, then outcomes), with
-   derived variables computed after synthesis from their inputs, never
-   synthesized.
-2. Choose the method per variable (CART for most; parametric where the
-   variable is simple); set a minimum leaf size so that no leaf is one
-   person; add smoothing to continuous variables.
-3. Run with a recorded seed; synthpop's `syn()` or an equivalent
-   Python implementation; keep the real data on the organization's
-   infrastructure.
-4. Apply the rules of the survey after synthesis (ages of children
-   below the head's, hours only for the employed), or synthesize within
-   the rules; count what the rules changed.
+1. Set the visit sequence, the order in which variables are synthesized.
+   Put the variables that others depend on first: geography, then
+   demographics, then outcomes. Do not synthesize derived variables
+   (household size, age groups); compute them afterwards from the
+   synthetic values of their inputs.
+2. Choose the model for each variable: CART for most, a simple
+   parametric model where the variable is simple. Set a minimum leaf
+   size (the smallest group a tree may isolate) so that no leaf holds a
+   single person. Add smoothing to continuous variables such as income.
+3. Run with a recorded random seed, using synthpop's `syn()` in R or an
+   equivalent Python implementation. Keep the real data on the
+   organization's own infrastructure throughout.
+4. Apply the survey's logical rules after synthesis (children younger
+   than the household head; hours only for the employed), or synthesize
+   within them, and count how many records the rules changed.
 
 **What this does not do.** Sequential synthesis preserves the
-relationships along the visit sequence and attenuates the rest; the
-utility report shows which. Rare categories and small areas are the
-first to lose fidelity, and the record says so.
+relationships along the visit sequence and weakens the others; the
+utility report shows which. Rare categories and small areas lose
+fidelity first, and the record says so.
 
 </Recipe>
 
 <Recipe title="2.3 Run a transformer-based or network generator with memorization checks" level="AI-ready" skills="Data scientist with Python and a GPU" time="Two to three days for the first file">
 
-**Result:** a synthetic file from a generator that learns the joint
-distribution, with the training stopped before memorization and the
-parameters recorded.
+**Result:** a synthetic file from a generator that learns the whole
+joint distribution of the records, with training stopped before the
+generator starts to copy records, and the settings recorded.
 
 1. Install the generator ([REaLTabFormer](https://github.com/worldbank/REaLTabFormer):
-   `pip install realtabformer`) and fit it on the real table; it trains
-   a sequence model over the records and includes a stopping criterion
-   that measures whether generated records are too close to the
-   training ones.
-2. Set the sampling parameters and the seed; generate the same number
+   `pip install realtabformer`) and fit it on the real table. It trains
+   a model over the records and includes a stopping rule that measures
+   whether generated records are getting too close to the real ones.
+2. Set the generation settings and the seed. Generate the same number
    of records as the real file, or more where the uses need it.
-3. Run the risk checks of [chapter 4](./risk.mdx) first: exact copies
-   and closest-record distance; a generator that copied is retrained
-   with a stronger stopping rule or a smaller model.
-4. Record the model version, the training parameters, the stopping
+3. Run the risk checks of [chapter 4](./risk.mdx) first, for exact
+   copies and closest-record distance. A generator that copied is
+   trained again with a stricter stopping rule or a smaller model.
+4. Record the generator's version, the training settings, the stopping
    statistic, and the seed.
 
-**What this does not do.** A generator needs records to learn from; a
-small survey (a few thousand records) is usually better served by
-sequential synthesis. Training time and tuning are real costs, and the
-copying check is not optional.
+**What this does not do.** A generator needs many records to learn
+from. A small survey of a few thousand records is usually better served
+by sequential synthesis. Training and tuning are real costs, and the
+check for copying is never skipped.
 
 </Recipe>
 

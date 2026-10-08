@@ -52,57 +52,77 @@ and a regional value for a national-only series.
 
 <Recipe title="1.1 Decide the uses and the scope" level="Foundational" skills="Dissemination lead; developer" time="Half a day">
 
-**Result:** a one-page statement of what the interface is for and what it
-exposes.
+**Result:** a one-page statement of what the agent interface is for,
+which data it exposes, and what it does not do.
 
-1. List the uses, in the agent's terms: search for a series by meaning,
-   read a series' definition and caveats, fetch values for an area and a
-   period, resolve a place name to a code, list what is available.
-   Analysis (growth rates, rankings) is a separate decision; the Data360
-   server offers it as separate tools, and the simplest server leaves it to
-   the client.
+An agent interface lets an AI assistant call the organization's data
+directly, through a small set of operations called tools (search for a
+series, read its metadata, fetch its values). The scope statement
+decides which operations exist and which data they reach.
+
+1. List the uses, in the assistant's terms: search for a series by
+   meaning, read a series' definition and caveats, fetch values for an
+   area and a period, resolve a place name to a code, list what is
+   available. Analysis (growth rates, rankings) is a separate decision;
+   the Data360 server offers it as separate tools, and the simplest
+   server leaves it to the client.
 2. Set the scope: public data only. Microdata expose metadata and never
-   data through the interface ([chapter 8 of the microdata cookbook](/cookbook/microdata-documentation/access)).
+   data through the interface
+   ([chapter 8 of the microdata cookbook](/cookbook/microdata-documentation/access)).
    Name the products in scope at launch.
 3. State what the interface does not do: estimate, forecast, or combine
-   series into new figures. The agent reports what the organization
+   series into new figures. The assistant reports what the organization
    publishes.
-4. Confirm that the API and catalog answer the uses: a series record with
-   definition and unit, values by area and period, code lists. Gaps go to
-   the [dissemination cookbook](/cookbook/ai-ready-dissemination/).
+4. Confirm that the API and catalog can answer the uses: a series
+   record with definition and unit, values by area and period, code
+   lists. Gaps go to the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/).
 
-**What this does not do.** The scope statement is a decision; the tools of
-[chapter 2](./tools.mdx) enforce it, and the safety checks of
+**What this does not do.** The scope statement is a decision. The tools
+of [chapter 2](./tools.mdx) enforce it, and the safety checks of
 [chapter 6](./safety.mdx) verify that nothing outside it is reachable.
 
 </Recipe>
 
 <Recipe title="1.2 Write the success criteria and the question set" level="AI-ready" skills="Dissemination officer; speakers of each supported language" time="One day for the first 30 questions">
 
-**Result:** a question set that states, for each question, which tools
-should be called, which series and value are expected, and whether the
-agent should answer or decline.
+**Result:** a file of test questions that says, for each one, which
+tools an assistant should call, which series and value it should
+return, and whether it should answer or decline. This file is the
+measure of the whole interface.
 
-1. Write the criteria for a correct answer: the right series, the right
-   value within rounding, the period and unit stated, the caveat repeated
-   when the record has one (provisional, break), a source URL and release
-   date cited, and a refusal when the data are not published or not
-   available at the requested level.
-2. Collect questions from search logs, help-desk tickets, and the AI
-   visibility check, and add paraphrases, each supported language, and
-   questions to decline. The running example:
+The question set is a CSV with one row per question:
+
+| Column | Meaning |
+|---|---|
+| `question_id`, `language`, `question` | The question as a user would type it, and its language |
+| `expected_tools` | The tools a correct run calls, separated by `;` |
+| `expected_series` | The series identifier the answer should rest on |
+| `expected_value` | The value the answer should state, where the question has one |
+| `expected_behaviour` | `answer`, or `decline` when the data are not published or not available at the level asked |
+| `note` | Where the question came from, or a review flag |
 
 ```csv file=../../website/static/cookbook-files/serving-statistics-to-agents/agent_questions.csv
 ```
 
-3. For each question, record the expected tools, series, value, and
-   behaviour; a question with no expected value is a metadata question.
-4. Keep the set in version control; it is the suite of
+1. Write the criteria for a correct answer. At minimum:
+   - the right series, and the right value within rounding;
+   - the period and the unit stated;
+   - the caveat repeated when the record has one (provisional, break);
+   - a source URL and a release date cited;
+   - a refusal when the data are not published or not available at the
+     requested level.
+2. Collect questions from search logs, help-desk tickets, and the AI
+   visibility check. Add paraphrases, each supported language, and
+   questions the assistant should decline.
+3. For each question, fill the expected columns. A question with no
+   expected value is a metadata question.
+4. Keep the set in version control. It is the suite of
    [chapter 7](./evaluate.mdx).
 
-**What this does not do.** Eight questions describe the scope; a measure
-needs 30 to 50 per language. The questions in languages other than English
-are marked for native-speaker review in the file.
+**What this does not do.** Eight questions describe the scope; a
+measure needs 30 to 50 per language. The questions in languages other
+than English are marked for native-speaker review in the file.
 
 </Recipe>
 

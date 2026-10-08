@@ -50,31 +50,48 @@ retrieved; the French answers pass every check.
 
 <Recipe title="4.1 Log what the measures need" level="Foundational" skills="Developer" time="Half a day">
 
-**Result:** every answer is logged with the fields the scores read, so
-that a run can be scored after the fact and a sample reviewed with its
-evidence.
+**Result:** every answer the assistant gives is recorded together with
+the evidence it was given, so that a run can be scored afterwards and a
+sample can be reviewed with its evidence in front of the reviewer.
 
-1. Log per answer: the question and its identifier in the set, the
-   language, the retrieved record identifiers and the values in them,
-   the answer text, the identifiers the answer cites, and whether the
-   assistant declined.
-2. Keep the expected value and behaviour in the set, never in the log,
-   so that the same log can be scored against a revised set.
-3. Store runs as JSON lines, one file per run, with the component and
-   set versions in the file name or a header line.
+An assistant's answer can only be checked against what the assistant
+was shown. The log therefore keeps, for each answer, the records and
+values that were retrieved for it.
 
-**What this does not do.** The log records what the system saw and
-said; it does not record what the user did with the answer. The
-production review of [chapter 8](./production.mdx) samples user ratings
-where they exist.
+1. Record for each answer: the question and its identifier in the
+   question set; the language; the identifiers of the records that were
+   retrieved and the values in them; the answer text; the identifiers
+   the answer cites; and whether the assistant declined to answer.
+2. Keep the expected value and the expected behaviour in the question
+   set, never in the log, so that the same log can be scored again
+   against a revised set.
+3. Store each run as one file of JSON lines (one JSON object per line),
+   with the assistant's version and the set's version in the file name
+   or in a header line.
+
+**What this does not do.** The log records what the assistant saw and
+said. It does not record what the user did with the answer. The
+production review of [chapter 8](./production.mdx) uses user ratings
+where the interface collects them.
 
 </Recipe>
 
 <Recipe title="4.2 Score the four automatic measures" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** numeric accuracy, citation validity, refusal accuracy, and
-the unsupported-number rate per run and per language, with every
-failure listed.
+**Result:** four scores for the run, overall and per language, and a
+list of every answer that failed, with the reason.
+
+Four things about an answer can be checked by a script without reading
+it. Numeric accuracy: does the answer state the expected value?
+Citation validity: is every series the answer cites one that was
+retrieved for it? Refusal accuracy: did the assistant decline the
+questions it should have declined, and answer the ones it should have
+answered? Unsupported numbers: how many figures in the answer appear
+nowhere in the retrieved values? The last is the working definition of
+an invented statistic, and the most serious failure.
+
+The example file holds eight logged answers in the format of recipe
+4.1. The script scores them:
 
 ```python file=../../website/static/cookbook-files/evaluation-suites/answer_scores.py
 ```
@@ -101,46 +118,49 @@ findings:
   a07: cited EDU_STATS_2024, which was not retrieved
 ```
 
-1. Run the scorer on the run file and read the findings first: each is
-   a concrete failure with the question identifier.
-2. Read the measures per language; a language with few questions shows
-   direction only, and the set grows there.
-3. Treat an unsupported number as the most serious finding: it is a
-   figure the source did not contain, which is the working definition
-   of a hallucinated statistic. The dissemination cookbook's
+1. Run the script on the run file. Read the findings first: each one is
+   a concrete failure with the question it belongs to.
+2. Read the scores per language. A language with few questions shows a
+   direction only; the set grows there.
+3. Treat every unsupported number as serious. It is a figure that the
+   source did not contain. The dissemination cookbook's
    [number check](/cookbook/ai-ready-dissemination/trust) applies the
-   same test at answer time.
-4. Record the four measures with the versions.
+   same test at the moment an answer is shown.
+4. Record the four scores with the versions of the assistant and the
+   set.
 
 **What this does not do.** A number that matches a retrieved value can
-still be the wrong value for the question (right series, wrong period),
-and a correct number can lack the caveat the user needed. The rubric of
-recipe 4.3 covers those; the scorer does not.
+still be the wrong value for the question (the right series, the wrong
+year), and a correct number can lack the caveat the user needed. The
+rubric of recipe 4.3 covers those; the script does not.
 
 </Recipe>
 
 <Recipe title="4.3 Apply a rubric for what only a reader can judge" level="AI-ready" skills="Subject-matter staff" time="Two minutes per answer">
 
-**Result:** a score per answer on period, unit, and caveats, from a
-reader or a validated grader, with the rubric written down.
+**Result:** for a sample of answers, a yes-or-no judgement on each of a
+few written questions (right series, right period, unit stated, caveat
+stated), made by a reader, with the rubric written down so that every
+reader applies the same one.
 
-1. Write the rubric as yes-or-no questions: right series for the
-   question; right period; unit stated; the series' caveat stated where
-   the metadata has one (provisional, break, coverage); nothing claimed
-   beyond the retrieved records.
-2. Apply it to a sample of each run (thirty answers, every language
-   represented) by a reader; record yes or no per question and the
-   reader.
-3. Where a grader is used for the rubric, validate it first
-   ([chapter 6](./judges.mdx)) and keep a reviewed share of its grades
-   each run.
-4. Add every failed answer to the set with its expected answer
-   ([chapter 2](./questions.mdx)).
+1. Write the rubric as yes-or-no questions: Is this the right series
+   for the question? The right period? Is the unit stated? Where the
+   series' metadata carries a caveat (provisional, break in series,
+   limited coverage), does the answer state it? Does the answer claim
+   anything the retrieved records do not support?
+2. Apply the rubric to a sample of each run, about thirty answers with
+   every language represented. Record yes or no per question, and who
+   read it.
+3. Where a language model is used as the reader (a grader), validate
+   it first as [chapter 6](./judges.mdx) describes, and have a person
+   re-read a share of its judgements on every run.
+4. Add every answer that failed to the question set with its expected
+   answer ([chapter 2](./questions.mdx)).
 
-**What this does not do.** A rubric scores what it names. A failure
-mode nobody wrote into it (an answer that is right and misleading by
-omission) is found in the production review and added as a rubric
-question.
+**What this does not do.** A rubric judges what it names. A failure
+nobody wrote into it (an answer that is correct and misleading through
+what it leaves out) is found by the production review and then added to
+the rubric.
 
 </Recipe>
 

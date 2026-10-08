@@ -53,89 +53,106 @@ that the extraction got wrong.
 
 <Recipe title="4.1 Extract tables from the text layer" level="Foundational" skills="Python" time="One hour to set up; review time per table">
 
-**Result:** each table as columns, rows, units, and footnote, in a JSON
-record that keeps the page and bounding box.
+**Result:** each table turned into a JSON record of its columns, rows,
+units, and footnote, which keeps the page and the box it came from.
 
-1. Parse the table region from the text layer with a PDF table tool
-   (pdfplumber and PyMuPDF both extract tables from text positions; the
-   bounding box from [chapter 3](./locate.mdx) restricts the region).
-2. Review the header: merged headers ("Population (thousands)") become one
-   column label with the unit; multi-row headers are joined. Put the units
-   in a `units` map and the footnote in `footnote`.
-3. Mark the total row (`total_row`) and any derived columns (a rate
-   computed from two others, `derived`), because [chapter 5](./verify.mdx)
-   verifies against them. The example table:
+The record for the running example's district table shows the fields.
+Beyond the rows themselves, it names the total row, the column that is
+computed from two others (`derived`), the unit of each column, and the
+method by which it was produced:
 
 ```json file=../../website/static/cookbook-files/data-from-documents/example_table.json
 ```
 
+1. Parse the table region from the text layer with a PDF table tool.
+   pdfplumber and PyMuPDF both extract tables from text positions, and
+   the box from [chapter 3](./locate.mdx) restricts the region.
+2. Review the header. Merged headers ("Population (thousands)") become
+   one column label with the unit; multi-row headers are joined. Put
+   the units in the `units` map and the footnote in `footnote`.
+3. Mark the total row and any derived column (a rate computed from two
+   others), because [chapter 5](./verify.mdx) verifies against them.
 4. Record the method in `method`, including that a person reviewed the
    header and footnote.
 
-**What this does not do.** Text-layer parsing fails on tables whose cells
-are images, on rotated tables, and on scanned pages. Those go through
-recipe 4.2 as images. A parser that returns a grid cannot tell a total row
-from a data row; that is a reading task, done once per table layout.
+**What this does not do.** Text-layer parsing fails on tables whose
+cells are images, on rotated tables, and on scanned pages. Those go
+through recipe 4.2 as images. A parser that returns a grid cannot tell
+a total row from a data row; that is a reading task, done once per
+table layout.
 
 </Recipe>
 
 <Recipe title="4.2 Extract chart data from snapshots" level="AI-ready" skills="Developer with access to a vision-language model" time="One day to set up; seconds per chart, plus review">
 
-**Result:** each chart as a JSON record with chart type, categories,
-series, values, and a statement of whether the values were printed on the
-chart.
+**Result:** each chart turned into a JSON record of its type, its
+categories, its series and their values, and a statement of whether
+the values were printed on the chart or estimated from the axes.
 
-1. Send the snapshot image to a vision-language model with a fixed
-   instruction: return the chart type, the title, the categories, the
-   series with their values, the unit if stated, and whether each value was
-   printed on the chart or read from the axis. Ask for JSON in the form of
-   the example:
+A vision-language model is a model that takes an image and a question
+and answers in text. Given a chart image and a fixed instruction, it
+returns the chart's content in a fixed form. The example of recipe 3.1
+is such a record: a bar chart with two categories and two series, whose
+values were printed on the bars.
 
-```json file=../../website/static/cookbook-files/data-from-documents/example_snapshot.json
-```
-
-2. Keep `value_labels_printed` and `printed_values` honest: when the chart
-   prints its values, the extraction is a transcription that
-   [chapter 5](./verify.mdx) can verify; when it does not, the values are
-   estimates from the axes, and the tidy file says so.
-3. Record the model name and version in `method`; model changes change
+1. Send the snapshot image to the model with a fixed instruction:
+   return the chart type, the title, the categories, the series with
+   their values, the unit if stated, and whether each value was printed
+   on the chart or read from the axis. Ask for JSON in the form of the
+   example.
+2. Keep `value_labels_printed` and `printed_values` honest. When the
+   chart prints its values, the extraction is a transcription that
+   [chapter 5](./verify.mdx) can verify. When it does not, the values
+   are estimates from the axes, and the tidy file says so.
+3. Record the model name and version in `method`. Model changes change
    results.
-4. Review a sample of charts against the snapshot, in particular stacked
-   bars, dual axes, and charts with more than four series, where models
-   fail most.
+4. Review a sample of charts against the snapshot, in particular
+   stacked bars, dual axes, and charts with more than four series,
+   where models fail most.
 
 **What this does not do.** Values read from axes are estimates with an
-error that depends on the chart's resolution; they are published as
+error that depends on the chart's resolution. They are published as
 estimates ([chapter 7](./publish.mdx)) and never as the official figure.
-When the underlying series exists in the catalog, the chart's values are
-a pointer to the series, which is the number to use.
+When the underlying series exists in the catalog, the chart's values
+are a pointer to the series, which is the number to use.
 
 </Recipe>
 
 <Recipe title="4.3 Convert extractions to tidy files with provenance" level="AI-ready" skills="Python" time="Minutes">
 
-**Result:** one CSV per extraction with one row per value and the columns
-that trace it to the page: document, page, bounding box, class, title, row,
-column, value, unit, status.
+**Result:** one CSV per table or chart with one row per value, in which
+every value carries the columns that trace it back to the page.
+
+A tidy file has one value per row. The columns are:
+
+| Column | Meaning |
+|---|---|
+| `document_id`, `page`, `bbox` | Where the value came from: the document, the printed page, and the box on it |
+| `class`, `title` | Table or Figure, and its printed title |
+| `row`, `column` | The row label and the column label the value sits under |
+| `value`, `unit` | The value and its unit |
+| `status` | `extracted` until verification sets `verified`, `flagged`, or `estimated` |
+
+The converter reads a table or chart record and writes the tidy file:
 
 ```python file=../../website/static/cookbook-files/data-from-documents/snapshot_to_tidy.py
 ```
-
-1. Run the converter on a chart or a table record:
 
 ```bash
 python snapshot_to_tidy.py example_table.json -o T3.1.csv
 ```
 
-2. The `status` column reads `extracted` until the verification of
-   [chapter 5](./verify.mdx) sets it; the converter takes the verification
-   report and writes `verified`, `flagged`, or `estimated` per value.
+1. Run the converter on each record.
+2. After the verification of [chapter 5](./verify.mdx), run it again
+   with the verification report, so that it writes the status per
+   value.
 3. Name the file from the document and table identifiers and keep it
    with the document, the snapshot, and the sidecar record.
 
-**What this does not do.** The tidy file carries the values as extracted.
-It does not correct them; a flagged value stays flagged until a person
-corrects it with the page open, and the correction is a documented edit.
+**What this does not do.** The tidy file carries the values as
+extracted. It does not correct them. A flagged value stays flagged until
+a person corrects it with the page open, and the correction is a
+documented edit.
 
 </Recipe>
 

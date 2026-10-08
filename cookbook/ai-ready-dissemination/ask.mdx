@@ -51,39 +51,40 @@ series.
 
 <Recipe title="4.1 Review failed searches every month" level="Foundational" skills="Dissemination staff" time="Two hours a month">
 
-**Result:** the most common ways users fail to find data are known and fixed
-at the source, and each one becomes a test question.
+**Result:** the most common ways users fail to find data are known and
+fixed at the source, and each one becomes a test question.
 
-1. Export the search queries that returned zero results, or whose results were
-   not clicked, for the last month.
-2. Group them by intent. Most fall into a few buckets: a synonym the catalog
-   does not use ("jobless"), a language the catalog does not cover, a series
-   the organization does not publish, or a typo.
-3. For synonyms, add the words to the description or a keywords field of the
-   right series. For missing languages, translate the titles of the series
-   involved. For unpublished series, add a page that says so and points to
-   the nearest series.
+1. Export the search queries that returned zero results, or whose
+   results were not clicked, for the last month.
+2. Group them by intent. Most fall into a few buckets: a synonym the
+   catalog does not use ("jobless"), a language the catalog does not
+   cover, a series the organization does not publish, or a typo.
+3. For synonyms, add the words to the description or a keywords field
+   of the right series. For missing languages, translate the titles of
+   the series involved. For unpublished series, add a page that says so
+   and points to the nearest series.
 4. Add each query with its expected series to the question set
-   ([chapter 6](./evaluate.mdx)). The next monthly score shows whether the fix
-   worked.
+   ([chapter 6](./evaluate.mdx)). The next monthly score shows whether
+   the fix worked.
 
-**What this does not do.** Zero-result queries show what users looked for and did not find. Queries that returned wrong results and were clicked anyway are invisible here; the answer review of recipe 4.3 and the question set of [chapter 6](./evaluate.mdx) catch those.
+**What this does not do.** Zero-result queries show what users looked
+for and did not find. Queries that returned wrong results and were
+clicked anyway are invisible here; the answer review of recipe 4.3 and
+the question set of [chapter 6](./evaluate.mdx) catch those.
 
 </Recipe>
 
 <Recipe title="4.2 Answer from retrieved records only" level="AI-native" skills="Developer with access to a language model and the API from chapter 2" time="One week for a prototype">
 
-**Result:** an assistant that answers questions with values from the API and
-cites the series, and that declines when nothing matches.
+**Result:** an assistant that answers questions with values taken from
+the API and cites the series they come from, and that declines when no
+series matches.
 
-The flow has four steps, and the model sees data only in step 3:
-
-1. **Retrieve.** Run the question through the catalog search (recipe 1.3) and
-   take the top three series.
-2. **Fetch.** Call the API or MCP tool for the values of those series, with
-   unit, release, and source URL.
-3. **Generate.** Send the question and the retrieved material to the model
-   with instructions like these:
+The pattern is called retrieval-augmented generation: the assistant
+first retrieves the records and values that might answer the question,
+then gives them to the language model with the instruction to use
+nothing else. The model sees data only in step 3 of the flow below.
+The instructions given to the model, as text:
 
 ```text
 You answer questions about official statistics published by the organization.
@@ -102,29 +103,44 @@ Values:
 Question: [user question]
 ```
 
-4. **Verify.** Run the answer through the numeric check from
+1. **Retrieve.** Run the question through the catalog search (recipe
+   1.3) and take the top three series.
+2. **Fetch.** Call the API or the MCP tool for the values of those
+   series, with unit, release, and source URL.
+3. **Generate.** Send the question and the retrieved material to the
+   model with the instructions above.
+4. **Verify.** Run the answer through the number check of
    [chapter 5](./trust.mdx) before showing it. Show flagged numbers as
-   unverified or remove them.
+   unverified, or remove them.
+5. Log the question, the retrieved records, the answer, and the
+   verification result for the monthly review (recipe 4.3). Where the
+   model calls the data tools itself (through a tool-use API or MCP),
+   the rules above still apply.
 
-Log the question, the retrieved records, the answer, and the verification
-result for the monthly review (recipe 4.3). Tool-use APIs and MCP let the
-model call the data tools itself; the rules above still apply.
-
-**What this does not do.** The flow grounds answers in retrieved records and cannot answer better than the retrieval. A question whose series is outside the top three gets a wrong or declined answer, which is why the retrieval scores of [chapter 6](./evaluate.mdx) are tracked beside the answer scores.
+**What this does not do.** The flow grounds answers in retrieved
+records and cannot answer better than the retrieval. A question whose
+series is outside the top three gets a wrong or declined answer, which
+is why the retrieval scores of [chapter 6](./evaluate.mdx) are tracked
+beside the answer scores.
 
 </Recipe>
 
 <Recipe title="4.3 Review a sample of answers each month" level="AI-native" skills="Subject-matter staff" time="Half a day a month">
 
-**Result:** a measured error rate and a list of fixes, in place of anecdotes.
+**Result:** a measured error rate for the assistant's answers and a
+list of fixes, in place of anecdotes.
 
 1. Draw 30 logged answers at random, including some in each language.
-2. Score each against four questions: right series, right numbers, right
-   period and unit, right caveats. Record yes or no for each.
+2. Score each against four questions: right series, right numbers,
+   right period and unit, right caveats. Record yes or no for each.
 3. Add every failure to the question set with the expected answer.
 4. Report the four rates each month next to the retrieval scores.
 
-**What this does not do.** Thirty answers a month show large error rates; a rate below a few percent needs a larger sample to be seen. The sample is of logged answers, so questions users did not ask are not covered, and the question set of [chapter 6](./evaluate.mdx) supplies those.
+**What this does not do.** Thirty answers a month show large error
+rates; a rate below a few percent needs a larger sample to be seen. The
+sample is of logged answers, so questions users did not ask are not
+covered, and the question set of [chapter 6](./evaluate.mdx) supplies
+those.
 
 </Recipe>
 

@@ -55,8 +55,8 @@ are not fetched.
 <Recipe title="5.1 List the sources and their terms" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
 
 **Result:** the list of sites, archives, and datasets where policy,
-media, and institutional use appears, with the method and the terms for
-each.
+media, and institutional use of the data appears, with the collection
+method and the terms for each.
 
 1. Policy: ministries' publication pages, the parliament's records and
    questions, the budget and planning documents, subnational government
@@ -64,28 +64,34 @@ each.
 2. International organizations: country reports and strategies of the
    World Bank, the IMF, UN agencies, and regional bodies, which quote
    national statistics with attribution.
-3. Media: the national news archives, press monitoring the organization
-   already subscribes to, and news datasets with free access
-   ([GDELT](https://www.gdeltproject.org/) indexes world news with
-   themes and sources and offers raw files and queries).
+3. Media: the national news archives, the press monitoring the
+   organization already subscribes to, and news datasets with free
+   access ([GDELT](https://www.gdeltproject.org/) indexes world news
+   with themes and sources and offers raw files and queries).
 4. Web at large: [Common Crawl](https://commoncrawl.org/) holds periodic
-   crawls of the public web with an index that can be queried by domain,
-   which gives breadth without crawling sites directly.
-5. For each source, record: method (export, feed, API, crawl), the
-   robots.txt rules and terms of use, rate limit, and the licence of the
-   content (government documents are often open; news is not).
+   crawls of the public web with an index that can be queried by
+   domain, which gives breadth without crawling sites directly.
+5. For each source, record the method (export, feed, API, crawl), the
+   robots.txt rules and terms of use, the rate limit, and the licence
+   of the content. Government documents are often open; news is not.
 
 **What this does not do.** The list is the scope. Sources whose terms do
-not allow collection stay out, and the report states it; a press
+not allow collection stay out, and the report states it. A press
 monitoring service under contract covers part of that gap.
 
 </Recipe>
 
 <Recipe title="5.2 Check robots.txt and crawl within the rules" level="AI-ready" skills="Developer" time="One day to set up; scheduled runs after">
 
-**Result:** a crawler that fetches only what each site allows, identifies
-itself, and waits as the site asks, with the check run before every
-fetch.
+**Result:** a crawler that fetches only what each site allows,
+identifies itself, and waits between requests as the site asks, with
+the check run before every fetch.
+
+A site's `robots.txt` file states which parts of the site automated
+programs may fetch, and how long to wait between requests. The sources
+file lists the candidate URLs, one per row, with the source and the
+document type. The script reads a site's robots file and says, for
+each URL, whether the crawler may fetch it:
 
 ```python file=../../website/static/cookbook-files/monitoring-data-use/robots_check.py
 ```
@@ -104,72 +110,73 @@ DISALLOWED  https://ministry.example.gov/search?q=nutrition  (search page)
 DISALLOWED  https://ministry.example.gov/news/2025/09/budget-speech  (news)
 DISALLOWED  https://ministry.example.gov/api/internal/documents.json  (internal API)
 sitemaps: https://ministry.example.gov/sitemap.xml
-
 5 URLs, 3 disallowed
 ```
 
-1. Fetch each site's robots.txt and run the check on the candidate URLs
-   with the crawler's own user-agent token; fetch only the allowed ones
-   and wait the stated delay between requests (the example asks for five
-   seconds for this crawler and ten for others).
-2. Identify the crawler: a user agent with the organization's name and a
-   contact URL, so that a site administrator can see who is fetching and
-   write to them.
+1. Fetch each site's robots file and run the check on the candidate
+   URLs with the crawler's own user-agent name. Fetch only the allowed
+   ones, and wait the stated delay between requests (here five seconds
+   for this crawler and ten for others).
+2. Identify the crawler: a user agent with the organization's name and
+   a contact URL, so that a site administrator can see who is fetching
+   and write to them.
 3. Prefer the site's document list, feed, or sitemap (the example
    declares one) to crawling pages, and fetch the documents only.
-4. Keep the fetched robots.txt and the decision with each document, so
+4. Keep the fetched robots file and the decision with each document, so
    that a later question about a document's collection can be answered.
-5. Where the robots.txt disallows what the organization needs, ask: a
-   ministry usually grants a statistical office access on request, and an
-   export is often easier for both.
+5. Where the robots file disallows what the organization needs, ask. A
+   ministry usually grants a statistical office access on request, and
+   an export is often easier for both.
 
-**What this does not do.** robots.txt states what crawlers may fetch; the
-terms of use and the licence of the content are read separately and
-recorded in the sources list. The check is a gate, and a pipeline stops on
-a disallowed URL.
+**What this does not do.** The robots file states what crawlers may
+fetch. The terms of use and the licence of the content are read
+separately and recorded in the sources list. The check is a gate, and a
+pipeline stops on a disallowed URL.
 
 </Recipe>
 
 <Recipe title="5.3 Use news and web datasets for breadth" level="AI-ready" skills="Developer" time="Two days to set up">
 
 **Result:** mentions in news and on the web beyond the sites the
-organization crawls, from datasets that already collected them.
+organization crawls, taken from datasets that already collected them.
 
-1. GDELT: query its event and mention tables (in BigQuery or from the raw
-   files) for the canonical names and the organization's name, and
-   collect the article URLs and metadata; fetch the article text only
-   where the publisher's terms allow.
+1. GDELT: query its event and mention tables (in BigQuery or from the
+   raw files) for the canonical names and the organization's name.
+   Collect the article URLs and metadata, and fetch the article text
+   only where the publisher's terms allow.
 2. Common Crawl: query the index for the domains in scope (ministries,
    parliament, international organizations) and read the pages from the
    crawl archives, which avoids crawling those sites at all.
-3. Press monitoring: export the matches from the service the organization
-   subscribes to, with the same document fields.
+3. Press monitoring: export the matches from the service the
+   organization subscribes to, with the same document fields.
 4. Store each document with its source dataset and the crawl date, and
    deduplicate against the directly collected documents by URL.
 
 **What this does not do.** News datasets cover online news in the
-languages and outlets they index; national-language regional press may be
-absent. The coverage measure per source type shows the gap.
+languages and outlets they index; regional press in the national
+language may be absent. The coverage measure per source type shows the
+gap.
 
 </Recipe>
 
 <Recipe title="5.4 Produce the text layer and measure coverage" level="AI-ready" skills="Developer; dissemination officer" time="One day to set up">
 
-**Result:** every collected document has text the extractor can read, and
-a measured share of known policy and media uses that the collection
-contains.
+**Result:** every collected document has text the extractor can read,
+and the organization knows what share of the policy and media uses it
+already knew about the collection contains.
 
 1. Extract text from PDFs with PyMuPDF and from HTML with a readability
-   step (main text without navigation); run OCR on scanned government
-   documents ([documents cookbook, chapter 2](/cookbook/data-from-documents/scanned)).
-2. Build a reference list of known policy and media uses: documents staff
-   know, press clippings, and the uses the organization's own
+   step (the main text without navigation). Run OCR on scanned
+   government documents
+   ([documents cookbook, chapter 2](/cookbook/data-from-documents/scanned)).
+2. Build a reference list of known policy and media uses: documents
+   staff know, press clippings, and the uses the organization's own
    communications team tracked.
 3. Measure coverage per source type (policy, international, media, web)
-   and report it with the counts; add sources where it is low.
+   and report it with the counts. Add sources where it is low.
 
 **What this does not do.** Unknown uses in unlisted sources remain
-unknown; coverage is a lower bound per source type.
+unknown. Coverage is a lower bound per source type.
 
 </Recipe>
 

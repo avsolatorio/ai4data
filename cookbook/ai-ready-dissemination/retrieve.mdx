@@ -49,62 +49,74 @@ wraps the same data in an MCP server with two read-only tools.
 
 <Recipe title="2.1 Publish tidy CSV files at stable URLs" level="Foundational" skills="Data manager" time="One day to set the convention, then part of each release">
 
-**Result:** one file per series, in a layout that any tool can read, at a URL
-that does not change between releases.
+**Result:** one file per series, in a layout that any tool can read, at
+a web address that does not change between releases.
 
-1. Use one row per observation and the same columns for every series. Name
-   the columns with the SDMX cross-domain concepts from the
-   [Content-Oriented Guidelines](https://sdmx.org/guidelines/): `REF_AREA`,
-   `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`. The file then
-   maps directly to an SDMX data structure, and SDMX tools and the
-   [SDMX-CSV](https://sdmx.org/) format use the same names.
+A tidy file has one row per observation and the same columns for every
+series. The column names come from the SDMX standard for exchanging
+statistical data, so that the file maps directly to SDMX tools:
+
+| Column | Meaning |
+|---|---|
+| `SERIES` | The series identifier |
+| `REF_AREA` | The area the value refers to, as a code (`NAT` for national) |
+| `TIME_PERIOD` | The period, as an ISO date or an SDMX period (`2023`, `2025-Q1`) |
+| `OBS_VALUE` | The value |
+| `OBS_STATUS` | The status code: `A` normal, `P` provisional, `B` break in series, `E` estimated |
+| `UNIT_MEASURE` | The unit |
+| `RELEASE` | The date of the release the value comes from |
+| `SOURCE_URL` | The page of the series |
 
 ```csv file=../../website/static/cookbook-files/ai-ready-dissemination/example_values.csv
 ```
 
-2. Keep codes in the file (`NAT`, `2025-Q1`) and put labels in the code lists
-   ([chapter 3](./understand.mdx)). Use UTF-8, a period as the decimal
-   separator, and ISO 8601 dates and SDMX period formats.
-3. Fill `OBS_STATUS` from the SDMX observation status code list: `A` for a
-   normal value, `P` provisional, `B` break in series, `E` estimated. The
+1. Use one row per observation and the columns above, named after the
+   SDMX cross-domain concepts of the
+   [Content-Oriented Guidelines](https://sdmx.org/guidelines/). The
+   [SDMX-CSV](https://sdmx.org/) format uses the same names.
+2. Keep codes in the file (`NAT`, `2025-Q1`) and put the labels in the
+   code lists ([chapter 3](./understand.mdx)). Use UTF-8, a period as
+   the decimal separator, and ISO 8601 dates and SDMX period formats.
+3. Fill `OBS_STATUS` from the SDMX observation status code list. The
    example marks the latest quarter of unemployment as provisional.
 4. Publish each series at a predictable path, for example
-   `/series/FS_UNDERNOURISH_PCT/data.csv`, and the whole catalog as one bulk
-   file. When a new release replaces the file, the URL stays the same and the
-   `RELEASE` column changes.
+   `/series/FS_UNDERNOURISH_PCT/data.csv`, and the whole catalog as one
+   bulk file. When a new release replaces the file, the URL stays the
+   same and the `RELEASE` column changes.
 5. Offices that run an SDMX web service can publish SDMX-CSV from it
    directly. For files outside SDMX, describe the columns once with a
    [Frictionless table schema](https://specs.frictionlessdata.io/table-schema/)
-   or [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/) metadata,
-   so that tools know the column types.
+   or [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/)
+   metadata, so that tools know the column types.
 
-**What this does not do.** A tidy file at a stable URL serves one series; a catalog of hundreds needs the bulk file and the API of recipe 2.2 for selection by area and period. The example has five columns; each added dimension (sex, age group) is a column with its own code list in [chapter 3](./understand.mdx).
+**What this does not do.** A tidy file at a stable URL serves one
+series. A catalog of hundreds needs the bulk file and the API of recipe
+2.2 for selection by area and period. The example has five columns;
+each added dimension (sex, age group) is a column with its own code
+list in [chapter 3](./understand.mdx).
 
 </Recipe>
 
 <Recipe title="2.2 Describe the API with OpenAPI" level="AI-ready" skills="Backend developer" time="One to two days for an existing API">
 
-**Result:** a machine-readable description of the API that developers and AI
-systems can read, and a response format that always carries unit, period,
-and source.
+**Result:** a machine-readable description of the API that developers
+and AI systems can read, and a response format that always carries the
+unit, the period, and the source.
 
-Offices that run an SDMX web service already have a documented interface:
-the [SDMX REST API](https://sdmx.org/) specification, with SDMX-ML,
-SDMX-JSON, and SDMX-CSV responses. The World Bank publishes the World
-Development Indicators this way through its
-[SDMX API](https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries).
-The steps below are for an organization with a custom REST API.
-
-1. Start from the minimal description below. It has three endpoints: list
-   series, get one series, get observations. Series records use the field
-   names of the World Bank indicator schema and data responses use SDMX
-   concept names, so the API speaks the same vocabulary as the files.
+An API (application programming interface) is the address at which a
+program asks for data and gets it back in a structured form. OpenAPI is
+the standard way to describe one: which addresses exist, what
+parameters they take, and what they return. The minimal description
+below has three endpoints: list series, get one series, get
+observations. Series records use the field names of the World Bank
+indicator schema and data responses use SDMX concept names, so the API
+speaks the same vocabulary as the files:
 
 ```yaml file=../../website/static/cookbook-files/ai-ready-dissemination/openapi_minimal.yaml
 ```
 
-2. Make every data response carry `SERIES`, `UNIT_MEASURE`, `RELEASE`, and
-   `SOURCE_URL` at the top level and `OBS_STATUS` on each observation:
+A data response then looks like this, with the series, the unit, the
+release, and the source at the top and a status on each observation:
 
 ```json
 {
@@ -119,55 +131,80 @@ The steps below are for an organization with a custom REST API.
 }
 ```
 
-3. Publish the description at a stable URL (for example `/api/v1/openapi.yaml`)
-   and render it with any OpenAPI viewer.
-4. State the terms of use, the rate limit, and a contact in the `info` block.
-5. Test: a colleague who did not build the API retrieves one known value
-   using only the description.
+Offices that run an SDMX web service already have a documented
+interface: the [SDMX REST API](https://sdmx.org/) specification, with
+SDMX-ML, SDMX-JSON, and SDMX-CSV responses. The World Bank publishes
+the World Development Indicators this way through its
+[SDMX API](https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries).
+The steps below are for an organization with a custom REST API.
 
-**What this does not do.** The minimal description covers three endpoints and leaves out authentication, pagination beyond a limit parameter, and bulk queries. An SDMX web service covers those through the standard; a custom API adds them as the [agents cookbook](/cookbook/serving-statistics-to-agents/access) describes for access control.
+1. Start from the minimal description and extend it to the API's own
+   endpoints.
+2. Make every data response carry `SERIES`, `UNIT_MEASURE`, `RELEASE`,
+   and `SOURCE_URL` at the top level and `OBS_STATUS` on each
+   observation, as above.
+3. Publish the description at a stable URL (for example
+   `/api/v1/openapi.yaml`) and render it with any OpenAPI viewer.
+4. State the terms of use, the rate limit, and a contact in the `info`
+   block.
+5. Test: a colleague who did not build the API retrieves one known
+   value using only the description.
+
+**What this does not do.** The minimal description covers three
+endpoints and leaves out authentication, pagination beyond a limit
+parameter, and bulk queries. An SDMX web service covers those through
+the standard; a custom API adds them as the
+[agents cookbook](/cookbook/serving-statistics-to-agents/access)
+describes for access control.
 
 </Recipe>
 
 <Recipe title="2.3 Wrap the API as an MCP server" level="AI-native" skills="Python developer" time="One day for a prototype; a week to harden">
 
-**Result:** any MCP-compatible AI client can search the catalog and fetch
-values through two read-only tools, and every response carries provenance.
+**Result:** any AI client that speaks the Model Context Protocol can
+search the catalog and fetch values through two read-only tools, and
+every response carries its source.
 
-The example below reads the two CSV files from the running example. In
-production the tool bodies call the API from recipe 2.2 instead.
+The Model Context Protocol (MCP) is the open standard by which AI
+assistants call external tools. An MCP server offers a small set of
+named operations (tools) with descriptions the assistant reads. The
+example server below offers two: search the catalog, and get the values
+of a series. It reads the two CSV files of the running example; in
+production the tool bodies call the API of recipe 2.2:
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/mcp_server_example.py
 ```
 
-1. Install the SDK (`pip install "mcp[cli]"`) and run `mcp dev mcp_server_example.py`
-   to try the tools in the inspector.
+1. Install the SDK (`pip install "mcp[cli]"`) and run
+   `mcp dev mcp_server_example.py` to try the tools in the inspector.
 2. Keep the tools read-only and limit them to published data. Tool
    descriptions are read by the model, so write them as documentation.
-3. Return `unit`, `release`, and `source_url` in every response so the client
-   can cite them ([chapter 5](./trust.mdx)).
+3. Return the unit, the release, and the source URL in every response
+   so that the client can cite them ([chapter 5](./trust.mdx)).
 4. Connect an AI assistant to the server and ask for five known values.
    Compare each with the CSV.
-5. Before public deployment, add authentication, rate limits, and logging,
-   and run the governance checks in [chapter 8](./govern.mdx).
-
-**What this does not do.** The example reads two CSV files and matches
-words. A production server calls the organization's API, paginates large
-responses, returns the structure (code lists, dimensions) so the client can
-form valid requests, handles disaggregations, caches, and runs behind
-authentication and rate limits. The Data360 server below shows the fuller
-tool set that results.
+5. Before public deployment, add authentication, rate limits, and
+   logging, and run the governance checks of
+   [chapter 8](./govern.mdx).
 
 Two World Bank implementations exist. NADA exposes its catalog to AI
-clients through an MCP interface, so an organization that runs NADA has the
-catalog side of this recipe with the software, next to NADA's REST API
-(documented in OpenAPI). The [Data360 MCP server](https://github.com/worldbank/data360-mcp)
-is a production example of the data side of this pattern. It exposes discovery tools
-(`data360_search_indicators`, `data360_search_datasets`), metadata tools
-(`data360_get_metadata`, `data360_get_disaggregation`), data tools
-(`data360_get_data`, `data360_find_codelist_value`), and analysis tools,
-over the Data360 API. The program's [MCP page](/docs/mcp/) describes the
-architecture and the tools an MCP server for official statistics can expose.
+clients through an MCP interface, so an organization that runs NADA has
+the catalog side of this recipe with the software, next to NADA's REST
+API (documented in OpenAPI). The
+[Data360 MCP server](https://github.com/worldbank/data360-mcp) is a
+production example of the data side of this pattern. It exposes
+discovery tools, metadata tools, data tools, and analysis tools over
+the Data360 API, and the program's [MCP page](/docs/mcp/) describes
+the architecture and the tools an MCP server for official statistics
+can expose.
+
+**What this does not do.** The example reads two CSV files and matches
+words. A production server calls the organization's API, paginates
+large responses, returns the structure (code lists, dimensions) so that
+the client can form valid requests, handles disaggregations, caches,
+and runs behind authentication and rate limits. The
+[agents cookbook](/cookbook/serving-statistics-to-agents/) covers all
+of that.
 
 </Recipe>
 

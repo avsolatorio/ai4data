@@ -53,79 +53,100 @@ accuracy and 100 percent refusal on confidential questions.
 
 <Recipe title="1.1 List the components and the decisions they make" level="Foundational" skills="Head of the unit; developer" time="Half a day">
 
-**Result:** one table with every component, its decision, its possible
-errors, and who is affected.
+**Result:** one table that lists every AI component the organization
+runs or plans, what each one decides, what can go wrong, and who is
+affected when it does.
+
+Every AI component makes decisions on the organization's behalf: a
+search decides which series to show first, an assistant decides which
+number to state. Writing those decisions down in plain words is the
+start of evaluation, because a test can only measure a decision that
+has been named. The table below does this for the example
+organization's four components:
 
 | Component | Decision | Error | Affected |
 |---|---|---|---|
-| Catalog search | Which series are shown first | The right series is missing or low | Users who leave without finding it |
+| Catalog search | Which series are shown first | The right series is missing or low in the list | Users who leave without finding it |
 | Assistant | Which number is stated, with which caveat | A wrong number, a wrong period, a missing caveat, an answer where none exists | The public, who quote it |
-| Mention extractor | Which spans are dataset mentions | Missed mentions, spurious ones | The use report and its readers |
-| Metadata drafter | What text a curator sees | An invented fact in a draft | The curator, and the record if accepted |
+| Mention extractor | Which pieces of text are mentions of a dataset | Missed mentions, false ones | The use report and its readers |
+| Metadata drafter | What draft text a curator sees | An invented fact in a draft | The curator, and the record if the draft is accepted |
 
 1. Start from the AI component register of the
-   [dissemination cookbook](/cookbook/ai-ready-dissemination/govern);
-   every row is a component to evaluate.
-2. For each, write the decision in one sentence and the errors in the
-   user's terms, as in the table.
-3. Add the data the component sees, because a component that sees
-   confidential data has a refusal decision to evaluate as well.
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/govern).
+   Every row in it is a component to evaluate.
+2. For each component, write its decision in one sentence and its
+   possible errors in the words a user would use, as in the table.
+3. Note which data the component sees. A component that sees
+   confidential data has one more decision to evaluate: whether it
+   refuses when it should.
 
-**What this does not do.** The table names decisions; the measures of
-[chapters 3](./retrieval.mdx) to [5](./extraction.mdx) quantify them. A
-component that makes several decisions (an assistant retrieves, answers,
-and refuses) gets a row per decision.
+**What this does not do.** The table names the decisions; it does not
+measure them. [Chapters 3](./retrieval.mdx) to [5](./extraction.mdx)
+give the measures. A component that makes several decisions (an
+assistant retrieves, answers, and refuses) gets one row per decision.
 
 </Recipe>
 
 <Recipe title="1.2 Order the components by the cost of error" level="AI-ready" skills="Head of the unit; dissemination lead" time="Two hours">
 
-**Result:** the order in which the suites are built, with the reason for
-each place.
+**Result:** the order in which the organization will build its test
+suites, with the reason for each component's place.
 
-1. For each error in the table, estimate the cost in three bands: public
-   harm (a wrong figure published or quoted), internal harm (a wrong
-   value in a record or report that a person may catch), and
-   inconvenience (a user retries).
-2. Weight by exposure: how many decisions per month the component makes,
-   and whether a person reviews each one before it takes effect. A
-   drafter whose output a curator always reviews has a lower effective
-   cost than its error band suggests.
-3. Order by cost times exposure; the first suite is for the component at
-   the top. Record the order and the reasoning in the register.
+Few organizations can test everything at once. The component to test
+first is the one whose errors cost most, and the cost depends on two
+things: how bad an error is, and how often the component acts without a
+person checking.
 
-**What this does not do.** The estimate is a judgement in bands; it does
-not need to be precise to be useful, and it is revised when a production
-sample ([chapter 8](./production.mdx)) shows an error the bands did not
+1. For each error in the table, put the cost in one of three bands:
+   public harm (a wrong figure published or quoted under the
+   organization's name), internal harm (a wrong value in a record or
+   report that a person may still catch), or inconvenience (a user has
+   to try again).
+2. Weight the band by exposure: how many decisions the component makes
+   per month, and whether a person reviews each one before it takes
+   effect. A drafting tool whose every output a curator reviews has a
+   lower effective cost than its band suggests.
+3. Order the components by cost times exposure. The first suite is for
+   the component at the top. Record the order and the reasoning in the
+   register.
+
+**What this does not do.** The bands are a judgement, and they do not
+need to be precise to be useful. They are revised when the production
+review of [chapter 8](./production.mdx) finds an error the bands did not
 anticipate.
 
 </Recipe>
 
 <Recipe title="1.3 Set the required scores before testing" level="AI-ready" skills="Head of the unit; subject-matter staff" time="Two hours per component">
 
-**Result:** for each component, the measures of the later chapters with
-the score each has to reach, and why.
+**Result:** for each component, the measures it will be tested on and
+the score each measure has to reach, decided before any test is run,
+with the reason written down.
 
-1. Choose the measures from the chapter that fits the component: search
-   ([chapter 3](./retrieval.mdx)), answers ([chapter 4](./answers.mdx)),
+A required score set after the first test run tends to become whatever
+that run achieved. Setting it before, from the cost of error, keeps it
+honest.
+
+1. Choose the measures from the chapter that fits the component:
+   search ([chapter 3](./retrieval.mdx)), answers ([chapter 4](./answers.mdx)),
    extraction and classification ([chapter 5](./extraction.mdx)).
-2. Set each required score from the cost of error, before any run: a
-   public-facing assistant needs numeric accuracy near 100 percent and
-   full refusal on questions it must not answer; a search needs Recall@5
-   high enough that most users find the series on the first page; an
-   extractor that feeds a report needs the precision the report's
-   readers expect, with the coverage caveat stated.
-3. Set the scores per slice where it matters: per language, and for the
-   questions with no answer.
-4. Write the scores into the register with the date; a run that reaches
-   them is a pass, and a run that does not is a known gap, never a
-   reason to move the score.
+2. Set each required score from the cost of error. A public assistant
+   needs nearly every number it states to be right, and it must refuse
+   every question it is not allowed to answer. A search needs the right
+   series on the first page for most questions. An extractor that feeds
+   a report needs the precision the report's readers expect.
+3. Set separate scores where it matters: for each language, and for the
+   questions that have no answer.
+4. Write the scores into the register with the date. A run that reaches
+   them passes. A run that does not is a known gap. Neither is a reason
+   to move the score.
 
-**What this does not do.** A required score is a decision about
-acceptable risk; it does not say whether the score is reachable. The
-first runs show that, and an unreachable score is a reason to change the
-component's scope ([dissemination cookbook, chapter 8](/cookbook/ai-ready-dissemination/govern)),
-never the score.
+**What this does not do.** A required score is a decision about how
+much risk the organization accepts. Whether the score can be reached is
+a different question, which the first runs answer. A score that cannot
+be reached is a reason to narrow what the component does
+([dissemination cookbook, chapter 8](/cookbook/ai-ready-dissemination/govern)),
+never a reason to lower the score.
 
 </Recipe>
 

@@ -57,21 +57,26 @@ without reference lists), and one only by OpenAlex.
 
 <Recipe title="3.1 Register identifiers and publish the citation format" level="Foundational" skills="Catalog administrator" time="Half a day to set up; minutes per dataset">
 
-**Result:** every monitored dataset has a DOI with metadata that names
-the organization as publisher, and its page shows how to cite it.
+**Result:** every monitored dataset has a DOI (a persistent identifier
+registered with DataCite) whose metadata names the organization as
+publisher, and its page shows how to cite it.
+
+A DOI is what makes citations countable. When an author cites the
+dataset by its DOI and the publisher deposits the reference, the
+citation becomes an event that the identifier services can report.
 
 1. Register DOIs through a DataCite member (a national library, a
    consortium, or the organization itself) with the dataset's title,
    creator (the organization), publisher, year, and resource type
-   `Dataset`; add `relatedIdentifier` links to the report and to earlier
+   `Dataset`. Add related-identifier links to the report and to earlier
    versions.
 2. Put the citation on the dataset page in a fixed format with the DOI
    ([dissemination cookbook, chapter 5](/cookbook/ai-ready-dissemination/trust)),
    and in the record's citation field, so that reference managers pick
    it up.
-3. Where DOIs are not available, use the catalog's persistent identifier
-   and register it with the services that accept it; the merge in recipe
-   3.2 keys on whatever identifier the record carries.
+3. Where DOIs are not available, use the catalog's persistent
+   identifier and register it with the services that accept it. The
+   merge of recipe 3.2 keys on whatever identifier the record carries.
 
 **What this does not do.** A DOI makes citations countable; it does not
 make authors cite. The citation format on the page, and the request in
@@ -81,9 +86,23 @@ the terms of use, are what change behaviour, slowly.
 
 <Recipe title="3.2 Collect citation events and merge them" level="AI-ready" skills="Developer" time="One day to set up; minutes per run">
 
-**Result:** one list of citing documents per dataset, with the sources
-that found each, and the documents found by one source only listed for
+**Result:** one list of citing documents per dataset, with the services
+that found each, and the documents found by only one service listed for
 review.
+
+Several services report citations of a DOI, and each sees a different
+part of the literature. The events file collects what each reported,
+one row per event:
+
+| Column | Meaning |
+|---|---|
+| `source` | Which service reported it: `datacite`, `crossref`, `openalex`, or `text-mining` for the mentions found in [chapter 7](./harmonize.mdx) |
+| `dataset_id`, `dataset_doi` | The cited dataset |
+| `citing_id`, `citing_title`, `citing_year` | The citing document, by DOI where it has one |
+| `relation` | The relation type the service reported, such as `IsCitedBy` |
+
+The script merges the events into unique citing documents and compares
+the services:
 
 ```python file=../../website/static/cookbook-files/monitoring-data-use/merge_citations.py
 ```
@@ -96,59 +115,61 @@ Output for the running example:
 
 ```text
 12 events -> 7 unique citing documents across 4 datasets
-
 dataset                unique     crossref     datacite     openalex  text-mining  one source
 EX-CEN-2014                 1            1            0            0            1           0
 EX-HBS-2021                 3            1            1            2            2           1
 EX-LFS                      2            0            1            2            0           1
 FS_UNDERNOURISH_PCT         1            0            0            0            1           1
-
 found through identifiers 5, through text mining 4, by both 2, by text mining only 2
-
 found by one source only (check the record and add the identifier where it is missing):
   EX-HBS-2021: National nutrition strategy 2025 to 2030 (2025) found by text-mining only
   EX-LFS: Informality and wages in Example country (2025) found by openalex only
   FS_UNDERNOURISH_PCT: Regional food security outlook 2025 (2025) found by text-mining only
 ```
 
-1. Collect events on a schedule: DataCite's Event Data or the GraphQL API
-   for the dataset DOIs (relation types such as `IsCitedBy`), Crossref's
-   REST API for works whose references include the DOI, OpenAlex for
-   works whose `referenced_works` include the dataset, and ScholeXplorer
-   for Scholix links aggregated across services. Write each event with
-   its source into the events file.
-2. Add the text-mined mentions of [chapter 7](./harmonize.mdx) as events
-   with source `text-mining`, so that the merge compares the routes.
+1. Collect events on a schedule from four services, and write each
+   event with its source into the events file:
+   - DataCite's Event Data or GraphQL API, for the dataset DOIs;
+   - Crossref's REST API, for works whose references include the DOI;
+   - OpenAlex, for works whose referenced works include the dataset;
+   - ScholeXplorer, for links aggregated across services.
+2. Add the text-mined mentions of [chapter 7](./harmonize.mdx) as
+   events with source `text-mining`, so that the merge compares the
+   routes.
 3. Run the merge and read the result: unique citing documents per
    dataset, the share each source found, and the documents found by one
    source only.
-4. Review the one-source documents: an identifier-only document is a
-   paper the collection of [chapter 4](./collect.mdx) should contain; a
-   mining-only document with a DOI is a paper whose reference was not
-   deposited; a mining-only document without a DOI (a policy document)
-   is use the services cannot see.
+4. Review the one-source documents. Each kind means something
+   different:
+   - found by an identifier service only: a paper the collection of
+     [chapter 4](./collect.mdx) should contain;
+   - found by text mining only, with a DOI: a paper whose reference was
+     not deposited;
+   - found by text mining only, without a DOI (a policy document): use
+     the services cannot see.
 
-**What this does not do.** The merge keys on identifiers and leaves a
+**What this does not do.** The merge keys on identifiers, and leaves a
 preprint and its journal version as two documents until a mapping joins
-them. The services' coverage differs by discipline and publisher; the
-comparison with text mining is the only coverage measure available.
+them. The services' coverage differs by discipline and publisher, and
+the comparison with text mining is the only coverage measure available.
 
 </Recipe>
 
 <Recipe title="3.3 Report citations with the other measures" level="AI-ready" skills="Dissemination officer" time="Part of each report">
 
 **Result:** citation counts per dataset in the use report, with their
-source, their coverage note, and the comparison with text mining.
+source, a note on what they cover, and the comparison with text mining.
 
 1. Report unique citing documents per dataset and year, by source, with
    the overlap figures from the merge.
 2. State what the count covers: works with deposited references and
-   DataCite-registered links; policy and media use are counted by
+   DataCite-registered links. Policy and media use are counted by
    [chapters 5](./collect-web.mdx) to [7](./harmonize.mdx).
-3. Publish the citing documents on the dataset page as a "cited by" list,
-   as the Microdata Library does, with the document's DOI or URL.
-4. Feed the count to the prioritization of [chapter 9](./act.mdx) beside
-   access and mentions.
+3. Publish the citing documents on the dataset page as a "cited by"
+   list, as the Microdata Library does, with each document's DOI or
+   URL.
+4. Feed the count to the prioritization of [chapter 9](./act.mdx)
+   beside access and mentions.
 
 **What this does not do.** A citation count ranks datasets by scholarly
 attention. It does not measure policy influence or media reach, which

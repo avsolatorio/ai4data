@@ -52,31 +52,44 @@ services) is in no table and is flagged; the claim "lowest level since
 
 <Recipe title="5.1 Draft from the output tables with the style guide" level="Foundational" skills="Analyst; access to a model" time="Minutes per release">
 
-**Result:** a draft commentary grounded in the release's tables, in the
-organization's style, marked as a draft.
+**Result:** a first draft of the release commentary, written by a model
+from the release's own tables in the organization's style, clearly
+marked as a draft.
 
-1. Give the model the output tables (as CSV or a compact text table with
-   series, period, value, previous value, unit, status), the series'
-   metadata (definitions, breaks, caveats), the style guide (length,
-   order, how changes are stated, how provisional values are described),
-   and last release's commentary as the model of tone.
-2. Ask for the draft with the rule to use only numbers from the tables,
-   to state the status of provisional values, and to mark any
-   comparison beyond the tables ("highest since") as needing a source.
-3. Save the draft with the model and date; it goes to the check of
-   recipe 5.2 before any person edits it.
+1. Give the model four inputs:
+   - the output tables, as CSV or as a compact text table with series,
+     period, value, previous value, unit, and status;
+   - the metadata of the series: definitions, breaks, caveats;
+   - the style guide: length, order of topics, how changes are stated,
+     how provisional values are described;
+   - the previous release's commentary, as an example of tone.
+2. Ask for the draft with three rules: use only numbers that appear in
+   the tables; state when a value is provisional; mark any comparison
+   that goes beyond the tables ("highest since 2019") as needing a
+   source.
+3. Save the draft with the model's name and the date. It goes to the
+   check of recipe 5.2 before any person edits it.
 
 **What this does not do.** A draft from the tables says what the tables
-say. The analysis (why the rate moved, what it means) is the analyst's,
-and the draft is a starting text, never the published one.
+say. The analysis (why the rate moved, what it means) is the analyst's.
+The draft is a starting text, never the published one.
 
 </Recipe>
 
 <Recipe title="5.2 Verify every number and list every claim" level="AI-ready" skills="Python" time="Seconds per draft">
 
-**Result:** every number in the draft matched to a table value, a
-previous value, a change, or a rounded form, with the unverified ones
-and the comparative claims listed, and the provisional status checked.
+**Result:** every number in the draft matched to the release table or
+flagged, every comparative claim listed for sourcing, and a check that
+provisional values are stated as provisional, all before an analyst
+reads the draft.
+
+The example uses the release table (one row per series with its value,
+its previous value, its unit, and its status, where `P` means
+provisional) and a draft commentary. The script finds every number in
+the draft and looks for it in the table: as a value, as a previous
+value, as the difference between the two, or as a rounded form (a figure
+in thousands stated in millions). It also lists phrases such as "lowest
+since" that no table can verify:
 
 ```python file=../../website/static/cookbook-files/language-models-in-production/commentary_check.py
 ```
@@ -100,45 +113,48 @@ CLAIM      lowest level since 2019.
 6 verified, 1 unverified, 1 claim(s) needing a source; provisional values are stated as provisional
 ```
 
-1. Run the check on every draft; a draft with an unverified number or an
-   unsourced claim cannot leave the pipeline.
+1. Run the check on every draft. A draft with an unverified number or
+   an unsourced claim does not go further.
 2. For an unverified number, either add the table it came from to the
-   inputs (the figure for services came from a table the draft was not
-   given) or remove the sentence.
-3. For a claim, source it from the series history (the dissemination
-   cookbook's [number check](/cookbook/ai-ready-dissemination/trust)
-   and the [series files](/cookbook/ai-ready-dissemination/retrieve)
-   hold it) or remove it.
-4. Keep the check's output with the draft as the verification record.
+   model's inputs (in the example, the figure for services came from a
+   table the model was not given) or remove the sentence.
+3. For a claim, find the source in the series history (the
+   dissemination cookbook's [number check](/cookbook/ai-ready-dissemination/trust)
+   and [series files](/cookbook/ai-ready-dissemination/retrieve) hold
+   it) or remove the claim.
+4. Keep the check's output with the draft as the record of
+   verification.
 
-**What this does not do.** A verified number can be attached to the
-wrong series in a sentence; the analyst reads the draft. The check
-covers numbers and the claim patterns it knows; a new pattern is added
-when an analyst finds one.
+**What this does not do.** A verified number can still be attached to
+the wrong series in a sentence; the analyst reads the draft. The check
+knows the claim patterns written into it; when an analyst finds a new
+one, it is added.
 
 </Recipe>
 
 <Recipe title="5.3 Edit, approve, and measure" level="AI-ready" skills="Analyst; head of the unit" time="Part of each release">
 
-**Result:** published commentary approved by an analyst, with the
-approval recorded and the edit distance per release tracked.
+**Result:** published commentary that an analyst has edited and
+approved, with the approval recorded, the final text checked again, and
+a measure of how much the draft was changed.
 
 1. The analyst edits the checked draft in the publication tool and
-   approves it; the approval, the analyst, and the date are recorded
-   with the release.
-2. Re-run the check on the final text; an edit can introduce a number.
-3. Measure the edit distance between the draft and the published text
-   per section; a section always rewritten is a prompt or a style guide
-   problem, and a section never edited is one to read with more care,
-   because unread text is unreviewed text.
-4. For other languages, draft with the glossary and run the translation
-   checks of the [curation cookbook](/cookbook/metadata-curation-with-llms/translate);
-   a native speaker approves each language.
+   approves it. Record the approval, the analyst, and the date with the
+   release.
+2. Run the check again on the final text. An edit can introduce a
+   number.
+3. Measure how much each section changed between draft and published
+   text. A section that is always rewritten points to a problem in the
+   model's instructions or the style guide. A section that is never
+   edited deserves a closer read: unedited text may be unread text.
+4. For other publication languages, draft with the organization's
+   glossary and run the translation checks of the
+   [curation cookbook](/cookbook/metadata-curation-with-llms/translate).
+   A native speaker approves each language.
 
-**What this does not do.** Approval makes the text official; it does
-not make it right beyond the analyst's knowledge. The check and the
-review together are the control, and the statement of model use
-([chapter 7](./assurance.mdx)) says they were applied.
+**What this does not do.** Approval makes the text official. The check
+and the analyst's reading are the controls, and the statement of model
+use ([chapter 7](./assurance.mdx)) records that both were applied.
 
 </Recipe>
 

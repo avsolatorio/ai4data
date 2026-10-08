@@ -58,13 +58,11 @@ would otherwise read as values.
 <Recipe title="2.1 Tell a scan from a text layer and mark it in the inventory" level="Foundational" skills="Developer" time="Minutes for a few hundred documents">
 
 **Result:** the inventory's `text_layer` column is correct for every
-document, and the pages to OCR are counted.
+document, and the number of pages that need OCR is known.
 
-1. For each PDF, extract the text of a few pages with
-   [PyMuPDF](https://pymupdf.readthedocs.io/) and count the characters.
-   A page with no characters, or with only a few, is an image; a page
-   whose text contains long runs of symbols or no spaces has a broken OCR
-   layer from an earlier tool.
+A scanned PDF is a sequence of images; a PDF produced from a word
+processor contains text. The quickest test is to count the characters
+a PDF library can read from each page:
 
 ```python
 import fitz  # PyMuPDF
@@ -75,48 +73,63 @@ text_pages = sum(1 for c in chars if c > 200)
 print(f"{text_pages} of {len(doc)} pages have text")
 ```
 
+1. Run the count on a few pages of each PDF. A page with no characters,
+   or with only a few, is an image. A page whose text contains long
+   runs of symbols or no spaces has a broken OCR layer from an earlier
+   tool.
 2. Mark the document `text_layer = no` when most pages are images, and
-   `text_layer = ocr` when an OCR layer exists; keep the page counts, which
-   are the OCR workload of [chapter 9](./operate.mdx).
+   `ocr` when an OCR layer exists. Keep the page counts, which are the
+   OCR workload of [chapter 9](./operate.mdx).
 3. Where an existing OCR layer is poor (recipe 2.3 scores it), treat the
    document as a scan and re-run OCR.
 
 **What this does not do.** A character count does not tell whether the
-text is correct. Recipe 2.3 scores quality; recipe 2.2 chooses the engine.
+text is correct. Recipe 2.3 scores quality; recipe 2.2 chooses the
+engine.
 
 </Recipe>
 
 <Recipe title="2.2 Choose and run the OCR engine for the organization's pages" level="AI-ready" skills="Developer" time="Two days to test; minutes per page to run">
 
-**Result:** an engine, settings, and resolution chosen on the
-organization's own pages per language, and OCR output stored as a
-searchable PDF/A beside the original.
+**Result:** an OCR engine, its settings, and the scan resolution chosen
+by measuring the candidates on the organization's own pages in each
+language, and the OCR output stored as a searchable PDF beside the
+original.
+
+An OCR engine is a program that reads text from an image of a page.
+Engines differ in the languages and scripts they support, in how well
+they read tables, and in the hardware they need. The measure to compare
+them on is the character error rate: the share of characters read
+wrongly, measured against pages whose correct text is known. The digit
+error rate matters most, because digits are what the tables contain.
 
 1. Build a test set: twenty pages per language and layout type (prose,
-   tables, two-column), with the correct text of each typed or corrected
-   by hand. Include the worst scans.
-2. Run candidate engines on the test set and compare character error
-   rate overall and on digits:
-   [Tesseract](https://github.com/tesseract-ocr/tesseract) (the widest
-   language coverage, through [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF)
-   which produces a searchable PDF/A);
-   [docTR](https://github.com/mindee/doctr) and
-   [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) (deep-learning
-   engines with layout and table recognition);
-   [Surya](https://github.com/VikParuchuri/surya) (90-plus languages,
-   with reading order and tables; check its licence for the
-   organization's case); [olmOCR](https://github.com/allenai/olmocr) (a
-   vision-language model that returns text with tables as Markdown,
-   strongest on complex layouts and heaviest to run);
-   [Docling](https://github.com/docling-project/docling) wraps several of
-   these with layout analysis in one pipeline.
-3. Choose by digit error rate on tables first, then by language coverage
-   and the hardware available; record the engine, version, and settings
-   in the pipeline's configuration.
-4. Run at 300 dots per inch or the scan's native resolution if higher;
-   deskew and despeckle first (OCRmyPDF does both); keep the output as
-   PDF/A with the text layer positioned on the image, plus the page text
-   as files for search and extraction.
+   tables, two-column), with the correct text of each typed or
+   corrected by hand. Include the worst scans.
+2. Run candidate engines on the test set and compare the character
+   error rate overall and on digits. The candidates:
+   - [Tesseract](https://github.com/tesseract-ocr/tesseract): the
+     widest language coverage; run through
+     [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF), which produces a
+     searchable PDF/A;
+   - [docTR](https://github.com/mindee/doctr) and
+     [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR):
+     deep-learning engines with layout and table recognition;
+   - [Surya](https://github.com/VikParuchuri/surya): 90-plus languages,
+     with reading order and tables; check its licence for the
+     organization's case;
+   - [olmOCR](https://github.com/allenai/olmocr): a vision-language
+     model that returns text with tables as Markdown, strongest on
+     complex layouts and heaviest to run;
+   - [Docling](https://github.com/docling-project/docling): wraps
+     several of these with layout analysis in one pipeline.
+3. Choose by digit error rate on tables first, then by language
+   coverage and the hardware available. Record the engine, version, and
+   settings in the pipeline's configuration.
+4. Run at 300 dots per inch, or the scan's native resolution if higher.
+   Deskew and despeckle first (OCRmyPDF does both). Keep the output as
+   PDF/A with the text layer positioned on the image, plus the page
+   text as files for search and extraction.
 
 **What this does not do.** A test set of twenty pages per type finds
 large differences between engines; small differences need more pages. A
@@ -128,8 +141,14 @@ typeface, needs a model trained for it, which the engines above allow.
 <Recipe title="2.3 Score OCR quality page by page" level="AI-ready" skills="Python" time="Minutes per document">
 
 **Result:** every OCR page has a quality score and a list of lines to
-review, and pages over the threshold are marked for re-OCR before
+review, and pages over the threshold are marked for re-OCR before any
 extraction.
+
+OCR errors in numbers have recognizable shapes: a letter O where a
+zero should be, a lowercase l where a one should be. The script reads
+the OCR text of one page, counts the number tokens that contain such
+garbles and the words broken by stray characters, and prints the lines
+to look at:
 
 ```python file=../../website/static/cookbook-files/data-from-documents/ocr_quality.py
 ```
@@ -142,7 +161,6 @@ Output for the running example:
 
 ```text
 14 lines, 33 number tokens, 3 garbled (9.1%), 4 broken words
-
 lines to review (garbles | line):
     4  1 | Northern        1,284,310   631,2O5     653,105     412,880     871,430
     5  0 | Central         2,106,944   1,039,517   1,067,427   1,203,118   903,826
@@ -150,26 +168,25 @@ lines to review (garbles | line):
     7  1 | Eastern         l,412,006   697,431     714,575     388,902     1,023,104
     8  0 | Total           5,784,035   2,850,463   2,933,572   2,306,124   3,477,911
    12  0 | Tbe census night was 14 to 15 August 2014. Enumeration lasted twelve days
-
 broken words: 2: Tab1e, 9: popu1ation, 11: ~~, 11: ~~
-
 verdict: re-OCR recommended (garble rate 9.1%, threshold 3%)
 ```
 
-1. Run the score on every page of the OCR output and store the rate with
-   the page in the inventory or the processing log.
-2. Read the lines to review for a sample: the garbled tokens in the table
-   rows (`631,2O5`, `98O,775`, `l,412,006`) are what the extraction of
-   [chapter 4](./extract.mdx) would otherwise record as values; a page
-   over the threshold is re-processed with another engine or at a higher
-   resolution, or its tables are reviewed cell by cell.
-3. Set the threshold from the test set of recipe 2.2: the garble rate of
+1. Run the score on every page of the OCR output and store the rate
+   with the page in the inventory or the processing log.
+2. Read the lines to review for a sample. The garbled tokens in the
+   table rows (`631,2O5`, `98O,775`, `l,412,006`) are what the
+   extraction of [chapter 4](./extract.mdx) would otherwise record as
+   values.
+3. Re-process a page over the threshold with another engine or at a
+   higher resolution, or review its tables cell by cell.
+4. Set the threshold from the test set of recipe 2.2: the garble rate of
    pages whose digit error rate was acceptable.
-4. Keep corrected pages as test pages for the next engine change.
+5. Keep corrected pages as test pages for the next engine change.
 
-**What this does not do.** The score finds errors by shape. A `3` read as
-`8` is a digit and invisible here; the total and derived-rate checks of
-[chapter 5](./verify.mdx) catch those, which is why both run.
+**What this does not do.** The score finds errors by shape. A `3` read
+as `8` is a digit and invisible here. The total and derived-rate checks
+of [chapter 5](./verify.mdx) catch those, which is why both run.
 
 </Recipe>
 

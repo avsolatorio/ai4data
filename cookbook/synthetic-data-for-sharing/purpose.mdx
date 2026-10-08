@@ -61,69 +61,79 @@ that file; a 300-record extract with six variables carries the scripts.
 
 <Recipe title="1.1 Write the purpose statement" level="Foundational" skills="Head of the microdata unit; methodologist" time="Half a day">
 
-**Result:** a short statement, approved and published, of what the
-organization's synthetic files are for and what they are not for.
+**Result:** a short, approved, published statement of what the
+organization's synthetic files are for and what they must not be used
+for.
 
-1. List the intended uses: development and testing of analysis code
-   before an application for the licensed file; teaching; method
-   development; software and pipeline testing; demonstrations.
+1. List the intended uses: writing and testing analysis code before
+   applying for the real file; teaching; developing methods; testing
+   software and pipelines; demonstrations.
 2. List the prohibited uses and the limits: no estimation or
-   publication of statistics; no substitute for the real microdata; no
-   guarantee of relationships beyond those the utility report lists; no
-   reliability for small groups.
-3. State the labelling rule: every synthetic file is named, described,
-   and marked in the data as synthetic.
+   publication of statistics from a synthetic file; no use as a
+   substitute for the real microdata; no guarantee that relationships
+   hold beyond those the utility report lists; no reliability for small
+   groups.
+3. State the labelling rule: every synthetic file is marked as
+   synthetic in its name, in its catalog record, and inside the data
+   itself.
 4. Publish the statement with the access policy of the
    [microdata cookbook](/cookbook/microdata-documentation/access), and
    repeat it in every synthesis record ([chapter 6](./release.mdx)).
 
-**What this does not do.** A statement sets expectations; users still
-compute things from synthetic files. The labelling, the record, and the
-utility report are what tell them how far to trust what they compute.
+**What this does not do.** A statement sets expectations. Users will
+still compute things from a synthetic file; the label, the record, and
+the utility report are what tell them how far to trust the result.
 
 </Recipe>
 
 <Recipe title="1.2 Decide which files to synthesize, from demand" level="Foundational" skills="Microdata unit" time="Two hours">
 
-**Result:** an ordered list of surveys to synthesize, with the demand
-and the intended uses behind each.
+**Result:** an ordered list of the surveys to synthesize, with the
+demand behind each and the uses the synthetic file would serve.
 
-1. Count the access requests per survey over the last two years, the
-   teaching requests, and the internal development needs (pipelines,
+1. Count, for each survey, the access requests over the last two years,
+   the requests from teachers, and the internal needs (pipeline testing,
    training).
-2. Order by demand; start with one survey whose licensed file has a
-   queue of applicants.
-3. For each, write the intended uses and the variables the uses need;
-   a teaching file needs the whole questionnaire's shape, a code-testing
-   file needs the variables and types users will code against.
-4. Record the list with the microdata unit's work plan.
+2. Order the surveys by demand. Start with one survey whose real file
+   has a queue of applicants.
+3. For each survey, write down the intended uses and the variables
+   those uses need. A teaching file needs the shape of the whole
+   questionnaire; a file for testing code needs the variables and types
+   users will write code against.
+4. Record the list in the microdata unit's work plan.
 
-**What this does not do.** Demand orders the work; the method and the
-measures of the next chapters decide whether a given survey's synthetic
-file is good enough to release.
+**What this does not do.** Demand decides the order of work. Whether a
+survey's synthetic file is good enough to release is decided by the
+measures of [chapters 3](./utility.mdx) and [4](./risk.mdx).
 
 </Recipe>
 
 <Recipe title="1.3 Separate synthesis for sharing from disclosure control" level="Foundational" skills="Methodologist; disclosure control unit" time="Two hours">
 
 **Result:** a clear line, in the policy and in practice, between fully
-synthetic files for sharing and partially synthetic methods used as
-disclosure control for public use files.
+synthetic files made for sharing and partially synthetic methods used
+to protect a public use file.
 
-1. State that the files of this guide are fully synthetic and are not
-   public use files: they are not used for estimation, and their risk
-   assessment ([chapter 4](./risk.mdx)) is about copying and inference,
-   never about identification of a real respondent in the file.
-2. Where the organization uses partial synthesis as a disclosure control
-   method for a public use file, document it under the public use
-   file's disclosure control record ([microdata cookbook, chapter 8](/cookbook/microdata-documentation/access)),
-   with the utility measured for the estimates users will make.
+The two are easy to confuse because the methods overlap. A fully
+synthetic file replaces every value and is never used for estimates. A
+partially synthetic file replaces only sensitive variables, keeps the
+rest, and is a form of disclosure control applied to a public use file
+that users do analyse.
+
+1. State in the policy that the files of this guide are fully synthetic
+   and are not public use files: nobody estimates from them, and their
+   risk assessment ([chapter 4](./risk.mdx)) concerns copying and
+   inference, never the identification of a respondent in the file.
+2. Where the organization uses partial synthesis as disclosure control,
+   document it in the public use file's disclosure control record
+   ([microdata cookbook, chapter 8](/cookbook/microdata-documentation/access)),
+   with utility measured for the estimates users will make.
 3. Keep the two products apart in the catalog, with different labels,
-   records, and terms.
+   records, and terms of use.
 
 **What this does not do.** The line keeps users and reviewers clear
-about what each file is. The methods overlap, and a team that masters
-one learns the other; the documentation is what differs.
+about what each file is. A team that masters one method learns the
+other; what differs is the documentation and the use.
 
 </Recipe>
 

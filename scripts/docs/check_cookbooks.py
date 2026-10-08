@@ -48,18 +48,37 @@ STATIC = REPO / "website" / "static" / "cookbook-files"
 SKIP = {"_template", "authoring"}
 
 LEVELS = {"Foundational", "AI-ready", "AI-native"}
-INDEX_SECTIONS = ["Prerequisites", "First steps", "Chapters and questions", "Maturity levels", "Files", "Citation", "Version history"]
-CHAPTER_REQUIRED = ["Rationale", "Target state", "Maturity levels", "Recipes", "Common mistakes", "Checklist"]
+INDEX_SECTIONS = [
+    "Prerequisites",
+    "First steps",
+    "Chapters and questions",
+    "Maturity levels",
+    "Files",
+    "Citation",
+    "Version history",
+]
+CHAPTER_REQUIRED = [
+    "Rationale",
+    "Target state",
+    "Maturity levels",
+    "Recipes",
+    "Common mistakes",
+    "Checklist",
+]
 CHAPTER_RECOMMENDED = ["Implementation options", "Resources", "Verification"]
 
-BANNED = re.compile(r", not |rather than|instead of|not just|isn.t\.|\bmerely\b|\bsimply\b|\bactually\b")
+BANNED = re.compile(
+    r", not |rather than|instead of|not just|isn.t\.|\bmerely\b|\bsimply\b|\bactually\b"
+)
 COMMA_TAG = re.compile(r", (and|with|but|so|then|because) ")
 SECOND_PERSON = re.compile(r"\b(you|your|yours)\b", re.IGNORECASE)
 FRONT = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 RECIPE = re.compile(r"<Recipe\s+([^>]*)>(.*?)</Recipe>", re.DOTALL)
 ATTR = re.compile(r'(\w+)="([^"]*)"')
 PLACEHOLDER = re.compile(r"\{\{[A-Z_]+\}\}")
-GUIDANCE = re.compile(r"\{/\*.*?\*/\}|<!--.*?-->", re.DOTALL)  # template guidance comments
+GUIDANCE = re.compile(
+    r"\{/\*.*?\*/\}|<!--.*?-->", re.DOTALL
+)  # template guidance comments
 TEMPLATE_TEXT = (
     "Imperative title naming the result",
     "one sentence on what exists when the recipe is done",
@@ -92,7 +111,9 @@ def front_matter(text: str) -> dict[str, str]:
 
 
 def headings(text: str) -> list[str]:
-    return [m.group(2).strip() for m in re.finditer(r"^(#{1,4}) (.+)$", text, re.MULTILINE)]
+    return [
+        m.group(2).strip() for m in re.finditer(r"^(#{1,4}) (.+)$", text, re.MULTILINE)
+    ]
 
 
 def prose(text: str) -> str:
@@ -131,7 +152,10 @@ def check_titles(path: Path, text: str, rep: Report) -> None:
         line = body.count("\n", 0, m.start()) + 1
         rep.error(path, f"banned construction near line {line}: {m.group(0)!r}")
     if SECOND_PERSON.search(body):
-        rep.warn(path, "second person (you/your) in prose; use 'the organization' or a passive form")
+        rep.warn(
+            path,
+            "second person (you/your) in prose; use 'the organization' or a passive form",
+        )
 
 
 def check_index(path: Path, rep: Report) -> None:
@@ -183,6 +207,37 @@ def check_chapter(path: Path, rep: Report) -> None:
     if not recipes:
         rep.error(path, "no Recipe component found")
     for m in recipes:
+        body = m.group(0)
+        tm = re.search(r'title="([^"]+)"', m.group(1))
+        rtitle = tm.group(1).split(" ")[0] if tm else "?"
+        prose = re.sub(r"```.*?```", "", body, flags=re.DOTALL)
+        prose = re.sub(
+            r"<Recipe\s+[^>]*>", "", prose
+        )  # the tag's attributes are not a sentence
+        prose = "\n".join(
+            ln for ln in prose.splitlines() if not ln.lstrip().startswith("|")
+        )
+        prose = re.sub(r"\]\([^)]*\)", "]", prose)  # link targets do not count as words
+        # paragraphs, list items, and lines ending in a colon are sentence boundaries
+        prose = re.sub(r"\n(\s*(?:\d+\.|-|\*)\s+)", "\n\n", prose)
+        units = [u for u in re.split(r"\n\s*\n|:\s*\n", prose) if u.strip()]
+        flat = []
+        for u in units:
+            flat.extend(re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", u)))
+        for sent in flat:
+            if len(sent.split()) > 45:
+                rep.warn(
+                    path,
+                    f"recipe {rtitle}: sentence of {len(sent.split())} words; split it",
+                )
+                break
+        for cm in re.finditer(r"\n\n```", body):
+            paragraph = body[: cm.start()].rstrip().split("\n\n")[-1].strip()
+            if paragraph.startswith(("**Result:**", "<Recipe")):
+                rep.warn(
+                    path, f"recipe {rtitle}: code block without an introducing sentence"
+                )
+                break
         attrs = dict(ATTR.findall(m.group(1)))
         title = attrs.get("title", "")
         if not re.match(r"^\d+\.\d+ ", title):
@@ -194,7 +249,9 @@ def check_chapter(path: Path, rep: Report) -> None:
                 rep.error(path, f"recipe {title!r}: missing {key}")
         if "**Result:**" not in m.group(2):
             rep.error(path, f"recipe {title!r}: missing '**Result:**' line")
-        if "**What this does not do" not in m.group(2) and "**What this does not check" not in m.group(2):
+        if "**What this does not do" not in m.group(
+            2
+        ) and "**What this does not check" not in m.group(2):
             rep.warn(path, f"recipe {title!r}: no 'What this does not do' note")
     if PLACEHOLDER.search(text):
         rep.error(path, "template placeholders remain")
@@ -218,7 +275,9 @@ def check_cookbook(folder: Path, rep: Report) -> None:
     for p in chapters:
         check_chapter(p, rep)
     for p in sorted(folder.glob("*.md")) + [
-        p for p in sorted(folder.glob("*.mdx")) if p not in chapters and p.name != "index.mdx"
+        p
+        for p in sorted(folder.glob("*.mdx"))
+        if p not in chapters and p.name != "index.mdx"
     ]:
         text = p.read_text(encoding="utf-8")
         if PLACEHOLDER.search(text):
@@ -228,7 +287,10 @@ def check_cookbook(folder: Path, rep: Report) -> None:
     for name in ("standards.md", "glossary.md"):
         if not (folder / name).exists():
             rep.warn(folder, f"{name} missing")
-    if not (folder / "contributing.md").exists() and not (folder / "contribute.md").exists():
+    if (
+        not (folder / "contributing.md").exists()
+        and not (folder / "contribute.md").exists()
+    ):
         rep.warn(folder, "contributing.md missing")
     cid = folder.name
     if f"dirName: '{cid}'" not in SIDEBARS.read_text():
@@ -244,10 +306,14 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--id", help="check one cookbook")
-    parser.add_argument("--strict", action="store_true", help="treat warnings as errors")
+    parser.add_argument(
+        "--strict", action="store_true", help="treat warnings as errors"
+    )
     args = parser.parse_args(argv)
 
-    folders = [p for p in sorted(COOKBOOK.iterdir()) if p.is_dir() and p.name not in SKIP]
+    folders = [
+        p for p in sorted(COOKBOOK.iterdir()) if p.is_dir() and p.name not in SKIP
+    ]
     if args.id:
         folders = [p for p in folders if p.name == args.id]
         if not folders:
@@ -261,7 +327,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"warning  {w}")
     for e in rep.errors:
         print(f"error    {e}")
-    print(f"\n{len(folders)} cookbook(s): {len(rep.errors)} error(s), {len(rep.warnings)} warning(s)")
+    print(
+        f"\n{len(folders)} cookbook(s): {len(rep.errors)} error(s), {len(rep.warnings)} warning(s)"
+    )
     failed = bool(rep.errors) or (args.strict and bool(rep.warnings))
     return 1 if failed else 0
 

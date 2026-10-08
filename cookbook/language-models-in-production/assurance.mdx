@@ -54,61 +54,75 @@ finds every section and every number it requires.
 
 <Recipe title="7.1 Define the decision points and the suite per task" level="AI-ready" skills="Methodologist; developer" time="One day per task">
 
-**Result:** for each model-assisted task, the point where a person
-decides, the evaluation suite with its required scores, and the
-versions that make a run reproducible.
+**Result:** for every task in the map, a written statement of where a
+person decides, an evaluation suite with the scores the task has to
+reach, and the versions that make any run reproducible.
 
-1. For each row of the map ([chapter 1](./map.mdx)), write the
-   decision point: who decides, on what (the model's output plus which
-   context), and how the decision is recorded.
-2. Build the task's suite as the [evaluation cookbook](/cookbook/evaluation-suites/)
-   describes: a labelled set, the measures (accuracy by level for
-   coding; editor ratings for explanations; verified numbers for
-   commentary), the required scores set from the cost of error, and
-   the gate on changes.
-3. Pin and record the versions per run ([chapter 6](./running.mdx)).
+1. For each row of the map ([chapter 1](./map.mdx)), write the decision
+   point: who decides, on what (the model's output and what else they
+   see), and how the decision is recorded.
+2. Build the task's evaluation suite as the
+   [evaluation cookbook](/cookbook/evaluation-suites/) describes: a
+   labelled set, the measures (accuracy by level for coding, editors'
+   ratings for explanations, verified numbers for commentary), the
+   required scores set from the cost of an error, and the rule that
+   changes must pass.
+3. Fix and record the versions for every run ([chapter 6](./running.mdx)).
 4. Keep the three (decision points, suite, versions) in the register,
-   and require them before a task leaves pilot.
+   and require all three before a task leaves its pilot phase.
 
-**What this does not do.** Decision points and suites control the
-tasks they cover. A task used informally outside the map (an analyst
-pasting records into an assistant) is outside every control, which is
-what the AI-use policy's rules and training are for.
+**What this does not do.** These controls cover the tasks in the map. A
+task done informally outside it, such as an analyst pasting records
+into an assistant, is outside every control. The AI-use policy's rules
+and staff training are the remedy for that.
 
 </Recipe>
 
 <Recipe title="7.2 Measure the effect on the statistics" level="AI-ready" skills="Methodologist" time="Half a day per release">
 
-**Result:** evidence, per task, of whether model assistance changed the
-statistics, and by how much, reported with the release.
+**Result:** for each task, evidence of whether model assistance changed
+the published statistics, and by how much, reported with the release.
 
 1. Coding: compare the distribution of codes by major group between the
-   automated share and the coder-coded share, and between this round
-   and the last, with the re-coded sample's agreement; a shift beyond
-   sampling variation is investigated before release.
-2. Editing: compare the acceptance of model proposals with the editors'
-   own corrections on a sample without proposals (an A/B sample of
-   editors), to see whether proposals change what editors decide.
-3. Commentary: the check's record (verified numbers, sourced claims) and
-   the edit distance; no effect on the statistics by construction, and
-   the record shows it.
-4. Report the measurements in the quality report's statement with the
+   automatically coded share and the coder-coded share, and between
+   this round and the last, alongside the re-coded sample's agreement.
+   A shift larger than sampling variation is investigated before the
+   release.
+2. Editing: compare what editors decide with proposals shown and
+   without, on two comparable samples, to see whether the proposals
+   change the decisions.
+3. Commentary: the check's record (verified numbers, sourced claims)
+   and the measure of how much the draft was edited. Commentary cannot
+   change the statistics, and the record shows that it did not.
+4. Report these measurements in the statement of model use, with the
    method and the sample sizes.
 
-**What this does not do.** A measured effect within variation is not
-proof of none; it is the organization's evidence at the stated
-precision, which is how every other quality measure is reported.
+**What this does not do.** A measured effect within sampling variation
+does not prove that there was none. It is the organization's evidence at
+the stated precision, which is how every other quality measure is
+reported.
 
 </Recipe>
 
 <Recipe title="7.3 Publish a statement of model use with each release" level="Foundational" skills="Methodologist; dissemination officer" time="An hour per release">
 
-**Result:** a statement in the quality report that says where models
-were used, which, how they performed, who decided, and what the effect
-was, checked for completeness before publication.
+**Result:** a section in the release's quality report that says where
+models were used, which ones, how well they performed, who decided, and
+what the effect on the statistics was, checked for completeness before
+publication.
+
+The example statement below is for the labour force survey release. It
+has six sections: where a model was used (one bullet per task, each
+naming its GSBPM step), the models and their versions, the measured
+performance with sample sizes, the human oversight at each point, the
+effect on the statistics, and a contact:
 
 ```md file=../../website/static/cookbook-files/language-models-in-production/model_use_statement.md
 ```
+
+The script below checks that a statement has every section, that every
+listed use names its production step, and that the performance section
+contains measured numbers:
 
 ```python file=../../website/static/cookbook-files/language-models-in-production/check_statement.py
 ```
@@ -132,23 +146,19 @@ result: PASS
 ```
 
 1. Write the statement from the register, the suites, and the run
-   records: one bullet per task with its GSBPM sub-process, the models
-   and where they ran, the measured performance with sample sizes, the
-   oversight at each point, the effect on the statistics, and a
-   contact.
-2. Run the check; publish the statement in the quality report and link
-   it from the release page; the transparency requirement of the
-   [AI-use policy](/cookbook/ai-ready-dissemination/govern) is met by
-   it.
-3. Keep the statements; the series of statements is the record of how
-   model use in production changed.
-4. Audit one run end to end each year: from the statement to the
-   register, the suite's report card, the job's versions, and a
-   reproduced result on the labelled sample.
+   records.
+2. Run the check. Publish the statement in the quality report and link
+   it from the release page. This meets the transparency requirement of
+   the [AI-use policy](/cookbook/ai-ready-dissemination/govern).
+3. Keep every statement. The series of statements is the record of how
+   model use in production has changed.
+4. Once a year, audit one run from end to end: from the statement to
+   the register, to the suite's report card, to the job's recorded
+   versions, to a result reproduced on the labelled sample.
 
-**What this does not do.** The statement reports; the controls it
-describes are what assure. A statement that cannot be reproduced from
-the records is the audit's finding.
+**What this does not do.** The statement reports. The controls it
+describes are what give assurance, and a statement that cannot be
+reproduced from the records is what the audit is there to find.
 
 </Recipe>
 

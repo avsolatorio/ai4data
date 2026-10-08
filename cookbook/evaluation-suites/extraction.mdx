@@ -51,8 +51,25 @@ lenient F1 0.70, and the taxonomy says where each fix belongs.
 
 <Recipe title="5.1 Score spans under exact and lenient matching with an error taxonomy" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** precision, recall, and F1 under both rules, and the count of
-each error kind with the fix it points to.
+**Result:** precision, recall, and F1 for the extractor under two
+matching rules, and a count of each kind of error with the fix it points
+to.
+
+An extractor marks pieces of text (spans) as mentions of something, for
+example the name of a survey. It is scored against a sample that people
+labelled by hand: precision is the share of what it found that is
+right, recall is the share of what was there that it found, and F1
+combines the two into one number. Whether a found span counts as right
+depends on a rule: "Labour Force Survey" against a label of "Labour
+Force Survey 2025" is right under a lenient rule (the spans overlap and
+have the same type) and wrong under an exact rule. Both rules are
+reported, and the gap between them measures how often the extractor
+gets the boundaries slightly wrong.
+
+The example file aligns, row by row, what the labellers marked (gold)
+with what the extractor found (pred), each with its type. A row with an
+empty prediction is a miss; a row with an empty gold span is a false
+find. The script scores the file and sorts the errors into kinds:
 
 ```python file=../../website/static/cookbook-files/evaluation-suites/extraction_scores.py
 ```
@@ -73,66 +90,75 @@ error taxonomy: correct 5, boundary 2, missed 2, spurious 2, wrong type 1
 boundary -> span rules; wrong type -> label definitions; spurious -> threshold; missed -> coverage
 ```
 
-1. Align the predictions with the gold spans (the harness of the
-   [monitoring cookbook](/cookbook/monitoring-data-use/detect) does
-   this for mentions) and write the aligned file.
-2. Run the scorer; read both rules: the gap between exact and lenient is
-   the boundary problem, and the taxonomy counts say which fix comes
-   first.
-3. Report per document type and language by scoring the file's subsets;
-   the sample has to contain each.
-4. Record the scores and the taxonomy counts with the versions.
+1. Align the extractor's output with the labelled sample, one row per
+   span. The harness of the [monitoring cookbook](/cookbook/monitoring-data-use/detect)
+   does this for dataset mentions.
+2. Run the script. Read both rules: the gap between exact and lenient
+   is the boundary problem, and the error counts say which fix comes
+   first. Boundary errors point to the extractor's span rules; wrong
+   types to the label definitions; false finds to the confidence
+   threshold; misses to what the training data cover.
+3. Score the subsets of the file by document type and language. The
+   sample has to contain each.
+4. Record the scores and the error counts with the versions.
 
-**What this does not do.** The alignment is given; producing it from
-two unaligned lists is a matching step with its own rules (overlap
-threshold, one-to-one). Twelve rows demonstrate; a measure needs a few
-hundred spans.
+**What this does not do.** The alignment between labels and output is
+given in the file; producing it from two separate lists is a matching
+step with its own rules. Twelve rows demonstrate the measures; a measure
+to act on needs a few hundred labelled spans.
 
 </Recipe>
 
 <Recipe title="5.2 Measure classifiers with a confusion matrix and per-class scores" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** accuracy, per-class precision and recall, and the confusion
-between classes, so that the pairs a classifier mixes up are known.
+**Result:** for a component that assigns labels (a topic, an occupation
+code, a severity), its accuracy overall, its precision and recall for
+each label, and a table of which labels it confuses with which.
 
-1. For a classifier (topic tagging, occupation coding, issue severity),
-   score accuracy and per-class precision, recall, and F1 with a library
-   (scikit-learn's classification report), and print the confusion
-   matrix.
-2. Read the confusion: the pairs with the most confusions are where the
-   label definitions overlap or the training examples are few; the
-   labelling guide and the training set are the fixes.
-3. For hierarchical codes (ISCO, ISIC), score at each level: a wrong
-   four-digit code with the right two-digit group is a different error
-   from a wrong group.
-4. Report per language and per document type; keep the scores per
-   version.
+Overall accuracy hides what matters: a classifier can be right on the
+common labels and wrong on every rare one. The confusion matrix, a
+table with the true label in rows and the assigned label in columns,
+shows which pairs the classifier mixes up.
 
-**What this does not do.** Accuracy on a sample with many examples of
-common classes says little about rare classes; per-class scores and a
-sample that includes rare classes are what show them.
+1. Score accuracy and per-label precision, recall, and F1 with a
+   library (scikit-learn's classification report), and print the
+   confusion matrix.
+2. Read the confusion matrix. The pairs with the most confusions are
+   where the label definitions overlap or the training examples are few.
+   The labelling guide and the training set are the fixes.
+3. For hierarchical codes (ISCO, ISIC), score at each level of the
+   hierarchy. A wrong four-digit code inside the right two-digit group
+   is a smaller error than a wrong group.
+4. Report per language and per document type, and keep the scores with
+   the versions.
+
+**What this does not do.** Accuracy on a sample full of common labels
+says little about rare ones. Per-label scores, and a sample that
+contains the rare labels, are what show them.
 
 </Recipe>
 
 <Recipe title="5.3 Keep the labelled sample representative" level="AI-ready" skills="Dissemination staff; developer" time="An hour per month">
 
-**Result:** a labelled sample that covers the document types and
-languages in production, grows from production errors, and has a known
-labelling agreement.
+**Result:** a labelled sample that covers the kinds of document and the
+languages the extractor meets in production, grows from the errors found
+there, and has a known agreement between its labellers.
 
-1. Stratify the sample by document type and language in proportion to
-   production, with a minimum per stratum.
-2. Label with two people and measure agreement
-   ([chapter 2](./questions.mdx)); the agreement bounds the scores.
-3. Add production errors found in the review of
-   [chapter 8](./production.mdx) to the sample, marked by source, so that
-   the sample learns the failure modes.
-4. Version the sample; record its version with every run.
+1. Draw the sample in proportion to production by document type and
+   language, with a minimum number from each group.
+2. Label with two people and measure their agreement
+   ([chapter 2](./questions.mdx)). The agreement is the ceiling for the
+   extractor's scores.
+3. Add the errors found in the production review of
+   [chapter 8](./production.mdx) to the sample, marked with their source,
+   so that the sample learns the failure modes.
+4. Keep the sample under version control and record its version with
+   every run.
 
-**What this does not do.** A representative sample measures the
-production mix; it cannot measure a document type that has not entered
-production yet. New types get a labelled set before the extractor serves
-them.
+**What this does not do.** A sample that mirrors production cannot
+measure a kind of document that has not entered production yet. A new
+kind of document gets its own labelled set before the extractor is
+trusted on it.
 
 </Recipe>
 

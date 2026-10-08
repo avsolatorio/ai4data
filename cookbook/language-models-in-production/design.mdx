@@ -55,78 +55,98 @@ one description.
 
 <Recipe title="2.1 Flag wording problems against a written checklist" level="Foundational" skills="Methodologist; access to a model" time="An hour per questionnaire">
 
-**Result:** every question in a draft carries the model's flags against
-the organization's checklist, each decided by the methodologist.
+**Result:** for every question in a draft questionnaire, the model's
+verdict against each rule of the organization's wording checklist, with
+a reason, and the methodologist's decision on each flag.
 
-1. Write the checklist the organization already uses for questionnaire
-   review as explicit rules: one concept per question; a reference
-   period stated; terms respondents know; exhaustive and exclusive
-   categories; no leading wording; a don't-know option where needed.
-2. Send each question with its categories and the checklist, and ask
-   for structured output: for each rule, pass or flag with the reason,
-   and a rewording where flagged.
-3. The methodologist reads the flags and decides; record the decisions,
-   because the acceptance rate per rule shows which rules the model
+Most organizations already have a checklist for reviewing
+questionnaires: one concept per question, a reference period stated,
+words respondents know, answer categories that cover every case and
+do not overlap, no leading wording, a "don't know" option where it is
+needed. A model can apply that checklist to every question in minutes.
+The methodologist reads the flags and decides; false alarms take
+seconds to dismiss.
+
+1. Write the checklist as a numbered list of explicit rules, one
+   sentence each.
+2. Send each question, with its answer categories and the checklist, to
+   the model. Ask it to answer in a fixed format: for each rule, "pass"
+   or "flag", a reason, and a suggested rewording where it flags.
+3. The methodologist reads the flags and decides. Record the decisions:
+   the share of flags accepted per rule shows which rules the model
    applies well.
-4. Keep cognitive testing: the model reads the question as text,
-   respondents hear it in context.
+4. Keep cognitive testing with respondents. The model reads a question
+   as text; respondents hear it in an interview.
 
 **What this does not do.** A checklist review finds what the checklist
-names. Cultural and linguistic issues in the fielded language are found
-by native speakers and in testing, and a model's rewording is a draft
-for the methodologist.
+names. Cultural and linguistic problems in the language of the
+interview are found by native speakers and by testing. A rewording the
+model suggests is a draft for the methodologist to accept or discard.
 
 </Recipe>
 
 <Recipe title="2.2 Match new questions to the question bank" level="AI-ready" skills="Methodologist; developer" time="Half a day to set up; minutes per questionnaire">
 
-**Result:** each new question carries the question bank entries it
-matches, with a confidence and a reason, confirmed or rejected by the
+**Result:** for each new question in a questionnaire, the questions in
+the organization's question bank that measure the same concept, each
+with the model's confidence and reason, confirmed or rejected by the
 methodologist.
 
-1. Represent the question bank as text per entry (question wording,
-   concept, categories, surveys that use it); the program's Global
-   Question Bank workstream develops multilingual mappings of this
-   kind ([program overview](/)).
-2. For each new question, retrieve the nearest entries by meaning
-   (embeddings) and ask the model to judge each candidate: same
-   concept, same concept with a different reference period or
-   categories, or different, with a confidence and a reason.
-3. Confirm or reject each proposal; a confirmed match links the new
-   variable to the concept ([microdata cookbook, chapter 4](/cookbook/microdata-documentation/concepts))
-   and inherits its definition.
-4. Track the acceptance rate of proposals per confidence band; set the
-   band below which proposals are not shown.
+A question bank is the organization's collection of questions already
+used in its surveys, each tied to the concept it measures. Reusing a
+question keeps surveys comparable. Finding the right entry by hand in a
+bank of thousands is slow; a search by meaning finds the candidates, and
+the model judges each one.
 
-**What this does not do.** A match says two questions measure the same
-concept; it does not make their data comparable, which depends on mode,
-population, and categories ([microdata cookbook, chapter 6](/cookbook/microdata-documentation/rounds)).
+1. Represent each entry of the question bank as text: the wording, the
+   concept, the answer categories, and the surveys that use it. The
+   program's Global Question Bank workstream builds such a bank across
+   countries and languages ([program overview](/)).
+2. For each new question, retrieve the nearest entries by meaning
+   (using embeddings, the numeric representations search by meaning
+   relies on). Ask the model to judge each candidate: the same concept;
+   the same concept with a different reference period or categories; or
+   a different concept. Ask for a confidence and a reason.
+3. The methodologist confirms or rejects each proposal. A confirmed
+   match links the new variable to the concept
+   ([microdata cookbook, chapter 4](/cookbook/microdata-documentation/concepts))
+   and inherits its definition.
+4. Track the share of proposals confirmed at each level of confidence.
+   Stop showing proposals below the level at which few are confirmed.
+
+**What this does not do.** A match says that two questions measure the
+same concept. It does not make their data comparable; that depends on
+the survey mode, the population, and the categories
+([microdata cookbook, chapter 6](/cookbook/microdata-documentation/rounds)).
 
 </Recipe>
 
 <Recipe title="2.3 Draft variable descriptions and translations from the questionnaire" level="AI-ready" skills="Methodologist; data curator" time="Minutes per variable; review time">
 
-**Result:** every variable has a drafted description grounded in its
-question and categories, and the questionnaire has drafted translations
-checked and reviewed.
+**Result:** a drafted label, description, and universe for every
+variable, written from its question and categories, and drafted
+translations of the questionnaire, each checked by script and reviewed
+by a person before use.
 
-1. Draft each variable's label, description, and universe from the
-   question text, the categories, and the routing (who is asked), as
-   structured output, with the rule to state only what the questionnaire
-   supports; the drafting and checking workflow is the
-   [curation cookbook's](/cookbook/metadata-curation-with-llms/draft).
-2. Draft translations of the questionnaire with the organization's
-   glossary and run the translation checks of the
-   [curation cookbook](/cookbook/metadata-curation-with-llms/translate)
-   (numbers, untranslated text, length) before a native speaker
-   reviews; the fielded translation is tested with respondents.
-3. Record the drafts' source and status in the metadata; the Metadata
-   Editor holds the result.
+1. For each variable, give the model the question text, the answer
+   categories, and the routing (who is asked the question). Ask for the
+   label, the description, and the universe in a fixed format, with the
+   rule to state only what the questionnaire supports. The
+   [curation cookbook's drafting chapter](/cookbook/metadata-curation-with-llms/draft)
+   describes the drafting and checking workflow in full.
+2. Draft the questionnaire's translations with the organization's
+   glossary of terms, then run the translation checks of the
+   [curation cookbook](/cookbook/metadata-curation-with-llms/translate):
+   numbers preserved, nothing left untranslated, nothing dropped. A
+   native speaker reviews every translation, and the translation used in
+   the field is tested with respondents.
+3. Record the source and status of each draft in the metadata; the
+   Metadata Editor holds the result.
 
-**What this does not do.** Descriptions drafted from the questionnaire
-describe the question; derived variables are documented by the
-methodologist from the derivation, and no draft is published without
-review.
+**What this does not do.** A description drafted from the questionnaire
+describes the question. Derived variables (computed after collection)
+have no question; the methodologist documents them from the derivation.
+No draft is published without review.
 
 </Recipe>
 

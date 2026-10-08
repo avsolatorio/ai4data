@@ -60,8 +60,13 @@ are the other two resources of the manifest.
 
 <Recipe title="3.1 Write the guidance resource" level="Foundational" skills="Dissemination officer; developer" time="Half a day">
 
-**Result:** a short text, served as a resource, that an assistant reads
-before using the server and that answers the questions the tools cannot.
+**Result:** a short text, served by the server, that an assistant reads
+before using the tools. It answers the questions the tool descriptions
+cannot: what the server covers, in what order to call the tools, how to
+cite, and when to refuse.
+
+The guidance for the running example has six sections and about three
+hundred words:
 
 ```md file=../../website/static/cookbook-files/serving-statistics-to-agents/guidance_resource.md
 ```
@@ -70,68 +75,70 @@ before using the server and that answers the questions the tools cannot.
    to use the tools in order, how to cite (with an example in the exact
    form), the licence, the limitations (status codes, breaks, coverage,
    start years), and when to refuse or decline.
-2. Name every tool and the fields the model has to look for
-   (`SOURCE_URL`, `RELEASE`, `OBS_STATUS`), so that the guidance
-   and the manifest agree.
-3. Keep it under about 600 words; assistants read it every session, and a
-   long text is skimmed.
-4. Serve it as a resource with a stable URI (`stats://guidance`), a
-   description, MIME type `text/markdown`, and the annotation
-   `audience: ["assistant"]` and a high `priority`, so that clients that
-   select context automatically include it. The Data360 server's
+2. Name every tool and every field the model has to look for
+   (`SOURCE_URL`, `RELEASE`, `OBS_STATUS`), so that the guidance and
+   the manifest agree.
+3. Keep it under about 600 words. Assistants read it every session, and
+   a long text is skimmed.
+4. Serve it as a resource with a stable address (`stats://guidance`), a
+   description, and the annotations that tell clients it is meant for
+   the assistant and has high priority, so that clients that select
+   context automatically include it. The Data360 server's
    `data360://system-prompt` resource is the model.
 
 **What this does not do.** Clients decide whether to give resources to
 the model; some include them automatically, some only when the user
 selects them. The developer page of [chapter 8](./distribute.mdx) tells
-users to add the guidance, and the evaluation of [chapter 7](./evaluate.mdx)
-shows whether it reached the model.
+users to add the guidance, and the evaluation of
+[chapter 7](./evaluate.mdx) shows whether it reached the model.
 
 </Recipe>
 
 <Recipe title="3.2 Serve code lists, the release calendar, and notes as resources" level="AI-ready" skills="Developer" time="One day">
 
 **Result:** the reference data an assistant needs to call the tools
-correctly, as resources it can read, with templates for families.
+correctly (which codes exist, when the data were last released, what
+the caveats of a series are), served as resources it can read.
 
 1. Code lists: one resource per dimension (`stats://codelists/REF_AREA`)
    through a resource template (`stats://codelists/{dimension}`), each
-   returning the codes with labels in every supported language, MIME type
-   `application/json`; the `list_code_values` tool returns the same for a
-   query, and the resource serves the whole list.
+   returning the codes with labels in every supported language. The
+   `list_code_values` tool returns the same for a query; the resource
+   serves the whole list.
 2. Release calendar: `stats://release-calendar`, the latest release of
    each series and the next planned one, so that the assistant can say
    whether a figure is current and when the next is due.
-3. Data notes per series: `stats://notes/{idno}`, the caveats, breaks, and
-   revisions from the record, linked from the metadata response as a
-   resource link so that the model can read them when they matter.
-4. Annotate each resource: `audience` (`assistant`, `user`, or both),
-   `priority`, and `lastModified`, so that clients can filter and show
-   freshness; declare `listChanged` and send the notification when a
-   release changes the calendar.
+3. Data notes per series: `stats://notes/{idno}`, the caveats, breaks,
+   and revisions from the record, linked from the metadata response so
+   that the model can read them when they matter.
+4. Annotate each resource with its audience (assistant, user, or both),
+   a priority, and a last-modified date, so that clients can filter and
+   show freshness. Declare that the list can change and send the
+   notification when a release changes the calendar.
 
 **What this does not do.** Resources are read on request or by the
-client's choice; they do not change what the tools return. The provenance
-fields of [chapter 4](./provenance.mdx) travel with every data response
-regardless.
+client's choice; they do not change what the tools return. The
+provenance fields of [chapter 4](./provenance.mdx) travel with every
+data response regardless.
 
 </Recipe>
 
 <Recipe title="3.3 Add prompt templates for the common question types" level="AI-ready" skills="Dissemination officer; developer" time="Half a day">
 
-**Result:** a few prompts a user can invoke by name, with arguments, that
-set the assistant up to answer a question type correctly.
+**Result:** a few ready-made instructions, one per common question type,
+that a user can pick by name in their assistant and that set it up to
+answer that type of question correctly.
 
-1. Take the question types from the question set of [chapter 1](./purpose.mdx):
-   latest value of a series, a trend over a period, a comparison between
-   regions, a definition question.
+1. Take the question types from the question set of
+   [chapter 1](./purpose.mdx): latest value of a series, a trend over a
+   period, a comparison between regions, a definition question.
 2. Write one prompt per type with its arguments (`series`, `period`,
-   `regions`), each instructing the assistant to search, read the
+   `regions`). Each instructs the assistant to search, read the
    metadata, fetch the observations, check the status, and cite in the
-   stated form; embed the guidance resource as a resource link.
-3. Give each a `name`, `title`, and `description` the client can show as a
-   command, and validate the arguments.
-4. Test each prompt with the question set: a prompt that does not raise
+   stated form, and embeds a link to the guidance resource.
+3. Give each a name, a title, and a description the client can show as
+   a command, and validate the arguments.
+4. Test each prompt with the question set. A prompt that does not raise
    the pass rate for its question type is noise.
 
 **What this does not do.** Prompts are user-controlled: the user selects
@@ -142,9 +149,11 @@ freely, which the guidance resource and the tool descriptions handle.
 
 <Recipe title="3.4 Check the guidance against the manifest" level="AI-ready" skills="Python" time="Minutes; with each change">
 
-**Result:** the guidance names every tool and every field it refers to,
-has every required section, and stays short; the check runs with every
-change to either file.
+**Result:** a check, run with every change to either file, that the
+guidance names every tool and every field it refers to, has every
+required section, and stays short.
+
+The script reads the guidance text and the manifest and compares them:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/check_guidance.py
 ```
@@ -168,13 +177,13 @@ result: PASS
 ```
 
 1. Run the check in the same pipeline as the manifest check of
-   [chapter 2](./tools.mdx); a renamed tool fails it until the guidance
+   [chapter 2](./tools.mdx). A renamed tool fails it until the guidance
    is updated.
 2. Keep the guidance and the manifest versioned together
    ([chapter 9](./operate.mdx)).
 3. After a guidance change, re-run the question set and compare the
-   behaviour and citation scores ([chapter 7](./evaluate.mdx)); the
-   check says the text is complete, the evaluation says it works.
+   behaviour and citation scores ([chapter 7](./evaluate.mdx)). The
+   check says the text is complete; the evaluation says it works.
 
 **What this does not do.** The check reads headings and names. Whether
 the citation example is right, or the limitations are the real ones, is

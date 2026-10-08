@@ -53,83 +53,97 @@ all three.
 
 <Recipe title="5.1 Define the tiers, the quotas, and the terms" level="Foundational" skills="Dissemination lead; legal; developer" time="One day">
 
-**Result:** a short table of tiers with their limits and conditions, and
-a terms-of-use text for agents, both published on the developer page.
+**Result:** a short table of access tiers with their limits and
+conditions, and a terms-of-use text for agents, both published on the
+developer page.
 
-1. Tiers: public (anonymous, low per-minute limit, small daily quota),
-   registered (key, higher limits, terms accepted, contact), partner
-   (agreement, highest limits), and user-level where a product requires
-   it (authorization in recipe 5.3).
-2. Terms for agents: attribution in the form of [chapter 4](./provenance.mdx),
-   no re-identification attempts, no resale of the service, respect of the
-   limits, and the contact for heavy use. Point to the data licence (CC
-   BY 4.0 by default) for the data themselves.
-3. Record the tiers and the terms in the AI-use policy and the component
-   register of the dissemination cookbook, with the owner of the registry.
-4. Set the limits from the API's own capacity: the server passes load
-   upstream, and the upstream limit divided by the expected clients is the
-   starting point.
+1. Define the tiers: public (anonymous, a low per-minute limit, a small
+   daily quota), registered (a key, higher limits, terms accepted, a
+   contact), partner (an agreement, the highest limits), and user-level
+   where a product requires it (the authorization of recipe 5.3).
+2. Write the terms for agents: attribution in the form of
+   [chapter 4](./provenance.mdx), no re-identification attempts, no
+   resale of the service, respect of the limits, and the contact for
+   heavy use. Point to the data licence (CC BY 4.0 by default) for the
+   data themselves.
+3. Record the tiers and the terms in the AI-use policy and the
+   component register of the dissemination cookbook, with the owner of
+   the registry.
+4. Set the limits from the API's own capacity. The server passes load
+   upstream, and the upstream limit divided by the expected number of
+   clients is the starting point.
 
 **What this does not do.** Terms state expectations; the limits enforce
-the ones the server can see. Attribution is verified by the monitoring of
-answers, which is [chapter 7](./evaluate.mdx) and the
+the ones the server can see. Attribution is verified by the monitoring
+of answers, which is [chapter 7](./evaluate.mdx) and the
 [monitoring cookbook](/cookbook/monitoring-data-use/).
 
 </Recipe>
 
 <Recipe title="5.2 Register clients and enforce limits per tier" level="AI-ready" skills="Developer; operations" time="Two days">
 
-**Result:** a client registry, keys issued at registration with the
-terms accepted, and a server or gateway that enforces the tier's limits
-and returns errors the model can act on.
+**Result:** a registry of known clients, a key issued to each at
+registration, and a server (or a gateway in front of it) that enforces
+the tier's limits and returns errors an assistant can act on.
+
+The client registry is a CSV with one row per client:
+
+| Column | Meaning |
+|---|---|
+| `client_id` | The key prefix, or `pub-anon` for anonymous public clients |
+| `name`, `contact` | Who the client is and how to reach them |
+| `tier` | `public`, `registered`, or `partner` |
+| `requests_per_minute`, `daily_quota` | The limits of the tier |
+| `terms_accepted` | The date the terms were accepted, empty if not |
 
 ```csv file=../../website/static/cookbook-files/serving-statistics-to-agents/client_registry.csv
 ```
 
-1. Registration: a form that collects the name, the purpose, the contact,
-   and the acceptance of the terms, and issues a key; store the record in
-   the registry with the tier.
-2. Enforcement: per-minute limits and daily quotas per client in the
-   server (a token bucket per key) or in a gateway in front of it; return
-   HTTP 429 with a `Retry-After` header on the transport, and a tool
-   execution error that tells the model to wait and retry later rather
-   than to call again at once.
-3. Keys in headers (`Authorization: Bearer`), never in URLs; rotate on
-   request; revoke on abuse; log the client identifier with every
-   request ([chapter 6](./safety.mdx)).
-4. Public tier: identify anonymous clients by address or session only for
-   the limit; keep nothing else.
+1. Registration: a form that collects the name, the purpose, the
+   contact, and the acceptance of the terms, and issues a key. Store the
+   record in the registry with the tier.
+2. Enforcement: per-minute limits and daily quotas per client, in the
+   server or in a gateway in front of it. When a client exceeds them,
+   return HTTP 429 with a `Retry-After` header, and a tool execution
+   error that tells the model to wait and retry later. Without that
+   message, a model retries at once.
+3. Keys travel in headers (`Authorization: Bearer`), never in URLs.
+   Rotate on request, revoke on abuse, and log the client identifier
+   with every request ([chapter 6](./safety.mdx)).
+4. Public tier: identify anonymous clients by address or session only
+   for the limit, and keep nothing else.
 
-**What this does not do.** Keys identify clients and say nothing about users. A product
-that needs to know who the user is, or that serves a licensed product,
-needs the authorization flow of recipe 5.3.
+**What this does not do.** Keys identify clients and say nothing about
+users. A product that needs to know who the user is, or that serves a
+licensed product, needs the authorization flow of recipe 5.3.
 
 </Recipe>
 
 <Recipe title="5.3 Add OAuth-based authorization for user-level access" level="AI-native" skills="Developer with identity management experience" time="One to two weeks">
 
-**Result:** the server acts as an OAuth 2.1 resource server as the
-protocol specifies, so that clients obtain tokens for a user and the
-server serves what that user may see.
+**Result:** the server acts as an OAuth 2.1 resource server, as the
+protocol specifies, so that a client obtains a token for a specific
+user and the server serves what that user may see.
 
-1. Publish protected resource metadata (RFC 9728) at the well-known URL
-   that names the authorization server; clients discover it from the 401
-   response's `WWW-Authenticate` header, which also states the scopes
-   required.
-2. Use the organization's identity provider as the authorization server
-   (OAuth 2.1 with PKCE, authorization server metadata, resource
-   indicators so that tokens are bound to this server); support client ID
-   metadata documents, and pre-registration for known clients.
-3. Validate every token's audience and scopes; return 401 for invalid
-   tokens and 403 with the required scope for insufficient ones; define
+1. Publish protected resource metadata (RFC 9728) at the well-known
+   URL that names the authorization server. Clients discover it from
+   the 401 response's `WWW-Authenticate` header, which also states the
+   scopes required.
+2. Use the organization's identity provider as the authorization
+   server: OAuth 2.1 with PKCE, authorization server metadata, and
+   resource indicators so that tokens are bound to this server. Support
+   client ID metadata documents, and pre-registration for known
+   clients.
+3. Validate every token's audience and scopes. Return 401 for invalid
+   tokens and 403 with the required scope for insufficient ones. Define
    scopes per tool group (`stats:read` for public tools, a product scope
    for licensed data).
-4. Keep the public tier anonymous; authorization applies only where the
+4. Keep the public tier anonymous. Authorization applies only where the
    product requires a user.
 
 **What this does not do.** Authorization identifies users and their
-scopes; it does not decide what a licensed product may be served to an
-agent at all, which is the access policy of the
+scopes. It does not decide whether a licensed product may be served to
+an agent at all, which is the access policy of the
 [microdata cookbook](/cookbook/microdata-documentation/access).
 
 </Recipe>
@@ -137,7 +151,12 @@ agent at all, which is the access policy of the
 <Recipe title="5.4 Audit the log against the registry" level="AI-ready" skills="Python; operations" time="Minutes per period">
 
 **Result:** a periodic report of unknown clients, clients over their
-limits, rejected requests, and registered clients without accepted terms.
+limits, rejected requests, and registered clients that never accepted
+the terms.
+
+The request log has one row per request, with the timestamp, the
+client identifier, the tool called, and the HTTP status. The script
+joins it with the registry and reports per client:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/quota_audit.py
 ```
@@ -150,7 +169,6 @@ Output for the running example:
 
 ```text
 27 requests from 6 clients; registry lists 5
-
 client     tier        requests busiest min limit/min rejected  note
 pub-anon   public            10           8        30        2  
 k-4d0f     partner            5           5       600        0  
@@ -158,13 +176,12 @@ k-7f3a     registered         4           4       120        0
 k-2b8e     registered         4           4        60        0  terms not accepted
 k-9c1d     registered         2           2       120        0  
 k-0000     unknown            2           2         -        2  not in the registry
-
 unknown clients: k-0000 (rejected by the server; check for a leaked or revoked key)
 registered without accepted terms: k-2b8e (suspend until the terms are accepted)
 tool calls served: get_observations 18, search_series 3, get_series_metadata 1, list_code_values 1
 ```
 
-1. Run the audit weekly on the request log; the exit status fails the
+1. Run the audit weekly on the request log. The exit status fails the
    run when an unknown key or a client without terms made requests.
 2. Act on each finding: an unknown key is revoked or a registration
    completed; a client without accepted terms is suspended until it

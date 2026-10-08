@@ -87,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         if k == "robot":
             excluded["robot"] += 1
             continue
-        when = datetime.fromisoformat(r["timestamp"].replace("Z", "+00:00"))
+        when = datetime.fromisoformat(r["timestamp"].replace("Z", "+00:00"))  # noqa: FURB162 (Python 3.10)
         key = (r["ip_hash"], r["dataset_id"], r["action"])
         if key in last_seen and when - last_seen[key] <= DOUBLE_CLICK:
             excluded["double-click"] += 1

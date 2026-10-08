@@ -52,74 +52,79 @@ response.
 
 <Recipe title="4.1 Return the provenance fields with every data response" level="AI-ready" skills="Developer" time="Half a day">
 
-**Result:** no data leaves the server without the fields an answer needs
-to cite it.
+**Result:** no data leave the server without the fields an answer needs
+in order to cite them: the series, the unit, the release date, the
+source page, the licence, and the citation text.
 
-1. Make the data tool's output a fixed object: `SERIES`, `REF_AREA`,
-   `UNIT_MEASURE`, `RELEASE`, `SOURCE_URL`, `license`, `citation`, and
-   `observations`, each observation with `TIME_PERIOD`, `OBS_VALUE`, and
-   `OBS_STATUS`. The server example of the dissemination cookbook returns
-   this shape from its CSV files; over an API, the fields come from the
-   series record and the release.
+1. Make the data tool's output a fixed object with the fields `SERIES`,
+   `REF_AREA`, `UNIT_MEASURE`, `RELEASE`, `SOURCE_URL`, `license`,
+   `citation`, and `observations`, each observation carrying
+   `TIME_PERIOD`, `OBS_VALUE`, and `OBS_STATUS`. The server example of
+   the dissemination cookbook returns this shape from its CSV files;
+   over an API, the fields come from the series record and the release.
 2. Fill `citation` with the citation requirement of the record, in the
-   form users should copy ([chapter 5 of the dissemination cookbook](/cookbook/ai-ready-dissemination/trust)).
-3. Return `OBS_STATUS` from the SDMX code list so that the model can say
-   "provisional" or "break in series" where the record does. The
+   form users should copy
+   ([chapter 5 of the dissemination cookbook](/cookbook/ai-ready-dissemination/trust)).
+3. Return `OBS_STATUS` from the SDMX code list, so that the model can
+   say "provisional" or "break in series" where the record does. The
    guidance resource tells it to.
 4. Declare the object as the tool's output schema, so that clients can
-   validate it and so that the manifest check sees the provenance fields.
+   validate it and the manifest check sees the provenance fields.
 
-**What this does not do.** The fields make citation possible; the model's
-instructions make it happen. The guidance resource and the client's own
-instructions tell the model to cite the source URL and the release in every
-answer, and [chapter 7](./evaluate.mdx) checks that it does.
+**What this does not do.** The fields make citation possible; the
+model's instructions make it happen. The guidance resource and the
+client's own instructions tell the model to cite the source URL and the
+release in every answer, and [chapter 7](./evaluate.mdx) checks that it
+does.
 
 </Recipe>
 
 <Recipe title="4.2 Return the record's caveats with metadata responses" level="AI-ready" skills="Developer; data curator" time="Half a day">
 
-**Result:** an agent reading a series' metadata receives the definition,
-the method, the breaks, and the limitations, and can repeat them.
+**Result:** an assistant that reads a series' metadata receives its
+definition, its method, its breaks, and its limitations, and can repeat
+them in an answer.
 
 1. Make the metadata tool return the fields of the World Bank indicator
    schema that an answer needs: `definition_long`, `methodology`,
    `measurement_unit`, `periodicity`, `universe`, `series_break`,
    `limitation`, `license`, `citation_requirement`.
-2. Fill those fields in the catalog; the completeness check of the
+2. Fill those fields in the catalog. The completeness check of the
    dissemination cookbook at the AI-ready level is the test.
 3. In the guidance resource, instruct the model to read the metadata
-   before interpreting values, and to repeat a break or a limitation that
-   applies to the period asked about.
+   before interpreting values, and to repeat a break or a limitation
+   that applies to the period asked about.
 
 **What this does not do.** Caveats in the response do not guarantee
-caveats in the answer; the reviewed sample in [chapter 7](./evaluate.mdx)
-checks that answers repeat them.
+caveats in the answer. The reviewed sample in
+[chapter 7](./evaluate.mdx) checks that answers repeat them.
 
 </Recipe>
 
 <Recipe title="4.3 Verify answers against the logged responses" level="AI-native" skills="Developer" time="One day to set up">
 
 **Result:** every number in a logged answer is matched to a value in the
-responses the agent received, or flagged.
+responses the assistant received, or flagged as unverified.
 
-1. Log, per question, the tool calls, the responses, and the final answer
-   (the traces of [chapter 7](./evaluate.mdx)).
+1. Log, per question, the tool calls, the responses, and the final
+   answer (the traces of [chapter 7](./evaluate.mdx)).
 2. Run the number check from the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/trust) over
-   the answer with the logged observations as the values: each number is
-   verified or flagged.
-3. Report the share of flagged numbers with the evaluation, and read the
-   flagged answers: a model that computes a change or an average has
-   introduced a number the responses did not contain, which the guidance
-   resource should either allow with the inputs shown or forbid.
-4. Where the organization operates the assistant, show flagged numbers as
-   unverified or regenerate the answer, as [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902)
-   describes.
+   the answer with the logged observations as the values. Each number
+   is verified or flagged.
+3. Report the share of flagged numbers with the evaluation, and read
+   the flagged answers. A model that computes a change or an average
+   has introduced a number the responses did not contain, which the
+   guidance resource should either allow with the inputs shown or
+   forbid.
+4. Where the organization operates the assistant, show flagged numbers
+   as unverified or regenerate the answer, as
+   [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) describes.
 
 **What this does not do.** The organization can verify answers from
 assistants it operates or logs. Answers from third-party assistants that
-call the server are verifiable only through the AI visibility check of the
-dissemination cookbook, by asking and reading.
+call the server are verifiable only through the AI visibility check of
+the dissemination cookbook, by asking and reading.
 
 </Recipe>
 

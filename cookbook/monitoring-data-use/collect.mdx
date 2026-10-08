@@ -54,78 +54,94 @@ the article's reference list is what the text mining confirms.
 the data appears, with the terms under which each can be queried and
 its texts collected.
 
-1. Open indexes: [OpenAlex](https://help.openalex.org/) (works,
-   abstracts, referenced works, open-access locations, free API),
-   [Semantic Scholar](https://api.semanticscholar.org/api-docs/) (papers,
-   citations, an API with a key), [Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/)
-   (DOIs and deposited references), and [CORE](https://core.ac.uk/) for
-   open-access full texts.
+1. Open indexes:
+   - [OpenAlex](https://help.openalex.org/): works, abstracts,
+     referenced works, open-access locations, free API;
+   - [Semantic Scholar](https://api.semanticscholar.org/api-docs/):
+     papers and citations, an API with a key;
+   - [Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/):
+     DOIs and deposited references;
+   - [CORE](https://core.ac.uk/): open-access full texts.
 2. National and institutional repositories: the national research
    repository, university theses collections, and the working paper
-   series of the central bank, ministries, and research institutes, which
-   are the heaviest users of national statistics.
+   series of the central bank, ministries, and research institutes,
+   which are the heaviest users of national statistics.
 3. International organizations' research series (the World Bank's
    [Policy Research Working Papers](https://www.worldbank.org/en/research),
-   the IMF, regional development banks) where the country's data are used.
+   the IMF, regional development banks) where the country's data are
+   used.
 4. For each source, record the API or export, the rate limits, the text
    availability (abstract, open full text, closed), and the licence of
    the content.
 
-**What this does not do.** Google Scholar has no API and its terms do not
-allow collection; its results serve the reference list by hand, and the
-collection comes from the indexes above.
+**What this does not do.** Google Scholar has no API and its terms do
+not allow collection. Its results serve the reference list by hand, and
+the collection comes from the indexes above.
 
 </Recipe>
 
 <Recipe title="4.2 Collect texts by name search and by reference" level="AI-ready" skills="Developer" time="One to two weeks to set up; scheduled runs after">
 
-**Result:** documents collected from each source by two routes, with
-metadata and text, deduplicated by identifier.
+**Result:** a collection of documents gathered from each source by two
+routes (searching for the dataset's names, and asking for works that
+cite its DOI), with metadata and text, and duplicates removed.
+
+The collection is kept as a documents table with one row per document:
+
+| Column | Meaning |
+|---|---|
+| `document_id` | The collection's own identifier |
+| `title`, `year`, `type` | What the document is; `type` is journal article, working paper, policy document, news article, and so on |
+| `source` | Where it was found (academic index, ministry site, news dataset) |
+| `country` | The country the document concerns |
+
+```csv file=../../website/static/cookbook-files/monitoring-data-use/documents.csv
+```
 
 1. Query by name: search each index for the canonical names, acronyms,
    and variants of [chapter 1](./define.mdx) in titles, abstracts, and
    full text where the index searches it. Record every hit with the
    query that found it.
-2. Query by reference: for datasets and reports with DOIs, ask the index
-   for works that reference them (OpenAlex `referenced_works`, Crossref
-   references, Semantic Scholar citations); these are the events of
-   [chapter 3](./citations.mdx) and belong in the collection too.
-3. Collect the open full text where the index gives a location (OpenAlex
-   open-access locations, CORE, the repository's PDF), and the abstract
-   otherwise; closed texts stay out and the coverage note says so.
-4. Store each document with the fields the report uses:
-
-```csv file=../../website/static/cookbook-files/monitoring-data-use/documents.csv
-```
-
-5. Deduplicate across sources by DOI, then by title and year for records
-   without one; keep every source that found the document.
+2. Query by reference: for datasets and reports with DOIs, ask the
+   index for works that reference them (OpenAlex referenced works,
+   Crossref references, Semantic Scholar citations). These are the
+   events of [chapter 3](./citations.mdx) and belong in the collection
+   too.
+3. Collect the open full text where the index gives a location
+   (OpenAlex open-access locations, CORE, the repository's PDF), and
+   the abstract otherwise. Closed texts stay out, and the coverage note
+   says so.
+4. Store each document with the fields above.
+5. Deduplicate across sources by DOI, then by title and year for
+   records without one. Keep every source that found the document.
 
 **What this does not do.** Name search returns every document that
 contains the words, including other countries' surveys with the same
-name; the harmonization of [chapter 7](./harmonize.mdx) sorts them. Full
-texts behind paywalls are out of reach, and the reference lists still
-show the citations.
+name; the harmonization of [chapter 7](./harmonize.mdx) sorts them.
+Full texts behind paywalls are out of reach, and the reference lists
+still show the citations.
 
 </Recipe>
 
 <Recipe title="4.3 Produce the text layer and measure coverage" level="AI-ready" skills="Developer; dissemination officer for the reference list" time="One day to set up">
 
-**Result:** every collected document has text the extractor can read, and
-a measured share of known research uses that the collection contains.
+**Result:** every collected document has text the extractor can read,
+and the organization knows what share of the research uses it already
+knew about the collection contains.
 
-1. Extract text per page with PyMuPDF, as the program's
-   [document parser](/docs/data_use/) does; keep the page structure for
-   the extractor's context windows and the citation back to the page.
+1. Extract text per page with PyMuPDF (a Python library that reads
+   PDFs), as the program's [document parser](/docs/data_use/) does.
+   Keep the page structure, for the extractor's context windows and
+   for the citation back to the page.
 2. Build a reference list of known research uses: papers staff know,
-   the citing documents of chapter 3, and the "cited by" lists the
-   organization already keeps.
+   the citing documents of [chapter 3](./citations.mdx), and the
+   "cited by" lists the organization already keeps.
 3. Measure coverage as the share of the reference list present in the
    collection, per source, and report it with the counts.
 4. Add sources where coverage is low, and re-measure.
 
-**What this does not do.** Coverage against a reference list measures the
-known uses; the measure is a lower bound, and the report says so.
+**What this does not do.** Coverage against a reference list measures
+the known uses. The measure is a lower bound, and the report says so.
 
 </Recipe>
 

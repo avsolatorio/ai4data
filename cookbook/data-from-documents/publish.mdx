@@ -53,85 +53,97 @@ document record.
 <Recipe title="7.1 Publish the tidy file next to the document" level="Foundational" skills="Web editor" time="Half an hour per document">
 
 **Result:** the data of each table and chart downloadable from the
-document's page, with their provenance and status, under a stated licence.
+document's page, with their source and status, under a stated licence.
 
 1. Place the tidy files (recipe 4.3) under the document's URL, named by
    the document and table identifiers
    (`/documents/EX-REP-2025-03/tables/T3.1.csv`).
 2. State on the document page that the files were extracted, by what
-   method, with what verification, and under which licence. Extracted data
-   inherit the licence of the document, which for World Bank publications
-   defaults to [CC BY 4.0](https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets).
+   method, with what verification, and under which licence. Extracted
+   data inherit the licence of the document, which for World Bank
+   publications defaults to
+   [CC BY 4.0](https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets).
 3. Keep the `status` column in the published file. A user who sees
    `estimated` next to a chart value reads it correctly.
-4. Version the files with the document; a corrected value is a new version
-   with an erratum ([chapter 8](./cite.mdx)).
+4. Version the files with the document. A corrected value is a new
+   version with an erratum ([chapter 8](./cite.mdx)).
 
-**What this does not do.** A file on a page is findable from the document
-and nowhere else. The table record of recipe 7.2 makes it findable from
-the catalog and from the series.
+**What this does not do.** A file on a page is findable from the
+document and nowhere else. The table record of recipe 7.2 makes it
+findable from the catalog and from the series.
 
 </Recipe>
 
 <Recipe title="7.2 Describe each extracted table as a table record" level="AI-ready" skills="Data curator; Python for the check" time="Half an hour per table">
 
-**Result:** a record in the World Bank table schema for the extracted
-table, validated against the schema and the profile, linked to the
-document and the series.
+**Result:** a catalog record for the extracted table in the World Bank
+table schema, validated against the schema and a profile, and linked
+to the document and the series.
 
-1. Write the record. The example for the district table:
+The record for the district table shows the fields that carry the
+provenance:
+
+| Field | What it holds |
+|---|---|
+| `data_sources` | The document and page, and the series the table reports |
+| `definitions` | Links to the indicator definitions |
+| `license`, `citation` | The licence, and the citation to the document and page |
+| `notes` | The method and the verification |
+| `relations` | The document record, as `isPartOf` |
+| `links` | The tidy file |
 
 ```json file=../../website/static/cookbook-files/data-from-documents/table_record.json
 ```
 
-2. The fields that carry the provenance: `data_sources` (the document and
-   page, and the series the table reports), `definitions` (linked to the
-   indicator definitions), `license`, `citation` (to the document and
-   page), `notes` (method and verification), `relations` (the document
-   record, `isPartOf`), and `links` (the tidy file).
-3. Validate against the schema and the table profile with the checker from
-   the dissemination cookbook:
-
-```bash
-python check_metadata.py table_record.json profile_table.json --level ai-ready
-```
-
-   The profile is a starting point with the reason for each field:
+The profile names the fields the organization requires at each
+maturity level, with the reason for each:
 
 ```json file=../../website/static/cookbook-files/data-from-documents/profile_table.json
 ```
 
-4. Publish the record in the catalog (NADA catalogs tables as a data type)
-   and add the table to the document record's related items.
+1. Write the record, from the extraction's sidecar and the document
+   record.
+2. Validate it against the schema and the profile with the checker from
+   the dissemination cookbook:
 
-**What this does not do.** The record describes one table. A document with
-140 tables needs 140 records, which is the case for the pipeline at the
-AI-native level: the record is generated from the extraction's sidecar and
-the document record, and a curator reviews titles and definitions.
+   ```bash
+   python check_metadata.py table_record.json profile_table.json --level ai-ready
+   ```
+
+3. Publish the record in the catalog (NADA catalogs tables as a data
+   type) and add the table to the document record's related items.
+
+**What this does not do.** The record describes one table. A document
+with 140 tables needs 140 records, which is the case for the pipeline
+at the AI-native level: the record is generated from the extraction's
+sidecar and the document record, and a curator reviews titles and
+definitions.
 
 </Recipe>
 
 <Recipe title="7.3 Link the document record and the data in both directions" level="AI-ready" skills="Data curator" time="Minutes per document">
 
-**Result:** from the document a user or a system reaches its tables and the
-series behind them; from a series, the documents that report it.
+**Result:** from the document, a user or a system reaches its tables and
+the series behind them; from a series, the documents that report it.
 
-1. In the document record, list the series and surveys in `data_sources`
-   ([chapter 1](./inventory.mdx)) and the extracted tables as related
-   items.
-2. In each table record, relate the document (`relations`, `isPartOf`) and
-   the series (`data_sources`, and `table_columns.dataset` for the column
-   that reports a series).
-3. On the web pages, add the links in schema.org: the table's `Dataset`
-   record uses `isBasedOn` for the document and `citation` for the page;
-   the document's record lists the tables under `hasPart`.
-4. In the series record, the documents that use the series come from the
-   [monitoring of data use](/docs/data_use/); the table records close the
-   loop for the organization's own documents.
+1. In the document record, list the series and surveys in
+   `data_sources` ([chapter 1](./inventory.mdx)) and the extracted
+   tables as related items.
+2. In each table record, relate the document (`relations`, `isPartOf`)
+   and the series (`data_sources`, and `table_columns.dataset` for the
+   column that reports a series).
+3. On the web pages, add the links in schema.org markup: the table's
+   `Dataset` record uses `isBasedOn` for the document and `citation`
+   for the page; the document's record lists the tables under
+   `hasPart`.
+4. In the series record, the documents that use the series come from
+   the [monitoring of data use](/docs/data_use/). The table records
+   close the loop for the organization's own documents.
 
-**What this does not do.** Links describe relations; they do not reconcile
-values. A document figure and a series value can differ by vintage, and
-[chapter 5, recipe 5.3](./verify.mdx) records which is which.
+**What this does not do.** Links describe relations; they do not
+reconcile values. A document figure and a series value can differ by
+vintage, and [chapter 5, recipe 5.3](./verify.mdx) records which is
+which.
 
 </Recipe>
 

@@ -53,31 +53,70 @@ two-point difference the required score does not need.
 
 <Recipe title="5.1 Run every candidate on the suite under the same conditions" level="Foundational" skills="Developer" time="Half a day per candidate">
 
-**Result:** suite scores per candidate, overall and per language, under
-recorded conditions.
+**Result:** a score for each candidate model on the organization's own
+test questions, overall and for each language, with the conditions of
+the run written down.
 
-1. Use the task's suite from the [evaluation cookbook](/cookbook/evaluation-suites/)
-   with the same question set version for every candidate.
-2. Give every candidate the same adaptation level where the comparison
-   is fair (the same prompt and retrieval), and record the adaptations
-   that differ (a fine-tuned small model against a prompted large one
-   is a fair comparison of deployable systems, and the record says so).
-3. Score overall and per language; the national language gets its own
-   row.
-4. Record the scores with the candidate's version, the prompt and
-   index versions, and the date.
+The suite is the set of test questions with known answers that the
+[evaluation cookbook](/cookbook/evaluation-suites/) describes for each
+kind of task: coding responses with the codes coders gave, questions
+with the series they should return, and so on. Every candidate answers
+the same questions under the same conditions, so that the differences
+between the scores come from the models and from nothing else.
 
-**What this does not do.** Scores on the organization's suite are the
-organization's; another organization's suite, catalog, and languages
-give other scores, which is why public leaderboards shortlist and the
-suite decides.
+1. Take the task's question set from the evaluation cookbook, in the
+   same version for every candidate.
+2. Give every candidate the same prompt and the same retrieval where
+   the comparison is meant to be fair. Where they differ on purpose (a
+   fine-tuned small model against a prompted large one), write down
+   that they differ; that is a fair comparison of two systems the
+   organization could deploy, as long as the record says so.
+3. Score each candidate overall and for each language separately. The
+   national language has its own row, because that is where small
+   models most often fall short.
+4. Record the scores with the model's version, the prompt and index
+   versions, and the date.
+
+**What this does not do.** The scores are the organization's own, on
+its own questions and languages. Another organization's catalog and
+users give other scores, which is why public leaderboards only shortlist
+and the suite decides.
 
 </Recipe>
 
 <Recipe title="5.2 Measure cost per query and draw the frontier" level="AI-ready" skills="Developer; finance" time="Half a day">
 
-**Result:** the frontier of candidates on score and cost, and the
-cheapest candidate that meets the required scores.
+**Result:** the cost of each candidate per thousand requests, set beside
+its score, and the cheapest candidate that meets the organization's
+required score.
+
+With a score and a cost for each candidate, the choice is a simple
+comparison. A candidate is dominated when another candidate scores at
+least as well and costs no more; the candidates that are not dominated
+form the cost-quality frontier. The organization has already set the
+score a task needs ([evaluation cookbook, chapter 1](/cookbook/evaluation-suites/inventory));
+the choice is the cheapest candidate on the frontier that meets it.
+
+The example file below lists six candidates for the coding task. Each
+row is one model, and the columns are:
+
+| Column | Meaning |
+|---|---|
+| `model` | The candidate's name |
+| `size_b` | Its size in billions of parameters |
+| `hosting` | `local` (on the organization's own server) or `provider` |
+| `suite_score`, `national_language_score` | Its score on the evaluation suite overall and on the national language |
+| `cost_per_1k_queries` | Its cost per thousand requests |
+| `latency_ms_p50` | Its typical response time in milliseconds |
+| `license` | Its licence class |
+
+The figures are illustrative.
+
+```csv file=../../website/static/cookbook-files/small-and-open-models/candidates.csv
+```
+
+The script below finds the frontier and the cheapest candidate that
+meets the required scores:
 
 ```python file=../../website/static/cookbook-files/small-and-open-models/cost_frontier.py
 ```
@@ -103,46 +142,45 @@ cheapest candidate meeting 0.90 overall and 0.85 national: mid-8b-q4 at 0.11 per
 best-scoring candidate: hosted-large at 0.90; choosing the cheapest passing model saves 88% per query
 ```
 
-1. Measure cost per thousand queries: for hosted models, tokens per
-   query times the current prices; for local models, the server's cost
-   per hour divided by the measured throughput ([chapter 3](./serving.mdx)),
-   plus the staff share from [chapter 7](./cost.mdx).
-2. Run the frontier with the required scores from the task's
-   inventory ([evaluation cookbook, chapter 1](/cookbook/evaluation-suites/inventory)).
-3. Read the frontier: the models off it are dominated and leave the
-   shortlist; the cheapest passing model is the choice; the saving
-   against the best-scoring model is what the organization keeps for the
-   required score it set.
+1. Measure the cost per thousand requests. For a hosted model, multiply
+   the tokens per request by the provider's current prices. For a local
+   model, divide the server's cost per hour by the measured requests per
+   hour ([chapter 3](./serving.mdx)) and add the staff share from
+   [chapter 7](./cost.mdx).
+2. Run the script with the required scores from the task's inventory.
+3. Read the result. The candidates off the frontier leave the
+   shortlist. The cheapest passing candidate is the choice, and the
+   saving against the best-scoring candidate is what the organization
+   keeps by setting a required score and holding to it.
 4. Record the frontier, the choice, and the date with the task.
 
 **What this does not do.** A frontier drawn from list prices and one
-test run is a sketch; the measured cost after a month of production
-replaces it, and the frontier moves with every price change and model
-release.
+test run is a sketch. The measured cost after a month in production
+replaces it, and every price change or model release moves it.
 
 </Recipe>
 
 <Recipe title="5.3 Revisit the frontier on each release and route by it" level="AI-native" skills="Developer" time="Half a day per release">
 
-**Result:** the choice per task stays current as models and prices
-change, and tasks are routed to the model the frontier names.
+**Result:** the choice of model for each task stays current as models
+and prices change, and each task is served by the model its frontier
+names.
 
-1. On each notable model release (a new small model in the national
-   language, a price change), add the candidate, run the suite, and
-   redraw the frontier.
-2. Where the frontier changes the choice, treat it as a change the
-   suite gates ([evaluation cookbook, chapter 7](/cookbook/evaluation-suites/gates))
-   and the switch is a deployment with the versions recorded.
-3. Where several tasks share a service, route each to its frontier
-   choice; a gateway that maps task to model makes this a
+1. When a notable model is released or a price changes, add the new
+   candidate, run the suite, and draw the frontier again.
+2. If the choice changes, treat the switch as a change the suite has to
+   pass ([evaluation cookbook, chapter 7](/cookbook/evaluation-suites/gates)),
+   then deploy it with the versions recorded.
+3. Where several tasks share one service, route each task to its own
+   chosen model. A gateway that maps task to model makes the switch a
    configuration change.
-4. Publish the frontier per task on the report card
+4. Publish the frontier for each task on its report card
    ([evaluation cookbook, chapter 9](/cookbook/evaluation-suites/reporting)).
 
-**What this does not do.** Routing by the frontier optimizes cost at
-the required score; it does not relax the score, and a task whose
-cheapest passing model is still expensive is a task to re-examine
-(adaptation, scope); the score stays.
+**What this does not do.** Routing by the frontier lowers cost at the
+required score; it never lowers the score. A task whose cheapest passing
+model is still expensive is a task to re-examine (its prompt, its
+retrieval, its scope); the required score stays.
 
 </Recipe>
 

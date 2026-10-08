@@ -52,8 +52,20 @@ file, and the report says so before release.
 
 <Recipe title="3.1 Run the utility report at three levels" level="Foundational" skills="Python" time="Minutes per file">
 
-**Result:** marginal distances, association differences, and target
-analyses side by side for the real and the synthetic file.
+**Result:** a report that compares the synthetic file with the real
+one at three levels: each variable's distribution, the relationships
+between pairs of variables, and the statistics users will compute.
+
+The script reads the real and the synthetic file, which have the same
+columns, and reports three things. For each variable, how different its
+distribution is: for a categorical variable the total variation
+distance (0 means identical, 1 means no overlap), for a numeric
+variable the shift in the median and in the spread. For each pair of
+variables, how different their association is: Cramér's V for two
+categorical variables (0 means unrelated, 1 means fully determined) and
+the correlation for two numeric ones. And for two target statistics,
+the employment rate by sex and the median income by education, the
+value in each file side by side.
 
 ```python file=../../website/static/cookbook-files/synthetic-data-for-sharing/utility_report.py
 ```
@@ -95,67 +107,69 @@ target analyses
   median income, education 3: real 1900, synthetic 2400
 ```
 
-1. Run the report on the organization's infrastructure where the real
-   file is; only the report leaves.
-2. Read the marginals: a total variation distance above a few percent on
-   a categorical variable, or a median shifted by more than a few
-   percent, is a variable to look at.
-3. Read the associations: a pair whose Cramér's V or correlation fell
-   substantially is a relationship the method lost; the flag marks
-   those.
-4. Read the target analyses: these are what users will compute, and the
-   gap is what they will be wrong by.
+1. Run the report where the real file is, on the organization's own
+   infrastructure. Only the report leaves.
+2. Read the distributions. A total variation distance above a few
+   percent on a categorical variable, or a median shifted by more than a
+   few percent, marks a variable to look at.
+3. Read the associations. A pair whose Cramér's V or correlation fell
+   substantially is a relationship the method lost. In the example, the
+   link between sex and labour force status fell from 0.13 to 0.05.
+4. Read the target statistics. These are what users will compute, and
+   the gap is how wrong they will be. In the example, the employment
+   rate for men is 0.56 in the real file and 0.40 in the synthetic one.
 
-**What this does not do.** The report's two target analyses are
-examples; recipe 3.2 adds the organization's own. Three hundred
-records give rough figures; the real file's size gives the precision.
+**What this does not do.** The report's two target statistics are
+examples; recipe 3.2 adds the organization's own. Three hundred records
+give rough figures; the real file's size gives the precision.
 
 </Recipe>
 
 <Recipe title="3.2 Add the target analyses of the intended uses" level="AI-ready" skills="Methodologist; subject-matter analyst" time="Half a day per file">
 
 **Result:** the report includes the statistics and models that the
-intended uses require, computed on both files, with the differences.
+intended uses require, computed on both files, with the differences
+and the real file's sampling error beside them.
 
 1. From the purpose statement's intended uses, list the analyses: the
    published tables users reproduce to test their code, the regressions
-   a teaching course runs, the indicators a method study uses.
-2. Compute each on the real and the synthetic file (weighted where the
-   survey is weighted) and report the difference with the real file's
-   sampling error beside it; a difference within the sampling error is
-   the target.
-3. Where a model is fitted, compare the coefficients and their
-   confidence intervals; the overlap of intervals is a standard
-   measure.
-4. Add the analyses to the report script so that every future synthesis
-   of the survey reports them.
+   a course teaches, the indicators a method study needs.
+2. Compute each on the real and the synthetic file (with weights where
+   the survey is weighted). Report the difference, and beside it the
+   real file's sampling error for the same statistic. A difference
+   within the sampling error is the target.
+3. Where a model is fitted (a regression), compare the coefficients and
+   their confidence intervals; the overlap of the intervals is a
+   standard measure of how close the two files are.
+4. Add the analyses to the report script, so that every future
+   synthesis of the survey reports them.
 
 **What this does not do.** The analyses cover what the organization
-anticipated. A user's new analysis may fall where the method attenuated
-a relationship, which is why the synthesis record lists what was
-measured and tells users to treat the rest as unverified.
+anticipated. A user's new analysis may depend on a relationship the
+method weakened, which is why the synthesis record lists what was
+measured and tells users to treat everything else as unverified.
 
 </Recipe>
 
 <Recipe title="3.3 Set thresholds and decide" level="AI-ready" skills="Methodologist; head of the microdata unit" time="An hour per file">
 
-**Result:** a release decision from the report against thresholds set
-for the intended uses, recorded in the synthesis record.
+**Result:** a release decision taken by comparing the report with
+thresholds set for the file's intended uses, recorded in the synthesis
+record.
 
-1. Set thresholds per level for the file's uses: for code testing,
-   types and marginals matter and associations less; for teaching,
-   the main relationships and the target analyses matter; for method
-   development, the specific structures the method needs.
-2. Compare the report with the thresholds; a file that fails a
-   threshold goes back to [chapter 2](./method.mdx) with the failing
-   measures as the tuning target, or has its intended uses narrowed.
-3. Record the decision, the thresholds, and the report in the
-   synthesis record ([chapter 6](./release.mdx)).
+1. Set thresholds at each level for the file's uses. For testing code,
+   the variable types and distributions matter most. For teaching, the
+   main relationships and the target analyses matter. For method
+   development, the specific structures the method needs matter.
+2. Compare the report with the thresholds. A file that fails goes back
+   to [chapter 2](./method.mdx) with the failing measures as the thing to
+   improve, or its intended uses are narrowed.
+3. Record the decision, the thresholds, and the report in the synthesis
+   record ([chapter 6](./release.mdx)).
 
 **What this does not do.** Thresholds encode the organization's
-judgement of "close enough" for a use; they do not make a synthetic
-file suitable for estimation, which no threshold in this guide
-addresses.
+judgement of "close enough" for a use. No threshold in this guide makes
+a synthetic file suitable for estimating statistics.
 
 </Recipe>
 

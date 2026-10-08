@@ -48,12 +48,17 @@ schema.org record, and add a search that understands "jobless rate".
 
 <Recipe title="1.1 Check the records against the schema and a completeness profile" level="Foundational" skills="Anyone who can export the catalog and run a Python script; a metadata lead to set the profile" time="Half a day the first time; minutes after that">
 
-**Result:** for every series record, three answers: is it a valid instance
-of the published schema, does it have every field the organization requires at
-its target level, and are the values well-formed. This is the first measure
-to track, because every later step depends on these fields.
+**Result:** for every series record in the catalog, three answers: does
+it have the right structure, does it have every field the organization
+requires at its target level, and are the values well-formed. This is
+the first measure to track, because every later step depends on these
+fields.
 
-A completeness check has three layers, and they answer different questions:
+A catalog record is a description of a dataset or a series: its name,
+definition, unit, source, and so on. A schema fixes the names and types
+of those fields, and a profile is the organization's own list of which
+fields it requires. The check has three layers, and they answer
+different questions:
 
 | Layer | Question | Who decides the rule |
 |---|---|---|
@@ -62,35 +67,14 @@ A completeness check has three layers, and they answer different questions:
 | Validity | Do dates parse, do periods run in order, are URLs URLs, do values come from the organization's vocabulary, is the definition more than the name repeated? | Rules named in the profile and applied by the script. |
 
 The same check runs for indicators, survey microdata, geospatial data,
-documents, tables, scripts, images, and videos: the profile names the type,
-the script fetches that type's schema. The [Application by data type](./data-types.md)
-page lists the profiles and example records for each.
+documents, tables, scripts, images, and videos: the profile names the
+type, and the script fetches that type's schema. The
+[Application by data type](./data-types.md) page lists the profiles and
+example records for each.
 
-1. Export the records. A catalog that uses the schemas, through NADA or the
-   Metadata Editor, exports nested JSON, which works for every type. For
-   indicators, a CSV with one row per series also works: the
-   [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
-   shows the layout, and list fields such as `sources` and
-   `geographic_units` take `;` between values.
-2. Set the profile. Start from the profile for the type
-   ([indicator](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json),
-   [microdata](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json),
-   [geospatial](pathname:///cookbook-files/ai-ready-dissemination/profile_geospatial.json),
-   [document](pathname:///cookbook-files/ai-ready-dissemination/profile_document.json)).
-   Each is a recommended default: it names the fields required at the
-   foundational, AI-ready, and AI-native levels as paths into the record,
-   gives the reason each field matters for AI-ready dissemination, and
-   sets the validity rules (which fields are dates, which are URLs, which
-   take a vocabulary, which need a minimum length). An organization can remove a
-   field from a level, and the reason states what that costs. Keep the
-   edited profile in version control; it is the organization's definition of
-   "complete". Offices that document with the
-   [Metadata Editor](https://github.com/worldbank/metadata-editor) can
-   mirror the profile in its metadata templates, which set the required
-   fields at entry time and validate records before they are published to
-   NADA.
-3. Run the check. It needs the `jsonschema` package (4.18 or later) for the
-   structure layer and downloads the schema files the first time.
+The script that runs the check needs the `jsonschema` package (4.18 or
+later) for the structure layer and downloads the schema files the first
+time:
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/check_metadata.py
 ```
@@ -101,85 +85,119 @@ Output for the example catalog at the foundational level:
 Layer 1  Structure (World Bank timeseries-schema.json)
          5 of 5 records are valid instances of the schema
          Note: the schemas require little more than an identifier and a title. Validity is not completeness.
-
 Layer 2  Completeness against profile 'recommended indicator profile', level 'foundational' (9 fields)
          4 of 5 records complete
          missing series_description.definition_long               in 1 record(s)
                  why: Search by meaning and answers both read this text; without it a system matches on the title alone (chapter 1).
          LF_UNEMP_PCT: series_description.definition_long
-
 Layer 3  Validity: 0 issue(s)
 ```
 
-At `--level ai-ready` the same catalog has 0 of 5 records complete, with
-`methodology`, `universe`, `series_break`, `limitation`, `license`,
-`keywords`, `aliases`, and `contacts` missing from every record. That is the
-normal result for a catalog that was documented for people and is now being
-prepared for software, and it is the work list for the AI-ready level.
+At `--level ai-ready` the same catalog has 0 of 5 records complete,
+with `methodology`, `universe`, `series_break`, `limitation`, `license`,
+`keywords`, `aliases`, and `contacts` missing from every record. That
+is the normal result for a catalog that was documented for people and
+is now being prepared for software, and it is the work list for the
+AI-ready level.
 
-For the other types, the same command with the type's profile and a JSON
-export:
+1. Export the records. A catalog that uses the schemas, through NADA or
+   the Metadata Editor, exports nested JSON, which works for every
+   type. For indicators, a CSV with one row per series also works: the
+   [metadata template](pathname:///cookbook-files/ai-ready-dissemination/metadata_template.csv)
+   shows the layout, and list fields such as `sources` and
+   `geographic_units` take `;` between values.
+2. Set the profile. Start from the profile for the type
+   ([indicator](pathname:///cookbook-files/ai-ready-dissemination/profile_indicator.json),
+   [microdata](pathname:///cookbook-files/ai-ready-dissemination/profile_microdata.json),
+   [geospatial](pathname:///cookbook-files/ai-ready-dissemination/profile_geospatial.json),
+   [document](pathname:///cookbook-files/ai-ready-dissemination/profile_document.json)).
+   Each is a recommended default. It names the fields required at the
+   foundational, AI-ready, and AI-native levels, gives the reason each
+   field matters, and sets the validity rules (which fields are dates,
+   which are URLs, which take a vocabulary, which need a minimum
+   length). An organization can remove a field from a level, and the
+   reason states what that costs. Keep the edited profile in version
+   control; it is the organization's definition of "complete". Offices
+   that document with the
+   [Metadata Editor](https://github.com/worldbank/metadata-editor) can
+   mirror the profile in its templates, which set the required fields
+   at entry time and validate records before publication to NADA.
+3. Run the check. For the other types, the same command takes the
+   type's profile and a JSON export:
 
-```bash
-python check_metadata.py example_microdata.json  profile_microdata.json  --level ai-ready
-python check_metadata.py example_geospatial.json profile_geospatial.json
-python check_metadata.py example_document.json   profile_document.json
-```
+   ```bash
+   python check_metadata.py example_microdata.json  profile_microdata.json  --level ai-ready
+   python check_metadata.py example_geospatial.json profile_geospatial.json
+   python check_metadata.py example_document.json   profile_document.json
+   ```
 
-4. Assign the incomplete records to a curator and set a date. Re-run the
-   check monthly at the target level and keep the counts; the trend is the
-   evidence that the catalog is improving.
+4. Assign the incomplete records to a curator and set a date. Re-run
+   the check monthly at the target level and keep the counts. The trend
+   is the evidence that the catalog is improving.
 
-**What this does not do.** The three layers check form. A record can pass
-all of them with a definition that is wrong, a name that does not match the
-definition, a unit that does not match the values, text too vague to be
-useful, or keywords nobody searches for. Those are semantic checks: the
-program's [Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality)
-work scores records on completeness, semantic alignment, specificity, and
-consistency with a language model, the [Metadata Reviewer](/docs/metadata-reviewer/overview)
-puts its suggestions in front of a curator, and the
-[curation cookbook](/cookbook/metadata-curation-with-llms/assess) describes
-the workflow. Run the three layers first, because a semantic check on
-records with empty fields has nothing to work with.
+**What this does not do.** The three layers check form. A record can
+pass all of them with a definition that is wrong, a name that does not
+match the definition, a unit that does not match the values, text too
+vague to be useful, or keywords nobody searches for. Those are semantic
+checks: the program's
+[Generative AI for Metadata Quality](/docs/metadata-quality/generative-ai-for-metadata-quality)
+work scores records on completeness, semantic alignment, specificity,
+and consistency with a language model, the
+[Metadata Reviewer](/docs/metadata-reviewer/overview) puts its
+suggestions in front of a curator, and the
+[curation cookbook](/cookbook/metadata-curation-with-llms/assess)
+describes the workflow. Run the three layers first, because a semantic
+check on records with empty fields has nothing to work with.
 
 </Recipe>
 
 <Recipe title="1.2 Publish a schema.org Dataset record on every series page" level="AI-ready" skills="Web developer with access to the page template" time="Half a day for the template, then automatic">
 
-**Result:** every series page carries a JSON-LD block that dataset search
-engines and crawlers read, generated from the same catalog record that the
-page shows.
+**Result:** every series page carries a block of structured data that
+dataset search engines and crawlers read, generated from the same
+catalog record that the page shows.
 
-Offices that run [NADA](https://nada.ihsn.org/) already have this: NADA
-writes a schema.org `Dataset` block on every catalog page from the stored
-record (the World Bank [Microdata Library](https://microdata.worldbank.org/)
-pages show it), and the Metadata Editor can export schema.org, Croissant,
-and DCAT from the same records. The steps below are for an organization with its
-own website.
-
-1. Map the catalog fields to the schema.org properties in the example below.
-   The required properties are `name`, `description`, and `url`; the others
-   make the record useful.
+Schema.org is a vocabulary that search engines agree on for describing
+things on web pages. A `Dataset` record in that vocabulary, embedded in
+the page as JSON-LD (a block of JSON inside a `script` element), is how
+a dataset search engine learns what the page is about. The block for
+the running example's undernourishment series:
 
 ```json file=../../website/static/cookbook-files/ai-ready-dissemination/dataset.jsonld
 ```
 
-2. Insert the block in the page template inside a `script` element with
-   `type="application/ld+json"`, filled from the catalog at render time.
-3. Validate one page with the [Schema Markup Validator](https://validator.schema.org/).
-4. Add the series pages to the XML sitemap and confirm that `robots.txt` does
-   not block them.
+Offices that run [NADA](https://nada.ihsn.org/) already have this: NADA
+writes the block on every catalog page from the stored record (the
+World Bank [Microdata Library](https://microdata.worldbank.org/) pages
+show it), and the Metadata Editor can export schema.org, Croissant, and
+DCAT from the same records. The steps below are for an organization
+with its own website.
+
+1. Map the catalog fields to the schema.org properties as in the
+   example. The required properties are `name`, `description`, and
+   `url`; the others make the record useful.
+2. Insert the block in the page template inside a `script` element
+   with `type="application/ld+json"`, filled from the catalog at render
+   time.
+3. Validate one page with the
+   [Schema Markup Validator](https://validator.schema.org/).
+4. Add the series pages to the XML sitemap and confirm that
+   `robots.txt` does not block them.
 5. Check after a few weeks whether the pages appear in a dataset search
-   engine; indexing takes time.
+   engine. Indexing takes time.
 
 For catalogs that already run a data portal, check whether the portal
-software can emit [DCAT](https://www.w3.org/TR/vocab-dcat-3/) for the whole
-catalog. DCAT and schema.org markup can coexist. For datasets that are
-published for model training, [Croissant](https://mlcommons.org/croissant/)
-extends the same schema.org record with the fields machine-learning tools
-need to load the data.
+software can emit [DCAT](https://www.w3.org/TR/vocab-dcat-3/) for the
+whole catalog. DCAT and schema.org markup can coexist. For datasets
+that are published for model training,
+[Croissant](https://mlcommons.org/croissant/) extends the same
+schema.org record with the fields machine-learning tools need to load
+the data.
 
-**What this does not do.** Markup makes a page readable by crawlers; it does not get the page indexed or ranked. Indexing depends on the sitemap, crawlability, and the search engine's own policies, and takes weeks, so the check in step 5 is the only evidence that it worked.
+**What this does not do.** Markup makes a page readable by crawlers; it
+does not get the page indexed or ranked. Indexing depends on the
+sitemap, crawlability, and the search engine's own policies, and takes
+weeks, so the check in step 5 is the only evidence that it worked.
 
 </Recipe>
 
@@ -189,14 +207,12 @@ need to load the data.
 `FS_UNDERNOURISH_PCT` for "how many people go hungry", with the keyword
 search still available for exact codes and names.
 
-NADA provides semantic search over its catalog records, so an organization that
-runs it gets this layer with the catalog. The steps below are for an organization
-with its own search, and the evaluation in step 4 applies to both.
-
-1. Build the question set and baseline scores first ([chapter 6](./evaluate.mdx)). Without them there is no way to tell whether the new search is better.
-2. Embed each catalog record (title plus description) with a multilingual
-   sentence-embedding model. Small open models run on a CPU for a catalog of
-   a few thousand records.
+Semantic search matches by meaning. A language model turns each record
+and each query into a list of numbers (an embedding) such that texts
+with similar meaning come out close together, even when they share no
+words. The search then ranks records by that closeness. The snippet
+below does this for a small catalog with an open multilingual model
+that runs on a CPU:
 
 ```python
 from sentence_transformers import SentenceTransformer, util
@@ -213,25 +229,34 @@ def semantic_search(query, k=10):
     return [records[i]["id"] for i in top]
 ```
 
-3. Combine the semantic ranking with the keyword ranking, for example by
-   taking the best rank of each record across both lists. Keep the keyword
-   path so that an exact identifier always wins.
-4. Re-run the scoring script from chapter 6 and compare Recall@5 and MRR per
-   language with the baseline. Keep the result with the date and model name.
+NADA provides semantic search over its catalog records, so an
+organization that runs it gets this layer with the catalog. The steps
+below are for an organization with its own search, and the evaluation
+in step 4 applies to both.
+
+1. Build the question set and baseline scores first
+   ([chapter 6](./evaluate.mdx)). Without them there is no way to tell
+   whether the new search is better.
+2. Embed each catalog record (title plus description) as in the
+   snippet.
+3. Combine the semantic ranking with the keyword ranking, for example
+   by taking the best rank of each record across both lists. Keep the
+   keyword path so that an exact identifier always wins.
+4. Re-run the scoring script from chapter 6 and compare Recall@5 and
+   MRR per language with the baseline. Keep the result with the date
+   and model name.
 5. Re-embed the catalog whenever records change, on a schedule.
 
-**What this does not do.** The snippet embeds each record as one string and
-ranks by cosine similarity. A production search also indexes the keyword
-field and aliases, handles thousands of records with a vector index, filters
-by topic and geography, re-ranks the top results, and logs queries for the
-monthly review ([chapter 4](./ask.mdx)). General embedding models also
-underperform on structured records with short labels, which is the problem
-the fine-tuning work below addresses.
-
-The program's [Data Discoverability](/docs/data-discoverability/) page
-describes the approach in more detail, and the
-[PI-FT pipeline](/pift-toolkit/pipeline) shows how to fine-tune an embedding
-model on structured records when a general model is not good enough.
+**What this does not do.** The snippet embeds each record as one string
+and ranks by similarity. A production search also indexes the keyword
+field and aliases, handles thousands of records with a vector index,
+filters by topic and geography, re-ranks the top results, and logs
+queries for the monthly review ([chapter 4](./ask.mdx)). General
+embedding models also underperform on structured records with short
+labels, which is the problem the program's
+[Data Discoverability](/docs/data-discoverability/) work and the
+[PI-FT pipeline](/pift-toolkit/pipeline) address by fine-tuning an
+embedding model on structured records.
 
 </Recipe>
 

@@ -52,79 +52,95 @@ its version, level, and URI, and gives each a harmonized name.
 
 <Recipe title="4.1 Attach the question text to every collected variable" level="Foundational" skills="Data curator with the questionnaire" time="Two to four hours per survey">
 
-**Result:** each variable record states the question as asked, so that a
-label can be checked against it and a user can see the wording.
+**Result:** each variable record states the question as it was asked,
+so that a label can be checked against it and a user can see the
+wording.
 
 1. Take the question text from the final questionnaire, including the
    question number and the placeholders as printed ("Q4. How old was
    [NAME] at last birthday?").
-2. Put it in the `question` column of the dictionary (recipe 3.1), which
-   the converter maps to `var_qstn_qstnlit`. Add pre-question and
-   post-question text and interviewer instructions where they change the
-   meaning (`var_qstn_preqtxt`, `var_qstn_postqtxt`, `var_qstn_ivulnstr`).
+2. Put it in the `question` column of the dictionary (recipe 3.1),
+   which the converter maps to `var_qstn_qstnlit`. Add pre-question and
+   post-question text and interviewer instructions where they change
+   the meaning.
 3. For derived variables, put the derivation rule in the same column
    ("Derived from Q10 to Q16") and the full rule in `var_derivation`.
-4. Record the questionnaire version in the study record, and re-attach the
-   text when the questionnaire changes.
+4. Record the questionnaire version in the study record, and re-attach
+   the text when the questionnaire changes.
 
-**What this does not do.** Question text in the dictionary does not make
-the questionnaire itself machine-readable (skip patterns, response
-options, routing). DDI Lifecycle and a question bank do that; recipe 4.3
-starts there.
+**What this does not do.** Question text in the dictionary does not
+make the questionnaire itself machine-readable (skip patterns, response
+options, routing). DDI Lifecycle and a question bank do that, and
+recipe 4.3 starts there.
 
 </Recipe>
 
 <Recipe title="4.2 Map variables to concepts and classifications" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="One day per survey the first time">
 
-**Result:** a concept map, one row per variable, that names the concept,
-the classification, its version, a URI, and a harmonized name, stored in
-the variable records.
+**Result:** a concept map with one row per variable that names the
+concept it measures, the classification it follows, the version, a web
+address for the concept, and a harmonized name, stored in the variable
+records.
 
-1. Start from the concept map of the running example:
+A concept is what a variable measures, stated independently of this
+survey: "educational attainment", "labour force status". A
+classification is the standard list of categories for it: ISCED for
+education, ISCO for occupation. The concept map is a CSV:
+
+| Column | Meaning |
+|---|---|
+| `name` | The variable name |
+| `concept` | The concept, in plain words |
+| `classification`, `version` | The standard the codes follow, and its version |
+| `uri` | A web address that identifies the concept or classification |
+| `harmonized_name` | The name used for this concept across all the organization's surveys (`educ_isced11`) |
+| `note` | How the variable's codes relate to the classification's levels |
 
 ```csv file=../../website/static/cookbook-files/microdata-documentation/concept_map.csv
 ```
 
-2. For each variable, name the concept in plain words and the
-   classification it follows, with version and level. Where a national
-   classification is used, link the crosswalk to the international one
-   (see [chapter 3 of the dissemination cookbook](/cookbook/ai-ready-dissemination/understand)
-   for the crosswalk format and XKOS).
-3. Store the concept in the variable record (`var_concept`, with `title`,
-   `vocab`, and `uri`) through the `concept` column of the dictionary, and
-   publish the map with the data.
-4. Check that the value codes in the dictionary are consistent with the
+1. For each variable, name the concept and the classification it
+   follows, with version and level. Where a national classification is
+   used, link the crosswalk to the international one
+   ([chapter 3 of the dissemination cookbook](/cookbook/ai-ready-dissemination/understand)
+   gives the crosswalk format and XKOS).
+2. Store the concept in the variable record (`var_concept`, with its
+   title, vocabulary, and URI) through the `concept` column of the
+   dictionary, and publish the map with the data.
+3. Check that the value codes in the dictionary are consistent with the
    named classification (ISCED levels 0 to 5, ISCO-08 two-digit codes).
 
-**What this does not do.** A concept map names the classification; it does
-not verify that the coding followed it. A sample check of coded values
-against the classification's definitions, or AI-assisted coding review
-(the program's classification and coding workstream), does that.
+**What this does not do.** A concept map names the classification. It
+does not verify that the coding followed it. A sample check of coded
+values against the classification's definitions, or AI-assisted coding
+review (the program's classification and coding workstream), does that.
 
 </Recipe>
 
 <Recipe title="4.3 Reuse questions and concepts across surveys" level="AI-native" skills="Methodologist; data curator" time="Ongoing; one week to set up">
 
-**Result:** the organization's recurring concepts have one definition, one
-harmonized name, and one question wording, so that a system can find every
-survey that measures a concept and compare them.
+**Result:** the organization's recurring concepts have one definition,
+one harmonized name, and one question wording, so that a system can
+find every survey that measures a concept and compare them.
 
 1. List the concepts measured in more than one survey (labour force
-   status, educational attainment, household composition) and give each a
-   harmonized variable name (`educ_isced11`, `lfs_status_icls19`).
-2. Publish the concept definitions as a concept scheme ([SKOS](https://www.w3.org/TR/skos-reference/)
-   or [XKOS](https://ddialliance.org/xkos)) with multilingual labels, and
-   reference it from `var_concept.uri`.
+   status, educational attainment, household composition) and give each
+   a harmonized variable name (`educ_isced11`, `lfs_status_icls19`).
+2. Publish the concept definitions as a concept scheme
+   ([SKOS](https://www.w3.org/TR/skos-reference/) or
+   [XKOS](https://ddialliance.org/xkos), the web standards for such
+   schemes) with labels in each language, and reference it from the
+   variable records' concept URI.
 3. Keep the question wordings in a question bank, with the concept each
    measures and the surveys that use each wording. The program's Global
    Question Bank workstream develops this for development surveys.
-4. When a new survey is designed, draw questions from the bank, so that the
-   concept links exist before the data do.
+4. When a new survey is designed, draw questions from the bank, so that
+   the concept links exist before the data do.
 
-**What this does not do.** Harmonized names and shared definitions do not
-make data from two surveys comparable when the samples, modes, or reference
-periods differ; the quality statements in [chapter 7](./fitness.mdx) carry
-that information.
+**What this does not do.** Harmonized names and shared definitions do
+not make data from two surveys comparable when the samples, modes, or
+reference periods differ. The quality statements of
+[chapter 7](./fitness.mdx) carry that information.
 
 </Recipe>
 

@@ -50,31 +50,49 @@ the curator, which is flagged for calibration.
 
 <Recipe title="4.1 Score records on the four dimensions" level="Foundational" skills="Curator with access to a model; Python for the batch" time="One hour to set up; seconds per record">
 
-**Result:** scores from 1 to 5 on completeness, semantic alignment,
-specificity, and consistency for each record, as structured output, with
-a one-line reason per dimension.
+**Result:** for every record, four scores from 1 to 5 with a one-line
+reason each, which tell the curation unit which records need work and
+why.
 
-1. Fix the rubric: a sentence per dimension and per score level, so that
-   a 3 means the same thing for every record. The program's
+The four dimensions are completeness (are the fields filled), semantic
+alignment (do the name, the definition, and the unit agree with each
+other), specificity (is the text precise enough to be useful), and
+consistency (does the record agree with related records). A rubric is a
+written scale: one sentence per dimension and per score, so that a 3
+means the same thing for every record. The model reads the record and
+the rubric and returns the scores in a fixed format.
+
+1. Fix the rubric. The program's
    [metadata-quality notebook](/docs/notebooks/metadata-quality-assessment-with-llm)
-   implements the assessment with a structured output schema.
-2. Send each record with the rubric and ask for structured output: a
-   score and a reason per dimension. Reasons are what curators read when
-   they disagree.
-3. Keep the scores with the model, the rubric version, and the date; a
-   change in any of them is a new series of scores.
-4. Score the start set by hand with the same rubric for recipe 4.2.
+   implements the assessment with such a rubric and a structured output
+   schema.
+2. Send each record with the rubric and ask for a score and a reason
+   per dimension. The reasons are what curators read when they
+   disagree.
+3. Keep the scores with the model, the rubric version, and the date. A
+   change in any of them starts a new series of scores.
+4. Score the start set by hand with the same rubric, for the
+   calibration of recipe 4.2.
 
-**What this does not do.** Scores describe the record's text. They do not describe the
-truth of its content: a definition that is complete, aligned, specific,
-and consistent can still be wrong; subject-matter review catches that.
+**What this does not do.** Scores describe the record's text. They do
+not describe the truth of its content: a definition that is complete,
+aligned, specific, and consistent can still be wrong, and subject-matter
+review catches that.
 
 </Recipe>
 
 <Recipe title="4.2 Calibrate the scores against curators" level="AI-ready" skills="Two curators; Python" time="One day for 50 records">
 
-**Result:** per dimension, the agreement between model and curators and
-the direction of any bias, so that scores can be read correctly.
+**Result:** for each dimension, how often the model's score agrees with
+a curator's and in which direction it errs, so that its scores can be
+read with the right correction.
+
+The two input files have the same layout: one row per record, with the
+record identifier and the four scores, one file from the model and one
+from a curator. The script compares them dimension by dimension and
+reports the share of exact agreements, the share within one point, and
+the mean difference (positive when the model scores higher than the
+curator):
 
 ```python file=../../website/static/cookbook-files/metadata-curation-with-llms/assess_agreement.py
 ```
@@ -87,48 +105,48 @@ Output for the running example:
 
 ```text
 5 records, 4 dimensions
-
 dimension               exact  within 1  mean diff  note
 completeness             0.80      1.00      -0.20
 semantic_alignment       0.60      1.00      -0.40
 specificity              0.60      1.00      +0.40
 consistency              0.60      0.80      +0.60  model more lenient
-
 1 dimension(s) miscalibrated at a mean difference of 0.5 or more
 ```
 
-1. Read the mean difference per dimension: the model scores consistency
-   more leniently than the curator, so its consistency scores are read
-   with that correction or the rubric wording for consistency is
-   tightened.
-2. Have two curators score the sample and report their own agreement
-   (Cohen's kappa or a within-one rate); the model is compared with a
-   reference only as good as that.
+1. Read the mean difference per dimension. Here the model scores
+   consistency more leniently than the curator, so its consistency
+   scores are read with that correction, or the rubric wording for
+   consistency is tightened.
+2. Have two curators score the sample and report their own agreement.
+   The model is compared with a reference only as good as that.
 3. Re-run after any change to the model or the rubric.
 
 **What this does not do.** Five records demonstrate; 50 to 100 records
-per calibration are needed, across topics and lengths. Agreement on scores
-does not show agreement on reasons; a sample of reasons is read.
+per calibration are needed, across topics and lengths. Agreement on
+scores does not show agreement on reasons, so a sample of reasons is
+read as well.
 
 </Recipe>
 
 <Recipe title="4.3 Aggregate into a catalog report" level="AI-ready" skills="Python" time="Minutes per period">
 
-**Result:** the catalog's quality by field, dimension, topic, and
-producer, and the work list ordered by it.
+**Result:** a report of the catalog's quality by field, dimension,
+topic, and producing unit, and a work list ordered so that the records
+most used and least good come first.
 
-1. Aggregate scores by dimension and by field named in the reasons
+1. Aggregate the scores by dimension, by the field named in the reasons
    (missing definition, unit mismatch), by topic, and by producing unit.
-2. Join with use ([monitoring of data use](/cookbook/monitoring-data-use/))
-   so that the work list puts used, low-scoring records first.
+2. Join with use (the [monitoring cookbook](/cookbook/monitoring-data-use/)
+   counts it), so that the work list puts used, low-scoring records
+   first.
 3. Publish the report internally each period, with the calibration note
-   from recipe 4.2.
+   from recipe 4.2 beside it.
 4. After decisions are applied ([chapter 5](./review.mdx)), re-score and
    report the gain.
 
 **What this does not do.** A report orders work; it does not do it. The
-drafts of [chapter 3](./draft.mdx) and the reviews of [chapter 5](./review.mdx)
-are the work.
+drafts of [chapter 3](./draft.mdx) and the reviews of
+[chapter 5](./review.mdx) are the work.
 
 </Recipe>
 

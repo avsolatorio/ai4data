@@ -51,8 +51,22 @@ evidence.
 
 <Recipe title="3.1 Score known-item retrieval by slice" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** Recall@1, Recall@3, and MRR for every run, overall and per
-language and paraphrase slice, with the sample size of each.
+**Result:** for each version of the search, three scores overall and for
+each slice, with the number of questions behind each score.
+
+Three measures cover search over a catalog. Recall@1 is the share of
+questions for which the expected series came first. Recall@k is the
+share for which it appeared in the first k results (k being the number a
+user sees without scrolling). MRR, the mean reciprocal rank, is the
+average over questions of one divided by the position of the expected
+series: 1 when it is first, 0.5 when second, 0.33 when third. A higher
+value is better for all three.
+
+The example file records two versions of the search, `v1` and `v2`,
+answering the same ten questions. Each row gives the version, the
+question identifier, its language, whether it is a paraphrase, the
+expected series, and the series the search returned in order. The
+script scores each version overall and by slice:
 
 ```python file=../../website/static/cookbook-files/evaluation-suites/retrieval_by_slice.py
 ```
@@ -81,62 +95,74 @@ language=fr      v2     2   1.00   1.00   1.00
 A slice with fewer than thirty queries shows direction; the gate script puts an interval around the difference.
 ```
 
-1. Produce the results file from the search: for each question of the
-   set, the ranked identifiers the search returned, with the run's
+1. For each version of the search, record the ranked list of series it
+   returns for every question in the set, in the file format above.
+2. Run the script. Read every slice with its number of questions (the
+   `n` column) before reading the overall row. Two French questions
+   going from zero to full recall is a direction to investigate; it is no
+   result.
+3. Set k to the number of results a user sees without scrolling. The
+   dissemination cookbook's [scorer](pathname:///cookbook-files/ai-ready-dissemination/score_retrieval.py)
+   reports the same measures at other values of k.
+4. Record the scores with the question set version and the search
    version.
-2. Run the scorer and read every slice with its size; the overall row
-   is the last thing to read.
-3. Set k from the interface: the number of results a user sees without
-   scrolling; the dissemination cookbook's
-   [scorer](pathname:///cookbook-files/ai-ready-dissemination/score_retrieval.py)
-   reports the same measures at other k.
-4. Record the scores with the set version and the component version.
 
-**What this does not do.** Known-item measures assume one expected
-series per question. A question with several acceptable series needs
-either a graded relevance label (recipe 3.2) or a rule in the labelling
-guide that picks one.
+**What this does not do.** These measures assume that each question has
+exactly one expected series. A question that several series could
+answer needs either a graded label (recipe 3.2) or a rule in the
+labelling guide that picks one.
 
 </Recipe>
 
 <Recipe title="3.2 Use graded relevance where several results are acceptable" level="AI-ready" skills="Dissemination staff; Python" time="One day to grade fifty questions">
 
-**Result:** questions with several acceptable series carry graded
-relevance labels, and nDCG measures whether the best ones come first.
+**Result:** for questions that several series could answer, a grade for
+each candidate series, and a score that rewards putting the best ones
+first.
 
-1. For questions where more than one series answers (a question about
-   poverty that two series address at different lines), grade each
-   candidate: 2 for the best, 1 for acceptable, 0 for wrong; the
-   labelling guide of [chapter 2](./questions.mdx) says how.
-2. Compute nDCG@k with a library (ranx) or the
+Some questions have more than one acceptable answer: a question about
+poverty may be answered by two series that use different poverty lines,
+one better than the other. For these, each candidate gets a grade, and
+the measure nDCG (normalized discounted cumulative gain) rewards a
+search that puts the best-graded series highest. It runs from 0 to 1.
+
+1. For each such question, grade the candidate series: 2 for the best,
+   1 for acceptable, 0 for wrong. The labelling guide of
+   [chapter 2](./questions.mdx) says how to decide.
+2. Compute nDCG with a library such as ranx, or with the
    [PI-FT pipeline's](/pift-toolkit/pipeline) evaluation step, which
-   reports Recall@k, MRR, and nDCG@k together.
-3. Keep known-item and graded questions in the same file with the grade
-   column empty where it does not apply; report both measures.
+   reports Recall@k, MRR, and nDCG together.
+3. Keep graded and single-answer questions in the same file, with the
+   grade column empty where it does not apply, and report both measures.
 
-**What this does not do.** Grading multiplies labelling work; use it
-for the question types where it matters (broad topics) and keep
-known-item labels for the rest.
+**What this does not do.** Grading several candidates per question
+multiplies the labelling work. Use it for the question types where it
+matters, such as broad topics, and keep single expected answers for the
+rest.
 
 </Recipe>
 
 <Recipe title="3.3 Score questions with no answer" level="AI-ready" skills="Dissemination staff; Python" time="An hour">
 
-**Result:** a measure of what the search does when the organization has
-nothing to return, scored against the behaviour the organization chose.
+**Result:** a score for how the search behaves when the organization
+publishes nothing that answers the question.
 
-1. Decide the behaviour for `NONE` questions: an empty result with a
-   message, or the nearest published series with a note that it differs;
-   write the decision into the guide.
-2. Score each `NONE` question: pass if the search behaved as decided
-   (empty with message; or nearest series with the note), fail if it
-   returned an unrelated series as if it answered.
-3. Report the `NONE` pass rate beside Recall@k; a search tuned only on
-   Recall@k learns to return something for everything.
+A search that is tuned only to find something will find something for
+every question, including the ones that have no answer. The questions
+marked `NONE` in the set exist to catch that.
 
-**What this does not do.** The search's behaviour on `NONE` questions
-is only visible if the set has them; [chapter 2](./questions.mdx) puts
-them in.
+1. Decide what the search should do for a `NONE` question: return
+   nothing with a message, or return the nearest published series with a
+   note that it is not what was asked. Write the decision into the
+   labelling guide.
+2. Score each `NONE` question as a pass when the search did what was
+   decided, and a fail when it returned an unrelated series as if it
+   were the answer.
+3. Report the `NONE` pass rate beside Recall@k, every time.
+
+**What this does not do.** The search's behaviour on these questions is
+visible only if the set contains them. [Chapter 2](./questions.mdx)
+puts them in.
 
 </Recipe>
 

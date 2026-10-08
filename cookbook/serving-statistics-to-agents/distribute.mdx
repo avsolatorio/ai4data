@@ -48,25 +48,28 @@ use. The listing check passes with no errors or warnings.
 
 <Recipe title="8.1 Publish the client configurations" level="Foundational" skills="Developer; dissemination officer" time="Half a day; tested each release">
 
-**Result:** users can connect their assistant by pasting a configuration,
-and developers can connect a framework with a few lines.
+**Result:** a user can connect their assistant to the server by pasting
+a short configuration, and a developer can connect a framework with a
+few lines, because both are published and tested.
 
-1. Publish the configuration for the common clients; the running
-   example's configuration for a desktop assistant:
+An assistant such as a desktop chat application is told about a server
+through a configuration block in its settings. The block for the
+running example, for a desktop assistant, is:
 
 ```json file=../../website/static/cookbook-files/serving-statistics-to-agents/client_config_example.json
 ```
 
-2. Cover the clients the organization's users have: desktop assistants
-   that take an `mcpServers` block, assistants that add servers through a
-   settings page, coding tools, and agent frameworks (the Python SDK's
-   client for custom agents). The Data360 server documents connection
-   from several clients, which is the pattern.
-3. State for each: the transport (streamable HTTP for the hosted
-   endpoint; stdio for the package), where the key goes, and the first
-   question to try.
-4. Test every configuration with each release ([chapter 9](./operate.mdx))
-   and keep a screenshot or a transcript of the first question's answer.
+1. Publish the configuration for the clients the organization's users
+   have: desktop assistants that take an `mcpServers` block, assistants
+   that add servers through a settings page, coding tools, and agent
+   frameworks. The Data360 server documents connection from several
+   clients, which is the pattern.
+2. State for each: the transport (streamable HTTP for the hosted
+   endpoint; stdio for a package run locally), where the key goes, and
+   the first question to try.
+3. Test every configuration with each release
+   ([chapter 9](./operate.mdx)) and keep a screenshot or a transcript of
+   the first question's answer.
 
 **What this does not do.** Configurations change with the clients. The
 page says which client versions were tested and when.
@@ -77,6 +80,12 @@ page says which client versions were tested and when.
 
 **Result:** the server appears where clients and developers look for
 servers, with a listing that passes the format check.
+
+The MCP registry is a public directory of servers. A listing is a JSON
+file with a name under the organization's domain (written in reverse,
+`org.example.stats/...`), a version, a description, the hosted
+endpoint, and the installable package where one exists. The script
+checks a listing against the registry's format:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/check_server_listing.py
 ```
@@ -93,16 +102,17 @@ server_listing.json: org.example.stats/statistics-example 1.0.0; 1 remote(s), 1 
 ```
 
 1. Write the listing
-   ([server_listing.json](pathname:///cookbook-files/serving-statistics-to-agents/server_listing.json)):
-   a reverse-DNS name under the organization's domain, the version, a
-   title and a description, the website, the repository, the hosted
-   remote with its transport and URL, and the package where one exists.
-2. Run the check; publish to the [MCP registry](https://registry.modelcontextprotocol.io/)
-   with its publisher tool, which validates against the dated schema and
-   verifies the namespace.
-3. List the server in the organization's own catalog and developer page,
-   and in the AI component register; update the listing's version with
-   each release.
+   ([server_listing.json](pathname:///cookbook-files/serving-statistics-to-agents/server_listing.json))
+   with the name, the version, a title and a description, the website,
+   the repository, the hosted endpoint with its transport and URL, and
+   the package where one exists.
+2. Run the check. Publish to the
+   [MCP registry](https://registry.modelcontextprotocol.io/) with its
+   publisher tool, which validates against the dated schema and
+   verifies that the organization owns the namespace.
+3. List the server in the organization's own catalog and developer
+   page, and in the AI component register. Update the listing's version
+   with each release.
 
 **What this does not do.** A listing makes the server findable; the
 registry does not vouch for it. Users decide to trust the organization's
@@ -112,27 +122,32 @@ domain, which is why the namespace and the website matter.
 
 <Recipe title="8.3 Publish the developer page and the support channel" level="Foundational" skills="Dissemination officer; developer" time="Half a day; ongoing">
 
-**Result:** one page with everything a user or developer needs, and a way
-to reach the organization.
+**Result:** one page with everything a user or a developer needs to
+connect and use the server, and a way to reach the organization when
+something is wrong.
 
-1. Put on the page: the endpoint and transport; the client
-   configurations; the manifest ([chapter 2](./tools.mdx)) and the
-   guidance resource ([chapter 3](./context.mdx)); the tiers, terms, and
-   registration ([chapter 5](./access.mdx)); the changelog and the
-   deprecation policy ([chapter 9](./operate.mdx)); the licence and the
-   citation form; the support contact.
-2. Add a "first question" walkthrough with the expected answer, so that a
-   user can tell a working connection from a broken one.
+1. Put on the page:
+   - the endpoint and the transport;
+   - the client configurations (recipe 8.1);
+   - the manifest ([chapter 2](./tools.mdx)) and the guidance resource
+     ([chapter 3](./context.mdx));
+   - the tiers, the terms, and the registration form
+     ([chapter 5](./access.mdx));
+   - the changelog and the deprecation policy
+     ([chapter 9](./operate.mdx));
+   - the licence, the citation form, and the support contact.
+2. Add a "first question" walkthrough with the expected answer, so that
+   a user can tell a working connection from a broken one.
 3. Open a support channel (an address, an issue tracker) and state the
-   response time; route bug reports on answers to the evaluation
+   response time. Route bug reports on answers to the evaluation
    ([chapter 7](./evaluate.mdx)) and misquotes to the
    [monitoring cookbook](/cookbook/monitoring-data-use/act).
 4. Link the page from the catalog's API documentation and from each
    series page.
 
-**What this does not do.** A developer page documents the interface; the
-documentation of the data (definitions, methods) stays in the catalog,
-which the metadata tool returns.
+**What this does not do.** A developer page documents the interface.
+The documentation of the data (definitions, methods) stays in the
+catalog, which the metadata tool returns.
 
 </Recipe>
 

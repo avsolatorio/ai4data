@@ -49,35 +49,54 @@ until an alternate is added or a model proposes the concept.
 
 <Recipe title="6.1 Build the vocabulary" level="Foundational" skills="Curator; subject-matter staff" time="Two days for the first version">
 
-**Result:** a concept scheme with a preferred label, a URI, and alternates
-per concept, in a form the catalog and the mapping use.
+**Result:** a list of the concepts the catalog uses for keywords and
+topics, each with one preferred label, a web address that identifies it,
+and the other forms curators have written for it.
+
+A controlled vocabulary turns "poverty rate", "poverty headcount", and
+"poverty incidence" into one filter. Its minimum form is a
+CSV with one row per concept:
+
+| Column | Meaning |
+|---|---|
+| `preferred_label` | The one form used in filters and on pages |
+| `uri` | A stable web address that identifies the concept, under the organization's domain |
+| `alternates` | The other forms curators wrote, separated by `;` |
 
 ```csv file=../../website/static/cookbook-files/metadata-curation-with-llms/vocabulary.csv
 ```
 
 1. Start from the keywords already in the catalog, ranked by frequency,
-   and from the topic list the catalog uses; merge synonyms into one
+   and from the topic list the catalog uses. Merge synonyms into one
    concept each.
-2. Give each concept a preferred label, alternates (the forms curators
-   wrote), and a URI under the organization's domain. Where an
-   international vocabulary covers the concept, record its URI as well.
-3. Publish the scheme as [SKOS](https://www.w3.org/TR/skos-reference/)
-   (the CSV is its minimum form); classifications use [XKOS](https://ddialliance.org/xkos).
+2. Give each concept a preferred label, its alternates, and a URI under
+   the organization's domain. Where an international vocabulary covers
+   the concept, record its URI as well.
+3. Publish the scheme as [SKOS](https://www.w3.org/TR/skos-reference/),
+   the web standard for such vocabularies; the CSV is its minimum form.
+   Statistical classifications use [XKOS](https://ddialliance.org/xkos),
+   an extension of SKOS.
 4. Record the vocabulary's name and URI in the records' `keywords` and
    `topics` fields, which carry a vocabulary and a URI in the World Bank
    schema.
 
 **What this does not do.** A vocabulary built from existing keywords
 reflects what curators wrote, which may omit what users search for. The
-search logs and the question sets of the dissemination cookbook show the
-user side.
+search logs and the question sets of the dissemination cookbook show
+the user side.
 
 </Recipe>
 
 <Recipe title="6.2 Map free text to the vocabulary" level="AI-ready" skills="Python; curator for the review" time="Minutes to run; an hour per period to review">
 
-**Result:** every free-text keyword mapped to a preferred label or listed
-as unmapped for review.
+**Result:** every free-text keyword in the catalog is either mapped to a
+preferred label of the vocabulary or listed as unmapped for a curator
+to decide.
+
+The input is a file of the keywords as curators wrote them, one row per
+record and keyword (`record_id`, `keyword`). The script matches each
+against the vocabulary's preferred labels and alternates, first exactly
+and then by string similarity, and lists what it could not match:
 
 ```python file=../../website/static/cookbook-files/metadata-curation-with-llms/map_vocabulary.py
 ```
@@ -92,28 +111,27 @@ Output for the running example (abridged):
 exact   1.00  FS_UNDERNOURISH_PCT     'food insecurity'                  -> Undernourishment
 fuzzy   0.92  LF_UNEMP_PCT            'unemployment rates'               -> Unemployment
 none    0.00  FS_UNDERNOURISH_PCT     'hunger'                           -> -
-
 14 keywords: exact 10, fuzzy 2, none 2
 unmapped (add an alternate, add a concept, or let a model propose a mapping for review):
   FS_UNDERNOURISH_PCT: 'hunger'
   LF_UNEMP_PCT: 'jobless'
 ```
 
-1. Accept exact matches; check fuzzy matches on a sample (a similarity
+1. Accept exact matches. Check fuzzy matches on a sample; a similarity
    threshold of 0.85 catches plurals and spelling, and some false
-   friends).
-2. For unmapped terms, decide: add as an alternate of an existing concept
-   ("hunger" under Undernourishment), add a new concept, or drop. A
-   language model given the term, its record, and the vocabulary can
-   propose the concept with a confidence, for the curator to confirm in
-   the board.
+   friends.
+2. For each unmapped term, decide: add it as an alternate of an existing
+   concept ("hunger" under Undernourishment), add a new concept, or
+   drop it. A language model given the term, its record, and the
+   vocabulary can propose the concept with a confidence, for the curator
+   to confirm in the board.
 3. Write the mapped terms into the records with the vocabulary and URI,
    through the editor.
 
-**What this does not do.** String matching maps known forms. Semantic
-matching with embeddings maps more, and a model proposes the rest; both
-end in a curator's confirmation, because a wrong mapping is a wrong filter
-for every user.
+**What this does not do.** String matching maps known forms. Matching by
+meaning (with embeddings) maps more, and a model proposes the rest.
+Both end in a curator's confirmation, because a wrong mapping is a wrong
+filter for every user.
 
 </Recipe>
 

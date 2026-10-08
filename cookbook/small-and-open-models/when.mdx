@@ -60,32 +60,71 @@ comparison to test.
 
 <Recipe title="1.1 Describe each task by the properties that decide" level="Foundational" skills="Developer; task owners" time="Two hours">
 
-**Result:** a list of tasks with the six properties the rule reads.
+**Result:** a short table, one row per task, that records the six facts
+about the task which decide what kind of model it needs.
+
+Whether a task needs a large model or can be done by a small one that
+runs on the organization's own computer depends on a few properties of
+the task, and on nothing else. They are: what the model has to produce,
+how much judgement that takes, in which languages, whether the input is
+confidential, how many times a month it runs, and whether someone waits
+for the answer. Writing these down for every task is the first step,
+because the rest of this guide reads them.
+
+The example file below lists ten tasks that appear in the other
+cookbooks. Each row is one task; the columns are:
+
+| Column | Meaning | Values |
+|---|---|---|
+| `output` | What the model has to produce | `code` (a classification code), `spans` (pieces of text marked in a document), `vector` (a numeric representation used by search, called an embedding), `short text`, `paragraph`, `long text`, `structured` (a filled form or table) |
+| `reasoning` | How much judgement the task takes | `none` (a lookup), `low` (one clear decision), `medium` (several facts combined), `high` (interpretation, as in commentary) |
+| `languages` | The languages the input and output come in, separated by `;` | `national` stands for the national language |
+| `confidential` | Whether the input may contain confidential data | `yes` or `no` |
+| `volume_per_month` | How many items the task handles in a month | A number |
+| `latency` | Whether someone waits for the answer | `batch` (run overnight) or `interactive` (a person waits) |
 
 ```csv file=../../website/static/cookbook-files/small-and-open-models/tasks.csv
 ```
 
-1. For each task that uses or could use a model, record: the output
-   form (a code, spans, a vector, short text, a paragraph, long text,
-   a structured object); the reasoning the task needs (none, low,
-   medium, high); the languages, with the national language named; whether
-   the input is confidential; the volume per month; and whether the
-   use is batch or interactive.
-2. Take the tasks from the other cookbooks' maps and registers: the
+1. List every task that uses a language model today or is planned to.
+   The other cookbooks already list most of them: the
    [production map](/cookbook/language-models-in-production/map), the
-   [curation typology](/cookbook/metadata-curation-with-llms/scope), the
-   [dissemination register](/cookbook/ai-ready-dissemination/govern).
-3. Keep the list in the AI component register.
+   [curation typology](/cookbook/metadata-curation-with-llms/scope), and
+   the [AI component register](/cookbook/ai-ready-dissemination/govern)
+   of the dissemination cookbook.
+2. Fill the six columns for each task with the task's owner. Where the
+   owner is unsure about `reasoning`, choose the higher value; the
+   evaluation later shows whether a smaller model is enough.
+3. Keep the table in the AI component register, so that it is updated
+   when a task is added or its volume changes.
 
-**What this does not do.** The properties are a description; "medium
-reasoning" is a judgement the task owner makes and the suite tests.
+**What this does not do.** The table describes the tasks; it does not
+decide anything yet. Recipe 1.2 reads it and proposes a starting model
+for each task, and only the evaluation of [chapter 5](./comparison.mdx)
+decides.
 
 </Recipe>
 
 <Recipe title="1.2 Apply the rule and record the first choice and the comparison" level="Foundational" skills="Python" time="Minutes">
 
-**Result:** per task, the first choice, the comparison, and the reasons,
-ready for the suite.
+**Result:** for each task, a proposed starting model (small or large,
+local or hosted), a second model to compare it with, and the reason for
+the proposal, written down.
+
+The decision rule in this recipe is short. Confidential text goes only
+to a model the organization runs itself. A task whose output is a code,
+a span, a vector, a short text, or a structured object, and that needs
+little judgement, starts with a small model run locally. A task that
+produces a paragraph with some judgement starts with a mid-sized open
+model. A task that produces long text or needs high judgement starts
+with a large model. High volume favours a local model because each call
+costs nothing beyond the server. The rule only says where to start: each
+proposal is paired with a comparison model, and the two are tested on
+the organization's own questions in [chapter 5](./comparison.mdx).
+
+The script below applies the rule to the task table of recipe 1.1 and
+prints one line per task with the proposal, the comparison, and the
+reasons:
 
 ```python file=../../website/static/cookbook-files/small-and-open-models/task_fit.py
 ```
@@ -114,38 +153,48 @@ Translation of metadata          mid-sized open model, local    large hosted mod
 6 of 10 tasks start with a small open model; every first choice is tested against its comparison on the suite
 ```
 
-1. Run the rule; read the reasons, which are the properties that
-   decided.
-2. Where the organization disagrees with a first choice, change the
-   rule in the script and record why; the rule is the organization's.
-3. Hand each task's first choice and comparison to the evaluation of
-   [chapter 5](./comparison.mdx); the choice is final when the suite
-   says so.
+1. Run the script on the task table. Read the `reasons` column: it
+   names the properties that decided each proposal.
+2. Where the organization disagrees with a proposal, change the rule in
+   the script and note why. The rule belongs to the organization.
+3. Record the proposal and the comparison for each task in the AI
+   component register. They are the two candidates that
+   [chapter 5](./comparison.mdx) tests.
 
-**What this does not do.** The rule encodes a starting point, and a
-small model that passes the suite is the choice regardless of the
-rule's prediction, as is a larger one when the small one fails on the
-national language.
+**What this does not do.** The rule is a starting point. A small model
+that passes the organization's test questions is the right choice even
+where the rule proposed a larger one, and a larger model is the right
+choice where the small one fails on the national language.
 
 </Recipe>
 
 <Recipe title="1.3 Separate size from openness in the decision" level="Foundational" skills="Head of IT; data protection officer" time="One hour">
 
-**Result:** a written rule that confidential and unpublished inputs go
-only to models the organization runs, independent of size.
+**Result:** one written rule, in the AI-use policy, that confidential
+and unpublished inputs are processed only by models the organization
+runs itself.
 
-1. State the rule in the AI-use policy: confidential microdata,
-   unpublished records, and respondents' free text are processed only
-   by open-weight models run on the organization's infrastructure or by
-   a contracted private deployment under the organization's control.
-2. Note that the rule does not prefer small models: a large open model
-   run locally satisfies it; a small hosted model does not.
-3. Check the task list: every confidential task's first choice is
-   local.
+Two properties of a model are easy to confuse. Size (how many
+parameters it has) decides cost, speed, and the hardware it needs.
+Openness (whether the model's weights can be downloaded and run) decides
+where it can run, and therefore which data it may see. A model that runs
+on the organization's own server never sends data to a provider. That
+holds for a large open model as much as for a small one, and it does not
+hold for a small model accessed through a provider's service.
 
-**What this does not do.** Local deployment removes the transfer of
-data to a provider; access control, logging, and the serving chapter's
-isolation still apply.
+1. Add the rule to the AI-use policy: confidential microdata,
+   unpublished records, and respondents' free text are processed only by
+   open-weight models run on the organization's infrastructure, or by a
+   private deployment under a contract that keeps the data under the
+   organization's control.
+2. State in the policy that the rule is about where the model runs, not
+   its size.
+3. Check the task table of recipe 1.1: every task marked confidential
+   has a local proposal.
+
+**What this does not do.** Running a model locally removes the transfer
+of data to a provider. The server still needs access control, logging,
+and the isolation described in [chapter 6](./security.mdx).
 
 </Recipe>
 

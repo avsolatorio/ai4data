@@ -54,8 +54,22 @@ drop on the no-answer questions send the change to a person.
 
 <Recipe title="7.1 Compare paired runs with intervals and a tolerance" level="AI-ready" skills="Python" time="Minutes per change">
 
-**Result:** per slice, the pass rate before and after, the difference,
-its interval, and a verdict; overall, a gate decision with a reason.
+**Result:** for a change to the system, a comparison of the test
+results before and after, slice by slice, with a statement of how sure
+the comparison is and a verdict: the change may ship, must not ship, or
+needs a person to decide.
+
+The comparison is paired: the same questions are run through the
+version before the change and the version after, so that any difference
+comes from the change. With thirty questions, a difference of a few
+points can be luck; the script puts an interval around each difference
+that says how far the true difference could lie from the measured one.
+The organization also sets a tolerance, the drop in score it is willing
+to accept on any slice, from the cost of error in [chapter 1](./inventory.mdx).
+
+The two example files record, for thirty questions, whether each passed
+in version 1 and in version 2, with each question's language and slice.
+The script compares them:
 
 ```python file=../../website/static/cookbook-files/evaluation-suites/compare_runs.py
 ```
@@ -81,65 +95,75 @@ language=es          6    0.67   0.33  -0.33   [-0.67, +0.00]  possible regressi
 gate: REVIEW (slice=none, language=es dropped beyond the tolerance on too few questions to decide; a person decides, and the set grows there)
 ```
 
-1. Score both versions on the same set version (the scorers of
-   [chapters 3](./retrieval.mdx) to [5](./extraction.mdx) write the
-   per-question pass files) and run the comparison.
-2. Read the verdicts: a regression beyond the tolerance with the whole
-   interval below it blocks; a drop beyond the tolerance on too few
-   questions sends the change to a person; the rest passes.
-3. Set the tolerance per component from [chapter 1](./inventory.mdx): a
-   public assistant tolerates less than a search.
-4. Record the decision, the person where one decided, and the reason
-   with the change.
+1. Score both versions on the same version of the question set. The
+   scripts of [chapters 3](./retrieval.mdx) to [5](./extraction.mdx)
+   write the per-question pass files. Run the comparison on the two.
+2. Read the verdicts. BLOCKED means a slice dropped beyond the
+   tolerance and the whole interval lies below it; the change must not
+   ship. REVIEW means a slice dropped beyond the tolerance on too few
+   questions for the interval to decide; a person decides. PASS means
+   neither happened.
+3. Set the tolerance per component from its cost of error. A public
+   assistant tolerates less than a search.
+4. Record the verdict, the person who decided a review case, and the
+   reason, together with the change.
 
-**What this does not do.** Thirty questions decide almost nothing, and
-the script says so; the intervals are the honest statement of that. The
-answer is more questions in the slices that matter, which is
+**What this does not do.** Thirty questions decide very little, and
+the script says so: the intervals are the honest statement of it. The
+remedy is more questions in the slices that matter, which is
 [chapter 2](./questions.mdx).
 
 </Recipe>
 
 <Recipe title="7.2 Put the gate in continuous integration" level="AI-native" skills="Developer" time="One day">
 
-**Result:** every change to the component's code, prompts, index, or
-configuration runs the gate automatically, and a blocked gate stops the
-change from reaching production.
+**Result:** every change to the component's code, prompts, search
+index, or settings runs the comparison automatically, and a change that
+fails cannot reach production.
 
-1. Keep the question set, the scorers, the required scores, and the
-   tolerance in the component's repository, versioned with it.
-2. On every change, run the suite on the previous and the new version
-   (or against the stored scores of the previous version on the same set
-   version) and the comparison; fail the pipeline on BLOCKED, hold on
-   REVIEW with the output attached for a person.
-3. Report the held-out part separately, so that a change tuned on the
-   development part is seen on questions it never touched.
+Continuous integration is the practice of running tests automatically
+whenever code changes; most software teams already have a system for
+it. The comparison of recipe 7.1 becomes one of those tests.
+
+1. Keep the question set, the scoring scripts, the required scores, and
+   the tolerance in the same repository as the component, so that they
+   are versioned together.
+2. On every change, run the suite on the new version and compare it
+   with the stored scores of the previous version on the same set
+   version. Act on the verdict: fail the pipeline on BLOCKED; pause it
+   on REVIEW with the output attached for a person.
+3. Report the held-out part of the set separately, so that a change
+   tuned on the rest is also seen on questions it never touched.
 4. Store the run files and the decision with the change, so that a
-   regression found later can be traced to the change that passed it.
+   problem found later can be traced to the change that let it through.
 
-**What this does not do.** A gate protects what the set covers. A
-change that breaks a question type the set lacks passes, which is why
-the production review of [chapter 8](./production.mdx) feeds the set.
+**What this does not do.** The gate protects what the question set
+covers. A change that breaks a kind of question the set lacks passes
+the gate, which is why the production review of
+[chapter 8](./production.mdx) keeps adding questions.
 
 </Recipe>
 
 <Recipe title="7.3 Decide the review cases and grow the set where they occur" level="AI-ready" skills="Head of the unit; dissemination staff" time="An hour per review case">
 
-**Result:** a recorded decision for every change the gate sent to
-review, and more questions in the slice that could not decide.
+**Result:** a recorded decision for every change the comparison sent
+to a person, and more questions in the slice that was too small to
+decide.
 
-1. For a REVIEW verdict, a person reads the failed questions of the
-   slice with the answers before and after; a change that fixes one
-   kind of question and breaks another is a change to split.
-2. Decide: ship with the regression accepted and recorded, ship after a
-   fix, or hold; record the decision with the reason.
+1. For a REVIEW verdict, read the questions in that slice that failed
+   after the change, with the answers before and after. A change that
+   fixes one kind of question and breaks another is a change to split
+   in two.
+2. Decide: ship with the drop accepted and recorded, ship after a fix,
+   or hold. Record the decision and the reason.
 3. Add questions to the slice that could not decide, from logs and from
-   native speakers, so that the next change is decidable there.
-4. Review the tolerance and the required scores each period from the
-   decisions.
+   native speakers, so that the next change can be decided there.
+4. Review the tolerance and the required scores each period in the
+   light of the decisions taken.
 
-**What this does not do.** A review case is a judgement; the record of
-judgements is what makes the next one consistent. The set growth is the
-only thing that reduces the number of review cases.
+**What this does not do.** A review case is a judgement. The record of
+past judgements is what keeps the next one consistent, and the growth
+of the set is the only thing that makes review cases rarer.
 
 </Recipe>
 

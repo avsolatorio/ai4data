@@ -61,36 +61,56 @@ no review, which the organization either puts under review or removes.
 
 <Recipe title="1.1 Write the map of model-assisted tasks" level="Foundational" skills="Methodologist; production manager" time="Half a day">
 
-**Result:** one table of every task where a model assists or could, in
-GSBPM terms, with the role, the review, the data, and the location.
+**Result:** one table that lists every production task where a language
+model helps or could help, placed in the step of the production process
+it belongs to, with what the model does, who checks its output, what
+data it sees, and where it runs.
+
+The map is the organization's record of what it has delegated to
+models and under what controls. The example file below is the map of
+the example organization, with ten tasks. Each row is one task; the
+columns are:
+
+| Column | Meaning |
+|---|---|
+| `component` | The task, in the organization's own words |
+| `phase`, `sub_process` | The step of the production process, named as in GSBPM (specify needs, design, build, collect, process, analyse, disseminate, evaluate), or "overarching" for tasks such as metadata management that run across all steps |
+| `task` | What the model is asked to do, in one sentence |
+| `model_role` | One of five roles: `flag` (point at a possible problem), `propose` (suggest a value or a match), `code` (assign a classification code with a confidence), `explain` (say why something looks wrong, with evidence), `draft` (write text from given inputs). A model never decides |
+| `review` | Who checks the model's output: `always` (a person sees every output), `sample` (a person checks a random share), `none` |
+| `data_sensitivity` | What the task's input is: `public`, `internal`, or `confidential` |
+| `model_location` | Where the model runs: `local` (on the organization's own servers) or `hosted` (at a provider, which means the input leaves the organization) |
+| `owner` | The unit responsible |
 
 ```csv file=../../website/static/cookbook-files/language-models-in-production/gsbpm_map.csv
 ```
 
-1. Walk the production process phase by phase with the people who run
-   it and list the tasks that involve text: questionnaire wording,
-   open responses, edit messages, analyst notes, commentary, metadata.
-2. For each, write the role the model would take from the five (flag,
-   propose, code, explain, draft) and the review its output gets
-   (always, a sample, none).
-3. Record the data the task sees (public, internal, confidential) and
-   where the model runs (hosted, local); the program's
-   [GSBPM mapping](/docs/gsbpm-mapping) shows the sub-processes its
-   workstreams serve.
-4. Name the owner.
+1. Go through the production process step by step with the people who
+   run it, and list every task that involves text: questionnaire
+   wording, open-ended responses, edit messages, analysts' notes,
+   commentary, metadata.
+2. For each task, choose the model's role from the five, and say who
+   reviews its output.
+3. Record what data the task sees and where the model runs. The
+   program's [GSBPM mapping](/docs/gsbpm-mapping) shows which steps its
+   own tools serve, as a reference.
+4. Name the owner of each task.
 
-**What this does not do.** The map lists possibilities and controls; it
-does not say that a task is worth automating. The chapters that follow
-measure that per task, and a task with no evaluation suite stays a
-pilot.
+**What this does not do.** The map lists possibilities and controls. It
+does not say that a task is worth giving to a model; the later chapters
+measure that, task by task, and a task with no evaluation stays a pilot.
 
 </Recipe>
 
 <Recipe title="1.2 Check the map for unreviewed outputs and confidential data" level="AI-ready" skills="Python" time="Minutes; with each change">
 
-**Result:** every visible output has review, no confidential data go to
-a hosted model, and no role decides; the check runs when the map
-changes.
+**Result:** a check, run whenever the map changes, that reports any task
+whose output reaches people without review, any confidential input sent
+to a provider, and any task where a model has been given a deciding
+role.
+
+The script below reads the map, prints the tasks grouped by production
+step, and raises a flag for each of the three rules broken:
 
 ```python file=../../website/static/cookbook-files/language-models-in-production/map_components.py
 ```
@@ -124,38 +144,42 @@ flags:
   Respondent chatbot: answer output reaches people with no review
 ```
 
-1. Run the check; a flag is a task to change before it goes live: add
-   review, move the model local, or change the role.
+1. Run the check. Each flag is a task to change before it goes live:
+   add a review step, move the model onto the organization's own
+   server, or change the model's role.
 2. Keep the map with the AI component register of the
-   [dissemination cookbook](/cookbook/ai-ready-dissemination/govern)
-   and run the check in the same pipeline.
-3. Add a row before any new task uses a model; no row, no deployment.
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/govern) and
+   run the check whenever either changes.
+3. Require a row in the map before any new task uses a model. No row,
+   no deployment.
 
-**What this does not do.** The check enforces the three rules it
-encodes. The organization's other rules (which languages, which
-providers, which retention) belong in the AI-use policy and are
+**What this does not do.** The check enforces the three rules written
+into it. The organization's other rules (which languages, which
+providers, how long inputs are kept) belong in the AI-use policy and are
 checked by its owner.
 
 </Recipe>
 
 <Recipe title="1.3 Decide the tasks that stay with people" level="Foundational" skills="Head of methodology; management" time="Two hours">
 
-**Result:** a short written list of what models are not used for in
-production, with the reason, published with the AI-use policy.
+**Result:** a short, published list of the production tasks that models
+are not used for, with a one-sentence reason for each.
 
-1. Write the list: estimation and weighting decisions; the final value
-   of any published statistic; disclosure control decisions; direct
-   answers to respondents without review; any task on confidential data
-   through an external service.
-2. Give the reason for each in one sentence (accountability, the
-   Fundamental Principles, confidentiality law).
-3. Publish the list with the AI-use policy and revisit it each year;
-   a task leaves the list only with an evaluation suite and a review
-   process that the methodology unit signs.
+1. Write the list. At minimum: decisions about estimation and
+   weighting; the final value of any published statistic; decisions
+   about disclosure control; answers given directly to respondents
+   without review; and any task on confidential data through an
+   external service.
+2. Give the reason for each in one sentence: accountability, the
+   Fundamental Principles of Official Statistics, the confidentiality
+   law.
+3. Publish the list with the AI-use policy and revisit it once a year.
+   A task leaves the list only when it has an evaluation suite and a
+   review process that the methodology unit has signed off.
 
 **What this does not do.** A list of exclusions protects against the
-known risks. New tools create new tasks, which enter the map of recipe
-1.1 as pilots with review before anything else.
+risks that are known. New tools bring new tasks; they enter the map of
+recipe 1.1 as pilots with full review before anything else.
 
 </Recipe>
 

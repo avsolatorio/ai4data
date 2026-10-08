@@ -50,78 +50,86 @@ is tested on the decided records before it ships.
 
 <Recipe title="8.1 Track acceptance and the error taxonomy" level="Foundational" skills="Curator; Python" time="One hour per period">
 
-**Result:** a time series of acceptance rates per field, task, and model,
-and a coded list of why suggestions fail.
+**Result:** a time series of acceptance rates per field, task, and
+model, and a coded list of why suggestions fail, from which the unit
+sees what to fix.
 
-1. Run the acceptance script of [chapter 3](./draft.mdx) on each period's
-   decisions and keep the output with the model, prompt, and manifest
-   versions.
+1. Run the acceptance script of [chapter 3](./draft.mdx) on each
+   period's decisions and keep the output with the model, prompt, and
+   manifest versions.
 2. Code rejection and edit reasons into a short taxonomy: wrong flag,
    invented fact, wrong vocabulary term, style, too long, missed the
    field's purpose. Count per class per period.
-3. Read the table: a rising "wrong flag" count after a model change, or
-   a field with a low rate, points to the prompt, the rubric, or the model
-   for that field.
+3. Read the table. A rising "wrong flag" count after a model change, or
+   a field with a low rate, points to the prompt, the rubric, or the
+   model for that field.
 4. Report the rates with the curation unit's other measures (records
    completed, time per record).
 
 **What this does not do.** Acceptance rates measure agreement between
-curators and the model; two curators who disagree with each other put a
-ceiling on what the rate can show. A sample decided by two curators each
-period measures that ceiling.
+curators and the model. Two curators who disagree with each other put a
+ceiling on what the rate can show, and a sample decided by two curators
+each period measures that ceiling.
 
 </Recipe>
 
 <Recipe title="8.2 Gate changes on an evaluation set" level="AI-ready" skills="Developer; curator" time="One day to set up; part of each change">
 
 **Result:** no change to a prompt, an agents manifest, a rubric, or a
-model ships without a measured effect on a fixed set of decided records.
+model goes live without its effect measured on a fixed set of records
+whose right answers are known.
+
+An evaluation set is a collection of records with their suggestions and
+the curators' decisions on them. A candidate change is run on the set,
+and its suggestions are compared with the decisions: does it still make
+the suggestions curators accepted, and has it stopped making the ones
+they rejected?
 
 1. Build the set from decided records: the record, the suggestion, and
-   the decision with the final text, across fields and error classes, 50
-   to 100 items to start.
+   the decision with the final text, across fields and error classes.
+   Fifty to a hundred items is a start.
 2. For a candidate change, re-run the suggestions on the set and score
-   them against the decisions: the share that match an accepted
-   suggestion, the similarity to edited final texts, and the share of
-   flags the curators had rejected that the change no longer makes.
+   them: the share that match an accepted suggestion, the similarity to
+   edited final texts, and the share of previously rejected flags that
+   the change no longer makes.
 3. Ship when the scores are at or above the current version's on every
-   field; investigate when a field drops.
+   field. Investigate when a field drops.
 4. Add each period's decisions to the set and hold out a part for the
    next gate, as the dissemination cookbook's
    [evaluation chapter](/cookbook/ai-ready-dissemination/evaluate) does
    for search.
 
 **What this does not do.** The set measures agreement with past
-decisions. A change that improves on a new kind of record is not credited
-until such records enter the set, which is why the set grows.
+decisions. A change that improves on a new kind of record is not
+credited until such records enter the set, which is why the set grows.
 
 </Recipe>
 
 <Recipe title="8.3 Choose the model per task and know the cost" level="AI-native" skills="Developer" time="One to two days per task">
 
 **Result:** each task runs on the smallest model that passes the
-evaluation set, and the cost per record is reported.
+evaluation set, and the cost per record (model calls plus review time)
+is known and reported.
 
 1. Test candidate models from small to large on the evaluation set, per
    task: keywords and vocabulary proposals first (short outputs suit
    small models), then definitions, then the review pipeline. The
-   program's tools accept any provider through litellm, including local
-   open-weight models.
+   program's tools accept any provider, including local open-weight
+   models (models whose files the organization downloads and runs
+   itself).
 2. Stop at the first model that meets the field's threshold, and record
    the scores of every model tried.
-3. Use batch processing for catalog-scale runs (several providers offer
-   asynchronous batch endpoints at lower cost; the program's anomaly and
-   augmentation pipelines use them), and cache suggestions so a re-run
-   after a decision does not re-draft what was accepted.
-4. Report cost per record (model calls plus review time) per task per
-   period; the review time is the larger part and the acceptance rate is
-   what reduces it.
+3. Use batch processing for catalog-scale runs; several providers offer
+   asynchronous batch endpoints at lower cost. Cache suggestions so that
+   a re-run after a decision does not re-draft what was accepted.
+4. Report cost per record per task per period. The review time is the
+   larger part, and the acceptance rate is what reduces it.
 
-**What this does not do.** Model choice follows the evaluation set; a set
-of 50 items distinguishes large differences, and close calls between
-models need more items. The confidentiality rule of [chapter 1](./scope.mdx)
-limits the candidates for unpublished records to models the organization
-runs.
+**What this does not do.** Model choice follows the evaluation set. A
+set of 50 items distinguishes large differences, and close calls between
+models need more items. The confidentiality rule of
+[chapter 1](./scope.mdx) limits the candidates for unpublished records
+to models the organization runs.
 
 </Recipe>
 

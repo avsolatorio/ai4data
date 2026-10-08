@@ -55,74 +55,87 @@ their volume is low and their quality requirement high.
 
 <Recipe title="7.1 Estimate the total cost over three years" level="Foundational" skills="Head of IT; finance" time="Half a day">
 
-**Result:** a three-year cost of the local deployment against hosted
-use for the same tasks and volumes, with the assumptions written down.
+**Result:** a comparison of what it would cost over three years to run
+the organization's tasks on a local server against using a provider's
+service for the same tasks and volumes, with every assumption written
+down.
 
-1. Local: hardware (the server from [chapter 3](./serving.mdx), amortized
-   over three years), power and hosting, the staff share (an engineer's
-   fraction for running and updating), and the suite runs' time.
-2. Hosted: the measured tokens per query times prices for each task's
-   volume, plus the staff share for integration and monitoring, plus the
-   cost of the data that cannot be sent (the tasks that would have to
-   stay manual).
-3. Compare per task and in total; the frontier of
-   [chapter 5](./comparison.mdx) gives the per-query figures.
-4. Record the assumptions (volumes, prices, salaries, lifetime) with the
-   estimate and revisit yearly; prices and volumes both change.
+A local model costs hardware, electricity, and the time of the person
+who runs it. A hosted model costs a price per request and creates a
+dependency. Neither is cheaper in general; the arithmetic for the
+organization's own tasks and volumes decides, and the tasks that cannot
+use a hosted model at all (confidential inputs) belong in it.
+
+1. Cost the local option: the server from [chapter 3](./serving.mdx),
+   spread over three years; power and hosting; the share of an
+   engineer's time for running and updating it; and the time of the
+   evaluation runs.
+2. Cost the hosted option: the measured tokens per request times the
+   provider's prices, times each task's volume; the staff time for
+   integration and monitoring; and the cost of the tasks that could not
+   be sent to a provider and would stay manual.
+3. Compare task by task and in total. The frontier of
+   [chapter 5](./comparison.mdx) gives the cost per request for each
+   candidate.
+4. Write the assumptions down with the estimate: volumes, prices,
+   salaries, hardware lifetime. Revisit them every year.
 
 **What this does not do.** An estimate with written assumptions is a
-plan; the measured cost per query after a year of production replaces
-it, as the [production cookbook](/cookbook/language-models-in-production/running)
+plan. After a year in production the measured cost per request replaces
+it, in the way the [production cookbook](/cookbook/language-models-in-production/running)
 measures batch jobs.
 
 </Recipe>
 
 <Recipe title="7.2 Staff the roles and document the skills" level="AI-ready" skills="Head of the unit" time="Half a day">
 
-**Result:** named people for the roles the capacity needs, with the
-skills documented so that the capacity survives a departure.
+**Result:** named people for each role the capacity needs, written
+procedures for the routine tasks, and a second person trained for each
+role.
 
-1. Roles: a model engineer (registry, serving, updates, verification);
-   an evaluation owner (suites, gates, report cards); a task owner per
-   adapted task (prompts, data, decisions); a security contact. One
-   person can hold two roles; no role is unassigned.
-2. Document the procedures as runbooks: importing a model, verifying
-   and deploying it, running the suite, rolling back; the scripts of
-   these cookbooks are the runbooks' core.
-3. Train a second person per role; the switch-off test of the
+1. Assign four roles: a model engineer (the registry, the server,
+   updates, verification); an evaluation owner (the test suites, the
+   comparison rule, the report cards); a task owner for each adapted
+   task (its prompt, its data, its decisions); and a security contact.
+   One person may hold two roles. No role may be empty.
+2. Write the routine procedures down as short runbooks: importing a
+   model, verifying and deploying it, running the suite, restoring the
+   previous version. The scripts in these cookbooks are the core of each
+   runbook.
+3. Train a second person for each role. The switch-off test of the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/sustain)
-   doubles as a staffing test when run by the second person.
-4. Share training with other organizations through the program's
+   doubles as a staffing test when the second person runs it.
+4. Share the training with other organizations through the program's
    events and materials.
 
 **What this does not do.** Roles and runbooks keep the capacity
-running; they do not make the organization a research lab. The scope
-stays the narrow tasks the frontier favours, and the ambitious ones use
-hosted or shared capacity.
+running. They do not turn the organization into a research laboratory,
+and they should not: the scope stays the narrow tasks that the frontier
+favours, and the ambitious tasks use hosted or shared capacity.
 
 </Recipe>
 
 <Recipe title="7.3 Share infrastructure, test sets, and models" level="AI-native" skills="Head of IT; head of the unit" time="Ongoing">
 
-**Result:** one serving capacity for the organization's units, and test
-sets and fine-tuned models shared with other organizations where
-licences and data allow.
+**Result:** one serving capacity for all of the organization's units,
+and test sets and fine-tuned models shared with other organizations
+where licences and data allow.
 
-1. Inside the organization: one model service with quotas per unit
-   ([chapter 3](./serving.mdx)); one registry; one evaluation owner;
-   cost allocated by measured use.
-2. Across organizations: publish question sets whose content is public
-   ([evaluation cookbook, chapter 9](/cookbook/evaluation-suites/reporting));
-   share fine-tuned models whose training data allow it, with cards;
-   use shared or pooled infrastructure where a regional or program
+1. Inside the organization, run one model service with a quota for
+   each unit ([chapter 3](./serving.mdx)), one registry, and one
+   evaluation owner, and allocate the cost by measured use.
+2. Across organizations, publish the question sets whose content is
+   public ([evaluation cookbook, chapter 9](/cookbook/evaluation-suites/reporting));
+   share fine-tuned models whose training data allow it, with their
+   cards; and use pooled infrastructure where a regional or program
    arrangement exists.
-3. Record what is shared and under which terms in the AI component
+3. Record what is shared, and under which terms, in the AI component
    register.
 
-**What this does not do.** Sharing reduces cost and raises quality for
-tasks with common structure (coding to international classifications,
-catalog search); tasks on national data and language remain the
-organization's to adapt.
+**What this does not do.** Sharing lowers cost and raises quality for
+tasks that many organizations have in common, such as coding to an
+international classification or catalog search. Tasks on national data
+and in the national language remain each organization's own to adapt.
 
 </Recipe>
 

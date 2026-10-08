@@ -46,40 +46,60 @@ semantic search in chapter 1 has to beat.
 
 <Recipe title="6.1 Build a known-item question set" level="Foundational" skills="Dissemination staff; speakers of each supported language" time="One day for the first 30 questions">
 
-**Result:** a CSV of questions, each with the series that should come first,
-that the whole organization can add to.
+**Result:** a file of questions, each with the series that should come
+first in the results, that the whole organization can add to and that
+every later measurement runs on.
+
+A known-item question is one whose right answer is known: for "how many
+people go hungry", the right series is the prevalence of
+undernourishment. The set is a CSV with one row per question:
+
+| Column | Meaning |
+|---|---|
+| `question_id`, `language` | The question's identifier and its language, coded with ISO 639 (`en`, `fr`, `es`) |
+| `question` | The question as a user would type it |
+| `expected_id` | The series that should come first, or `NONE` when the organization publishes no matching series |
+| `note` | Whether the question is a paraphrase, uses the official title, is a near concept, or needs review |
 
 ```csv file=../../website/static/cookbook-files/ai-ready-dissemination/eval_questions.csv
 ```
 
-Guidelines for writing questions:
-
 1. Take real questions from search logs and help-desk tickets first.
-2. Write paraphrases of the official title ("jobless rate"), since users
-   rarely use the exact words. Mark which questions are paraphrases and which
-   use the official title; the scores for the two groups differ and both
-   matter.
-3. Include near concepts where the organization publishes something close but
-   different ("infant mortality" when only under-five mortality exists).
-4. Include questions with no answer and mark the expected id `NONE`.
-5. Include each supported language, written by speakers of that language,
-   and code the language with ISO 639 (`en`, `fr`, `es`). Machine
-   translation is a starting point and needs review; the example file marks
-   its French and Spanish rows as unreviewed.
-6. Keep the file in version control and record who added each question.
+2. Write paraphrases of the official title ("jobless rate"), since
+   users rarely use the exact words. Mark which questions are
+   paraphrases and which use the official title; the scores for the two
+   groups differ and both matter.
+3. Include near concepts where the organization publishes something
+   close but different ("infant mortality" when only under-five
+   mortality exists).
+4. Include questions with no answer and mark the expected identifier
+   `NONE`.
+5. Include each supported language, written by speakers of that
+   language. Machine translation is a starting point and needs review;
+   the example file marks its French and Spanish rows as unreviewed.
+6. Keep the file in version control and record who added each
+   question.
 
-**What this does not do.** A question set written by the organization reflects what the organization expects users to ask. Real queries from search logs (recipe 4.1) and failed answers (recipe 4.3) correct it over time; a set that is never extended measures last year's users.
+**What this does not do.** A question set written by the organization
+reflects what the organization expects users to ask. Real queries from
+search logs (recipe 4.1) and failed answers (recipe 4.3) correct it
+over time. A set that is never extended measures last year's users.
 
 </Recipe>
 
 <Recipe title="6.2 Score retrieval automatically" level="AI-ready" skills="Python" time="Two hours">
 
-**Result:** Recall@5, Recall@10, and MRR, overall and per language, printed
-in seconds, for any search system that returns a ranked list of ids.
+**Result:** three numbers per language that say how well the search
+finds the right series, printed in seconds, for any search system that
+returns a ranked list of identifiers.
 
-The script includes a plain keyword search so that it runs with no
-dependencies and gives a baseline. Replace the `search()` function with a call
-to the organization's own search to score it.
+Recall@5 and Recall@10 are the share of questions for which the right
+series is in the first five, or ten, results. MRR is the mean
+reciprocal rank: 1 when the right series comes first, one half when it
+comes second, and so on, averaged over the questions. The script
+includes a plain keyword search so that it runs with no dependencies and gives a
+baseline. The organization replaces the `search()` function with a call
+to its own search to score it:
 
 ```python file=../../website/static/cookbook-files/ai-ready-dissemination/score_retrieval.py
 ```
@@ -94,50 +114,64 @@ es       2   0.00   0.00   0.00
 fr       2   0.00   0.00   0.00
 ```
 
-Reading the result: the baseline misses the two English paraphrases that
-share no words with the records ("how many people go hungry", "how many
-people are poor") and every non-English question. A multilingual semantic
-search should fix both, and this script shows by how much.
-
 1. Run the script with the baseline and keep the output with the date.
-2. Plug in the semantic search and run again.
-3. Report both, per language, with the model name and the catalog version.
+   Here the baseline misses the two English paraphrases that share no
+   words with the records ("how many people go hungry", "how many
+   people are poor") and every non-English question.
+2. Plug in the semantic search of recipe 1.3 and run again. A
+   multilingual semantic search should fix both kinds of miss, and the
+   script shows by how much.
+3. Report both, per language, with the model name and the catalog
+   version.
 
 **What this does not do.** Fifteen questions over five records give a
-demonstration, and the scores move by 0.07 with a single question. A usable
-set has at least 30 to 50 questions per language and is drawn from real
-queries, and differences between systems should be read with that sample
-size in mind. The built-in keyword search is a baseline for the exercise;
-score the organization's own search, which will be better than it.
+demonstration, and the scores move by 0.07 with a single question. A
+usable set has at least 30 to 50 questions per language and is drawn
+from real queries, and differences between systems are read with that
+sample size in mind. The built-in keyword search is a baseline for the
+exercise; the organization's own search will be better than it.
 
 </Recipe>
 
 <Recipe title="6.3 Add answer-level tests" level="AI-native" skills="Python; subject-matter reviewers" time="One week to set up; part of each release">
 
 **Result:** four numbers for the assistant, reported with every change:
-numeric accuracy, citation validity, refusal accuracy, and hallucination
-rate.
+numeric accuracy, citation validity, refusal accuracy, and
+hallucination rate (the share of answers that contain a claim with no
+support in the retrieved records).
 
 1. For each question in the set, add the expected answer values and the
    expected behaviour (`answer` or `decline`).
-2. Run every question through the assistant and keep the answer with the
-   retrieved records.
+2. Run every question through the assistant and keep the answer with
+   the retrieved records.
 3. Score automatically what can be scored automatically:
-   - **Numeric accuracy:** run the numeric check from [chapter 5](./trust.mdx) on each answer; the share of verified numbers.
-   - **Citation validity:** each cited series id and URL exists and was among the retrieved records.
-   - **Refusal accuracy:** the share of `NONE` questions where the assistant declined.
-4. Use a language model as a first-pass grader for the rest, with a short
-   rubric (right series, right period, caveats stated), and have a reviewer
-   check 20% of the grades each run. Disagreements go into the rubric.
+   - **Numeric accuracy:** run the number check of
+     [chapter 5](./trust.mdx) on each answer; the share of verified
+     numbers.
+   - **Citation validity:** each cited series identifier and URL exists
+     and was among the retrieved records.
+   - **Refusal accuracy:** the share of `NONE` questions where the
+     assistant declined.
+4. Use a language model as a first-pass grader for the rest, with a
+   short rubric (right series, right period, caveats stated), and have
+   a reviewer check 20% of the grades each run. Disagreements go into
+   the rubric.
 5. Run the whole suite before any change of model, index, prompt, or
    metadata, and keep the results with the change.
 
-The program's [PI-FT pipeline](/pift-toolkit/pipeline) includes an evaluation
-step that reports Recall@k, MRR, and nDCG@k and compares several embedding
-models on the same queries, and its [method page](/pift-toolkit/method)
-describes graded evaluation with an LLM judge.
+The program's [PI-FT pipeline](/pift-toolkit/pipeline) includes an
+evaluation step that reports Recall@k, MRR, and nDCG@k and compares
+several embedding models on the same queries, and its
+[method page](/pift-toolkit/method) describes graded evaluation with a
+language model as judge. The
+[evaluation cookbook](/cookbook/evaluation-suites/) covers the full
+suite.
 
-**What this does not do.** Automatic scores cover numbers, citations, and refusals; the grader covers the rest with an error rate known from the reviewer's checks. An answer that is right and unhelpful (the right series without the caveat the user needed) scores as right unless the rubric names the caveat.
+**What this does not do.** Automatic scores cover numbers, citations,
+and refusals. The grader covers the rest with an error rate known from
+the reviewer's checks. An answer that is right and unhelpful (the right
+series without the caveat the user needed) scores as right unless the
+rubric names the caveat.
 
 </Recipe>
 

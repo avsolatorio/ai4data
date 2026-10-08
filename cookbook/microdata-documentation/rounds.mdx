@@ -55,8 +55,13 @@ correspondence table.
 
 <Recipe title="6.1 Draft the crosswalk between two rounds" level="Foundational" skills="Data curator; Python" time="Minutes to run; an hour to review">
 
-**Result:** a table that classifies every variable of the two rounds and
-names the breaks.
+**Result:** a table that says, for every variable of two survey rounds,
+whether it is the same, renamed, recoded, dropped, or new, and names
+the breaks between the rounds.
+
+A crosswalk is that table. The script compares the two rounds'
+dictionaries by name, label, question, and code list, and writes one
+row per variable with its status:
 
 ```python file=../../website/static/cookbook-files/microdata-documentation/compare_rounds.py
 ```
@@ -80,76 +85,81 @@ crosswalk written to round_crosswalk.csv
 
 1. Run the script on the two dictionaries and read the crosswalk
    ([round_crosswalk.csv](pathname:///cookbook-files/microdata-documentation/round_crosswalk.csv)).
-   The warning on the duplicated name is the planted defect of
-   [chapter 3](./variables.mdx); the "recoded" row for `relationship`
-   is the missing code list of the later round, a defect, and the row for
+   Here the warning on the duplicated name is the planted defect of
+   [chapter 3](./variables.mdx). The "recoded" row for `relationship`
+   is the missing code list of the later round, a defect; the row for
    `educ` is a real recoding.
-2. Review every row that is not "same": confirm the renamed match, decide
-   whether a recoded variable is comparable after a correspondence
-   (recipe 6.2) or is a break, and note why a variable was dropped.
+2. Review every row that is not "same": confirm the renamed match,
+   decide whether a recoded variable is comparable after a
+   correspondence (recipe 6.2) or is a break, and note why a variable
+   was dropped.
 3. Publish the reviewed crosswalk with the later round's record (as a
-   related material or a documentation file) and state the breaks in its
-   `version_statement` and quality statement ([chapter 7](./fitness.mdx)).
+   related material or a documentation file) and state the breaks in
+   its version statement and quality statement
+   ([chapter 7](./fitness.mdx)).
 
-**What this does not do.** The script compares names, labels, questions,
-and code lists. A variable whose codes stayed and whose question wording
-changed is "same" to the script and may be a break; the methodologist's
-review of question wording across rounds is the check.
+**What this does not do.** The script compares names, labels,
+questions, and code lists. A variable whose codes stayed and whose
+question wording changed is "same" to the script and may be a break.
+The methodologist's review of question wording across rounds is the
+check.
 
 </Recipe>
 
 <Recipe title="6.2 Publish a correspondence table for a recoded variable" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="Half a day per variable">
 
-**Result:** a table that maps each code of the earlier list to the codes of
-the later list, with the relation stated, so that a user can produce a
-comparable series.
+**Result:** a table that maps each code of the earlier round's list to
+the codes of the later round's list, with the relation stated, so that
+a user can produce a comparable series.
 
 1. For each recoded variable, list the old codes and the new codes and
    state the relation of each pair: exact, old splits into several new,
-   several old merge into one new, or no correspondence. For the running
-   example, old `2=Secondary` splits into new `2=Lower secondary` and
-   `3=Upper secondary`; old `3=Tertiary` merges `4=Post-secondary
-   non-tertiary` and `5=Tertiary` only approximately, which is a break at
-   the fine level and comparable at the coarse level.
-2. Publish the table as a file with the record and, where the codes follow
-   a standard classification, as an [XKOS](https://ddialliance.org/xkos)
-   correspondence with the classification's URIs
-   ([chapter 4](./concepts.mdx)).
-3. State in the record which level of aggregation is comparable across the
-   two rounds, so that a published series can say "comparable at three
-   education levels from 2024".
+   several old merge into one new, or no correspondence. In the
+   running example, old `2=Secondary` splits into new `2=Lower
+   secondary` and `3=Upper secondary`. Old `3=Tertiary` corresponds to
+   new `4=Post-secondary non-tertiary` and `5=Tertiary` only
+   approximately, which is a break at the fine level and comparable at
+   the coarse level.
+2. Publish the table as a file with the record and, where the codes
+   follow a standard classification, as an
+   [XKOS](https://ddialliance.org/xkos) correspondence with the
+   classification's URIs ([chapter 4](./concepts.mdx)).
+3. State in the record which level of aggregation is comparable across
+   the two rounds, so that a published series can say "comparable at
+   three education levels from 2024".
 
-**What this does not do.** A correspondence makes codes comparable; it
+**What this does not do.** A correspondence makes codes comparable. It
 does not make estimates comparable when the sample design or the
-question wording also changed. The quality statement names those changes.
+question wording also changed; the quality statement names those
+changes.
 
 </Recipe>
 
 <Recipe title="6.3 Harmonize variable names and definitions across rounds" level="AI-native" skills="Methodologist; data curator" time="One to two weeks for a survey program">
 
 **Result:** each concept measured in every round has one harmonized
-variable, defined once, with the round-specific variables mapped to it and
-the comparability of each round stated.
+variable, defined once, with the round-specific variables mapped to it
+and the comparability of each round stated.
 
-1. Choose the concepts that users follow over time (labour force status,
-   education level, hours, income) and define a harmonized variable for
-   each: name, definition, code list, and the rounds in which it is
-   comparable.
+1. Choose the concepts that users follow over time (labour force
+   status, education level, hours, income) and define a harmonized
+   variable for each: name, definition, code list, and the rounds in
+   which it is comparable.
 2. Map every round's variable to the harmonized one through the
-   crosswalks and correspondence tables; where a round is not comparable,
-   say so in the mapping.
+   crosswalks and correspondence tables. Where a round is not
+   comparable, say so in the mapping.
 3. Hold the definitions as reusable objects (DDI Lifecycle, or the
-   question bank of [chapter 4](./concepts.mdx), recipe 4.3) and reference
-   them from each round's record, so that a concept search returns the
-   variable in every round with its comparability.
-4. Publish the harmonized file or the mapping; the
+   question bank of [chapter 4](./concepts.mdx), recipe 4.3) and
+   reference them from each round's record, so that a concept search
+   returns the variable in every round with its comparability.
+4. Publish the harmonized file or the mapping. The
    [IPUMS International](https://international.ipums.org/international/)
    documentation is the reference example of harmonized variables with
    per-sample comparability notes.
 
-**What this does not do.** Harmonization is a methodological decision per
-concept, and a harmonized variable hides the detail of each round. The
-original variables stay published beside it.
+**What this does not do.** Harmonization is a methodological decision
+per concept, and a harmonized variable hides the detail of each round.
+The original variables stay published beside it.
 
 </Recipe>
 

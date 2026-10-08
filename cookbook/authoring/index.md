@@ -101,6 +101,7 @@ A recipe uses the `Recipe` component:
   ````
 
 - Every recipe ends with a **What this does not do** paragraph. Simplified examples stay useful only when they say where they stop.
+- A recipe is written for a reader who has not read the author's notes. Before the steps, one or two plain sentences say what the reader will have at the end and why it matters, without referring to "the rule", "the script", or "the measures" before they have been introduced. Every file or code block is introduced by a sentence that says what it is, and its columns or fields are explained in a short table or list beside it. A term of art (embedding, structured output, token, span) is explained in a parenthesis at its first use in the chapter. Each step is one action in a short sentence; a step that lists several things uses sub-bullets. The reader test: a statistician with no background in language models can say, after reading the recipe once, what to do first and what the file in front of them means.
 
 ### Standards page (`standards.md`)
 

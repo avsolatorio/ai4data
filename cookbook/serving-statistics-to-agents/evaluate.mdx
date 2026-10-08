@@ -50,34 +50,50 @@ behaviour check flags: the agent should have declined.
 
 <Recipe title="7.1 Run the question set and log the traces" level="AI-ready" skills="Developer" time="One day to set up the harness; minutes per run">
 
-**Result:** for every question, a trace with the tools called, the series
-used, the answer, whether the agent declined, and the latency.
+**Result:** for every question in the set, a record of what the
+assistant did: the tools it called, the series it used, the answer it
+gave, whether it declined, and how long it took.
 
-1. Connect an agent (an assistant with tool use, or a small harness built
-   on a tool-use API) to the server, with the guidance resource loaded as
-   its instructions.
-2. Send each question of the set and log the trace in a fixed form:
+Such a record is called a trace. The traces are kept as one JSON
+object per line:
+
+| Field | Meaning |
+|---|---|
+| `question_id` | The question from the set |
+| `tools_called` | The tools the assistant called, in order |
+| `series` | The series identifier it used, if any |
+| `answer` | The final answer text |
+| `declined` | Whether the assistant declined to answer |
+| `latency_s` | Seconds from question to answer |
 
 ```json file=../../website/static/cookbook-files/serving-statistics-to-agents/agent_traces.jsonl
 ```
 
-3. Run with more than one model where the organization can; tool
-   selection differs between models, and the server's descriptions have to
-   work for the assistants users bring.
-4. Keep the traces with the date, the server version, the model, and the
-   guidance version.
+1. Connect an assistant (one with tool use, or a small harness built on
+   a tool-use API) to the server, with the guidance resource loaded as
+   its instructions.
+2. Send each question of the set and log the trace in the form above.
+3. Run with more than one model where the organization can. Tool
+   selection differs between models, and the server's descriptions have
+   to work for the assistants users bring.
+4. Keep the traces with the date, the server version, the model, and
+   the guidance version.
 
-**What this does not do.** The harness runs the organization's questions
-through an agent the organization controls. Third-party assistants that
-users bring are observed only through the AI visibility check of the
-dissemination cookbook.
+**What this does not do.** The harness runs the organization's
+questions through an assistant the organization controls. Third-party
+assistants that users bring are observed only through the AI visibility
+check of the dissemination cookbook.
 
 </Recipe>
 
 <Recipe title="7.2 Score the traces" level="AI-ready" skills="Python" time="Minutes">
 
-**Result:** five scores per run, per language, with the failures listed by
-cause.
+**Result:** five scores per run (right tools, right series, right
+value, citation present, right behaviour), per language, with each
+failure listed so that its cause can be found.
+
+The script compares each trace with the question set's expected
+columns:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/agent_eval.py
 ```
@@ -94,7 +110,6 @@ a01  en    ok     ok      ok     ok    ok      What was the prevalence of undern
 a05  fr    ok     ok      FAIL   ok    ok      Quel est le taux de chômage au deuxième trimestre 2025?
 a06  en    ok     -       -      -     ok      What is the inflation rate?
 a07  en    FAIL   -       -      -     FAIL    What is the under-five mortality rate in the Northern Region?
-
 tools   7/8  0.88
 series  6/6  1.00
 value   4/5  0.80
@@ -102,39 +117,40 @@ cite    6/6  1.00
 behave  7/8  0.88
 ```
 
-1. Read each failure to its cause. The French value failure is a wrong
-   figure in the answer, which the number check of
-   [chapter 4](./provenance.mdx) also catches; the regional failure is a
+1. Read each failure to its cause. Here the French value failure is a
+   wrong figure in the answer, which the number check of
+   [chapter 4](./provenance.mdx) also catches. The regional failure is a
    missing refusal, which the guidance resource and a `list_code_values`
    call before `get_observations` address.
 2. Fix the cause (guidance text, tool description, code-list check,
-   catalog field) and re-run; the scores show whether the fix worked.
+   catalog field) and re-run. The scores show whether the fix worked.
 3. Keep the scores per language and per model with the version.
 
 **What this does not do.** The script scores what the trace records.
-Wording, repeated caveats, and the efficiency of the tool calls are read by
-a reviewer in recipe 7.3. Eight questions demonstrate; a suite has 30 to
-50 per language.
+Wording, repeated caveats, and the efficiency of the tool calls are read
+by a reviewer in recipe 7.3. Eight questions demonstrate; a suite has 30
+to 50 per language.
 
 </Recipe>
 
 <Recipe title="7.3 Review a sample and gate changes" level="AI-ready" skills="Subject-matter staff; developer" time="Half a day per run">
 
-**Result:** a measured answer quality beyond the automated checks, and a
-rule that no change ships below the current scores.
+**Result:** a measure of answer quality beyond what the script can
+check, and a rule that no change to the server goes live if the scores
+fall.
 
 1. Draw 20 answers from each run, including some that passed every
-   automated check, and score them on a short rubric: right series, right
-   number, period and unit stated, caveats repeated, citation present,
-   nothing invented, concise.
-2. Add every failure to the question set with the expected answer; the
+   automated check, and score them on a short rubric: right series,
+   right number, period and unit stated, caveats repeated, citation
+   present, nothing invented, concise.
+2. Add every failure to the question set with the expected answer. The
    suite grows from its own failures.
-3. Set the gate: a change to the server, the tools, the guidance, or the
-   catalog ships only when the automated scores are at or above the
-   previous run's, per language, and the reviewed sample shows no new kind
-   of failure.
-4. Re-run after model updates on the assistants the organization operates;
-   a model change is a change.
+3. Set the gate: a change to the server, the tools, the guidance, or
+   the catalog ships only when the automated scores are at or above the
+   previous run's, per language, and the reviewed sample shows no new
+   kind of failure.
+4. Re-run after model updates on the assistants the organization
+   operates. A model change is a change.
 
 **What this does not do.** A gate holds the line; it does not raise it.
 The scores rise when causes are fixed in the catalog, the API, and the

@@ -51,72 +51,88 @@ warnings.
 
 <Recipe title="2.1 Write the tool manifest" level="Foundational" skills="Developer; dissemination officer for the descriptions" time="Half a day">
 
-**Result:** a design document that lists each tool with its name,
-description, inputs, outputs, example, and read-only mark, and the
-resources, before any code.
+**Result:** a design document, written before any code, that lists each
+tool with its name, a description written for the model, its inputs and
+outputs, an example call, and a read-only mark, together with the
+resources the server will serve.
+
+A tool is one operation an assistant can call, such as "search for a
+series" or "get observations". The assistant chooses which tool to call
+by reading the tool's description, so the description is documentation
+for a reader that cannot ask questions. A resource is a text or a file
+the assistant can read, such as a code list. The manifest for the
+running example lists four tools and three resources:
 
 ```json file=../../website/static/cookbook-files/serving-statistics-to-agents/tool_manifest.json
 ```
 
-1. Keep the set small: a search tool, a metadata tool, a data tool, and a
-   code-list tool cover the four uses. Add analysis tools as a separate
-   decision ([chapter 1](./purpose.mdx)).
-2. Write each description for the model: what the tool returns, when to use
-   it, and what to do first ("Use this first when the series identifier is
-   unknown"). Twenty words is a floor.
+1. Keep the set small. A search tool, a metadata tool, a data tool, and
+   a code-list tool cover the four uses. Add analysis tools as a
+   separate decision ([chapter 1](./purpose.mdx)).
+2. Write each description for the model: what the tool returns, when to
+   use it, and what to do first ("Use this first when the series
+   identifier is unknown"). Twenty words is a floor.
 3. Type every input and describe it, with the code list it draws on and
-   the formats it accepts (ISO 8601 or SDMX periods). Give an example call.
+   the formats it accepts (ISO 8601 or SDMX periods). Give an example
+   call.
 4. Name the outputs with the catalog's own field names: the World Bank
-   indicator schema for records (`idno`, `name`, `measurement_unit`), SDMX
-   concepts for values (`SERIES`, `REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`,
-   `OBS_STATUS`, `UNIT_MEASURE`), so that a response is the same object the
-   API returns.
-5. Add resources: a guidance text that tells the model how to use the
-   tools (search first, read metadata before interpreting, cite the source
-   and release), the code lists, and the release calendar. The Data360
-   server's `data360://system-prompt`, `data360://codelists`, and
-   `data360://search-usage` resources are the model for these.
+   indicator schema for records (`idno`, `name`, `measurement_unit`) and
+   SDMX concepts for values (`SERIES`, `REF_AREA`, `TIME_PERIOD`,
+   `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`). A response is then the
+   same object the API returns.
+5. Add the resources: a guidance text that tells the model how to use
+   the tools (search first, read metadata before interpreting, cite the
+   source and release), the code lists, and the release calendar. The
+   Data360 server's `data360://system-prompt`, `data360://codelists`,
+   and `data360://search-usage` resources are the model for these.
 
 **What this does not do.** A manifest is a plan. Recipe 2.3 checks it
-against the rules; [chapter 7](./evaluate.mdx) checks whether models use
-the tools as intended, which is the only test of a description.
+against the rules, and [chapter 7](./evaluate.mdx) checks whether
+models use the tools as intended, which is the only real test of a
+description.
 
 </Recipe>
 
 <Recipe title="2.2 Implement the tools over the API" level="AI-ready" skills="Python developer" time="One day for a prototype; a week to harden">
 
-**Result:** a running MCP server whose tools call the organization's API
-and return structured content.
+**Result:** a running server, speaking the Model Context Protocol (MCP,
+the open standard assistants use to call tools), whose tools call the
+organization's API and return structured content.
 
 1. Start from the server in the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve),
    which exposes two read-only tools over CSV files with the official
-   Python SDK (`MCPServer` in version 2, `FastMCP` in version 1). Replace
-   the file reads with calls to the API.
-2. Return structured content: the SDK turns a dictionary return value into
-   `structuredContent`, and an output schema lets clients validate it.
-   Keep the text content as a readable rendering of the same object.
-3. Mark every tool read-only through the SDK's tool annotations, and give
-   each a title. The specification treats annotations as hints; the safety
-   of the server rests on the tools themselves having no write path
-   ([chapter 6](./safety.mdx)).
-4. Serve the resources from the catalog: the guidance text, the code lists
-   (from the same source as the API), and the release calendar.
-5. Return tool execution errors with `isError` and a message the model can
-   act on ("unknown reference area code; call list_code_values"), which
-   lets the model correct the call.
+   Python SDK. Replace the file reads with calls to the API.
+2. Return structured content: the SDK turns a dictionary return value
+   into a structured response, and an output schema lets clients
+   validate it. Keep the text content as a readable rendering of the
+   same object.
+3. Mark every tool read-only through the SDK's tool annotations, and
+   give each a title. The specification treats annotations as hints;
+   the safety of the server rests on the tools themselves having no
+   write path ([chapter 6](./safety.mdx)).
+4. Serve the resources from the catalog: the guidance text, the code
+   lists (from the same source as the API), and the release calendar.
+5. Return tool execution errors with a message the model can act on
+   ("unknown reference area code; call list_code_values"), which lets
+   the model correct its call.
 
 **What this does not do.** A prototype serves one user. Transport,
-authentication, rate limits, and hosting are [chapters 5](./access.mdx),
-[6](./safety.mdx), and [9](./operate.mdx). Analysis tools (summaries, rankings, chart
-specifications) are a further step with their own evaluation.
+authentication, rate limits, and hosting are
+[chapters 5](./access.mdx), [6](./safety.mdx), and [9](./operate.mdx).
+Analysis tools (summaries, rankings, chart specifications) are a further
+step with their own evaluation.
 
 </Recipe>
 
 <Recipe title="2.3 Check the manifest against the design rules" level="AI-ready" skills="Python" time="Minutes">
 
-**Result:** every tool meets the rules a model needs, and the check runs
-whenever the manifest changes.
+**Result:** a check, run whenever the manifest changes, that every tool
+has a description of sufficient length, typed inputs, an example, a
+read-only mark, and, for data tools, the provenance fields in its
+output.
+
+The script reads the manifest and applies the rules of recipe 2.1:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/check_tool_manifest.py
 ```
@@ -129,17 +145,16 @@ Output for the running example:
 
 ```text
 statistics-example 1.0.0: 4 tool(s), 3 resource(s)
-
 0 error(s), 0 warning(s)
 Not checked here: whether the server behaves as the manifest says; the evaluation in chapter 7 does that.
 ```
 
-1. Run the check on the manifest and on the server's own `tools/list`
-   output exported in the same form, so that the design and the
-   implementation agree.
-2. Treat an error as a blocker: a tool without an example, a data tool
-   without provenance fields, or a tool not marked read-only is published
-   only after the fix.
+1. Run the check on the manifest and on the server's own tool listing
+   exported in the same form, so that the design and the implementation
+   agree.
+2. Treat an error as a blocker. A tool without an example, a data tool
+   without provenance fields, or a tool not marked read-only is
+   published only after the fix.
 3. Keep the check in the pipeline that builds the server.
 
 **What this does not do.** The rules are necessary conditions. A

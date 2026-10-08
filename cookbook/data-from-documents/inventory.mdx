@@ -52,22 +52,26 @@ the backlog looks like.
 
 <Recipe title="1.1 Build the document inventory" level="Foundational" skills="Librarian or dissemination officer; Python for the report" time="One day for a few hundred documents">
 
-**Result:** one row per document with the facts that decide the
-extraction work, and a report of where the data are.
+**Result:** one row per published document with the facts that decide
+how much extraction work it needs, and a report that says where the
+tables are and which documents to start with.
 
-1. List the documents from the publication register or the website. The
-   example inventory has the columns the report reads:
+The inventory is a CSV with one row per document:
+
+| Column | Meaning |
+|---|---|
+| `document_id`, `title`, `year`, `type` | What the document is; `type` is report, yearbook, bulletin, census report, and so on |
+| `pages` | The page count |
+| `text_layer` | `yes` when the PDF contains selectable text, `no` when its pages are images (a scan), `ocr` when an earlier tool added text to a scan |
+| `tables`, `figures` | Estimated counts, from the table of contents until the detection of [chapter 3](./locate.mdx) counts them |
+| `extracted` | `none`, `partial`, or `done` |
+| `data_sources` | The series and surveys the document draws on, by catalog identifier, separated by `;` |
 
 ```csv file=../../website/static/cookbook-files/data-from-documents/document_inventory.csv
 ```
 
-2. For each document, record whether the PDF has a text layer (open it and
-   try to select text; or run a PDF tool that reports it), the page count,
-   and estimated counts of tables and figures from the table of contents.
-3. Record which series and surveys the document draws on (`data_sources`),
-   using the identifiers from the catalog. This is what later links the
-   extracted tables to the indicators they report.
-4. Run the report:
+The report script reads the inventory and summarizes it by document
+type, then lists the backlog from largest to smallest:
 
 ```python file=../../website/static/cookbook-files/data-from-documents/inventory_report.py
 ```
@@ -76,7 +80,6 @@ Output for the example inventory (abridged):
 
 ```text
 8 documents, 315 tables, 88 figures; 7 of 8 with a text layer
-
 type                    docs  tables  figures
 yearbook                   1     142       22
 census report              1      96       31
@@ -87,61 +90,69 @@ backlog (largest first):
   EX-CEN-2014-01     2014    96 tables  31 figures  no  needs OCR
 ```
 
-5. Decide the order of work from the backlog: the yearbook and the census
-   report hold three quarters of the tables; the census report needs OCR
-   first.
+1. List the documents from the publication register or the website.
+2. For each document, record whether the PDF has a text layer (open it
+   and try to select text, or run a PDF tool that reports it), the page
+   count, and estimated counts of tables and figures.
+3. Record which series and surveys the document draws on, using the
+   identifiers from the catalog. This is what later links the extracted
+   tables to the indicators they report.
+4. Run the report and decide the order of work from the backlog. Here
+   the yearbook and the census report hold three quarters of the
+   tables, and the census report needs OCR first.
 
-**What this does not do.** The counts of tables and figures are estimates
-entered by hand until the layout detection in [chapter 3](./locate.mdx)
-counts them. The inventory does not say which tables matter; that is a
-decision about which data users ask for, informed by the
-[monitoring of data use](/docs/data_use/).
+**What this does not do.** The inventory does not say which tables
+matter. That is a decision about which data users ask for, informed by
+the [monitoring of data use](/docs/data_use/).
 
 </Recipe>
 
 <Recipe title="1.2 Give each document a catalog record with its data sources" level="AI-ready" skills="Data curator" time="Half an hour per document; less with the Metadata Editor">
 
-**Result:** a record in the World Bank document schema for every document,
-with the series and surveys it draws on, validated against the schema and
-the completeness profile.
+**Result:** a catalog record for every document in the World Bank
+document schema, listing the series and surveys it draws on, validated
+against the schema and the completeness profile.
 
-1. Document the publication in the [Metadata Editor](https://github.com/worldbank/metadata-editor),
-   which has a template for documents (Dublin Core based), or write the
-   JSON. The running example is the fictional report's record from the
-   dissemination cookbook:
+The running example is the fictional food security report's record,
+from the dissemination cookbook:
 
 ```json file=../../website/static/cookbook-files/ai-ready-dissemination/example_document.json
 ```
 
-2. Fill `data_sources` with the series and surveys the document reports,
-   by identifier and URL. This field is what makes a document findable
-   from a series and a series findable from a document.
-3. Validate the record with the metadata checker and the document profile
-   from the dissemination cookbook:
+1. Document the publication in the
+   [Metadata Editor](https://github.com/worldbank/metadata-editor),
+   which has a template for documents (Dublin Core based), or write the
+   JSON directly.
+2. Fill `data_sources` with the series and surveys the document
+   reports, by identifier and URL. This field is what makes a document
+   findable from a series and a series findable from a document.
+3. Validate the record with the metadata checker and the document
+   profile from the dissemination cookbook:
 
-```bash
-python check_metadata.py example_document.json profile_document.json --level ai-ready
-```
+   ```bash
+   python check_metadata.py example_document.json profile_document.json --level ai-ready
+   ```
 
 4. Publish the record in the catalog (NADA stores documents alongside
-   microdata and tables) so that the document has a stable page and, where
-   possible, a DOI.
+   microdata and tables), so that the document has a stable page and,
+   where possible, a DOI.
 
-**What this does not do.** The record describes the document. The tables
-extracted from it get their own records in [chapter 7](./publish.mdx),
-linked to this one.
+**What this does not do.** The record describes the document. The
+tables extracted from it get their own records in
+[chapter 7](./publish.mdx), linked to this one.
 
 </Recipe>
 
 <Recipe title="1.3 Produce the text layer for search and parsing" level="AI-ready" skills="Developer" time="Minutes per document; OCR time for scanned ones">
 
-**Result:** every document has machine-readable text, page by page, that a
-search index can use and that the table extraction in [chapter 4](./extract.mdx)
-can parse.
+**Result:** every document has machine-readable text, page by page,
+that a search index can use and that the table extraction of
+[chapter 4](./extract.mdx) can parse.
 
-1. For documents with a text layer, extract the text per page. The
-   program's [document parser](/docs/data_use/) uses PyMuPDF for this and
-   keeps the page structure:
+For a PDF that already contains text, the text is read out page by
+page. The program's [document parser](/docs/data_use/) does this with
+PyMuPDF, a Python library for reading PDFs, and keeps the page
+structure:
 
 ```python
 import fitz  # PyMuPDF
@@ -150,19 +161,21 @@ doc = fitz.open("EX-REP-2025-03.pdf")
 pages = [page.get_text() for page in doc]
 ```
 
-2. For scanned documents, produce the text layer with OCR as
-   [chapter 2](./scanned.mdx) describes, and keep the OCR quality score
-   with each page; pages marked for re-OCR are not extracted.
-3. Index the text per page in the site's search, so that a user searching
-   for a table title finds the document and the page.
-4. Keep the extracted text with the document, versioned with it; it is
-   the input to the mention extraction in the
-   [monitoring of data use](/docs/data_use/) as well.
+1. For documents with a text layer, extract the text per page as above.
+2. For scanned documents, produce the text layer with OCR (optical
+   character recognition, the reading of text from an image) as
+   [chapter 2](./scanned.mdx) describes. Keep the OCR quality score with
+   each page; pages marked for re-OCR are not extracted.
+3. Index the text per page in the site's search, so that a user
+   searching for a table title finds the document and the page.
+4. Keep the extracted text with the document, versioned with it. It is
+   also the input to the mention extraction of the
+   [monitoring of data use](/docs/data_use/).
 
-**What this does not do.** A text layer makes text searchable; it does not
-give the structure of a table, which depends on positions on the page.
-Chapter 4 handles that. OCR output on complex layouts (multi-column
-yearbooks, rotated tables) needs review.
+**What this does not do.** A text layer makes text searchable. It does
+not give the structure of a table, which depends on positions on the
+page; [chapter 4](./extract.mdx) handles that. OCR output on complex
+layouts (multi-column yearbooks, rotated tables) needs review.
 
 </Recipe>
 

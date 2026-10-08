@@ -51,9 +51,24 @@ extract.
 
 <Recipe title="9.1 Build a resumable work manifest" level="Foundational" skills="Developer" time="Half a day to set up; seconds per run">
 
-**Result:** every run starts from a manifest that lists what to do next
-per document, skips what is done, retries what failed, and orders the
+**Result:** every run starts from a list that says what to do next for
+each document, skips what is done, retries what failed, and orders the
 work by a written rule.
+
+The pipeline has stages (text, OCR, layout, extraction, publication),
+and a document can be at any of them. The processing log records one
+row per document and stage, with its status (`done`, `failed`, or
+`pending`) and the date. The manifest is built from the inventory and
+the log before each run, with one row per document still to process:
+
+| Column | Meaning |
+|---|---|
+| `document_id` | The document |
+| `next_stage` | The stage to run next |
+| `retry` | Marked when the stage failed last time |
+| `ocr` | Marked when the document needs OCR |
+| `pages`, `tables`, `data_sources` | The size of the work and how many series the document feeds |
+| `reason` | Why the document sits where it does in the order |
 
 ```python file=../../website/static/cookbook-files/data-from-documents/build_manifest.py
 ```
@@ -69,72 +84,72 @@ Output for the running example:
 pages to OCR 220, pages to lay out 621, tables to extract 286, retries 2
 ```
 
-1. Keep a processing log
-   ([processing_status.csv](pathname:///cookbook-files/data-from-documents/processing_status.csv))
-   with one row per document and stage: done, failed, or pending, with
-   the date; every stage writes to it.
+1. Keep the processing log
+   ([processing_status.csv](pathname:///cookbook-files/data-from-documents/processing_status.csv)).
+   Every stage writes to it.
 2. Build the manifest before each run and read it
-   ([manifest.csv](pathname:///cookbook-files/data-from-documents/manifest.csv)):
-   the next stage per document, whether it is a retry, whether OCR is
-   needed, and the reason for its place in the order.
-3. Write the priority rule once (here: data sources fed, then OCR need,
-   then size) and change it in the script, so that the order is
-   explainable.
-4. Run each stage on its part of the manifest; a stage that fails writes
-   `failed` and the next manifest retries it, with a retry limit after
-   which the document goes to a person.
+   ([manifest.csv](pathname:///cookbook-files/data-from-documents/manifest.csv)).
+3. Write the priority rule once (here: documents that feed data sources
+   first, then OCR need, then size) and change it in the script, so
+   that the order is explainable.
+4. Run each stage on its part of the manifest. A stage that fails
+   writes `failed`, and the next manifest retries it, with a retry
+   limit after which the document goes to a person.
 
-**What this does not do.** The manifest orders and counts; the stages are
-the scripts and tools of the earlier chapters, run as jobs. Cost per page
-comes from recipe 9.2.
+**What this does not do.** The manifest orders and counts. The stages
+are the scripts and tools of the earlier chapters, run as jobs. Cost
+per page comes from recipe 9.2.
 
 </Recipe>
 
 <Recipe title="9.2 Measure cost and time per page and plan the backlog" level="AI-ready" skills="Developer; head of the unit" time="One batch to measure; an hour to plan">
 
 **Result:** a cost and a time per page for each stage, measured on the
-organization's documents and hardware, and a plan for the backlog with a
-date.
+organization's documents and hardware, and a plan for the backlog with
+a date.
 
-1. Run the first batch (fifty documents) with timing per stage and page,
-   and with the model calls counted (vision-language models for charts,
-   language models for break explanations): seconds per page and, for
-   hosted models, tokens per page.
+1. Run the first batch (fifty documents) with timing per stage and
+   page, and with the model calls counted (vision-language models for
+   charts, language models for break explanations): seconds per page
+   and, for hosted models, tokens per page.
 2. Add the review time: the sample review of [chapter 5](./verify.mdx)
    and the flagged values, in minutes per table. Review is usually the
    largest cost and the one the quality scores reduce.
 3. Compute the backlog: pages per stage from the manifest, times the
-   measured rates, plus review; compare hosted and local models for the
-   stages that use them ([Efficient and Inclusive AI](/docs/inclusive-ai/)).
-4. Publish the plan internally (documents per month, cost per month, the
-   date the backlog ends) and re-measure every quarter, because models,
-   hardware, and the error rate change.
+   measured rates, plus review. Compare hosted and local models for the
+   stages that use them
+   ([Efficient and Inclusive AI](/docs/inclusive-ai/)).
+4. Publish the plan internally (documents per month, cost per month,
+   the date the backlog ends) and re-measure every quarter, because
+   models, hardware, and the error rate change.
 
 **What this does not do.** A plan from fifty documents of one type
 generalizes to that type. Census volumes and bulletins differ in pages,
-tables, and scan quality; measure per type.
+tables, and scan quality, and are measured per type.
 
 </Recipe>
 
 <Recipe title="9.3 Monitor the runs and propagate corrections" level="AI-ready" skills="Developer; dissemination officer" time="One day to set up; an hour per week">
 
 **Result:** each run reports its failures, quality scores, and review
-rates, and a correction found after publication reaches every series and
-record derived from the document.
+rates, and a correction found after publication reaches every series
+and record derived from the document.
 
 1. After each run, report per batch: documents processed per stage,
    failures and retries, the distribution of OCR scores
    ([chapter 2](./scanned.mdx)), the share of values flagged
    ([chapter 5](./verify.mdx)), and the review error rate. A rise in any
-   of them after a model or engine change is the signal to stop and look.
-2. Keep the pipeline configuration (engine, model, versions, thresholds)
-   under version control and record it with each batch, so that a result
-   can be reproduced and a change can be traced.
-3. When a correction is found (a wrong value in a published table), record
-   it in the corrections log of [chapter 8](./cite.mdx), fix the tidy
-   file, re-run the series combination of [chapter 6](./series.mdx), and
-   republish the series and the records with a new version; the
-   provenance per value is what makes the affected series findable.
+   of them after a model or engine change is the signal to stop and
+   look.
+2. Keep the pipeline configuration (engine, model, versions,
+   thresholds) under version control and record it with each batch, so
+   that a result can be reproduced and a change can be traced.
+3. When a correction is found (a wrong value in a published table),
+   record it in the corrections log of [chapter 8](./cite.mdx) and fix
+   the tidy file. Then re-run the series combination of
+   [chapter 6](./series.mdx) and republish the series and the records
+   with a new version. The source recorded per value is what makes the
+   affected series findable.
 4. Route low-score pages and flagged values to review queues with the
    page image beside the value, as the
    [Metadata Reviewer's board](/docs/metadata-reviewer/user-manual/review-board)

@@ -48,75 +48,81 @@ and errata log.
 
 <Recipe title="7.1 Document the design, the weights, and the response" level="Foundational" skills="Survey methodologist" time="Half a day per survey">
 
-**Result:** a user or a system can tell how the sample was drawn, which
-weight to use for which estimate, and how complete the response was.
+**Result:** a user or a system can tell from the record how the sample
+was drawn, which weight to use for which estimate, and how complete the
+response was.
 
-1. Sampling. In `study_desc.method.data_collection.sampling_procedure`,
-   state the stages, the stratification, the frame, and the sample size,
-   as in the running example. Record deviations from the design in
-   `sampling_deviation`.
-2. Weights. In `weight`, name the weight variable(s), what each is
-   calibrated to, and which estimates each applies to (person-level
+1. Sampling. In the record's sampling procedure field, state the
+   stages, the stratification, the frame, and the sample size, as in
+   the running example. Record deviations from the design in the
+   sampling deviation field.
+2. Weights. In the weight field, name the weight variables, what each
+   is calibrated to, and which estimates each applies to (person-level
    estimates use `weight`; household-level estimates use the household
-   weight). Mark the weight variables with `var_wgt` in the dictionary.
-3. Response. In `analysis_info.response_rate`, give the household and
-   individual response rates and the definition used. Add sampling error
-   information in `sampling_error_estimates`.
-4. Domains. State the domains for which estimates are reliable (national;
-   urban and rural; regions) in the quality statement, so that a system
-   does not report a district estimate from a regional design.
+   weight). Mark the weight variables as weights in the dictionary.
+3. Response. In the response rate field, give the household and
+   individual response rates and the definition used. Add sampling
+   error information in the sampling error estimates field.
+4. Domains. State the domains for which estimates are reliable
+   (national; urban and rural; regions) in the quality statement, so
+   that a system does not report a district estimate from a regional
+   design.
 
-**What this does not do.** The record states the rules; it does not apply
-them. Whether a downstream system uses the weights is a property of that
-system, which is why the API and agent interfaces in the dissemination
-cookbook return the weight variable with the data.
+**What this does not do.** The record states the rules; it does not
+apply them. Whether a downstream system uses the weights is a property
+of that system, which is why the API and agent interfaces of the
+dissemination cookbook return the weight variable with the data.
 
 </Recipe>
 
 <Recipe title="7.2 Publish a quality statement in machine-readable fields" level="AI-ready" skills="Survey methodologist; data curator" time="Half a day per survey">
 
-**Result:** the known limits of the data are in fields that a catalog
-displays and an AI system can quote.
+**Result:** the known limits of the data are in fields of the record
+that a catalog displays and an AI system can quote, where a user finds
+them without opening a PDF.
 
-1. Fill `study_desc.study_info.quality_statement`: the standards the
-   survey complies with (`standards`), a compliance description, and any
-   other quality statement.
-2. Fill `study_desc.method.analysis_info.data_appraisal` with the known
-   issues: coverage gaps, item non-response on sensitive variables,
-   comparability breaks with earlier rounds, and the variables affected.
-3. Per data file, record the processing checks in
-   `data_files.data_checks` and the treatment of missing data in
-   `data_files.missing_data`.
-4. Where a value-level flag is needed (imputed values, edited values), add
-   a flag variable to the file and document it like any other variable.
+1. Fill the quality statement fields: the standards the survey complies
+   with, a compliance description, and any other quality statement.
+2. Fill the data appraisal field with the known issues: coverage gaps,
+   item non-response on sensitive variables, comparability breaks with
+   earlier rounds, and the variables affected.
+3. Per data file, record the processing checks in `data_checks` and
+   the treatment of missing data in `missing_data`.
+4. Where a value-level flag is needed (imputed values, edited values),
+   add a flag variable to the file and document it like any other
+   variable.
 
 **What this does not do.** A quality statement written once goes stale.
-Recipe 7.3 ties it to versions; the AI-native level computes indicators per
-release so that the statement reflects the data as released.
+Recipe 7.3 ties it to versions, and the AI-native level computes
+indicators per release so that the statement reflects the data as
+released.
 
 </Recipe>
 
 <Recipe title="7.3 Version each release and publish errata" level="AI-ready" skills="Data curator" time="One hour per release">
 
-**Result:** every release is identified, every correction is recorded, and
-a user or a system can tell which version an analysis used.
+**Result:** every release of the data is identified by a version, every
+correction is recorded, and a user or a system can tell which version
+an analysis used.
 
-1. Give each release a version in `study_desc.version_statement` (`version`,
-   `version_date`, `version_resp`, `version_notes`) and change the version
-   when the data or the documentation change.
-2. Keep superseded versions available and citable; the DOI of the study
+1. Give each release a version in the record's version statement
+   (version, date, responsible unit, notes) and change the version when
+   the data or the documentation change.
+2. Keep superseded versions available and citable. The DOI of the study
    resolves to the current version, and each version is listed on the
    study page.
-3. Publish errata as a dated list of corrections: the variable, the cases
-   or values affected, the change, and the version in which it applies.
-   Put the list in the study record's notes and on the study page.
+3. Publish errata as a dated list of corrections: the variable, the
+   cases or values affected, the change, and the version in which it
+   applies. Put the list in the study record's notes and on the study
+   page.
 4. Log the changes between versions (new variables, recoded values,
-   corrected weights) in `version_notes`, so that a system comparing two
-   versions can see what changed.
+   corrected weights) in the version notes, so that a system comparing
+   two versions can see what changed.
 
-**What this does not do.** Versioning the documentation does not version
-the file. The data file for each version has to be kept, named, and
-checksummed; the `data_files` section holds the version per file.
+**What this does not do.** Versioning the documentation does not
+version the file. The data file for each version has to be kept,
+named, and checksummed, and the `data_files` section holds the version
+per file.
 
 </Recipe>
 

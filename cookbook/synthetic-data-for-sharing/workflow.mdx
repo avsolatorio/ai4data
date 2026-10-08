@@ -55,71 +55,80 @@ arrive sooner; the unit reports both with the download counts.
 
 <Recipe title="7.1 Offer the file where applicants and users look" level="Foundational" skills="Dissemination officer; catalog administrator" time="Half a day">
 
-**Result:** the synthetic file is linked from the real survey's page,
-the application form, and the teaching and developer resources, with a
-guidance note.
+**Result:** the synthetic file is linked from the real survey's catalog
+page, from the application form for the real file, and from the pages
+for teachers and developers, each link with a short guidance note.
 
-1. On the real survey's catalog page and in the application form, add
-   a block: "A synthetic version is available now for code development
-   and teaching", with the link and the one-paragraph guidance.
-2. In the enclave's onboarding, add the synthetic file as the
-   preparation step: analysts write their programs against it before
-   their session.
-3. List the files in a teaching and developer resources page with the
-   purpose statement.
-4. Count downloads and page views per file ([monitoring cookbook, chapter 2](/cookbook/monitoring-data-use/access)).
+1. On the real survey's catalog page and in the application form, add a
+   block: "A synthetic version is available now for code development
+   and teaching", with the link and the one-paragraph guidance of
+   recipe 7.2.
+2. In the onboarding of the secure data enclave, add the synthetic file
+   as the preparation step: analysts write their programs against it
+   before their session in the enclave.
+3. List the synthetic files on a page for teachers and developers, with
+   the purpose statement.
+4. Count downloads and page views per file, with the rules of the
+   [monitoring cookbook, chapter 2](/cookbook/monitoring-data-use/access).
 
-**What this does not do.** Offering the file helps users who read the
-page. The guidance note and the label are what reach the ones who do
-not.
+**What this does not do.** Offering the file helps the users who read
+the page. The guidance note and the label inside the data are what
+reach the ones who do not.
 
 </Recipe>
 
 <Recipe title="7.2 Write the guidance and the switch-over script" level="Foundational" skills="Methodologist; developer" time="Half a day per survey">
 
-**Result:** a one-page guidance note and a script that moves a user's
-program from the synthetic file to the real one.
+**Result:** a one-page note that tells users what the synthetic file is
+and what to expect from it, and a script that moves a user's program
+from the synthetic file to the real one by changing one path.
 
-1. The note: what the file is (synthetic, from which survey and
-   method); what it reproduces (the variables, types, codes, the
-   marginals and relationships the utility report confirmed); what it
-   does not (estimates, small groups, relationships not listed); the
-   label; the licence; the contact.
-2. The switch-over: the synthetic file has the same variable names,
-   types, value codes, and file layout as the real file, so that a
-   program changes one path to run on the real data; provide the data
-   dictionary of the [microdata cookbook](/cookbook/microdata-documentation/variables)
-   for both.
-3. State the expected differences a user will see on the real file
-   (different numbers; small groups present; weights).
+1. Write the note. It says:
+   - what the file is: synthetic, from which survey, by which method;
+   - what it reproduces: the variables, types, and codes, and the
+     distributions and relationships the utility report confirmed;
+   - what it does not reproduce: estimates, small groups, relationships
+     not listed;
+   - the label, the licence, and the contact.
+2. Make the switch-over possible: give the synthetic file the same
+   variable names, types, value codes, and file layout as the real file,
+   so that a program runs on the real data after changing one file path.
+   Provide the data dictionary of the
+   [microdata cookbook](/cookbook/microdata-documentation/variables) for
+   both files.
+3. State the differences a user will see on the real file: different
+   numbers, small groups present, weights.
 
 **What this does not do.** A program that runs on the synthetic file
 can still be wrong on the real one in ways the synthetic file could not
-show; the note says so, and the enclave's output checking remains.
+show. The note says so, and the enclave's checking of outputs remains.
 
 </Recipe>
 
 <Recipe title="7.3 Measure the effect and track use" level="AI-ready" skills="Microdata unit; analyst" time="An hour per quarter">
 
-**Result:** evidence of what the synthetic file changed, reported with
-the unit's access statistics.
+**Result:** evidence of what the synthetic file changed for applicants
+and for the unit, reported quarterly with the access statistics.
 
-1. Before and after the file's release, measure: time from application
-   approval to the applicant's first result or output request; support
-   requests about variable names, types, and codes; resubmissions of
-   programs in the enclave; teaching requests for data.
-2. Count the file's downloads and, where the terms ask for it, the
-   citations and mentions of the synthetic file in publications
-   ([monitoring cookbook](/cookbook/monitoring-data-use/)), which also
-   catches a synthetic file quoted as if real.
-3. Collect feedback from applicants on what the synthetic file did and
-   did not help with; the utility report's target analyses grow from it.
-4. Report the measures quarterly with the access statistics.
+1. Measure before and after the file's release:
+   - the time from approval of an application to the applicant's first
+     result or output request;
+   - the number of support requests about variable names, types, and
+     codes;
+   - the number of programs resubmitted in the enclave;
+   - the number of requests for teaching data.
+2. Count the file's downloads and, where the terms of use ask for it,
+   the citations and mentions of the synthetic file in publications
+   ([monitoring cookbook](/cookbook/monitoring-data-use/)). This also
+   catches a synthetic file quoted as if it were real.
+3. Ask applicants what the synthetic file helped with and what it did
+   not. Their answers add target analyses to the utility report.
+4. Report the measures each quarter with the access statistics.
 
 **What this does not do.** Before-and-after measures on a small number
-of applicants show direction; the unit reports them with their counts.
-A synthetic file quoted as a source of statistics is a misuse to
-correct through the monitoring cookbook's follow-up.
+of applicants show a direction; the unit reports them with their
+counts. A synthetic file quoted as a source of statistics is a misuse,
+followed up through the monitoring cookbook.
 
 </Recipe>
 

@@ -54,34 +54,48 @@ are confidential, and schedules the job overnight.
 
 <Recipe title="6.1 Run an open-weight model inside the production network" level="Foundational" skills="Infrastructure; developer" time="Two to three days">
 
-**Result:** a model server on the organization's infrastructure that
-production jobs call, with the model version pinned and no data leaving
-the network.
+**Result:** a model running on a server inside the organization's own
+network, which production jobs can call, with its version fixed and no
+data leaving the organization.
 
-1. Choose the model from the evaluation of the task
-   ([small and open models cookbook](/cookbook/small-and-open-models/));
-   coding and explanation tasks run well on small open-weight models.
-2. Serve it with a server that batches requests (vLLM, llama.cpp,
-   Ollama for small deployments) on a machine inside the production
-   network, with access limited to the production jobs' accounts.
-3. Pin the model by name and hash, the server version, and the prompt
-   files under version control; record them in the AI component
-   register.
-4. Measure throughput (tokens per second at the job's batch size) and
-   keep the figure; the cost estimate of recipe 6.2 uses it.
+An open-weight model is one whose files can be downloaded and run by
+the organization itself. Running one on the organization's own server
+is what makes it possible to use a model on confidential text at all.
 
-**What this does not do.** A local server removes the data transfer
-risk; it does not remove the need for access control, logging, and the
-rules of the map. A hosted model remains an option for public and
-aggregate inputs where it is better or cheaper.
+1. Choose the model from the evaluation of the task; the
+   [small and open models cookbook](/cookbook/small-and-open-models/)
+   describes how. Coding and explanation tasks run well on small
+   open-weight models.
+2. Serve the model with a program that handles many requests at once
+   (vLLM, or llama.cpp; Ollama for a small deployment) on a machine
+   inside the production network. Limit access to the accounts of the
+   production jobs.
+3. Fix the versions: the model (by name and file fingerprint), the
+   serving program, and the prompt files, all under version control and
+   recorded in the AI component register.
+4. Measure the throughput (tokens per second at the job's batch size;
+   a token is roughly three quarters of a word) and keep the figure. The
+   cost estimate of recipe 6.2 uses it.
+
+**What this does not do.** A local server removes the risk of data
+leaving the organization. It does not remove the need for access
+control, logging, and the rules of the map. A hosted model remains an
+option for public and aggregate inputs where it is better or cheaper.
 
 </Recipe>
 
 <Recipe title="6.2 Estimate cost and time before a batch job" level="AI-ready" skills="Developer; production manager" time="Minutes">
 
-**Result:** the cost and the wall time of a job under the hosted and
-the local option, from the organization's own token counts and
-throughput, before the job is scheduled.
+**Result:** before a large job is scheduled, an estimate of its cost
+and duration under two options, a hosted model and the local server,
+from the organization's own measurements.
+
+A batch job sends many records through a model, such as the 250,000
+open-text responses of a labour force survey. Its cost depends on how
+much text each record carries (measured in tokens), on the provider's
+prices or the local server's throughput, and on the review time that
+follows. The script below takes these as inputs and prints both
+options:
 
 ```python file=../../website/static/cookbook-files/language-models-in-production/batch_cost.py
 ```
@@ -92,7 +106,8 @@ python batch_cost.py --records 250000 --tokens-in 180 --tokens-out 12 \
     --local-tokens-per-second 900 --local-hourly-cost 1.20
 ```
 
-Output for the running example:
+Output for the running example (prices are illustrative, per million
+tokens):
 
 ```text
 250,000 records, 45.0M input tokens, 3.0M output tokens
@@ -103,49 +118,50 @@ local (900 tokens/s): 14.8 hours of server time, cost 17.78, 0.071 per 1,000 rec
 Add review time per record from the assurance chapter's measurements; it is usually the larger cost.
 ```
 
-1. Measure tokens per record on a sample of the real inputs (prompt,
-   rules, text); the prompt is often the larger part, and a shorter
-   prompt is the first saving.
-2. Put in the current hosted prices and the measured local throughput
-   and server cost; read both options.
-3. Decide by the map's rule first (confidential text runs locally),
-   then by cost and deadline; schedule the local job in the window the
-   throughput implies.
-4. Record the estimate with the job; compare with the measured run
+1. Measure the tokens per record on a sample of real inputs, including
+   the prompt and the reference material. The prompt is often the
+   larger part, and shortening it is the first saving.
+2. Enter the provider's current prices, the measured local throughput,
+   and the server's hourly cost. Read both options.
+3. Decide first by the map's rule (confidential text runs locally), then
+   by cost and deadline. Schedule a local job in the window its
+   duration implies.
+4. Record the estimate with the job. Compare it with the measured run
    afterwards and correct the inputs.
 
-**What this does not do.** The estimate covers model time. Review time
-per record (coders on the routed share, editors on proposals) is the
-larger cost for reviewed outputs and comes from the measurements of
-[chapter 7](./assurance.mdx).
+**What this does not do.** The estimate covers the model's time. The
+time of the people who review the outputs (coders on the routed share,
+editors on proposals) is the larger cost for any reviewed task and comes
+from the measurements of [chapter 7](./assurance.mdx).
 
 </Recipe>
 
 <Recipe title="6.3 Run jobs in batch with manifests and pass the switch-off test" level="AI-ready" skills="Developer; operations" time="One day to set up">
 
-**Result:** model jobs that resume after interruption, record their
-versions, and can be stopped without stopping production.
+**Result:** model jobs that can resume where they stopped after an
+interruption, that record which versions they ran with, and that can be
+stopped without stopping production.
 
-1. Run each job from a manifest (records to process, stage, status),
-   as the [documents cookbook](/cookbook/data-from-documents/operate)
-   does for document pipelines; a job that stops at record 90,000
-   resumes there.
-2. Write the model version, prompt version, classification version,
-   threshold, and run date into the job's output file header and the
-   register.
-3. Use the batch endpoint of a hosted provider for public inputs where
-   it is cheaper, with the same manifest.
+1. Run each job from a manifest: a list of the records to process with
+   a status per record. A job that stops at record 90,000 resumes there.
+   The [documents cookbook](/cookbook/data-from-documents/operate)
+   describes the same pattern for document pipelines.
+2. Write the versions of the model, the prompt, and the classification,
+   the threshold, and the run date into the header of the job's output
+   file and into the register.
+3. For public inputs, where a provider's batch service is cheaper, use
+   it with the same manifest.
 4. Run the switch-off test of the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/sustain)
-   for production: with the model server stopped, coding falls back to
-   coders with no automated share, editing shows failures without
-   explanations, and the release proceeds; the production systems do
-   not depend on the model layer.
+   for production: stop the model server and confirm that coding falls
+   back to coders, that editing shows failures without explanations, and
+   that the release goes out. Production must never depend on the model
+   layer.
 
 **What this does not do.** Batch jobs cover the production pattern.
-Interactive uses (an editor asking for an explanation on demand) need
-the server available during working hours with the capacity for it,
-which the measured throughput sizes.
+Interactive uses, such as an editor asking for an explanation on
+demand, need the server available during working hours with the
+capacity for it, which the measured throughput sizes.
 
 </Recipe>
 

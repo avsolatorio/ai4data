@@ -50,75 +50,78 @@ alone.
 <Recipe title="9.1 Prioritize documentation and dissemination work by use" level="AI-ready" skills="Dissemination lead" time="Half a day per period">
 
 **Result:** the work lists of the other cookbooks ordered by the use the
-report shows, and the gaps it shows acted on.
+report shows, so that the datasets people rely on most are documented
+first, and the gaps the report shows acted on.
 
-1. For each dataset, put the use counts next to its documentation status:
-   the completeness check of the
-   [dissemination cookbook](/cookbook/ai-ready-dissemination/find) and, for
-   surveys, the dictionary check of the
+1. For each dataset, put the use counts next to its documentation
+   status: the completeness check of the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/find) and,
+   for surveys, the dictionary check of the
    [microdata cookbook](/cookbook/microdata-documentation/variables).
-2. Order the work: datasets used most and documented least first; among
-   them, those used outside research first, since policy and media users
-   read the record and nothing else.
-3. Read the gaps: a dataset produced and never mentioned is a
-   discoverability or relevance signal; a dataset used only with another
-   organization's data (co-use) is a candidate for a joint product or a
-   crosswalk.
+2. Order the work: datasets used most and documented least first. Among
+   them, those used outside research first, since policy and media
+   users read the record and nothing else.
+3. Read the gaps. A dataset produced and never mentioned is a
+   discoverability or relevance signal. A dataset used only with
+   another organization's data (co-use) is a candidate for a joint
+   product or a crosswalk.
 4. Record the decisions with the report, so that the next period shows
    whether use changed where work was done.
 
-**What this does not do.** Use measures demand as it was; it does not show
-demand that better documentation would create. Datasets never mentioned
-need a judgement about why.
+**What this does not do.** Use measures demand as it was; it does not
+show demand that better documentation would create. Datasets never
+mentioned need a judgement about why.
 
 </Recipe>
 
 <Recipe title="9.2 Follow up misquoted figures" level="AI-ready" skills="Dissemination officer" time="One hour per period plus follow-up">
 
-**Result:** figures quoted from the data in documents and AI answers are
-checked against the catalog, and the organization's own causes are fixed
-first.
+**Result:** figures quoted from the data in documents and in AI
+answers are checked against the catalog, and the causes on the
+organization's own side are fixed first.
 
-1. For mentions with a usage context that quotes a figure (the extractor's
-   context window shows it), compare the figure with the catalog value for
-   the dataset, period, and geography, with the tolerance of the number
-   check in the [dissemination cookbook](/cookbook/ai-ready-dissemination/trust).
-2. Do the same for the AI visibility check: wrong figures, wrong periods,
-   missing citations.
-3. For each misquote, check the organization's side first: was the current
-   figure findable, retrievable, and clearly labelled with its period and
-   unit? Most fixes are there. Then contact the author or publisher where
-   the error matters.
-4. Log misquotes by dataset and cause; a dataset misquoted often needs its
-   page and its API response looked at.
+1. For mentions whose context quotes a figure (the extractor's context
+   window shows it), compare the figure with the catalog value for the
+   dataset, period, and geography, with the tolerance of the number
+   check in the
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/trust).
+2. Do the same for the AI visibility check: wrong figures, wrong
+   periods, missing citations.
+3. For each misquote, check the organization's side first: was the
+   current figure findable, retrievable, and clearly labelled with its
+   period and unit? Most fixes are there. Then contact the author or
+   publisher where the error matters.
+4. Log misquotes by dataset and cause. A dataset misquoted often needs
+   its page and its API response looked at.
 
 **What this does not do.** The check finds figures that differ from the
 catalog. A figure that differs because the document used an earlier
-vintage is correct for its date; the revisions log says so.
+vintage is correct for its date, and the revisions log says so.
 
 </Recipe>
 
 <Recipe title="9.3 Close the loop in the catalog" level="AI-native" skills="Catalog administrator; developer" time="One week to set up">
 
-**Result:** the results of monitoring become part of the records: documents
-link to the datasets they use, dataset pages list the documents that use
-them, and the names table grows from confirmed variants.
+**Result:** the results of monitoring become part of the catalog:
+documents link to the datasets they use, dataset pages list the
+documents that use them, and the names table grows from confirmed
+variants.
 
-1. For each matched mention with `is_used`, add the dataset to the
+1. For each matched mention marked as used, add the dataset to the
    document's record (`data_sources` in the World Bank document schema)
    where the document is in the organization's catalog.
-2. On each dataset page, show "used in" from the harmonized mentions, as
-   the Microdata Library's citations pages do, with the document, year,
-   and type.
+2. On each dataset page, show "used in" from the harmonized mentions,
+   as the Microdata Library's citations pages do, with the document,
+   year, and type.
 3. Write confirmed variants back to the names table and to the series
-   record's `aliases`, and add misquoted questions to the evaluation
-   question set of the dissemination cookbook.
+   record's `aliases` field, and add misquoted questions to the
+   evaluation question set of the dissemination cookbook.
 4. Expose the links through the catalog API, so that an AI system
    answering about a dataset can cite the documents that use it.
 
 **What this does not do.** Automatic links carry the extractor's
-precision. Links on public pages are added for exact and reviewed matches
-only; phrase and fuzzy matches wait for review.
+precision. Links on public pages are added for exact and reviewed
+matches only; "contains" and fuzzy matches wait for review.
 
 </Recipe>
 

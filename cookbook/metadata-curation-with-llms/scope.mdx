@@ -50,8 +50,16 @@ records a decision.
 
 <Recipe title="1.1 Write the task typology with decision rights" level="Foundational" skills="Head of the curation unit" time="Half a day">
 
-**Result:** a one-page table that says, for each curation task, what the
-model does and what the curator decides.
+**Result:** a one-page table that says, for each kind of curation task,
+what a language model is allowed to do and what a curator decides.
+
+Curation work falls into a few families of task: filling a missing
+field, proposing keywords, flagging a field that disagrees with another,
+translating, summarizing. For each family, the organization decides the
+model's role. A model that *drafts* writes text for a curator to accept
+or change. A model that *flags* points at a possible problem and
+proposes a fix. In both cases the curator decides. The table below is a
+starting typology:
 
 | Task | Model role | Curator decides |
 |---|---|---|
@@ -63,61 +71,73 @@ model does and what the curator decides.
 | Summaries for catalog pages | Draft | Accept or edit |
 
 1. Start from the table and adapt it to the organization's fields and
-   risks; the program's [metadata-quality work](/docs/metadata-quality/generative-ai-for-metadata-quality)
+   risks. The program's
+   [metadata-quality work](/docs/metadata-quality/generative-ai-for-metadata-quality)
    names the same task families: field generation, semantic alignment,
-   vocabulary standardization, translation, summarization, and diagnostics.
-2. Mark which fields a model may never draft (units, methods, legal text)
-   and which it may only flag.
-3. Name the curator role that decides, and the record of decisions
+   vocabulary standardization, translation, summarization, and
+   diagnostics.
+2. Mark which fields a model may never draft (units, methods, legal
+   text) and which it may only flag.
+3. Name the curator role that decides, and where decisions are recorded
    ([chapter 5](./review.mdx), recipe 5.3).
 
-**What this does not do.** The typology sets roles; it does not make
-drafts good. [Chapters 2](./draft.mdx) and [3](./assess.mdx) measure
+**What this does not do.** The typology sets roles. It does not make
+drafts good; [chapters 3](./draft.mdx) and [4](./assess.mdx) measure
 them.
 
 </Recipe>
 
 <Recipe title="1.2 Set the confidentiality and approval rules" level="Foundational" skills="Head of the curation unit; legal" time="One day">
 
-**Result:** two rules every staff member and every pipeline follows.
+**Result:** two written rules that every staff member and every pipeline
+follows: which records may be sent to which model, and what has to
+happen before a model's output reaches the published catalog.
+
+A model run by a provider receives whatever text is sent to it. For a
+public catalog record that is no concern; for an unpublished record or
+a microdata dictionary it may be. A model the organization runs on its
+own server receives nothing that leaves the building.
 
 1. Confidentiality: only public records, or records cleared for
-   publication, are sent to a model. Unpublished records and microdata
-   dictionaries go only to models the organization runs itself. Record
-   the rule in the AI-use policy of the
+   publication, are sent to a provider's model. Unpublished records and
+   microdata dictionaries go only to models the organization runs
+   itself. Record the rule in the AI-use policy of the
    [dissemination cookbook](/cookbook/ai-ready-dissemination/govern).
 2. Approval: a model's output reaches the published catalog only after a
-   named curator records a decision. Model output is marked as such until
-   then (a `draft` status, or a note field).
-3. Register the pipeline (model, provider, data used, owner, review date)
-   in the AI component register; the program's tools are provider-agnostic
-   (through litellm), so the model can be a local one.
+   named curator records a decision. Until then it is marked as model
+   output (a `draft` status, or a note field).
+3. Register the pipeline (model, provider, data used, owner, review
+   date) in the AI component register. The program's tools accept any
+   provider, including a local model, so the rule can be met either way.
 
-**What this does not do.** Rules state the practice; the review board and
-the decision log of [chapter 5](./review.mdx) are where the practice is
-visible and auditable.
+**What this does not do.** Rules state the practice. The review board
+and the decision log of [chapter 5](./review.mdx) are where the practice
+is visible and auditable.
 
 </Recipe>
 
 <Recipe title="1.3 Choose the records to start with" level="Foundational" skills="Curator; dissemination officer" time="Two hours">
 
-**Result:** a first set of records where model assistance is worth the
-review effort, and a definition of success for them.
+**Result:** a first set of about twenty records on which model
+assistance is worth the review effort, and a written definition of what
+success on them looks like.
 
-1. Take the records with the highest use ([monitoring of data use](/cookbook/monitoring-data-use/)) and the lowest completeness (the
+1. Take the records with the highest use (the
+   [monitoring cookbook](/cookbook/monitoring-data-use/) counts it) and
+   the lowest completeness (the
    [completeness check](/cookbook/ai-ready-dissemination/find) at the
-   AI-ready level).
+   AI-ready level lists the missing fields).
 2. Start with twenty: enough to measure acceptance, few enough to review
    every suggestion.
-3. Define success: the share of drafts accepted or edited, the share of
-   flags the curator confirms, and the completeness gain after the
-   decisions are applied.
-4. Record the baseline (completeness, curator time per record) before the
-   first run.
+3. Define success in three numbers: the share of drafts accepted or
+   edited, the share of flags the curator confirms, and the completeness
+   gain after the decisions are applied.
+4. Record the baseline (completeness, curator time per record) before
+   the first run, so that the gain can be measured.
 
 **What this does not do.** Twenty records calibrate the workflow. The
-catalog-scale run comes after the acceptance rates of [chapter 8](./improve.mdx)
-are known.
+catalog-scale run comes after the acceptance rates of
+[chapter 8](./improve.mdx) are known.
 
 </Recipe>
 

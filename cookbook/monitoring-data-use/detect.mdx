@@ -52,12 +52,16 @@ outlook) that a person did not count as a mention.
 
 <Recipe title="6.1 Run the extractor on the collected documents" level="AI-ready" skills="Developer with Python; a machine that runs a small language model" time="One day to set up; seconds per document">
 
-**Result:** one record per mention with the fields the later chapters
-need, for every document in the collection.
+**Result:** for every document in the collection, one record per
+mention of a dataset, with the fields the later chapters need.
 
-1. Install the program's package with the data-use dependencies
-   (`pip install "ai4data[datause]"`) and run the extractor on the text of
-   each document:
+The program's extractor reads a document's text and finds the places
+where a dataset is named. It uses a zero-shot named-entity model (a
+model that finds names of a given kind in text without having been
+trained on the organization's documents) with the program's adapter for
+dataset mentions. For each mention it returns the dataset name, the
+acronym and the producer where present, whether the data are used, the
+usage context, and a confidence. The code to run it on one document:
 
 ```python
 from ai4data.data_use import extract_from_document
@@ -67,42 +71,57 @@ for mention in result["dataset_mention"]:
     print(mention["dataset_name"]["text"], mention["is_used"], mention["usage_context"])
 ```
 
-   The extractor uses a zero-shot named-entity model (GLiNER) with the
-   program's adapter for dataset mentions, and returns for each mention the
-   dataset name, acronym and producer where present, whether the data are
-   used, the usage context, and a confidence.
-2. Store the mentions as JSON lines, one per mention, with the document
-   identifier, the mention text, the sentence it was found in, and the
-   extractor's fields. The running example:
+The mentions are stored one per line as JSON objects:
+
+| Field | Meaning |
+|---|---|
+| `document_id` | The document the mention was found in |
+| `text` | The mention as written |
+| `context` | The sentence it was found in |
+| `dataset_tag` | `named` or `unnamed` |
+| `is_used`, `usage_context` | Whether the data are used, and as primary, secondary, or background ([chapter 1](./define.mdx)) |
+| `confidence` | The extractor's confidence, 0 to 1 |
 
 ```json file=../../website/static/cookbook-files/monitoring-data-use/mentions_example.jsonl
 ```
 
-3. Record the model, adapter, and threshold used with each run; a change
-   in any of them changes the counts.
+1. Install the program's package with the data-use dependencies
+   (`pip install "ai4data[datause]"`) and run the extractor on the text
+   of each document.
+2. Store the mentions in the form above.
+3. Record the model, adapter, and threshold used with each run. A
+   change in any of them changes the counts.
 
-**What this does not do.** The extractor finds mentions in the text it is
-given. A document without a text layer yields nothing, and a mention in a
-figure or a reference list formatted as an image is invisible. The model
-was trained on English development literature; other languages need the
-measurement of recipe 6.2 before the counts are trusted.
+**What this does not do.** The extractor finds mentions in the text it
+is given. A document without a text layer yields nothing, and a mention
+in a figure or in a reference list stored as an image is invisible. The
+model was trained on English development literature; other languages
+need the measurement of recipe 6.2 before the counts are trusted.
 
 </Recipe>
 
 <Recipe title="6.2 Measure precision and recall on a labelled sample" level="AI-ready" skills="Dissemination officer for labelling; Python" time="One day for the first hundred sentences">
 
-**Result:** precision, recall, and the lists of what was missed and what
-was wrongly extracted, for the organization's own documents.
+**Result:** two numbers that say how good the extractor is on the
+organization's own documents, with the lists of what it missed and what
+it wrongly extracted.
 
-1. Draw sentences from the collected documents across types and
-   languages, and label each: the dataset mention it contains, or none.
-   Two labellers and an agreement check make the sample trustworthy. The
-   example sample:
+Precision is the share of extracted mentions that are real; recall is
+the share of real mentions that were extracted. Both need a labelled
+sample: sentences a person has read and marked. The sample is a CSV
+with one row per sentence:
+
+| Column | Meaning |
+|---|---|
+| `document_id` | The document the sentence comes from |
+| `sentence` | The sentence |
+| `mention_text` | The dataset mention it contains, or empty when it contains none |
+| `note` | The labeller's remark |
 
 ```csv file=../../website/static/cookbook-files/monitoring-data-use/labelled_sample.csv
 ```
 
-2. Score the extractor's output against the sample:
+The script compares the extractor's output with the sample:
 
 ```python file=../../website/static/cookbook-files/monitoring-data-use/score_mentions.py
 ```
@@ -118,35 +137,39 @@ false negatives (labelled, not extracted):
   D04: 'population and housing census 2014'
 ```
 
-3. Read both lists. The false positive is a generic phrase with low
-   confidence (0.52), which a threshold removes; the false negative is a
+1. Draw sentences from the collected documents across types and
+   languages, and label each. Two labellers and an agreement check make
+   the sample trustworthy.
+2. Run the script.
+3. Read both lists. Here the false positive is a generic phrase with low
+   confidence (0.52), which a threshold removes. The false negative is a
    census named as a sampling frame, which the adapter may treat as a
-   method and which a review adds to the sample as a positive example.
+   method; a review adds it to the sample as a positive example.
 4. Keep the sample and the scores with the model version, and re-run on
    every change.
 
-**What this does not do.** Fourteen sentences demonstrate the measure. A
-few hundred sentences per document type and language, with two labellers,
-give a number to report. The script scores the mention text only; the
-usage flag and the context are scored by review.
+**What this does not do.** Fourteen sentences demonstrate the measure.
+A few hundred sentences per document type and language, with two
+labellers, give a number to report. The script scores the mention text
+only; the usage flag and the context are scored by review.
 
 </Recipe>
 
 <Recipe title="6.3 Set thresholds and deduplicate" level="AI-ready" skills="Developer" time="Half a day">
 
-**Result:** a confidence threshold chosen on the sample, and one record per
-distinct mention per document.
+**Result:** a confidence threshold chosen on the sample for the use the
+counts serve, and one record per distinct mention per document.
 
-1. Plot precision and recall on the sample at several thresholds of
-   `dataset_threshold`, and choose the threshold for the use the counts
-   serve: a higher one for a published report, a lower one for a review
-   queue.
+1. Compute precision and recall on the sample at several thresholds of
+   the extractor's confidence, and choose the threshold for the use the
+   counts serve: a higher one for a published report, a lower one for a
+   review queue.
 2. Deduplicate within a document with the program's
    `deduplicate_extraction`, which merges repeated mentions of the same
-   dataset, clusters acronyms with their long forms ("HBS" with "Household
-   Budget Survey 2021"), and keeps the context windows.
-3. Keep the mention count after deduplication as the secondary figure next
-   to the document count ([chapter 1](./define.mdx), recipe 1.3).
+   dataset, clusters acronyms with their long forms ("HBS" with
+   "Household Budget Survey 2021"), and keeps the context windows.
+3. Keep the mention count after deduplication as the secondary figure
+   next to the document count ([chapter 1](./define.mdx), recipe 1.3).
 
 **What this does not do.** A threshold trades precision for recall; it
 does not improve the model. Recurring misses of one kind (datasets named

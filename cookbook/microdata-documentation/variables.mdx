@@ -52,18 +52,28 @@ into the schema and validates the study record at the AI-ready level.
 
 <Recipe title="3.1 Check the data dictionary before release" level="Foundational" skills="Data curator; Python" time="One hour the first time; minutes on each release">
 
-**Result:** a list of the variables that software or a user would misread,
-with the reason, and fill rates per field.
+**Result:** a list of the variables that software or a user would
+misread, each with the reason, and the share of variables that have
+each field filled.
 
-1. Export the dictionary with one row per variable. The columns the check
-   reads are `file_id`, `name`, `label`, `type` (numeric, categorical,
-   string), `universe`, `question`, `values` (`code=label;code=label`),
-   `missing` (`code;code`), and `concept`:
+The dictionary is a CSV with one row per variable:
+
+| Column | Meaning |
+|---|---|
+| `file_id`, `name` | The data file and the variable name |
+| `label` | What the variable measures, in words |
+| `type` | `numeric`, `categorical`, or `string` |
+| `universe` | Whom the variable applies to ("Employed persons aged 15 and over") |
+| `question` | The question text as asked |
+| `values` | The codes and their labels, as `code=label;code=label` |
+| `missing` | The codes that mean a missing or inapplicable answer, as `code;code`, or `none` |
+| `concept` | The concept the variable measures ([chapter 4](./concepts.mdx)) |
 
 ```csv file=../../website/static/cookbook-files/microdata-documentation/lfs_2025q2_dictionary.csv
 ```
 
-2. Run the check:
+The check reads the dictionary and reports what is missing or
+inconsistent:
 
 ```python file=../../website/static/cookbook-files/microdata-documentation/check_dictionary.py
 ```
@@ -76,40 +86,42 @@ Output for the running example (abridged):
   values       10 of 18   56%
   missing       7 of 18   39%
   concept       5 of 18   28%
-
 warning  F1/income: numeric variable without a missing-value statement
 error    F1/hours: name appears 2 times
 error    F1/relationship: categorical variable without value labels
 error    F1/informal: label repeats the name ('informal')
 error    F1/q17b: no label
-
 4 error(s), 10 warning(s)
 ```
 
-3. Fix every error before release: label `q17b`, give `informal` a label
-   that says what it measures, add the value codes of `relationship`, and
-   rename the second `hours` (the main-job variable). Decide on the
-   warnings: `income` has no missing code because none is used, and that
-   is worth stating as `none`.
+1. Export the dictionary in the form above.
+2. Run the check.
+3. Fix every error before release. Here: label `q17b`, give `informal`
+   a label that says what it measures, add the value codes of
+   `relationship`, and rename the second `hours` (the main-job
+   variable). Decide on the warnings: `income` has no missing code
+   because none is used, and that is worth stating as `none`.
 4. Keep the check in the release procedure and keep its output with the
    release.
 
-**What this does not do.** The check reads the dictionary alone. It does not
-verify that the value labels match the codes in the data, that the
-universe matches the skip pattern in the questionnaire, or that labels are
-correct. A data-side check (frequency tables against the value codes) and
-a questionnaire review add those.
+**What this does not do.** The check reads the dictionary alone. It
+does not verify that the value labels match the codes in the data, that
+the universe matches the skip pattern in the questionnaire, or that
+labels are correct. A data-side check (frequency tables against the
+value codes) and a questionnaire review add those.
 
 </Recipe>
 
 <Recipe title="3.2 Convert the dictionary into the DDI-based schema" level="AI-ready" skills="Python" time="One hour">
 
-**Result:** the `data_files` and `variables` sections of the study record,
-so that the record is complete at the AI-ready level and can be imported
-into NADA or the Metadata Editor.
+**Result:** the `data_files` and `variables` sections of the study
+record, so that the record is complete at the AI-ready level and can be
+imported into NADA or the Metadata Editor.
 
-1. Run the converter on the repaired dictionary, merging into the study
-   record:
+The converter maps each dictionary column to the corresponding field of
+the schema (the label to `var_label`, the question to
+`var_qstn_qstnlit`, the codes to `var_catgry`) and merges the result
+into the study record:
 
 ```python file=../../website/static/cookbook-files/microdata-documentation/dictionary_to_ddi.py
 ```
@@ -118,55 +130,56 @@ into NADA or the Metadata Editor.
 python dictionary_to_ddi.py lfs_2025q2_dictionary.csv --study example_microdata.json -o study_with_variables.json
 ```
 
+1. Run the converter on the repaired dictionary.
 2. Validate the merged record against the schema and the profile:
 
-```bash
-python check_metadata.py study_with_variables.json profile_microdata.json --level ai-ready
-```
+   ```bash
+   python check_metadata.py study_with_variables.json profile_microdata.json --level ai-ready
+   ```
 
-   For the running example the merged record is valid against the schema
-   and complete at the AI-ready level: `data_files` and `variables` were
-   the two fields the study record lacked in [chapter 1](./find.mdx).
+   For the running example the merged record is valid against the
+   schema and complete at the AI-ready level. The two fields the study
+   record lacked in [chapter 1](./find.mdx) were `data_files` and
+   `variables`.
+3. Import the record into the catalog. The variables appear on the
+   study page with their labels, value codes, universes, and question
+   text, and the catalog's variable search indexes them.
 
-3. Import the record into the catalog. The variables appear on the study
-   page with their labels, value codes, universes, and question text, and
-   the catalog's variable search indexes them.
-
-**What this does not do.** The converter maps the dictionary's columns to
-DDI fields and nothing more. Summary statistics (`var_sumstat`) and category
-frequencies need the data file; the Metadata Editor computes them on import.
-Interval types, formats, and locations in fixed-width files are left for
-the curator to add where they apply.
+**What this does not do.** The converter maps the dictionary's columns
+to DDI fields and nothing more. Summary statistics and category
+frequencies need the data file; the Metadata Editor computes them on
+import. Interval types, formats, and locations in fixed-width files are
+left for the curator to add where they apply.
 
 </Recipe>
 
 <Recipe title="3.3 Document missing codes, universes, and derivations" level="AI-ready" skills="Subject-matter statistician" time="Two to four hours per survey">
 
-**Result:** a user or a system can tell, for every variable, which codes
-are not values, who the variable applies to, and how derived variables were
-computed.
+**Result:** for every variable, a user or a system can tell which codes
+are not values, whom the variable applies to, and how a derived
+variable was computed.
 
 1. Missing codes. List every code that marks a missing, inapplicable,
-   refused, or unknown response, and give each its own label (`-8 = Not
-   applicable`, `-9 = Missing`). In the schema they are categories
-   (`var_catgry`) with a note in `var_notes`; in the CSV they are the
-   `missing` column. A numeric variable that uses no missing code states
-   `none`.
-2. Universes. Write the universe as the population the question was asked
-   of, in the terms of the questionnaire ("Employed persons aged 15 and
-   over"). A universe explains why a variable has fewer cases than the
-   file; without it, a system reads the gap as missing data.
-3. Derivations. For each derived variable (`lfs_status`, `informal`), state
-   the inputs and the rule in `var_derivation`, and name the standard the
-   rule follows (the ICLS resolution for labour force status).
-4. Record the questionnaire version and the skip pattern that each universe
-   depends on, so that a change in the questionnaire shows up as a change in
-   the dictionary.
+   refused, or unknown response, and give each its own label
+   (`-8 = Not applicable`, `-9 = Missing`). In the schema they are
+   categories with a note; in the CSV they are the `missing` column. A
+   numeric variable that uses no missing code states `none`.
+2. Universes. Write the universe as the population the question was
+   asked of, in the terms of the questionnaire ("Employed persons aged
+   15 and over"). A universe explains why a variable has fewer cases
+   than the file. Without it, a system reads the gap as missing data.
+3. Derivations. For each derived variable (`lfs_status`, `informal`),
+   state the inputs and the rule in `var_derivation`, and name the
+   standard the rule follows (the ICLS resolution for labour force
+   status).
+4. Record the questionnaire version and the skip pattern that each
+   universe depends on, so that a change in the questionnaire shows up
+   as a change in the dictionary.
 
 **What this does not do.** This recipe documents the rules. It does not
-verify them against the data; a consistency check (for example, that
-`lfs_status` equals 1 for every case with a positive `hours`) belongs to
-the data quality procedures in [chapter 7](./fitness.mdx).
+verify them against the data. A consistency check (for example, that
+`lfs_status` equals 1 for every case with positive `hours`) belongs to
+the data quality procedures of [chapter 7](./fitness.mdx).
 
 </Recipe>
 

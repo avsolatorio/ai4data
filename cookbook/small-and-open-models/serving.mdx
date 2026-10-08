@@ -52,8 +52,21 @@ says by how much.
 
 <Recipe title="3.1 Estimate memory and check the fit" level="Foundational" skills="Infrastructure; data scientist" time="Minutes per configuration">
 
-**Result:** the memory a model needs at a quantization, context, and
-concurrency, and whether it fits the hardware at hand.
+**Result:** an estimate of how much memory a model needs on the
+organization's hardware, and a yes-or-no answer to whether it fits.
+
+A model needs memory for two things. The first is its weights, the
+numbers it learned: a model with 7 billion parameters stored at 4 bits
+each needs about 3.5 GB. The second is working memory for each request,
+which grows with the length of the text the model reads (its context)
+and the number of requests served at once (concurrency). The script
+below adds the two, with a margin, and compares the total with the
+memory of the graphics card or the system.
+
+The inputs come from two places. The model's configuration file (a
+small file published with the weights) gives the number of parameters,
+layers, hidden size, and the attention variant. The task gives the
+context length and the concurrency.
 
 ```python file=../../website/static/cookbook-files/small-and-open-models/hardware_sizing.py
 ```
@@ -74,70 +87,82 @@ GPU 24 GB: fits
 Measure throughput and memory on a test run before procurement; the estimate sizes the test.
 ```
 
-1. Take the parameters, layers, hidden size, and attention variant from
-   the model's configuration file; take the quantization from the
-   weights file chosen.
-2. Set the context and concurrency from the task: a batch coding job
-   needs short contexts and high concurrency; an assistant needs long
-   contexts and few.
-3. Run the estimate for each candidate and configuration; the output
-   says what fits and what to change (concurrency, quantization) when it
-   does not.
+1. Read the parameters, layers, hidden size, and attention variant from
+   the model's configuration file. Read the bits per weight from the
+   weights file chosen (16 for the original, 8 or 4 for a quantized
+   version, which stores the weights at lower precision to save memory).
+2. Set the context and the concurrency from the task. A batch coding
+   job reads short texts and can serve many at once; an assistant reads
+   long contexts and serves few.
+3. Run the estimate for each candidate and configuration. When the
+   total does not fit, the output says what to reduce: the concurrency,
+   or the bits per weight.
 4. Keep the estimates with the candidates.
 
 **What this does not do.** The estimate uses standard formulas and a
-margin; the server's implementation, attention variant, and batching
-change the real figure, which recipe 3.3 measures.
+margin. The real figure depends on the serving software and on how it
+batches requests, which recipe 3.3 measures on a test run.
 
 </Recipe>
 
 <Recipe title="3.2 Choose the serving stack for the use" level="Foundational" skills="Infrastructure" time="Half a day">
 
-**Result:** a serving stack chosen for the use, with the properties the
-organization needs (batching, quantization, access control, logging).
+**Result:** the software that will run the model, chosen for how the
+model will be used, with the features the organization needs.
 
-| Use | Stack | Properties |
+The serving stack is the program that loads the model and answers
+requests. Three kinds exist, from simplest to most demanding to run:
+
+| Use | Stack | What it gives |
 |---|---|---|
-| One analyst, one machine | llama.cpp or Ollama | CPU or small GPU; GGUF quantized models; no server to run |
-| Production batch jobs | vLLM or llama.cpp server | Continuous batching; high throughput; API inside the network |
-| Shared service for the organization | vLLM behind a gateway | Quotas per unit; authentication; logging; several models |
-| Embeddings at scale | A dedicated embedding server or the same stack | Batched encoding; the index of the dissemination cookbook |
+| One analyst on one machine | llama.cpp or Ollama | Runs on a CPU or a small graphics card with quantized model files; no server to administer |
+| Production batch jobs | vLLM, or llama.cpp in server mode | Serves many requests at once with high throughput; an API inside the network |
+| A shared service for the whole organization | vLLM behind a gateway | Quotas per unit, authentication, logging, several models |
+| Embeddings for search at scale | A dedicated embedding server, or the same stack | Encodes many texts at once for the search index of the dissemination cookbook |
 
-1. Match the use to the row; start one row lower than the ambition and
-   move up when demand is measured.
-2. Put the server inside the production network for confidential tasks
-   ([production cookbook, chapter 6](/cookbook/language-models-in-production/running));
-   limit access to the jobs' accounts; log requests without the content
-   where the content is confidential.
-3. Pin the stack's version with the model's ([chapter 6](./security.mdx)).
+1. Match the use to a row. Start one row below the ambition and move up
+   when the measured demand justifies it.
+2. For tasks on confidential data, put the server inside the production
+   network ([production cookbook, chapter 6](/cookbook/language-models-in-production/running)),
+   limit access to the accounts of the jobs that call it, and log
+   requests without their content.
+3. Record the version of the stack together with the version of the
+   model ([chapter 6](./security.mdx)); the two are upgraded together.
 
-**What this does not do.** The stack serves the model; the application
-around it (prompts, retrieval, checks) is each cookbook's. A stack
-change is a change the suite gates.
+**What this does not do.** The stack serves the model. The prompts, the
+retrieval, and the checks around it belong to the task's own cookbook,
+and a change of stack is a change the evaluation suite has to pass.
 
 </Recipe>
 
 <Recipe title="3.3 Measure throughput and memory on a test run" level="AI-ready" skills="Infrastructure; data scientist" time="Half a day per candidate">
 
-**Result:** measured tokens per second and peak memory per model and
-configuration on the organization's hardware, recorded for the cost
-estimates and the procurement.
+**Result:** measured figures for each model on the organization's own
+hardware: how many tokens per second it processes, how long a request
+takes, and how much memory it uses at peak.
 
-1. Run each candidate on the target hardware with the task's real
-   inputs (a thousand records of the coding task; a hundred questions
+Tokens are the units in which a model reads and writes text, roughly
+three quarters of a word each. Throughput in tokens per second decides
+how long a batch job takes and what it costs; peak memory decides what
+hardware to buy. Both are measured, because the estimate of recipe 3.1
+cannot know the serving software's behaviour.
+
+1. Run each candidate on the target hardware with real inputs from the
+   task (a thousand records of the coding task, or a hundred questions
    of the assistant) at the planned concurrency.
-2. Record: tokens per second in and out, latency at the median and the
-   95th percentile for interactive uses, peak memory, and failures.
-3. Compare with the estimate of recipe 3.1; correct the margin for the
-   stack.
-4. Use the measured throughput in the batch estimates of the
+2. Record: tokens per second read and written; the time per request at
+   the median and at the 95th percentile for interactive uses; the peak
+   memory; and any failures.
+3. Compare with the estimate of recipe 3.1 and note the difference, so
+   that the next estimate uses a better margin.
+4. Use the measured throughput in the batch cost estimates of the
    [production cookbook](/cookbook/language-models-in-production/running)
-   and the cost of [chapter 7](./cost.mdx); size the procurement from
-   the measured peak memory and the planned concurrency.
+   and in the cost comparison of [chapter 7](./cost.mdx). Size any
+   purchase from the measured peak memory and the planned concurrency.
 
-**What this does not do.** A test run measures one configuration;
-production adds other models, other units, and growth, which the
-capacity plan of chapter 7 covers.
+**What this does not do.** A test run measures one model in one
+configuration. Production adds other models, other units, and growth,
+which the capacity plan of [chapter 7](./cost.mdx) covers.
 
 </Recipe>
 
