@@ -150,7 +150,8 @@ export default function PcnEvidence({active = true}) {
                         <span
                           className={styles.pcnProof}
                           tabIndex={0}
-                          aria-describedby="pcn-proof-card">
+                          aria-describedby="pcn-proof-card"
+                          onClick={(e) => e.currentTarget.focus()}>
                           {num}
                           <span
                             className={styles.pcnBadgeOk}
@@ -214,7 +215,7 @@ export default function PcnEvidence({active = true}) {
             {outcome.status === 'verified' && (
               <span className={styles.pcnHint}>
                 {' '}
-                Hover over the number to see the source record.
+                Hover over or tap the number to see the source record.
               </span>
             )}
           </>

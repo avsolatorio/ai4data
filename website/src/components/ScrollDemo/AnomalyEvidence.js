@@ -260,17 +260,24 @@ export default function AnomalyEvidence({active = true}) {
 
 function ClaimButton({n, claim, selected, onSelect}) {
   return (
-    <button
-      type="button"
+    <span
+      role="button"
+      tabIndex={0}
       className={clsx(
         styles.anClaim,
         styles[`anClaim_${claim.status}`],
         selected && styles.anClaimSel,
       )}
       aria-pressed={selected}
-      onClick={() => onSelect(claim.id)}>
+      onClick={() => onSelect(claim.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(claim.id);
+        }
+      }}>
       {claim.text}
       <sup className={styles.anClaimN}>{n}</sup>
-    </button>
+    </span>
   );
 }
