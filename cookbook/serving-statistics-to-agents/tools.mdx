@@ -3,7 +3,7 @@ id: tools
 title: "2. Design of the tools"
 sidebar_label: "2. Tools"
 sidebar_position: 3
-description: A small set of read-only tools with names and descriptions that document them, typed inputs, structured outputs with SDMX concept names, guidance resources, and a check of the manifest against design rules.
+description: How to decide which tools an agent interface offers, how to name and describe them so that a model uses them correctly, and how to check the design before the server is built.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,134 +15,173 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-A model chooses tools by reading their names and descriptions, fills their
-inputs from a JSON schema, and reads their outputs as text or structured
-content. The tool list is therefore documentation that a model reads at
-every call. A small set of well-named read-only tools with typed inputs,
-structured outputs, and a guidance resource produces correct calls; a long
-list of overlapping tools with terse descriptions produces wrong ones. The
-MCP specification defines the pieces: tool name, description, input
-schema, optional output schema and structured content, annotations, and
-resources.
+When an AI assistant connects to an agent interface, it receives a list of
+the tools the interface offers. Each tool has a name, a short description,
+and a definition of its inputs. The assistant decides which tool to call,
+and with which values, by reading that list. It has no other documentation
+and no way to ask a question. The tool list is therefore the documentation
+the model works from, and the model reads it at every call.
+
+This has a practical consequence. Three or four tools with clear names,
+descriptions that say when to use them, and inputs with a stated type and
+meaning will be called correctly most of the time. Twenty tools that
+overlap, with one-line descriptions written for a developer, will be called
+wrongly, and the wrong calls look like a failure of the model when they are
+a failure of the design. This chapter is about getting the design right on
+paper, before any code exists, and then checking it.
+
+The Model Context Protocol (MCP) specification defines the parts of a tool:
+a name, a description, a JSON schema for the inputs, an optional schema for
+the outputs, annotations such as a read-only marker, and resources, which
+are documents the assistant can read alongside the tools.
 
 ## Target state
 
-- The server offers a small set of tools (search, metadata, observations, code lists) that cover the uses of [chapter 1](./purpose.mdx).
-- Every tool is read-only and has a snake_case verb-phrase name, a description that tells the model when and how to use it, typed and described inputs, and an example call.
-- Outputs are structured and use the field names of the catalog: World Bank schema fields for records, SDMX concepts for values.
-- Resources carry the guidance, the code lists, and the release calendar.
-- The manifest passes the design check and is published.
+- The server offers a small set of tools: a search tool, a metadata tool, an observations tool, and a code-list tool. Together they cover the uses decided in [chapter 1](./purpose.mdx).
+- Every tool is read-only. Its name is a verb phrase in snake_case, such as `get_observations`. Its description tells the model when to use the tool and what it returns. Each input has a type and a description, and each tool has an example call.
+- Outputs are structured objects whose field names come from the catalog: the World Bank schema fields for catalog records and SDMX concept names for values.
+- The guidance text, the code lists, and the release calendar are served as resources.
+- The manifest passes the design check and is published with the server.
 
 ## Maturity levels
 
 | Level | Steps |
 |---|---|
-| **Foundational** | Document the API with OpenAPI or run an SDMX service, so that an agent can call it; write the tool manifest as a design document. |
-| **AI-ready** | Implement the tools over the API with structured outputs and resources; check the manifest against the design rules; try the tools with two assistants. |
-| **AI-native** | Version the tools, test descriptions by measuring tool-selection errors in the evaluation suite, and publish the manifest and an output schema per tool. |
+| **Foundational** | The API is documented with OpenAPI, or an SDMX service is in place, so that an agent can call it directly. The tool manifest is written as a design document. |
+| **AI-ready** | The tools are implemented over the API with structured outputs and resources. The manifest is checked against the design rules, and the tools are tried with two different assistants. |
+| **AI-native** | The tools are versioned. Descriptions are tested by measuring how often an assistant picks the wrong tool in the evaluation suite. The manifest and an output schema for each tool are published. |
 
 :::info[Running example]
-Four tools over the example organization's catalog and API: `search_series`,
-`get_series_metadata`, `get_observations`, and `list_code_values`, plus
-three resources. The manifest passes the design check with no errors or
-warnings.
+The example organization serves its catalog and API through four tools,
+`search_series`, `get_series_metadata`, `get_observations`, and
+`list_code_values`, and three resources: a guidance text, the code lists,
+and the release calendar. Its manifest passes the design check with no
+errors and no warnings.
 :::
 
 ## Recipes
 
 <Recipe title="2.1 Write the tool manifest" level="Foundational" skills="Developer; dissemination officer for the descriptions" time="Half a day">
 
-**Result:** a design document, written before any code, that lists each
-tool with its name, a description written for the model, its inputs and
-outputs, an example call, and a read-only mark, together with the
-resources the server will serve.
+**Result:** the team has a design document, called the tool manifest, that
+describes every tool the server will offer before any code is written. For
+each tool it records the name, a description written for the model, the
+inputs and outputs, an example call, and the fact that the tool only reads
+data. It also lists the resources the server will serve.
 
-A tool is one operation an assistant can call, such as "search for a
-series" or "get observations". The assistant chooses which tool to call
-by reading the tool's description, so the description is documentation
-for a reader that cannot ask questions. A resource is a text or a file
-the assistant can read, such as a code list. The manifest for the
-running example lists four tools and three resources:
+A tool is one operation the assistant can ask the server to perform, for
+example "search for a series by keyword" or "return the observations of a
+series for a country and a period". The assistant chooses a tool by reading
+its description, so the description has to do the work that a conversation
+with a developer would normally do. A resource is a document the assistant
+can read, such as a code list or a text that explains how the tools fit
+together.
+
+Writing the manifest first, as a plain JSON file, has two advantages. The
+dissemination officer can write and review the descriptions without reading
+code, and the design can be checked against a set of rules (recipe 2.3)
+before anyone builds the server. The manifest of the running example lists
+four tools and three resources:
 
 ```json file=../../website/static/cookbook-files/serving-statistics-to-agents/tool_manifest.json
 ```
 
-1. Keep the set small. A search tool, a metadata tool, a data tool, and
-   a code-list tool cover the four uses. Add analysis tools as a
-   separate decision ([chapter 1](./purpose.mdx)).
-2. Write each description for the model: what the tool returns, when to
-   use it, and what to do first ("Use this first when the series
-   identifier is unknown"). Twenty words is a floor.
-3. Type every input and describe it, with the code list it draws on and
-   the formats it accepts (ISO 8601 or SDMX periods). Give an example
-   call.
-4. Name the outputs with the catalog's own field names: the World Bank
-   indicator schema for records (`idno`, `name`, `measurement_unit`) and
-   SDMX concepts for values (`SERIES`, `REF_AREA`, `TIME_PERIOD`,
-   `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`). A response is then the
-   same object the API returns.
-5. Add the resources: a guidance text that tells the model how to use
-   the tools (search first, read metadata before interpreting, cite the
-   source and release), the code lists, and the release calendar. The
-   Data360 server's `data360://system-prompt`, `data360://codelists`,
-   and `data360://search-usage` resources are the model for these.
+The steps:
 
-**What this does not do.** A manifest is a plan. Recipe 2.3 checks it
-against the rules, and [chapter 7](./evaluate.mdx) checks whether
-models use the tools as intended, which is the only real test of a
-description.
+1. Keep the set small. A search tool, a metadata tool, a data tool, and a
+   code-list tool cover the four uses of [chapter 1](./purpose.mdx). Tools
+   that analyse data, such as rankings or summaries, are a separate
+   decision, because they produce figures the organization did not
+   publish.
+2. Write each description for the model. Say what the tool returns, when it
+   should be used, and what should be done before calling it. A sentence
+   such as "Use this first when the series identifier is unknown" steers
+   the model better than a technical summary does. A description shorter
+   than about twenty words leaves the model guessing.
+3. Give every input a type and a description. Name the code list an input
+   draws on and the formats it accepts, for example dates in ISO 8601 or
+   periods in SDMX notation. Add one example call per tool, because the
+   example shows the model the shape of a correct call.
+4. Name the outputs with the catalog's own field names. Catalog records use
+   the World Bank indicator schema (`idno`, `name`, `measurement_unit`).
+   Values use SDMX concepts (`SERIES`, `REF_AREA`, `TIME_PERIOD`,
+   `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`). A tool response is then the
+   same object the API returns, and the meaning documented in the catalog
+   travels with the value.
+5. List the resources. The first is a guidance text that tells the model
+   how to use the tools: search first, read the metadata before
+   interpreting a value, and cite the source and the release. The others
+   are the code lists and the release calendar. The Data360 server's
+   `data360://system-prompt`, `data360://codelists`, and
+   `data360://search-usage` resources are good models for these.
+
+**What this does not do.** The manifest is a plan. Recipe 2.3 checks the
+plan against the design rules, and [chapter 7](./evaluate.mdx) checks
+whether assistants use the tools as intended, which is the only real test
+of a description.
 
 </Recipe>
 
 <Recipe title="2.2 Implement the tools over the API" level="AI-ready" skills="Python developer" time="One day for a prototype; a week to harden">
 
-**Result:** a running server, speaking the Model Context Protocol (MCP,
-the open standard assistants use to call tools), whose tools call the
-organization's API and return structured content.
+**Result:** a running server that speaks the Model Context Protocol. Its
+tools call the organization's API and return the results as structured
+content that an assistant can read and a client can validate.
+
+The server is a small program. It receives a tool call from the assistant,
+calls the organization's API, and returns the API's answer in the form the
+protocol expects. The official Python SDK handles the protocol itself, so
+most of the work is mapping each tool to the right API call.
 
 1. Start from the server in the
-   [dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve),
-   which exposes two read-only tools over CSV files with the official
-   Python SDK. Replace the file reads with calls to the API.
-2. Return structured content: the SDK turns a dictionary return value
-   into a structured response, and an output schema lets clients
-   validate it. Keep the text content as a readable rendering of the
-   same object.
-3. Mark every tool read-only through the SDK's tool annotations, and
-   give each a title. The specification treats annotations as hints;
-   the safety of the server rests on the tools themselves having no
-   write path ([chapter 6](./safety.mdx)).
-4. Serve the resources from the catalog: the guidance text, the code
-   lists (from the same source as the API), and the release calendar.
-5. Return tool execution errors with a message the model can act on
-   ("unknown reference area code; call list_code_values"), which lets
-   the model correct its call.
+   [dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve). It
+   exposes two read-only tools over CSV files with the official Python
+   SDK. Replace the reads from CSV files with calls to the API.
+2. Return structured content. When a tool function returns a dictionary,
+   the SDK sends it as a structured response, and an output schema lets
+   the client validate it. Keep the text version of the response as a
+   readable rendering of the same object, so that an assistant without
+   support for structured content still receives the values.
+3. Mark every tool as read-only through the SDK's tool annotations and
+   give each one a title. The specification treats annotations as hints
+   that a client may ignore. The safety of the server therefore rests on
+   the tools having no write path at all, which [chapter 6](./safety.mdx)
+   covers.
+4. Serve the resources from the catalog: the guidance text, the code lists
+   (from the same source the API uses), and the release calendar.
+5. When a call fails, return an error message the model can act on. The
+   message "unknown reference area code; call list_code_values" lets the
+   model correct its call. A bare error code does not.
 
 **What this does not do.** A prototype serves one user. Transport,
-authentication, rate limits, and hosting are
+authentication, rate limits, and hosting are the subjects of
 [chapters 5](./access.mdx), [6](./safety.mdx), and [9](./operate.mdx).
 Analysis tools (summaries, rankings, chart specifications) are a further
-step with their own evaluation.
+step that needs its own evaluation.
 
 </Recipe>
 
 <Recipe title="2.3 Check the manifest against the design rules" level="AI-ready" skills="Python" time="Minutes">
 
-**Result:** a check, run whenever the manifest changes, that every tool
-has a description of sufficient length, typed inputs, an example, a
-read-only mark, and, for data tools, the provenance fields in its
-output.
+**Result:** an automated check that runs whenever the manifest changes. It
+confirms that every tool has a description of sufficient length, typed
+inputs, an example call, and a read-only mark, and that every data tool
+returns the provenance fields.
 
-The script reads the manifest and applies the rules of recipe 2.1:
+The check turns the rules of recipe 2.1 into a script, so that the design
+holds as the manifest grows and as new people edit it. The script reads the
+manifest and reports each rule that is broken:
 
 ```python file=../../website/static/cookbook-files/serving-statistics-to-agents/check_tool_manifest.py
 ```
+
+It runs from the command line with the manifest as its argument:
 
 ```bash
 python check_tool_manifest.py tool_manifest.json
 ```
 
-Output for the running example:
+For the running example the output is:
 
 ```text
 statistics-example 1.0.0: 4 tool(s), 3 resource(s)
@@ -151,55 +190,56 @@ statistics-example 1.0.0: 4 tool(s), 3 resource(s)
 Not checked here: whether the server behaves as the manifest says; the evaluation in chapter 5 does that.
 ```
 
-1. Run the check on the manifest and on the server's own tool listing
-   exported in the same form, so that the design and the implementation
-   agree.
+1. Run the check on the manifest, and also on the server's own tool
+   listing exported in the same form. The two should agree. A difference
+   means the implementation has drifted from the design.
 2. Treat an error as a blocker. A tool without an example, a data tool
-   without provenance fields, or a tool not marked read-only is
-   published only after the fix.
-3. Keep the check in the pipeline that builds the server.
+   without provenance fields, or a tool that is not marked read-only waits
+   for the fix before it is published.
+3. Add the check to the pipeline that builds the server, so that it runs
+   on every change.
 
 **What this does not do.** The rules are necessary conditions. A
-description can pass the word count and still mislead a model; the
-tool-selection results in [chapter 7](./evaluate.mdx) are the test.
+description can be long enough and still mislead a model. The
+tool-selection results in [chapter 7](./evaluate.mdx) are the real test.
 
 </Recipe>
 
 ## Implementation options
 
-- **SDK:** the official Python SDK (`mcp`), with `MCPServer` in version 2; SDKs exist for TypeScript and other languages.
-- **Tool set:** search, metadata, observations, code lists as the core; the Data360 server adds disaggregation, code resolution, summaries, rankings, comparisons, and chart specifications.
-- **Outputs:** structured content with an output schema; field names from the World Bank schemas and SDMX concepts.
-- **Resources:** guidance, code lists, release calendar; a prompt template for common questions.
-- **Existing servers:** NADA's MCP interface serves the catalog; an organization running NADA has the catalog side and adds a data server over its API.
+- **SDK.** The official Python SDK (`mcp`) is the usual choice; its version 2 provides the `MCPServer` class. SDKs exist for TypeScript and other languages.
+- **Tool set.** Search, metadata, observations, and code lists form the core. The Data360 server adds tools for disaggregation, code resolution, summaries, rankings, comparisons, and chart specifications, each of which is a separate design decision.
+- **Outputs.** Structured content with an output schema per tool, with field names taken from the World Bank schemas and from SDMX concepts.
+- **Resources.** The guidance text, the code lists, and the release calendar, and where useful a prompt template for common questions.
+- **Existing servers.** NADA's MCP interface already serves a catalog. An organization that runs NADA has the catalog side in place and adds a data server over its API.
 
 ## World Bank examples
 
-- The [Data360 MCP server](https://github.com/worldbank/data360-mcp): six core tools (`data360_search_indicators`, `data360_get_metadata`, `data360_get_disaggregation`, `data360_get_data`, `data360_find_codelist_value`, `data360_list_indicators`), analysis tools, and resources including a system prompt, databases, code lists, metadata fields, filters, and search usage.
+- The [Data360 MCP server](https://github.com/worldbank/data360-mcp) offers six core tools (`data360_search_indicators`, `data360_get_metadata`, `data360_get_disaggregation`, `data360_get_data`, `data360_find_codelist_value`, and `data360_list_indicators`), a set of analysis tools, and resources that include a system prompt, the list of databases, the code lists, the metadata fields, the filters, and a guide to search usage.
 - The program's [MCP page](/docs/mcp/) sketches `get_indicator`, `search_indicators`, and `list_countries` as the tools a development data server exposes.
-- The [dissemination cookbook's server example](/cookbook/ai-ready-dissemination/retrieve) is the minimal implementation this chapter builds on.
+- The [server example of the dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve) is the minimal implementation this chapter builds on.
 
 ## Resources
 
-- [MCP specification: tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools): tool definitions, input and output schemas, annotations such as `readOnlyHint`, and error handling.
-- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk): the official server library; the TypeScript SDK and others are listed on the specification site.
-- [JSON Schema](https://json-schema.org/): the format of tool input and output schemas.
-- [SDMX cross-domain concepts](https://sdmx.org/?page_id=4345): the field names (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`) the outputs use.
-- [MCP Inspector](https://github.com/modelcontextprotocol/inspector): an interactive tool to call a server's tools and read its resources while developing.
-- [Tool manifest](pathname:///cookbook-files/serving-statistics-to-agents/tool_manifest.json) and [manifest check](pathname:///cookbook-files/serving-statistics-to-agents/check_tool_manifest.py): the running example's manifest and the design rules.
+- [MCP specification: tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) defines tool definitions, input and output schemas, annotations such as `readOnlyHint`, and error handling.
+- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) is the official server library. The TypeScript SDK and others are listed on the specification site.
+- [JSON Schema](https://json-schema.org/) is the format of tool input and output schemas.
+- [SDMX cross-domain concepts](https://sdmx.org/?page_id=4345) define the field names (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`) the outputs use.
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is an interactive tool for calling a server's tools and reading its resources during development.
+- The running example's [tool manifest](pathname:///cookbook-files/serving-statistics-to-agents/tool_manifest.json) and [manifest check](pathname:///cookbook-files/serving-statistics-to-agents/check_tool_manifest.py).
 
 ## Common mistakes
 
-- **One tool per API endpoint.** Twenty tools with overlapping purposes defeat tool selection; four tools that map to the uses do not.
-- **Descriptions written for developers.** The model is the reader; it needs to know when to call the tool and what comes back.
-- **Free-text inputs where a code list exists.** A model given "Northern Region" guesses a code; a code-list tool and a described input stop the guess.
-- **Outputs with invented field names.** Values that arrive as `val` and `yr` lose the meaning the catalog carries; SDMX names keep it.
+- **One tool per API endpoint.** An API with twenty endpoints becomes twenty tools with overlapping purposes, and the model cannot tell them apart. Four tools that correspond to the four uses are easier to choose between.
+- **Descriptions written for developers.** A description that summarises the endpoint tells the model nothing about when to call it. The model needs to know when the tool applies and what comes back.
+- **Free-text inputs where a code list exists.** A model given a free-text region input will type "Northern Region" and guess a code. An input that names its code list, together with a code-list tool, removes the guess.
+- **Outputs with invented field names.** Values that arrive as `val` and `yr` have lost the meaning the catalog carries. The SDMX names keep it.
 
 ## Verification
 
-- **Manifest check:** no errors; warnings decided.
-- **Agreement:** the server's `tools/list` matches the manifest.
-- **Trial:** two assistants connected to the server answer the first ten questions of the set using the expected tools.
+- **Manifest check.** The check reports no errors, and each warning has been considered and either fixed or accepted.
+- **Agreement.** The server's `tools/list` response matches the manifest.
+- **Trial.** Two assistants connected to the server answer the first ten questions of the question set using the expected tools.
 
 ## Checklist
 
