@@ -1076,3 +1076,30 @@ Commit: dae8ff8 (`tiny/confidence.py`; app pages). Model `runs/v2f-nosim-dpo` (I
 | Challenge, 2,244 | 70.8% | 76.0% | 85.2% | 52% | 92.2% (27%) |
 
 **Implication.** Confidence separates reliable from unreliable verdicts on all three sets, sharply on in-distribution searches and less so on the challenge phenomena, where high-confidence errors remain (92% at ≥ 0.97). The app now marks a verdict below 0.7 as uncertain (18% of realistic searches, about 55% accurate; the rest about 93%). This is the first deployable control on errors that does not depend on improving the model.
+
+## 2026-10-09 11:09 UTC — Round G: verdict rules, hard negatives and Eurostat tables; held-out tables +10 points
+
+Commit: a03fe62, 72ff396 (data and driver); app switch in 6acb5d7. Models `runs/v2g-nosim`, `runs/v2g-nosim-dpo`.
+
+**Question/Context.** Act on the challenge diagnosis (entry 01:58): consistent labels for the hard phenomena, harder negatives for look-alikes, and table data closer to statistical-office catalogs, with a table test large enough to measure.
+
+**What was done.**
+1. Relabelled with the verdict rules at render version 4 (teacher and Gemma 4; agreed rows kept): the 13,378 phenomenon searches (agreement 77.5%; 10,373 kept), the 16,920 concept searches (74.7%; 12,646).
+2. Lexical hard negatives: 7,999 real training searches paired with catalog records sharing their words, chosen for low embedding similarity (25% the top lexical record); agreement 85.1%, 6,805 kept.
+3. 5,991 new exclusion, look-alike, proxy, group and period searches by the training writers (71.3%; 4,270 kept).
+4. Eurostat: 3,000 tables from the table of contents and SDMX structures (dimensions with their members, e.g. poverty thresholds and age bands). Records split by hash: half 0 for 3,244 training searches over 13 phenomena (2,548 kept); half 1 for a held-out table test of 649 searches written by Gemma 4 (`data/eval_tables`; 517 with teacher-Gemma agreement).
+5. Assembled with the earlier sets (narratives with invented numbers dropped: 6,494 of 1,214,435), training split 977,538. One epoch from round F supervised (lr 1e-4); DPO as before (4,263 pairs). The challenge suite is scored on its relabelled version-4 copy; the other sets' version-4 copies equal version 3 except for one paraphrase input.
+
+**Result.** Teacher label (agreed subset in brackets):
+| Test set | F + DPO | G supervised | G + DPO |
+|---|---|---|---|
+| Realistic, 1,495 | 85.3% (91.8%) | 86.1% (92.5%) | 84.4% (91.4%) |
+| Paraphrase, 2,175 | 81.3% (87.9%) | 81.6% (87.6%) | 82.0% (88.7%) |
+| Nine-type, 475 | 80.2% (83.7%) | 80.2% (84.0%) | 79.4% (83.3%) |
+| Challenge, relabelled, 2,244 | 70.5% (76.2%) | 73.5% (80.4%) | 73.0% (81.1%) |
+| Eurostat tables, held out, 649 | 61.0% (66.0%) | 71.3% (80.5%) | 71.0% (81.8%) |
+| Faithful, teacher / Gemma 4 judge | 4.60 / 4.73 | 4.45 / 4.59 | 4.56 / 4.70 |
+
+Challenge by phenomenon, F + DPO → G supervised: negation 36.9% → 60.4%, synonym 66.7% → 70.7%, proxy 50.7% → 56.0%, time phrase 65.1% → 69.8%, multi-ask 82.6% → 87.9%, group definition 58.0% → 60.0%, threshold 80.7% → 82.0%, look-alike 51.7% → 51.0%. Eurostat tables, F + DPO → G + DPO: synonym 40% → 68%, standard measure 52% → 70%, group definition 32% → 52%, question 74% → 88%, title 76% → 96%; look-alike 56% → 54%.
+
+**Implication.** The exclusion fix (wording plus consistent labels) worked: negation rose 23 points. Table data from a third statistical office raised held-out table accuracy by 10 points (16 on the agreed subset), the largest single gain so far, which supports adding more statistical-office tables. Look-alikes did not move with 6,805 lexical hard negatives; the student still calls an item relevant on shared words, so this needs another approach (or more capacity). Supervised G is the most accurate on the realistic test but less faithful; DPO restores faithfulness to within 0.04 of round F at -0.9 points realistic (-0.4 on the agreed subset, within noise). G + DPO replaces F + DPO in the app, with version-4 inputs.
