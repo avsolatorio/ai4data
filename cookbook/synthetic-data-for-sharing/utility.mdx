@@ -3,7 +3,7 @@ id: utility
 title: "3. Measurement of utility"
 sidebar_label: "3. Utility"
 sidebar_position: 4
-description: Measuring how well a synthetic file reproduces the real one at three levels (marginals, associations, and the analyses users will run), reading the report, and deciding whether the file serves its intended uses.
+description: How the utility of a synthetic file is measured at three levels, which are the distribution of each variable, the relationships between variables, and the analyses users will run, and how the report decides whether the file serves its intended uses.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,9 +52,10 @@ file, and the report says so before release.
 
 <Recipe title="3.1 Run the utility report at three levels" level="Foundational" skills="Python" time="Minutes per file">
 
-**Result:** a report that compares the synthetic file with the real
-one at three levels: each variable's distribution, the relationships
-between pairs of variables, and the statistics users will compute.
+**Result:** the organization has a report that compares the synthetic
+file with the real one at three levels: each variable's distribution,
+the relationships between pairs of variables, and the statistics users
+will compute.
 
 The script reads the real and the synthetic file, which have the same
 columns, and reports three things. For each variable, how different its
@@ -107,6 +108,12 @@ target analyses
   median income, education 3: real 1900, synthetic 2400
 ```
 
+The marginals block gives one line per variable with its distance
+measure. The associations block gives, for each pair, the measure in the
+real file and in the synthetic one side by side. The target analyses
+block gives each statistic in both files with the number of records it
+rests on.
+
 1. Run the report where the real file is, on the organization's own
    infrastructure. Only the report leaves.
 2. Read the distributions. A total variation distance above a few
@@ -119,6 +126,20 @@ target analyses
    the gap is how wrong they will be. In the example, the employment
    rate for men is 0.56 in the real file and 0.40 in the synthetic one.
 
+**Worked example.** The methodologist reads the report above. The
+marginals are close, except that the median income is 20 percent lower
+in the synthetic file, which the crude method's conditioning on
+education alone explains. Among the associations, two pairs stand out:
+sex and labour force status fell from 0.13 to 0.05, and sex and
+education from 0.13 to 0.06, because the crude method drew sex
+independently of everything else. The target analyses show the
+consequence: the employment rate for men is 16 points too low, while
+the rate for women is close. The methodologist writes "fails on the
+gender employment gap; method ignores relationships with sex" in the
+report and sends the file back to chapter 2, where the sequential CART
+synthesis with sex early in the visit sequence restores the
+association to 0.12.
+
 **What this does not do.** The report's two target statistics are
 examples; recipe 3.2 adds the organization's own. Three hundred records
 give rough figures; the real file's size gives the precision.
@@ -128,8 +149,8 @@ give rough figures; the real file's size gives the precision.
 <Recipe title="3.2 Add the target analyses of the intended uses" level="AI-ready" skills="Methodologist; subject-matter analyst" time="Half a day per file">
 
 **Result:** the report includes the statistics and models that the
-intended uses require, computed on both files, with the differences
-and the real file's sampling error beside them.
+intended uses require, computed on both files, with the differences and
+the real file's sampling error beside them.
 
 1. From the purpose statement's intended uses, list the analyses: the
    published tables users reproduce to test their code, the regressions
@@ -144,6 +165,19 @@ and the real file's sampling error beside them.
 4. Add the analyses to the report script, so that every future
    synthesis of the survey reports them.
 
+**Worked example.** The purpose statement's uses give four target analyses for the labour
+force file. They are the published table of unemployment by sex and age
+group, the employment rate by region, the median hours by occupation
+major group, and the course's regression of log income on education,
+sex, age, and region. On the full file the sequential
+synthesis reproduces the unemployment table within 0.8 points in every
+cell, where the real file's sampling error is about 1.2 points, and the
+regional employment rates within 1.5 points. The regression's
+coefficient on education is 0.21 in the real file and 0.19 in the
+synthetic one, with confidence intervals that overlap by 80 percent.
+The four analyses are added to the script, and the report lists them
+with the sampling errors beside the differences.
+
 **What this does not do.** The analyses cover what the organization
 anticipated. A user's new analysis may depend on a relationship the
 method weakened, which is why the synthesis record lists what was
@@ -153,9 +187,9 @@ measured and tells users to treat everything else as unverified.
 
 <Recipe title="3.3 Set thresholds and decide" level="AI-ready" skills="Methodologist; head of the microdata unit" time="An hour per file">
 
-**Result:** a release decision taken by comparing the report with
-thresholds set for the file's intended uses, recorded in the synthesis
-record.
+**Result:** the release decision has been taken by comparing the report
+with thresholds set for the file's intended uses, and it is recorded in
+the synthesis record.
 
 1. Set thresholds at each level for the file's uses. For testing code,
    the variable types and distributions matter most. For teaching, the
@@ -166,6 +200,19 @@ record.
    improve, or its intended uses are narrowed.
 3. Record the decision, the thresholds, and the report in the synthesis
    record ([chapter 6](./release.mdx)).
+
+**Worked example.** For the labour force file the methodologist sets
+three thresholds: a total variation distance under 0.05 on every
+categorical variable, no association whose Cramér's V changes by more
+than 0.05, and every target analysis within the real file's sampling
+error. The sequential synthesis passes the first and the third and
+fails the second on one pair, occupation and industry, where the
+measure falls from 0.42 to 0.33. The intended uses do not depend on
+that pair, so the decision is to release with the limitation stated in
+the synthesis record: "the joint distribution of occupation and
+industry is weaker than in the real file; analyses of that pair are
+unverified". The transformer-based alternative, which keeps the pair,
+is noted as the method for the next synthesis.
 
 **What this does not do.** Thresholds encode the organization's
 judgement of "close enough" for a use. No threshold in this guide makes
@@ -200,9 +247,9 @@ a synthetic file suitable for estimating statistics.
 
 ## Verification
 
-- **Report:** produced for every synthetic file at the three levels with the target analyses of its uses.
-- **Thresholds:** set per use and recorded; the decision follows them.
-- **Record:** the report is attached to the synthesis record.
+- **Report.** A report exists for every synthetic file at the three levels, with the target analyses of its uses.
+- **Thresholds.** The thresholds are set per use and recorded, and the decision follows them.
+- **Record.** The report is attached to the synthesis record.
 
 ## Checklist
 

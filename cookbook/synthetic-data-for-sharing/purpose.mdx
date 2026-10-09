@@ -3,7 +3,7 @@ id: purpose
 title: "1. Purpose and limits of synthetic data"
 sidebar_label: "1. Purpose"
 sidebar_position: 2
-description: What synthetic microdata are for in a statistical organization (test data, teaching, code development, method research) and what they are not for (estimation, publication), the kinds of synthesis, and the decision to produce one.
+description: What synthetic microdata are for in a statistical organization, which is test data, teaching, code development, and method research, what they are never for, which is estimation and publication, the two kinds of synthesis, and how the decision to produce a file is taken from demand.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -60,9 +60,8 @@ that file; a 300-record extract with six variables carries the scripts.
 
 <Recipe title="1.1 Write the purpose statement" level="Foundational" skills="Head of the microdata unit; methodologist" time="Half a day">
 
-**Result:** a short, approved, published statement of what the
-organization's synthetic files are for and what they must not be used
-for.
+**Result:** the organization has a short, approved, published statement
+of what its synthetic files are for and what they must not be used for.
 
 1. List the intended uses: writing and testing analysis code before
    applying for the real file; teaching; developing methods; testing
@@ -79,6 +78,19 @@ for.
    [microdata cookbook](/cookbook/microdata-documentation/access), and
    repeat it in every synthesis record ([chapter 6](./release.mdx)).
 
+**Worked example.** The example organization's statement fits on one
+page. Its intended uses are: writing and testing code before an
+application for the real file; teaching survey analysis; developing and
+comparing methods; testing data pipelines; and demonstrations to
+partners. Its prohibited uses are: estimating or publishing any
+statistic; using the file in place of the real microdata in any report;
+and relying on any relationship the utility report does not list. The
+labelling rule says that every synthetic file name begins with
+"SYNTHETIC_", that the catalog title begins with "Synthetic", and that
+the data file carries a column `synthetic` set to 1 in every row. The
+statement is approved by the head of the microdata unit and published
+as an annex to the access policy.
+
 **What this does not do.** A statement sets expectations. Users will
 still compute things from a synthetic file; the label, the record, and
 the utility report are what tell them how far to trust the result.
@@ -87,8 +99,9 @@ the utility report are what tell them how far to trust the result.
 
 <Recipe title="1.2 Decide which files to synthesize, from demand" level="Foundational" skills="Microdata unit" time="Two hours">
 
-**Result:** an ordered list of the surveys to synthesize, with the
-demand behind each and the uses the synthetic file would serve.
+**Result:** the microdata unit has an ordered list of the surveys to
+synthesize, with the demand behind each and the uses its synthetic file
+would serve.
 
 1. Count, for each survey, the access requests over the last two years,
    the requests from teachers, and the internal needs (pipeline testing,
@@ -101,6 +114,17 @@ demand behind each and the uses the synthetic file would serve.
    users will write code against.
 4. Record the list in the microdata unit's work plan.
 
+**Worked example.** Over two years the example organization received
+140 access requests for the labour force survey, 60 for the household
+budget survey, and 25 for the census sample, and its training unit asked
+twice for a teaching file of the labour force survey. The labour force
+survey comes first. Its intended uses are code testing by applicants,
+who need every variable with its real type and codes, and teaching,
+which needs the demographic and employment variables and the weights.
+The household budget survey comes second, for method development on
+consumption data, and the census sample last. The list goes into the
+unit's work plan with the demand figures beside each survey.
+
 **What this does not do.** Demand decides the order of work. Whether a
 survey's synthetic file is good enough to release is decided by the
 measures of [chapters 3](./utility.mdx) and [4](./risk.mdx).
@@ -109,9 +133,9 @@ measures of [chapters 3](./utility.mdx) and [4](./risk.mdx).
 
 <Recipe title="1.3 Separate synthesis for sharing from disclosure control" level="Foundational" skills="Methodologist; disclosure control unit" time="Two hours">
 
-**Result:** a clear line, in the policy and in practice, between fully
-synthetic files made for sharing and partially synthetic methods used
-to protect a public use file.
+**Result:** the policy and the practice draw a clear line between fully
+synthetic files made for sharing and partially synthetic methods used to
+protect a public use file.
 
 The two are easy to confuse because the methods overlap. A fully
 synthetic file replaces every value and is never used for estimates. A
@@ -129,6 +153,19 @@ that users do analyse.
    with utility measured for the estimates users will make.
 3. Keep the two products apart in the catalog, with different labels,
    records, and terms of use.
+
+**Worked example.** The example organization's access policy gains a paragraph on the two
+products. It says that synthetic files are fully synthetic, that no
+value in them is a real respondent's, and that no statistic is
+estimated from them. It says that they are documented in a synthesis
+record and labelled synthetic. It then says that public use files are
+real data with disclosure control applied, which may include the
+replacement of some sensitive variables by synthesized values where the
+file's record states it, and that estimates may be made from them with
+the documented caveats. In the catalog, the synthetic labour force file is
+a separate study with the title "Synthetic version of the Labour Force
+Survey 2025 Q2", and the public use file of the same survey keeps its
+own record with its disclosure control section.
 
 **What this does not do.** The line keeps users and reviewers clear
 about what each file is. A team that masters one method learns the
@@ -163,9 +200,9 @@ other; what differs is the documentation and the use.
 
 ## Verification
 
-- **Statement:** approved, published, and repeated in every synthesis record.
-- **Prioritization:** the list exists with demand figures and intended uses.
-- **Separation:** synthetic files and public use files have distinct labels, records, and terms in the catalog.
+- **Statement.** The statement is approved, published, and repeated in every synthesis record.
+- **Prioritization.** The list exists with demand figures and intended uses.
+- **Separation.** Synthetic files and public use files have distinct labels, records, and terms in the catalog.
 
 ## Checklist
 

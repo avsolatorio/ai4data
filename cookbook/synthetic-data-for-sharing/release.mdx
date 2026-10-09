@@ -3,7 +3,7 @@ id: release
 title: "6. Documentation and release"
 sidebar_label: "6. Release"
 sidebar_position: 7
-description: The synthesis record that accompanies every synthetic file (source, method and seed, utility and risk results, intended and prohibited uses, labelling and licence), the catalog record and label, the licence and terms, and the release decision.
+description: How a synthetic release is documented and governed, with a synthesis record that states the source, the method and seed, the utility and risk results, and the uses and limits, a catalog record that labels the file as synthetic, and a release decision recorded with its reviewers.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -51,9 +51,10 @@ check finds every section and every required statement.
 
 <Recipe title="6.1 Write and check the synthesis record" level="Foundational" skills="Methodologist" time="An hour per file">
 
-**Result:** a document that accompanies the synthetic file and states
+**Result:** the synthetic file is accompanied by a document that states
 where it came from, how it was made, what the measurements found, what
-it is for, and whom to ask, checked for completeness.
+it is for, and whom to ask, and the document has been checked for
+completeness.
 
 The synthesis record has eight sections: the source data, the method
 and its settings including the seed, the utility results, the
@@ -93,12 +94,32 @@ Output for the running example:
 result: PASS
 ```
 
+The first eight lines confirm that each section is present. The three
+lines that follow confirm the statements the check requires inside the
+sections: a seed, a named reviewer or date for the risk results, and
+the word SYNTHETIC in the labelling section. The last line is the
+verdict.
+
 1. Fill the template from the synthesis run ([chapter 2](./method.mdx)),
    the utility report ([chapter 3](./utility.mdx)), and the risk review
    ([chapter 4](./risk.mdx)). Attach both reports.
 2. Run the check. A missing section or statement blocks the release.
 3. Keep the record with the file under version control. A new synthesis
    gets a new record.
+
+**Worked example.** The record for the labour force file's open release
+names the source as the 2025 Q2 labour force survey, person file,
+version 1.1. Its method section reads "sequential synthesis with CART in
+synthpop 1.8, visit sequence region to income, minimum leaf size 10,
+smoothing on income, seed 20250711". Its utility section gives the
+thresholds and the results of chapter 3, with the limitation on
+occupation and industry. Its risk section gives the three checks, the
+membership inference result of 0.52, and the line "reviewed by the
+disclosure control unit on 2026-10-06; passes the open-tier limits". The
+intended and prohibited uses repeat the purpose statement. The
+labelling section says the file is labelled SYNTHETIC in its name, its
+record, and a column. The check passes, and the record is committed
+beside the file.
 
 **What this does not do.** The record documents decisions that were
 taken in the earlier chapters. A record that cannot be reproduced from
@@ -108,7 +129,7 @@ the run's own logs is a finding for the audit.
 
 <Recipe title="6.2 Catalog the file as synthetic with its links, licence, and citation" level="AI-ready" skills="Data curator" time="An hour per file">
 
-**Result:** a catalog record for the synthetic file that every user and
+**Result:** the synthetic file has a catalog record that every user and
 every system reads as synthetic, linked to the real survey, with the
 licence and the citation.
 
@@ -128,6 +149,20 @@ licence and the citation.
    Publish to NADA. Put the word SYNTHETIC in the data file itself, in
    its first row or in a column, as the purpose statement requires.
 
+**Worked example.** The curator creates the record with the title
+"Synthetic version of the Labour Force Survey 2025 Q2". The abstract
+begins: "This is a fully synthetic file generated from the Labour Force
+Survey 2025 Q2 for code development and teaching. It contains no real
+respondent's record, and no statistic should be estimated from it." The
+data kind field reads "synthetic data", the keywords include "synthetic
+data", and `related_studies` links to `EX-LFS-2025-Q2`. The real
+survey's page gains the line "A synthetic version is available for code
+development and teaching" with the link. The licence is CC BY 4.0, the
+citation reads "National Statistics Office (example). 2026. Synthetic
+version of the Labour Force Survey 2025 Q2, release 1", and the access
+type is open download. The data file carries the column `synthetic`
+with the value 1 in every row.
+
 **What this does not do.** A catalog record tells people what the file
 is. A user who downloads the file without reading the record meets the
 label inside the data, which is why the label is there.
@@ -136,9 +171,9 @@ label inside the data, which is why the label is there.
 
 <Recipe title="6.3 Take and record the release decision" level="AI-ready" skills="Head of the microdata unit; disclosure control unit" time="An hour per file">
 
-**Result:** a release decision taken by the people who own the access
-policy and the disclosure control, recorded with the file together with
-the tier it applies to and a date for review.
+**Result:** the release decision has been taken by the people who own
+the access policy and the disclosure control, and it is recorded with
+the file together with the tier it applies to and a date for review.
 
 1. The disclosure control unit confirms that the risk review meets the
    limits for the intended tier. The methodologist confirms that the
@@ -149,6 +184,15 @@ the tier it applies to and a date for review.
 3. Set a review date. The synthetic file is made again or withdrawn
    when the real survey is revised, when a new round replaces it, or
    when a risk finding changes the limits.
+
+**Worked example.** On 2026-10-08 the head of the disclosure control unit signs that the
+risk review passes the open-tier limits. The methodologist signs that
+the utility thresholds are met with the one stated limitation. The head
+of the microdata unit decides on the open tier and signs. The three signatures, the date, and the tier go
+into the synthesis record and into the catalog record's notes. The
+review date is set for the release of the next quarter's survey, when
+the file is to be made again from the new round, and for any revision
+of the 2025 Q2 file before then.
 
 **What this does not do.** The decision covers the file as released. A
 file a user derives from it and passes on carries the licence and the
@@ -184,9 +228,9 @@ label, and the terms of use ask users to keep both.
 
 ## Verification
 
-- **Record:** passes the check; attached to the catalog record with the reports.
-- **Catalog:** the record says synthetic in title, abstract, field, and keyword; links in both directions; licence and citation set.
-- **Decision:** reviewers, dates, tier, and review date recorded.
+- **Record.** The record passes the check and is attached to the catalog record with the reports.
+- **Catalog.** The record says synthetic in the title, the abstract, a field, and a keyword, the links run in both directions, and the licence and the citation are set.
+- **Decision.** The reviewers, the dates, the tier, and the review date are recorded.
 
 ## Checklist
 

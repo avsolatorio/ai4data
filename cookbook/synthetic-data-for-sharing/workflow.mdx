@@ -3,7 +3,7 @@ id: workflow
 title: "7. Synthetic data in the access workflow"
 sidebar_label: "7. Workflow"
 sidebar_position: 8
-description: Putting synthetic files to use (code development before an application, teaching, test data for pipelines, work in enclaves), telling users what they can and cannot do, measuring the effect on access requests and support, and tracking use.
+description: How synthetic files enter the access and analysis workflow, where they are offered to applicants, teachers, and developers, what guidance travels with them, and how their effect on access requests and support is measured.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -57,7 +57,8 @@ arrive sooner; the unit reports both with the download counts.
 
 **Result:** the synthetic file is linked from the real survey's catalog
 page, from the application form for the real file, and from the pages
-for teachers and developers, each link with a short guidance note.
+for teachers and developers, and each link carries a short guidance
+note.
 
 1. On the real survey's catalog page and in the application form, add a
    block: "A synthetic version is available now for code development
@@ -71,6 +72,18 @@ for teachers and developers, each link with a short guidance note.
 4. Count downloads and page views per file, with the rules of the
    [monitoring cookbook, chapter 2](/cookbook/monitoring-data-use/access).
 
+**Worked example.** The application form for the labour force survey's
+licensed file gains a box above the submit button: "While the
+application is processed, a synthetic version of this file is available
+now for code development. It has the same variables, types, and codes,
+and no real records." The enclave's onboarding email gains a paragraph
+that asks analysts to prepare their programs on the synthetic file and
+bring them to the first session. The training unit's page lists the
+file under "Teaching datasets" with the purpose statement. In the first
+quarter the file is downloaded 310 times, 140 of them from the
+application form, and the counts are reported with the access
+statistics.
+
 **What this does not do.** Offering the file helps the users who read
 the page. The guidance note and the label inside the data are what
 reach the ones who do not.
@@ -79,9 +92,9 @@ reach the ones who do not.
 
 <Recipe title="7.2 Write the guidance and the switch-over script" level="Foundational" skills="Methodologist; developer" time="Half a day per survey">
 
-**Result:** a one-page note that tells users what the synthetic file is
-and what to expect from it, and a script that moves a user's program
-from the synthetic file to the real one by changing one path.
+**Result:** users receive a one-page note that tells them what the
+synthetic file is and what to expect from it, and a script that moves a
+program from the synthetic file to the real one by changing one path.
 
 1. Write the note. It says:
    - what the file is: synthetic, from which survey, by which method;
@@ -99,6 +112,19 @@ from the synthetic file to the real one by changing one path.
 3. State the differences a user will see on the real file: different
    numbers, small groups present, weights.
 
+**Worked example.** The note for the labour force file says, in its
+second paragraph: "The file reproduces the distributions of every
+variable and the relationships between sex, age, education, labour force
+status, and income, as the attached utility report shows. It does not
+reproduce the joint distribution of occupation and industry, estimates
+for regions below the national level, or any group smaller than about
+fifty persons. Every statistic computed from it differs from the real
+one, and none may be published." The switch-over script is twelve lines
+that set a path variable, and the user's program reads the file from
+that variable. The data dictionary of both files is the same document,
+because the synthetic file was given the real file's variable names,
+types, codes, and layout.
+
 **What this does not do.** A program that runs on the synthetic file
 can still be wrong on the real one in ways the synthetic file could not
 show. The note says so, and the enclave's checking of outputs remains.
@@ -107,8 +133,9 @@ show. The note says so, and the enclave's checking of outputs remains.
 
 <Recipe title="7.3 Measure the effect and track use" level="AI-ready" skills="Microdata unit; analyst" time="An hour per quarter">
 
-**Result:** evidence of what the synthetic file changed for applicants
-and for the unit, reported quarterly with the access statistics.
+**Result:** the unit has evidence of what the synthetic file changed
+for applicants and for itself, and it reports the evidence quarterly
+with the access statistics.
 
 1. Measure before and after the file's release:
    - the time from approval of an application to the applicant's first
@@ -124,6 +151,18 @@ and for the unit, reported quarterly with the access statistics.
 3. Ask applicants what the synthetic file helped with and what it did
    not. Their answers add target analyses to the utility report.
 4. Report the measures each quarter with the access statistics.
+
+**Worked example.** In the two quarters before the release, the median
+time from approval of an application to the applicant's first output
+request was 34 days, and the help desk logged 48 questions about
+variable names, types, and codes. In the two quarters after, the median
+time is 19 days on 22 applications, and the help desk logged 15 such
+questions. Enclave resubmissions fell from 2.4 to 1.3 per program. The
+unit reports the figures with the counts behind them and the note that
+22 applications show a direction. The monitoring cookbook's mention
+extraction finds one working paper that cites "the synthetic labour
+force file" for a regression; the author is contacted, and the paper's
+revised version cites the real file obtained through the enclave.
 
 **What this does not do.** Before-and-after measures on a small number
 of applicants show a direction; the unit reports them with their
@@ -160,9 +199,9 @@ followed up through the monitoring cookbook.
 
 ## Verification
 
-- **Placement:** the file is linked from the real survey's page, the application form, and the enclave onboarding.
-- **Guidance:** each file has the note and the switch-over script; the dictionaries match.
-- **Measures:** reported quarterly with counts; feedback collected.
+- **Placement.** The file is linked from the real survey's page, the application form, and the enclave onboarding.
+- **Guidance.** Each file has the note and the switch-over script, and the dictionaries match.
+- **Measures.** The measures are reported quarterly with counts, and feedback is collected.
 
 ## Checklist
 

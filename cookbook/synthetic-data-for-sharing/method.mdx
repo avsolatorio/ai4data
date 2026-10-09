@@ -3,7 +3,7 @@ id: method
 title: "2. Choice of synthesis method"
 sidebar_label: "2. Method"
 sidebar_position: 3
-description: The families of synthesis methods (sequential models such as CART, copulas, generative networks, transformer-based generators), what each preserves and costs, the choice by data and use, and the first run with its parameters recorded.
+description: How the synthesis method is chosen from the shape of the data and the intended uses, what the families of methods preserve and cost, and how the first run is made with its seed and parameters recorded.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,9 +55,9 @@ method the chapter recommends as the first real attempt.
 
 <Recipe title="2.1 Choose the method by data and use" level="Foundational" skills="Methodologist" time="Half a day">
 
-**Result:** the synthesis method for a file, chosen by a written rule
-from the shape of the data and the intended uses, with the alternative
-that will be compared.
+**Result:** the synthesis method for a file has been chosen by a written
+rule from the shape of the data and the intended uses, together with
+the alternative that will be compared with it.
 
 Four families of method exist. Sequential synthesis builds the
 synthetic file one variable at a time: it fits a model of the first
@@ -87,6 +87,19 @@ linked tables. The table gives a first choice for each situation:
 3. Record the choice and the reason in the synthesis record
    ([chapter 6](./release.mdx)).
 
+**Worked example.** The labour force survey of the running example has
+one person table of about 9,400 records per quarter, with 18 variables
+of mixed types, linked to a household table. The intended uses are code
+testing and teaching, which need the distributions and the main
+relationships, such as employment by sex and income by education. The
+table's first row fits: sequential synthesis with CART is the first
+choice, and the household link is handled by synthesizing the person
+table with the household identifier and size as variables, as chapter 5
+describes for the foundational level. The alternative to compare is the
+transformer-based generator, because the full file is large enough for
+it. The record notes that the 300-record extract in the cookbook's files
+is synthesized by a cruder method on purpose, to show what is lost.
+
 **What this does not do.** The table gives a starting point. The
 measures of [chapters 3](./utility.mdx) and [4](./risk.mdx) decide, and a
 file whose uses need a relationship the method cannot preserve is a
@@ -96,8 +109,9 @@ file whose record says so.
 
 <Recipe title="2.2 Run a sequential synthesis with the parameters recorded" level="Foundational" skills="Methodologist with R or Python" time="One day for the first file">
 
-**Result:** a synthetic file produced by sequential synthesis, with the
-settings that produced it recorded so that the run can be repeated.
+**Result:** the organization has a synthetic file produced by
+sequential synthesis, with the settings that produced it recorded so
+that the run can be repeated.
 
 1. Set the visit sequence, the order in which variables are synthesized.
    Put the variables that others depend on first: geography, then
@@ -115,6 +129,18 @@ settings that produced it recorded so that the run can be repeated.
    than the household head; hours only for the employed), or synthesize
    within them, and count how many records the rules changed.
 
+**Worked example.** The methodologist sets the visit sequence as region,
+urban, sex, age, educ, lfs_status, occupation, industry, hours, income,
+and leaves out household size and the age group, which are recomputed
+afterwards. Every variable uses CART except sex, which uses a simple
+sampling model. The minimum leaf size is set at 10, and income is
+smoothed. The run uses seed 20250711 with synthpop and takes four
+minutes on the unit's server. The survey's three logical rules are
+applied afterwards: 23 records had hours for persons outside the labour
+force and are set to missing, and no child was older than its head,
+because the household structure was carried in the visit sequence. The
+settings and the seed are written to the synthesis record.
+
 **What this does not do.** Sequential synthesis preserves the
 relationships along the visit sequence and weakens the others; the
 utility report shows which. Rare categories and small areas lose
@@ -124,9 +150,10 @@ fidelity first, and the record says so.
 
 <Recipe title="2.3 Run a transformer-based or network generator with memorization checks" level="AI-ready" skills="Data scientist with Python and a GPU" time="Two to three days for the first file">
 
-**Result:** a synthetic file from a generator that learns the whole
-joint distribution of the records, with training stopped before the
-generator starts to copy records, and the settings recorded.
+**Result:** the organization has a synthetic file from a generator that
+learns the whole joint distribution of the records. Training was stopped
+before the generator started to copy records, and the settings are
+recorded.
 
 1. Install the generator ([REaLTabFormer](https://github.com/worldbank/REaLTabFormer):
    `pip install realtabformer`) and fit it on the real table. It trains
@@ -139,6 +166,19 @@ generator starts to copy records, and the settings recorded.
    trained again with a stricter stopping rule or a smaller model.
 4. Record the generator's version, the training settings, the stopping
    statistic, and the seed.
+
+**Worked example.** The data scientist fits REaLTabFormer on the 9,400
+records of the quarter on the unit's server with one accelerator card.
+The stopping rule halts training after 38 epochs, when the distance
+between generated and real records stops falling, and the run takes
+two hours. The generator produces 9,400 synthetic records with seed
+1042. The risk checks of chapter 4 find no exact copies and a
+closest-record distance in line with the real-to-real baseline. The
+record notes the package version, the number of epochs, the stopping
+statistic's final value, and the seed. On the utility report the
+generator keeps the association between sex and labour force status as
+well as the sequential method does and does better on the joint
+distribution of occupation and industry.
 
 **What this does not do.** A generator needs many records to learn
 from. A small survey of a few thousand records is usually better served
@@ -176,9 +216,9 @@ check for copying is never skipped.
 
 ## Verification
 
-- **Choice:** recorded with the reason and the alternative considered.
-- **Run:** seed, parameters, visit sequence or training settings recorded; real data stayed on the organization's infrastructure.
-- **Rules:** survey rules applied and the changes counted.
+- **Choice.** The choice is recorded with the reason and the alternative considered.
+- **Run.** The seed, the parameters, and the visit sequence or training settings are recorded, and the real data stayed on the organization's infrastructure.
+- **Rules.** The survey rules have been applied and the changes counted.
 
 ## Checklist
 
