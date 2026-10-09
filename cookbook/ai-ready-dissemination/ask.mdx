@@ -3,7 +3,7 @@ id: ask
 title: "4. Natural-language access"
 sidebar_label: "4. Ask"
 sidebar_position: 5
-description: Natural-language search, retrieval-augmented generation, conversational interfaces, and multilingual access.
+description: How users can ask for statistics in their own words, through a monthly review of failed searches, an assistant that answers only from retrieved records, and a monthly review of its answers.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -21,14 +21,22 @@ the agent interface, its tools, context, access control, safety, and evaluation 
 :::
 
 
-Most users do not know the official names of indicators or the structure of a
-catalog. They type a question. Natural-language interfaces reduce the effort of
-finding and reading statistics, and they are the form in which many users
-already meet AI systems.
+Most users do not know the official names of indicators or the structure
+of a catalog. They type a question, in their own words and often in their
+own language, and they expect an answer. Natural-language interfaces
+reduce the effort of finding and reading statistics, and they are the
+form in which many users already meet AI systems, whether the
+organization offers one or not.
 
-This chapter comes after findability, retrieval, and meaning because a
-conversational interface depends on all three. A chatbot placed over incomplete
-metadata produces confident answers from poor inputs.
+This chapter comes after findability, retrieval, and meaning, because a
+conversational interface depends on all three. The assistant can only find
+what the records describe, can only quote what the API returns, and can
+only explain what the metadata says. A chatbot placed over incomplete
+metadata produces confident answers from poor inputs, and its errors are
+invisible until a user reports them. The recipes therefore start with the
+cheapest form of natural-language access, which is reading what users
+typed into the search box, and build up to an assistant whose answers are
+checked before and after they are shown.
 
 ## Target state
 
@@ -57,8 +65,14 @@ series.
 
 <Recipe title="4.1 Review failed searches every month" level="Foundational" skills="Dissemination staff" time="Two hours a month">
 
-**Result:** the most common ways users fail to find data are known and
-fixed at the source, and each one becomes a test question.
+**Result:** the organization knows the most common ways users fail to
+find its data, fixes each one at the source, and turns each one into a
+test question.
+
+The search log is the one place where users say, in their own words,
+what they wanted and did not find. Reading it costs two hours a month and
+needs no new software. Every fix it produces improves the search for
+people and for AI systems alike, because both read the same records.
 
 1. Export the search queries that returned zero results, or whose
    results were not clicked, for the last month.
@@ -73,6 +87,18 @@ fixed at the source, and each one becomes a test question.
    ([chapter 6](./evaluate.mdx)). The next monthly score shows whether
    the fix worked.
 
+**Worked example.** In one month the example organization's search log
+holds 212 queries with no results. Grouped by intent, 80 of them are
+variants of "jobless" and "out of work", which the unemployment record
+never mentions. Thirty are in French, which the catalog does not cover.
+Twenty ask for inflation, which the organization does not publish, and
+the rest are typos and one-word queries nobody can interpret. The
+dissemination officer adds "jobless" and "out of work" to the keywords of
+`LF_UNEMP_PCT`, has the five series titles translated into French, and
+adds a page that says the organization does not publish an inflation rate
+and links to the central bank. The three queries go into the question
+set, and the next month's log has 140 zero-result queries.
+
 **What this does not do.** Zero-result queries show what users looked
 for and did not find. Queries that returned wrong results and were
 clicked anyway are invisible here; the answer review of recipe 4.3 and
@@ -82,9 +108,9 @@ the question set of [chapter 6](./evaluate.mdx) catch those.
 
 <Recipe title="4.2 Answer from retrieved records only" level="AI-native" skills="Developer with access to a language model and the API from chapter 2" time="One week for a prototype">
 
-**Result:** an assistant that answers questions with values taken from
-the API and cites the series they come from, and that declines when no
-series matches.
+**Result:** the organization has an assistant that answers questions
+with values taken from the API, cites the series they come from, and
+declines when no series matches the question.
 
 The pattern is called retrieval-augmented generation: the assistant
 first retrieves the records and values that might answer the question,
@@ -123,6 +149,19 @@ Question: [user question]
    model calls the data tools itself (through a tool-use API or MCP),
    the rules above still apply.
 
+**Worked example.** A user asks "Is hunger going down?". The retrieval
+step returns three series, with the prevalence of undernourishment first.
+The fetch step calls the API for its values and receives 8.4 for 2022,
+7.9 for 2023, and 7.6 for 2024, with the unit and the release date of 14
+March 2025. The model receives the instructions, the three records, and
+those values, and writes: "Yes. The prevalence of undernourishment fell
+from 8.4% of the population in 2022 to 7.6% in 2024 (FS_UNDERNOURISH_PCT,
+release of 14 March 2025, https://stats.example/series/FS_UNDERNOURISH_PCT)."
+The verification step finds every number in the retrieved values and
+marks the answer verified. For "What is inflation?" the retrieval step
+returns nothing close, and the model answers that the organization does
+not publish an inflation series.
+
 **What this does not do.** The flow grounds answers in retrieved
 records and cannot answer better than the retrieval. A question whose
 series is outside the top three gets a wrong or declined answer, which
@@ -133,14 +172,26 @@ beside the answer scores.
 
 <Recipe title="4.3 Review a sample of answers each month" level="AI-native" skills="Subject-matter staff" time="Half a day a month">
 
-**Result:** a measured error rate for the assistant's answers and a
-list of fixes, in place of anecdotes.
+**Result:** the organization has a measured error rate for the
+assistant's answers and a list of fixes, where before it had anecdotes.
 
 1. Draw 30 logged answers at random, including some in each language.
 2. Score each against four questions: right series, right numbers,
    right period and unit, right caveats. Record yes or no for each.
 3. Add every failure to the question set with the expected answer.
 4. Report the four rates each month next to the retrieval scores.
+
+**Worked example.** The subject-matter reviewer draws 30 answers from the
+October log, 20 in English and 10 in French. Twenty-seven name the right
+series. Twenty-six state the right numbers, and the one that does not
+quotes the 2023 undernourishment value as 7.6 where the retrieved value
+was 7.9. Twenty-four state the period and the unit, and the three that do
+not all omit "of the labour force" after the unemployment rate. Twenty-two
+repeat the caveats, with five answers about the latest quarter failing to
+say it is provisional. The reviewer adds the eight failures to the
+question set and asks the developer to strengthen the instruction about
+provisional values. The month's report shows the four rates as 90, 87,
+80, and 73 percent.
 
 **What this does not do.** Thirty answers a month show large error
 rates; a rate below a few percent needs a larger sample to be seen. The
@@ -181,9 +232,9 @@ those.
 
 ## Verification
 
-- **Question set:** collect real questions from help-desk and search logs, and add questions in each supported language.
-- **No-answer cases:** include questions the organization cannot answer, and check that the system declines.
-- **Review sample:** recipe 4.3.
+- **Question set.** The question set contains real questions from help-desk and search logs, with questions in each supported language.
+- **No-answer cases.** The set includes questions the organization cannot answer, and the system declines them.
+- **Review sample.** The monthly review of recipe 4.3 has run, and its four rates are reported.
 
 ## Checklist
 

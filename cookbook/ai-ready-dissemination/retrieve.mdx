@@ -3,7 +3,7 @@ id: retrieve
 title: "2. Retrieval of data by software"
 sidebar_label: "2. Retrieve"
 sidebar_position: 3
-description: Open formats, stable identifiers, documented APIs, and agent interfaces such as MCP.
+description: How software, including AI systems, can retrieve the organization's data reliably, through open file formats at stable addresses, a documented API, and an agent interface built on the Model Context Protocol.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,14 +15,22 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-An AI system that cannot reach the numbers will use whatever it can reach,
-such as an outdated table in a PDF, a copy on a third-party site, or a
-remembered value from its training data. Reliable retrieval means the
-authoritative values are available in a form that software can request
-directly.
+An AI system that cannot reach the numbers will use whatever it can
+reach. That may be an outdated table in a PDF, a copy of the figures on a
+third-party site, or a value it remembers from its training data, and the
+system presents all three with the same confidence as the official
+figure. Reliable retrieval means that the authoritative values are
+available in a form that software can request directly, by series, area,
+and period, and receive together with their unit, their period, and their
+source.
 
-Data locked in PDFs, scanned tables, or interfaces that need a person to click
-through forms are the most common barrier.
+The most common barrier is data that only a person can get at: tables
+inside PDFs, scanned pages, and web interfaces that require clicking
+through forms. The second most common is data that software can reach but
+cannot rely on, because the file layout changes with every release or the
+address changes with every website redesign. This chapter addresses both,
+in three steps that build on one another: files, an API, and an agent
+interface over the API.
 
 ## Target state
 
@@ -49,8 +57,9 @@ wraps the same data in an MCP server with two read-only tools.
 
 <Recipe title="2.1 Publish tidy CSV files at stable URLs" level="Foundational" skills="Data manager" time="One day to set the convention, then part of each release">
 
-**Result:** one file per series, in a layout that any tool can read, at
-a web address that does not change between releases.
+**Result:** every series is published as one file, in a layout that any
+tool can read, at a web address that stays the same from one release to
+the next.
 
 A tidy file has one row per observation and the same columns for every
 series. The column names come from the SDMX standard for exchanging
@@ -89,6 +98,17 @@ statistical data, so that the file maps directly to SDMX tools:
    or [CSV on the Web](https://www.w3.org/TR/tabular-data-primer/)
    metadata, so that tools know the column types.
 
+**Worked example.** The example organization's values file has one row
+per observation. The row for the prevalence of undernourishment in 2024
+reads `FS_UNDERNOURISH_PCT,NAT,2024,7.6,A,% of population,2025-03-14,https://stats.example/series/FS_UNDERNOURISH_PCT`.
+The row for the unemployment rate in the second quarter of 2025 carries
+the status `P`, because the quarter is provisional. The file for the
+undernourishment series lives at
+`https://stats.example/series/FS_UNDERNOURISH_PCT/data.csv`. When the
+2025 figure is published the following March, the same address serves
+the new file, the `RELEASE` column changes to the new date, and every
+script that downloads the file keeps working.
+
 **What this does not do.** A tidy file at a stable URL serves one
 series. A catalog of hundreds needs the bulk file and the API of recipe
 2.2 for selection by area and period. The example has five columns;
@@ -99,9 +119,9 @@ list in [chapter 3](./understand.mdx).
 
 <Recipe title="2.2 Describe the API with OpenAPI" level="AI-ready" skills="Backend developer" time="One to two days for an existing API">
 
-**Result:** a machine-readable description of the API that developers
-and AI systems can read, and a response format that always carries the
-unit, the period, and the source.
+**Result:** the API has a machine-readable description that developers
+and AI systems can read, and every data response carries the unit, the
+period, and the source in the same place.
 
 An API (application programming interface) is the address at which a
 program asks for data and gets it back in a structured form. OpenAPI is
@@ -150,6 +170,17 @@ The steps below are for an organization with a custom REST API.
 5. Test: a colleague who did not build the API retrieves one known
    value using only the description.
 
+**Worked example.** The example organization's description has three
+endpoints. `GET /series` lists the five series with their names and
+units. `GET /series/{idno}` returns one series record, and
+`GET /series/{idno}/observations` returns values, filtered by the query
+parameters `area`, `from`, and `to`. The colleague who tests it reads
+the description, forms the request
+`/series/FS_UNDERNOURISH_PCT/observations?area=NAT&from=2023&to=2024`,
+and receives the response shown above, with the two values of 7.9 and
+7.6 and the release date. The `info` block states a limit of 60
+requests a minute and the address of the data team.
+
 **What this does not do.** The minimal description covers three
 endpoints and leaves out authentication, pagination beyond a limit
 parameter, and bulk queries. An SDMX web service covers those through
@@ -163,7 +194,7 @@ describes for access control.
 
 **Result:** any AI client that speaks the Model Context Protocol can
 search the catalog and fetch values through two read-only tools, and
-every response carries its source.
+every response it receives carries its source.
 
 The Model Context Protocol (MCP) is the open standard by which AI
 assistants call external tools. An MCP server offers a small set of
@@ -186,6 +217,16 @@ production the tool bodies call the API of recipe 2.2:
 5. Before public deployment, add authentication, rate limits, and
    logging, and run the governance checks of
    [chapter 8](./govern.mdx).
+
+**Worked example.** The developer runs the example server in the
+inspector and calls `search_catalog` with the query "hunger". The tool
+returns the undernourishment series, because the word appears in its
+keywords. The developer then calls `get_values` with the identifier
+`FS_UNDERNOURISH_PCT` and receives the three values for 2022 to 2024,
+with the unit, the release date of 14 March 2025, and the source URL. An
+assistant connected to the server is asked for the five known values of
+the question set, and each answer matches the CSV file, with the source
+URL quoted.
 
 Two World Bank implementations exist. NADA exposes its catalog to AI
 clients through an MCP interface, so an organization that runs NADA has
@@ -242,10 +283,10 @@ of that.
 
 ## Verification
 
-- **Direct request:** retrieve a known value with a single API call, written from the documentation alone, by someone who did not build the API.
-- **Stability:** request the same identifiers a month later and confirm that they still resolve.
-- **Completeness of response:** check that every response includes the unit, the period, and the source.
-- **Agent check:** if an MCP server exists, ask an assistant for five known values and compare them with the official figures.
+- **Direct request.** Someone who did not build the API retrieves a known value with a single call written from the documentation alone.
+- **Stability.** The same identifiers requested a month later still resolve.
+- **Completeness of response.** Every response includes the unit, the period, and the source.
+- **Agent check.** Where an MCP server exists, an assistant asked for five known values returns the official figures.
 
 ## Checklist
 

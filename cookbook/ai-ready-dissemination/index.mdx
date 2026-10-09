@@ -18,16 +18,21 @@ guideline. Comments and corrections are welcome as
 [contribute](./contribute.md) page explains how to propose a recipe.
 :::
 
-People increasingly reach statistics through AI systems: search assistants,
-chatbots, and analysis tools. These systems read the metadata, web pages, and
-APIs that a statistical organization publishes. When those are incomplete,
-ambiguous, or hard to retrieve, the systems return the wrong series, mix up
-definitions, or quote numbers without a source.
+People increasingly reach statistics through AI systems: search
+assistants, chatbots, and analysis tools. These systems read the
+metadata, the web pages, and the APIs that a statistical organization
+publishes, and they read them without asking anyone for help. When those
+sources are incomplete, ambiguous, or hard to retrieve, the systems
+return the wrong series, mix up definitions, or quote numbers without a
+source, and they do so under the organization's name.
 
-This guide is organized around nine questions an organization can ask about its own
-dissemination system. Each chapter explains why the question matters, what a
-good answer looks like, and gives **recipes**: tasks with a defined result,
-the skills and time they need, and the code or template to do them.
+This guide is organized around nine questions that an organization can
+ask about its own dissemination system, from "can people and AI find our
+statistics?" to "can we maintain what we build?". Each chapter explains
+why the question matters and what a good answer looks like. It then gives
+recipes, which are tasks with a defined result, the skills and the time
+they need, the code or the template to do them, and a worked example on
+the running example.
 
 The recipes build on published standards: SDMX for aggregate data, DDI for
 microdata, ISO 19115 for geospatial data, Dublin Core for documents, DCAT
@@ -59,10 +64,10 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Run the completeness check of [chapter 1](./find.mdx) on the catalog export (half a day). Its output is the work list.
-2. Write the one-page AI-use policy of [chapter 8](./govern.mdx) (one day). Nothing else in this guide is safe to start without it.
-3. Write thirty known-item questions and score the current search with [chapter 6](./evaluate.mdx) (one day). Every later change is measured against this baseline.
-4. Publish the series as tidy files at stable URLs with source and citation on the page ([chapters 2](./retrieve.mdx) and [5](./trust.mdx)). This serves every user and every AI system at once.
+1. Run the completeness check of [chapter 1](./find.mdx) on the catalog export. It takes half a day, and its output is the work list for the metadata.
+2. Write the one-page AI-use policy of [chapter 8](./govern.mdx). It takes a day, and nothing else in this guide is safe to start without it.
+3. Write thirty known-item questions and score the current search with them, as [chapter 6](./evaluate.mdx) describes. It takes a day, and every later change is measured against this baseline.
+4. Publish the series as tidy files at stable addresses, with the source and a citation on each page, following [chapters 2](./retrieve.mdx) and [5](./trust.mdx). This serves every user and every AI system at once.
 
 A conversational interface ([chapter 4](./ask.mdx)) comes last, after the four steps above are at the AI-ready level.
 

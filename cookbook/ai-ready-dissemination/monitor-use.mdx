@@ -3,7 +3,7 @@ id: monitor-use
 title: "7. Monitoring of data use"
 sidebar_label: "7. Monitor use"
 sidebar_position: 8
-description: Dataset mention detection, citation tracking, and AI visibility checks for official statistics.
+description: How the organization can see where its data are used, through a table of the names people use for each dataset, a search for mentions in publications, and a monthly check of how AI assistants cite its statistics.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -21,10 +21,20 @@ access counts, citation services, document collection, mention extraction, and t
 :::
 
 
-Download counts show only part of data use. Statistics are cited in
-research papers, policy documents, news stories, and, increasingly, in the
-answers of AI systems. Knowing where and how they appear helps an organization
-prioritize datasets, find misuse, and show the value of its work.
+Download counts show only part of data use. A file downloaded once may be
+cited in a hundred papers, and a number read from a web page is never
+downloaded at all. Statistics are cited in research papers, policy
+documents, news stories, and, increasingly, in the answers of AI systems,
+which read the organization's pages and repeat its figures without a
+download that anyone can count.
+
+Knowing where and how the data appear helps an organization in three
+ways. It shows which datasets matter to users, so that documentation
+effort goes where it counts. It finds misuse, such as an old figure quoted
+as current. And it gives the organization evidence of the value of its
+work. This chapter starts with the step that makes everything else
+possible, a list of the names people use for each dataset, and ends with
+a monthly check of what AI assistants say.
 
 ## Target state
 
@@ -51,8 +61,9 @@ whether assistants cite the organization when asked for the unemployment rate.
 
 <Recipe title="7.1 Publish a canonical name table" level="Foundational" skills="Dissemination staff" time="Half a day">
 
-**Result:** one list of the names people use for each dataset, which
-makes mentions in documents matchable and tells users what to write.
+**Result:** the organization has one list of the names people use for
+each dataset. The list makes mentions in documents matchable, and it
+tells users what to write when they cite the data.
 
 The table has one row per dataset, with the identifier, the official
 name, the acronym, and the other forms found in documents, separated by
@@ -73,6 +84,16 @@ HBS,Household Budget Survey,HBS,household survey;budget survey;HBS 2021
    collects citations of DOIs from the literature, which gives a second
    source of use next to text mining.
 
+**Worked example.** The example organization starts its table with the
+labour force survey and the household budget survey, its two most
+downloaded datasets. For the labour force survey it lists the acronym
+"LFS" and four variants it has seen in reports: "labour survey", "labor
+force survey" with the American spelling, "LFS 2025", and "quarterly
+labour survey". The dissemination officer publishes the table beside the
+citation page, with the DOI of each dataset. Three months later, the
+extraction of recipe 7.2 finds "the national employment survey" used for
+the same dataset in two ministry reports, and the variant is added.
+
 **What this does not do.** The table makes mentions matchable and finds
 none. The extraction of recipe 7.2 and the
 [monitoring cookbook](/cookbook/monitoring-data-use/) use it, and the
@@ -82,8 +103,9 @@ variants column grows from what they find.
 
 <Recipe title="7.2 Find mentions in publications" level="AI-ready" skills="Analyst; Python for the automated version" time="One day a quarter by hand; one week to automate">
 
-**Result:** a list of the documents that use each dataset, by year and
-type of document, with a measured accuracy.
+**Result:** the organization has a list of the documents that use each
+dataset, by year and type of document, and it knows how accurate the list
+is.
 
 1. By hand: search a few sources (a national research repository, a
    publications database, the government's document site) for each
@@ -102,6 +124,17 @@ type of document, with a measured accuracy.
    recall of the extraction. Report use counts with that accuracy next
    to them.
 
+**Worked example.** In the first quarter the analyst searches the
+national research repository and the government document site for each
+canonical name and acronym, and records 46 documents that use the labour
+force survey and 18 that use the household budget survey. In the second
+quarter the developer runs the zero-shot extraction over 300 collected
+documents. It finds 71 mentions of the labour force survey, 60 of which
+the matching step maps to the canonical identifier. The analyst labels 50
+documents by hand and finds that the extraction has a precision of 0.88
+and a recall of 0.79 on them. The quarterly report gives the counts with
+those two figures beside them.
+
 **What this does not do.** Hand search finds what the searcher thinks
 to look for; the extraction finds what the collected documents contain.
 Neither sees documents nobody collected, and the accuracy measured in
@@ -111,8 +144,9 @@ step 3 holds for the labelled documents' types and languages.
 
 <Recipe title="7.3 Run a monthly AI visibility check" level="AI-native" skills="Dissemination staff" time="Two hours a month">
 
-**Result:** a record, over time, of whether AI assistants cite the
-organization, quote the right numbers, and link to the right page.
+**Result:** the organization has a record, built up month by month, of
+whether AI assistants cite it, quote the right numbers, and link to the
+right page.
 
 The record is a CSV with one row per question per assistant per month:
 
@@ -132,6 +166,18 @@ date,assistant,question_id,cites_office,number_correct,link_resolves,notes
    [5](./trust.mdx)). Most fixes are on the organization's side.
 4. Treat the results as a sample that changes month to month. Report
    trends over several months, and avoid conclusions from one run.
+
+**Worked example.** In October the dissemination officer asks two
+assistants the ten questions. For "What is the unemployment rate?",
+assistant A cites the organization, quotes 6.1 percent for the second
+quarter of 2025, and links to the series page. Assistant B quotes a
+figure from the previous year, attributes it to a news site, and gives no
+link. The officer records both rows, then checks the organization's own
+page and finds that the current value is shown in a chart image with the
+release date in a footnote. The page is changed to state the value and
+the release date in text at the top. In December, assistant B quotes the
+current figure and links to the page. Three months of rows show the
+change, where one month would have shown only noise.
 
 **What this does not do.** Ten questions to two or three assistants
 sample what assistants said in one month, and assistants change without
@@ -169,9 +215,9 @@ anecdote.
 
 ## Verification
 
-- **Extraction accuracy:** label a sample of documents by hand and measure precision and recall of the extraction.
-- **Harmonization accuracy:** check a sample of matched variants against the canonical identifier.
-- **Repeatability:** run the AI visibility check twice in a week and note how much the results differ before drawing conclusions.
+- **Extraction accuracy.** A sample of documents is labelled by hand, and the precision and recall of the extraction are measured on it.
+- **Harmonization accuracy.** A sample of matched variants is checked against the canonical identifier.
+- **Repeatability.** The AI visibility check is run twice in one week, and the difference between the runs is known before conclusions are drawn.
 
 ## Checklist
 

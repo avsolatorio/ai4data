@@ -3,7 +3,7 @@ id: understand
 title: "3. Meaning of the data: units, concepts, and classifications"
 sidebar_label: "3. Understand"
 sidebar_position: 4
-description: Units, concepts, classifications, method notes, and the standards that make them machine-readable.
+description: How to document what each number means, through a fixed template for definitions and methods, published code lists and crosswalks, and breaks and revisions recorded as data, so that people and software read the figures correctly.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,10 +15,21 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-A number carries meaning through its unit, reference period, population,
-definition, and method. An AI system that retrieves "41" without these may
-describe it as a percentage when it is a rate per 1,000, or combine two series
-that use different definitions.
+A number on its own means nothing. The value 41 is an under-five
+mortality rate only because the record says it counts deaths per 1,000
+live births, refers to the year 2020, and covers the whole country. An AI
+system that retrieves the 41 without those fields may describe it as a
+percentage, attach it to the wrong year, or compare it with a figure from
+another country that uses a different definition. People make the same
+mistakes when the fields are missing; software makes them faster and at
+scale.
+
+The meaning of a number lives in a small set of things: its unit, its
+reference period, the population it describes, its definition, and the
+method used to produce it. Two further things decide whether numbers can
+be compared: the code lists that say what each code stands for, and the
+record of where a series breaks or a value was revised. This chapter puts
+each of them in a form that a person can read and software can extract.
 
 ## Target state
 
@@ -45,8 +56,10 @@ both so that a system reading "41" or "7.6" cannot misread them.
 
 <Recipe title="3.1 Write a definition and method note with a fixed template" level="Foundational" skills="Subject-matter statistician" time="About 30 minutes per indicator">
 
-**Result:** every indicator has the same short set of fields, in the
-same order, which people read quickly and software extracts reliably.
+**Result:** every indicator has the same short set of documentation
+fields in the same order. People read them quickly because they know
+where to look, and software extracts them reliably because the structure
+never changes.
 
 Use these fields and keep each to one to three sentences. The third
 column gives the field of the
@@ -73,6 +86,17 @@ Editor without translation:
 3. Add the template to the release checklist, so that new indicators
    arrive with it filled.
 
+**Worked example.** The table above is the template filled in for the
+prevalence of undernourishment. The method line names the numerator and
+the denominator. The reference period line says that the published value
+is a three-year average centred on the year shown, which is the detail a
+reader needs in order to understand why the 2024 figure does not change
+when a single bad harvest year arrives. The breaks line records that the
+2016 survey changed the food item list. The statistician who fills in the
+template for the under-five mortality rate writes "deaths of children
+under five per 1,000 live births" in the unit line, which is the fact that
+stops the value 41 from being read as a percentage.
+
 **What this does not do.** The template produces consistent text and
 says nothing about whether the text is right. The subject-matter
 statistician writes the method, and the assessment of the
@@ -83,8 +107,8 @@ checks that the name and the definition agree.
 
 <Recipe title="3.2 Publish code lists and crosswalks" level="AI-ready" skills="Data manager; classification specialist for the crosswalk" time="One to two days per code list">
 
-**Result:** every code used in the data appears in a published list
-with labels, and every national classification maps to the
+**Result:** every code used in the data appears in a published list with
+its labels, and every national classification is mapped to the
 international one it corresponds to.
 
 A code list says what each code in the data means (`R01` is the
@@ -130,6 +154,18 @@ national_code,national_label,target_classification,target_code,mapping
    reporting. For surveys, DDI Codebook holds the variable labels and
    value codes.
 
+**Worked example.** The example organization publishes a reference area
+code list with the national code `NAT` at the top and four regions, `R01`
+to `R04`, each with an English and a French label and `NAT` as the
+parent. Its industry classification is a national adaptation of ISIC
+Revision 4, so the crosswalk has one row per national code. Most rows map
+exactly, and the row for "other crops" is marked partial, because the
+national code groups activities that ISIC separates. The audit script
+lists every distinct `REF_AREA` value in the values file, finds the four
+regions and `NAT`, and confirms that each appears in the list. When a
+later release introduces a new code `R05` for a newly created region, the
+audit fails until the code list is updated.
+
 **What this does not do.** The lists and crosswalks cover the codes in
 the data files. The audit in step 3 finds codes without a list, never
 codes with a wrong label. A crosswalk between versions of the same
@@ -140,9 +176,9 @@ the same way.
 
 <Recipe title="3.3 Record breaks and revisions as data" level="AI-ready" skills="Data manager" time="Half a day to set up; part of each release">
 
-**Result:** a system reading the values can see where a series is not
-comparable with its past and what changed in the last release, without
-parsing footnotes.
+**Result:** a system that reads the values can see where a series stops
+being comparable with its past and what changed in the last release,
+without parsing footnotes.
 
 A break is a point after which the values are measured differently (a
 new survey, a new definition). A revision is a change to an already
@@ -164,6 +200,18 @@ FS_UNDERNOURISH_PCT,NAT,2023,8.1,7.9,2025-03-14,Updated population estimates
    human-readable note on the page as well.
 4. Make the API return `OBS_STATUS` with each observation (see the
    OpenAPI example in [chapter 2](./retrieve.mdx)).
+
+**Worked example.** In the release of 14 March 2025, the example
+organization revised the 2023 value of the prevalence of undernourishment
+from 8.1 to 7.9, because the population estimates behind the denominator
+were updated. The revisions file gains the row shown above, with both
+values, the release date, and the reason. The values file marks the
+second quarter of 2025 for the unemployment rate with `P`, because the
+quarter is provisional, and the series record's `series_break` field
+records the first quarter of 2025, when the labour force survey changed
+its sampling frame. An assistant that reads the values file sees the `P`
+and says that the latest figure may be revised. One that reads the record
+sees the break and declines to describe the change from 2024 as a trend.
 
 **What this does not do.** Status codes and the revisions file record
 what changed, without the reasons. The series record's break and errata
@@ -206,9 +254,9 @@ only the values file sees the flags without them.
 
 ## Verification
 
-- **Interpretation questions:** for 20 series, ask an assistant for the unit, the reference period, and the definition. Compare the answers with the official metadata.
-- **Comparability questions:** ask whether two series can be compared, where the answer is known, for example because of a definition change.
-- **Code audit:** list every code used in the data and confirm that each appears in a published code list.
+- **Interpretation questions.** For 20 series, an assistant is asked for the unit, the reference period, and the definition, and its answers match the official metadata.
+- **Comparability questions.** The assistant is asked whether two series can be compared, in cases where the answer is known because of a definition change, and it answers correctly.
+- **Code audit.** Every code used in the data appears in a published code list.
 
 ## Checklist
 

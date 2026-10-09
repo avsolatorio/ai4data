@@ -3,7 +3,7 @@ id: trust
 title: "5. Trust and provenance of answers"
 sidebar_label: "5. Trust"
 sidebar_position: 6
-description: Provenance, citations, numeric verification, grounding, and freshness for answers that use official statistics.
+description: How a reader can trust and trace a number that an AI system quotes, through a citation block on every page, provenance fields in every API response, and a check of every number in a generated answer against the values that were retrieved for it.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,10 +15,18 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Official statistics carry the authority of the organization that publishes them. When
-an AI system quotes a number, readers assume it comes from that organization. A
-wrong or outdated value, shown with the organization's name, damages trust in the
-source. Users need to see where a number came from and check it.
+Official statistics carry the authority of the organization that
+publishes them. When an AI system quotes a number, readers assume it
+comes from that organization, and they rarely check. A wrong or outdated
+value, shown with the organization's name, damages trust in the source,
+and the organization usually learns of it last.
+
+Trust therefore has to be built into the chain that carries a number from
+the catalog to the reader. The page the number comes from says how to
+cite it. The API response that carries it says which release it came
+from. And the answer that quotes it is checked against the values that
+were retrieved before the reader sees it. Each recipe in this chapter adds
+one link to that chain, from the cheapest to the most demanding.
 
 ## Target state
 
@@ -45,8 +53,9 @@ the user sees it.
 
 <Recipe title="5.1 Put source, release, and a citation on every page" level="Foundational" skills="Web editor" time="Half a day for the template">
 
-**Result:** every series page shows where the numbers come from and how
-to cite them, in the same place and the same format.
+**Result:** every series page shows where its numbers come from and how
+to cite them, in the same place and in the same format, so that a reader
+or a crawler always knows where to look.
 
 The citation block names the organization, the year, the series with
 its identifier, the release, the page, and the date of access:
@@ -78,6 +87,16 @@ https://stats.example/series/FS_UNDERNOURISH_PCT. Accessed [date].
 6. When a series is discontinued or replaced, keep the page and add a
    notice that names the replacement.
 
+**Worked example.** The block on the undernourishment page shows the
+source as "Food balance sheets and household budget survey", the release
+as 14 March 2025, the next release as March 2026, and the citation text
+shown above. The licence line reads "CC BY 4.0: reuse is permitted with
+attribution". A BibTeX file sits beside it, and the schema.org record of
+the page carries the same publisher, identifier, and licence. When the
+organization replaced its old poverty series in 2022, it kept the old
+page with the notice "This series was discontinued in 2022 and replaced
+by PV_HEADCOUNT_NPL_PCT", and citations of the old page still resolve.
+
 **What this does not do.** A citation block tells people how to cite
 and cannot make them cite. The monitoring of
 [chapter 7](./monitor-use.mdx) shows whether the format is used, and
@@ -88,8 +107,9 @@ services.
 
 <Recipe title="5.2 Return provenance with every API response" level="AI-ready" skills="Backend developer" time="One day">
 
-**Result:** any client, including an AI system, receives enough with
-each response to cite it correctly.
+**Result:** any client, including an AI system, receives enough
+information with each response to cite it correctly without looking
+anything up.
 
 The fields to include at the top level of every data response:
 
@@ -114,6 +134,17 @@ custom API.
 4. Test: fetch any value and write the citation from the response
    alone.
 
+**Worked example.** A client requests the observations of the
+unemployment rate for 2025. The response carries `SERIES` as
+`LF_UNEMP_PCT`, `UNIT_MEASURE` as "% of labour force", `RELEASE` as
+2025-08-20, `SOURCE_URL` as `https://stats.example/series/LF_UNEMP_PCT`,
+the retrieval time, and the licence URL. The second-quarter observation
+carries `OBS_STATUS` P. From that response alone the client writes:
+"Unemployment rate, 2025 Q2: 6.1% of the labour force, provisional
+(National Statistics Office, release of 20 August 2025,
+https://stats.example/series/LF_UNEMP_PCT)". Nothing in the citation had
+to be guessed.
+
 **What this does not do.** The provenance fields identify the source of
 a response. They do not show that the values were quoted unchanged
 afterwards. Recipe 5.3 checks the numbers in an answer against the
@@ -123,8 +154,9 @@ response, which is the second half.
 
 <Recipe title="5.3 Verify the numbers in a generated answer" level="AI-native" skills="Python developer" time="Half a day for the basic check">
 
-**Result:** every number in an answer is marked verified or unverified
-against the values that were retrieved for it, before the user sees it.
+**Result:** every number in a generated answer is marked verified or
+unverified against the values that were retrieved for it, before the
+user sees it.
 
 The script reads an answer and the values that were retrieved for it,
 finds every number in the answer, and looks for each among the values,
@@ -145,6 +177,11 @@ Output for the running example:
 4 numbers, 1 unverified
 ```
 
+Each line names one number found in the answer. A year is marked as a
+period and left alone. A value that matches a retrieved observation is
+marked verified, with the observation it matched. A value that matches
+nothing is marked unverified, and the last line counts them.
+
 1. Run the check on every answer, with the values retrieved for that
    answer.
 2. Show flagged numbers as unverified, or regenerate the answer with a
@@ -157,6 +194,16 @@ Output for the running example:
    also caught. The
    [Proof-Carrying Numbers](https://arxiv.org/abs/2509.06902) paper
    describes that fuller approach.
+
+**Worked example.** The answer in the running example reads
+"Undernourishment fell from 8.4% in 2022 to 7.2% in 2024". The values
+retrieved for the question are 8.4, 7.9, and 7.6 for 2022 to 2024. The
+check finds four numbers. It marks 2022 and 2024 as periods, matches 8.4
+to the 2022 observation, and finds no value within tolerance of 7.2, so
+it marks 7.2 unverified. The interface shows the answer with 7.2
+highlighted as unverified, and the log records one unverified number out
+of two values. A reviewer later finds that the model had misread 7.6 and
+tightens the instruction to quote values exactly as retrieved.
 
 **What this does not do.** The script matches each number to any
 retrieved value within a tolerance. It accepts a correct value quoted
@@ -199,10 +246,10 @@ checks the claim, which is the part that needs the paper's approach.
 
 ## Verification
 
-- **Number match rate:** on a test set, the share of numbers in answers that match the official values (recipe 5.3).
-- **Citation check:** sample answers and confirm that each citation resolves and supports the statement.
-- **Staleness test:** publish a revision in a test environment and confirm that answers reflect it.
-- **Adversarial prompts:** ask for numbers the organization does not publish and check that the system declines to invent them.
+- **Number match rate.** On a test set, the share of numbers in answers that match the official values is reported (recipe 5.3).
+- **Citation check.** In a sample of answers, each citation resolves and supports the statement it is attached to.
+- **Staleness test.** A revision published in a test environment appears in the answers that follow it.
+- **Adversarial prompts.** Asked for numbers the organization does not publish, the system declines and invents nothing.
 
 ## Checklist
 

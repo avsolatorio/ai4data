@@ -3,7 +3,7 @@ id: find
 title: "1. Findability of statistics"
 sidebar_label: "1. Find"
 sidebar_position: 2
-description: Metadata completeness, machine-readable catalogs, and semantic search so that people and AI systems find the right statistics.
+description: How to make the organization's statistics findable by people and by AI systems, through complete catalog records, machine-readable markup on every series page, and search that matches by meaning.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,14 +15,22 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-AI systems increasingly mediate how users discover data. A search assistant
-looks at page titles, descriptions, and catalog records. A series with a vague
-title, an empty description, or no machine-readable record may never appear in
-the answer, even when it is the right series.
+AI systems increasingly stand between users and data. When someone asks a
+search assistant about hunger in their country, the assistant reads page
+titles, descriptions, and catalog records to decide which series to show.
+A series with a vague title, an empty description, or no machine-readable
+record may never appear in the answer, even when it is exactly the right
+series. The organization has no way of knowing that it was passed over.
 
 Users also describe what they need in their own words. "How many people go
-hungry" and "prevalence of undernourishment" refer to the same topic, and a
-keyword index treats them as unrelated.
+hungry" and "prevalence of undernourishment" refer to the same topic. A
+keyword index treats them as unrelated, because they share no words. A
+search that matches by meaning finds the series anyway, but only if the
+record contains enough text for the meaning to be read from it.
+
+This chapter therefore starts with the records, because every later step
+reads them. It then makes the records readable by crawlers, and finally
+adds search by meaning.
 
 ## Target state
 
@@ -48,11 +56,11 @@ schema.org record, and add a search that understands "jobless rate".
 
 <Recipe title="1.1 Check the records against the schema and a completeness profile" level="Foundational" skills="Anyone who can export the catalog and run a Python script; a metadata lead to set the profile" time="Half a day the first time; minutes after that">
 
-**Result:** for every series record in the catalog, three answers: does
-it have the right structure, does it have every field the organization
-requires at its target level, and are the values well-formed. This is
-the first measure to track, because every later step depends on these
-fields.
+**Result:** for every series record in the catalog, the organization has
+three answers. Does the record have the right structure? Does it have
+every field the organization requires at its target level? Are the
+values well-formed? The count of records that pass is the first measure
+to track, because every later step in this guide depends on these fields.
 
 A catalog record is a description of a dataset or a series: its name,
 definition, unit, source, and so on. A schema fixes the names and types
@@ -135,6 +143,18 @@ AI-ready level.
    the check monthly at the target level and keep the counts. The trend
    is the evidence that the catalog is improving.
 
+**Worked example.** The example organization exports its five series as
+`example_catalog.csv` and runs the check at the foundational level with
+the recommended indicator profile. All five records are valid instances
+of the schema. Four are complete; the unemployment rate, `LF_UNEMP_PCT`,
+has no long definition, and the output says why that matters: search by
+meaning and answers both read that text. The metadata lead assigns the
+record to the labour statistics unit with a two-week deadline. The team
+then runs the check at the AI-ready level and finds that no record is
+complete, because fields such as `methodology`, `series_break`, and
+`license` are empty everywhere. That list of eight fields times five
+records becomes the work plan for the quarter.
+
 **What this does not do.** The three layers check form. A record can
 pass all of them with a definition that is wrong, a name that does not
 match the definition, a unit that does not match the values, text too
@@ -154,8 +174,9 @@ check on records with empty fields has nothing to work with.
 <Recipe title="1.2 Publish a schema.org Dataset record on every series page" level="AI-ready" skills="Web developer with access to the page template" time="Half a day for the template, then automatic">
 
 **Result:** every series page carries a block of structured data that
-dataset search engines and crawlers read, generated from the same
-catalog record that the page shows.
+dataset search engines and crawlers read. The block is generated from
+the same catalog record that the page shows, so the two can never
+disagree.
 
 Schema.org is a vocabulary that search engines agree on for describing
 things on web pages. A `Dataset` record in that vocabulary, embedded in
@@ -186,6 +207,16 @@ with its own website.
 5. Check after a few weeks whether the pages appear in a dataset search
    engine. Indexing takes time.
 
+**Worked example.** The block for the undernourishment series names the
+dataset "Prevalence of undernourishment", gives its description from the
+catalog record, its URL at `https://stats.example/series/FS_UNDERNOURISH_PCT`,
+its licence as CC BY 4.0, its temporal coverage as 2010 to 2024, and the
+organization as the creator. The web developer adds the block to the
+series page template and fills it from the catalog at render time. The
+Schema Markup Validator parses it without errors. Three weeks later the
+series page appears in a dataset search engine under its own name, which
+it had never done before.
+
 For catalogs that already run a data portal, check whether the portal
 software can emit [DCAT](https://www.w3.org/TR/vocab-dcat-3/) for the
 whole catalog. DCAT and schema.org markup can coexist. For datasets
@@ -203,9 +234,10 @@ weeks, so the check in step 5 is the only evidence that it worked.
 
 <Recipe title="1.3 Add semantic search next to keyword search" level="AI-native" skills="Developer with Python; a server with a few GB of memory" time="One to two weeks including evaluation">
 
-**Result:** search returns `LF_UNEMP_PCT` for "jobless rate" and
-`FS_UNDERNOURISH_PCT` for "how many people go hungry", with the keyword
-search still available for exact codes and names.
+**Result:** the catalog search returns the unemployment rate for the
+query "jobless rate" and the undernourishment series for "how many people
+go hungry", because it matches by meaning. The keyword search stays in
+place for exact codes and names.
 
 Semantic search matches by meaning. A language model turns each record
 and each query into a list of numbers (an embedding) such that texts
@@ -246,6 +278,16 @@ in step 4 applies to both.
    MRR per language with the baseline. Keep the result with the date
    and model name.
 5. Re-embed the catalog whenever records change, on a schedule.
+
+**Worked example.** The example organization embeds its five records
+with the multilingual model in the snippet. For the query "how many
+people go hungry", the keyword search returns nothing, because no record
+contains those words. The semantic search ranks `FS_UNDERNOURISH_PCT`
+first, with a similarity score of about 0.8, and the youth unemployment
+series last. For the query "LF_UNEMP_PCT" the keyword search returns the
+exact record and the combined ranking keeps it at the top. On the
+question set of chapter 6, Recall@5 for the English paraphrases rises
+from 0.2 with keywords alone to 0.9 with the combination.
 
 **What this does not do.** The snippet embeds each record as one string
 and ranks by similarity. A production search also indexes the keyword
@@ -310,10 +352,10 @@ embedding model on structured records.
 
 ## Verification
 
-- **Completeness:** the share of records that pass the schema and the organization's profile at the target level, and the count of missing fields per field (recipe 1.1).
-- **Known-item queries:** 30 to 50 queries for which the correct series is known, written the way users write. Check whether the correct series appears in the top 5 and top 10 ([chapter 6](./evaluate.mdx)).
-- **Crawler view:** open a dataset page with a structured-data validator and confirm that the record is parsed.
-- **Language check:** repeat the known-item queries in each supported language.
+- **Completeness.** The share of records that pass the schema and the organization's profile at the target level is reported, with the count of missing values per field (recipe 1.1).
+- **Known-item queries.** For 30 to 50 queries whose correct series is known, written the way users write, the correct series appears in the top 5 and the top 10 results ([chapter 6](./evaluate.mdx)).
+- **Crawler view.** A dataset page opened in a structured-data validator shows the record parsed without errors.
+- **Language check.** The known-item queries are repeated in each supported language with comparable results.
 
 ## Checklist
 
