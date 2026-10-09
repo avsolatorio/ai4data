@@ -1018,3 +1018,44 @@ Commit: this commit (`tiny/numguard.py`; `train.evaluate(num_guard)`, `export.ex
 Verdicts unchanged by construction (84.5%, 80.5%, 80.4%, 69.5%). Faithfulness on the realistic test: 4.56 / 4.70 with resampling against 4.55 / 4.70 greedy.
 
 **Implication.** Constraining tokens cannot supply a number the model does not know; resampling whole explanations removes 40 to 60% of unsupported numbers at no cost to verdicts or faithfulness and only adds time for the 1 to 2% of explanations that need it. It is on by default in `explain()` and in the app (with the script constraint switch). The remaining cases, and numbers written as words, are left for a later data fix (copying numbers verbatim from the metadata in teacher narratives).
+
+## 2026-10-09 01:58 UTC — Round F: numbers in the training data; small gains, invented numbers about unchanged
+
+Commit: 7f23ef9 (data and pair rules), 9fdb909 (driver wrapper); app switch in 765d57b.
+
+**Question/Context.** Teacher narratives state a number absent from their input in 0.54% of training rows, about the student's rate. Round F tests whether removing those rows and preferring number-faithful explanations in DPO lowers the student's rate.
+
+**What was done.** Round E's no-score data without rows whose narrative states a number absent from the input (`scripts/filter_numbers.py`); one epoch from `runs/v2e-nosim` (lr 1e-4); DPO whose chosen side never has an invented number and whose rejected side has one when available (346 of 4,389 pairs). The teacher prompt also gained the numbers rule (applies to future narratives only).
+
+**Result.** Version-3 test sets, teacher label (unanimous subset in brackets):
+| Test set | E + DPO (app until now) | F supervised | F + DPO |
+|---|---|---|---|
+| Realistic, 1,495 | 84.5% (91.7%) | 85.5% (91.7%) | 85.3% (91.8%) |
+| Paraphrase, 2,175 | 80.5% (87.7%) | 81.4% (87.5%) | 81.3% (87.9%) |
+| Nine-type, 475 | 80.4% (84.0%) | 81.1% (84.2%) | 80.2% (83.7%) |
+| Challenge, 2,244 | 69.5% (77.1%) | 71.8% (78.9%) | 70.7% (78.6%) |
+
+Faithfulness with resampling, teacher / Gemma 4 judge: 4.60 / 4.73 (E + DPO 4.56 / 4.70). Explanations with a number absent from the input, greedy, E + DPO → F + DPO: realistic 0.6% → 0.6%, paraphrase 1.0% → 0.7%, nine-type 1.9% → 0.4%, challenge 1.2% → 1.2%; with resampling 0.3% → 0.5%, 0.6% → 0.5%, 0.8% → 0.4%, 0.8% → 0.8%. These are counts of 2 to 28 explanations per set, so differences of a few explanations are within noise.
+
+**Implication.** Removing 0.5% of rows and 346 DPO pairs did not measurably change the invented-number rate; resampling at inference remains the working fix. Verdicts and faithfulness are slightly up on three of four sets, so F + DPO replaces E + DPO in the app.
+
+## 2026-10-09 01:58 UTC — Challenge diagnosis: label disagreement, the exclusion check wording, and teacher self-consistency
+
+Commit: a03fe62 (verdict rules, render version 4, hard-negative miner, comparison scripts).
+
+**Question/Context.** Negation (exclusions) and look-alike stayed near 50-55% on the challenge suite through rounds D to F. Are these model errors or label problems?
+
+**What was done.**
+1. Per phenomenon, compared F + DPO accuracy on the held-out suite (rows where teacher and Gemma 4 agree) with its accuracy on 150 of its own training rows per phenomenon (`scripts/train_sample.py`).
+2. Read the errors and the teacher-Gemma disagreements.
+3. Wrote verdict rules (`POLICY_RULE`, prompt `NARRATE_V3`): coverage beyond the request does not lower the verdict; a loosely stated period is answered by data inside it; an exclusion the item does not include is met, also when unmentioned; a separable excluded part leaves the item relevant; breakdowns cover the groups along them; aspects and proxies are partly relevant; shared words are not a match. Render version 4 writes "not in the metadata (exclusion met)" where version 3 wrote "not mentioned in the metadata" for an excluded part.
+4. Relabelled the 2,244 challenge searches (version 4, rules; teacher and Gemma 4) and, as a control, 800 realistic test pairs twice (version 3 without rules, version 4 with rules).
+
+**Result.**
+- Fit on own training rows vs held-out (agreed rows): negation 63% vs 52%, look-alike 80% vs 56%, proxy 75% vs 57%, group definition 81% vs 70%, threshold 85% vs 74%. Negation is not learned even on training rows; the others generalise poorly.
+- Negation errors are mostly "exclusion not confirmed" readings: the Checks line said "excluded term X: not mentioned in the metadata", which for every other constraint means unmet. The teacher's own labels were split (512 relevant, 512 partly relevant among agreed training rows).
+- Look-alike errors are the student calling an item relevant on shared words ("chemical stability" for Political Stability; "how to sign up for volunteer work" for a volunteer-rate table; 27 of 98 irrelevant cases called relevant).
+- Teacher-Gemma agreement on the challenge suite, without → with rules: all 78% → 81%; threshold 75% → 86%, proxy 64% → 73%, synonym 79% → 85%, group definition 62% → 67%, negation 67% → 68%, time phrase 68% → 67%. With the rules, 36 negation and 26 time-phrase labels moved from partly relevant to relevant, but the teacher still often writes "the exclusion cannot be confirmed" or "the data extend before the period", against the rules; Gemma 4 follows them.
+- Realistic control: 70 of 800 teacher labels changed (8.8%), symmetrically (P→I 25, I→P 24, P→R 13, R→P 8); agreement 85% → 84%. The rules do not shift ordinary labels, and the teacher sampled twice (temperature 0.4) agrees with itself on about 91% of ordinary pairs.
+
+**Implication.** Part of the challenge gap is label inconsistency, worst for exclusions and periods, and part is a wording trap in the inputs. The teacher's self-agreement of about 91% bounds what any student can score against single teacher labels on ordinary searches; the realistic unanimous subset (91.8%) is the better accuracy figure. Training keeps only rows where both labellers agree, so the rules increase the usable consistent rows for the hard phenomena. Challenge accuracy will be reported on the agreed subset of the relabelled suite. Round G (next) relabels the phenomenon and concept slices with the rules, adds 8,000 lexical hard negatives mined from the catalog (real searches paired with records that share their words; `synth/hardneg.py`), 6,000 more exclusion/look-alike/proxy/group/period searches, and Eurostat tables: half for training searches, half as a held-out table test (the nine-type set has only 18 distinct tables, too few to measure table accuracy).
