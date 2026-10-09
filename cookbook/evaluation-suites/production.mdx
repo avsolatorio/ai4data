@@ -19,12 +19,12 @@ The suite measures the component on the questions the organization
 wrote. Production measures it on the questions users ask, which drift:
 a new release brings new questions, a news event brings a topic the set
 lacks, a model update behind a hosted API changes answers without any
-change on the organization's side. Production evaluation samples the
-logged traffic each month in a way that covers every language and
-intent and oversamples the failures, reviews the sample with the rubric,
-monitors the scores and the traffic mix for drift, re-runs the suite on
-a schedule to catch silent changes, and feeds every failure found back
-into the set.
+change on the organization's side. Production evaluation does five things. It samples the logged traffic
+each month so that every language and intent is covered and failures
+are oversampled. It reviews the sample with the rubric. It monitors the
+scores and the traffic mix for drift. It re-runs the suite on a schedule
+to catch silent changes. And it feeds every failure found back into the
+set.
 
 ## Target state
 

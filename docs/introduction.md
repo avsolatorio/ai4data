@@ -77,3 +77,16 @@ This documentation is organized by workstream and audience:
 ## Our Vision
 
 By aligning technical innovation with the principles of openness, quality, and inclusion, **AI for Data – Data for AI** is building a future where development data is easier to find, more meaningful, and more empowering for everyone. AI is not a replacement for the expertise, integrity, and contextual knowledge that define good statistical practice—it is a force multiplier for that expertise, allowing it to reach further, scale higher, and impact more.
+
+## Practical guides
+
+The program publishes its methods as a series of cookbooks for national
+statistical organizations, each organized around the questions a team
+asks and written with recipes, scripts, and a running example. The
+[cookbook landing page](/cookbook/) lists the eleven guides and reading
+paths by role. The [AI-readiness assessment](/ai-readiness-assessment)
+places an organization on twelve dimensions, the
+[operationalizing page](/ai-readiness-in-practice) maps each dimension
+to the recipes that address it, and
+[A modern statistical office](/modern-nso) shows what the destination
+looks like at three maturity levels.

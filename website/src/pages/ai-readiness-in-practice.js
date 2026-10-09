@@ -66,8 +66,8 @@ function Hero({counts}) {
             <dd>{counts.covered}</dd>
           </div>
           <div>
-            <dt>Cookbook chapters</dt>
-            <dd>9</dd>
+            <dt>Cookbooks, chapters</dt>
+            <dd>11, 90</dd>
           </div>
         </dl>
       </div>
@@ -127,10 +127,14 @@ function HowItWorks() {
         <p className={styles.note}>
           The program's contribution is concentrated in Pillar II, the
           readiness of data products. In Pillar I it addresses specific
-          questions on open-source publication, skills, interoperability
-          standards, privacy-preserving techniques, evaluation, and
-          partnerships. It has no component for strategy, legal frameworks,
-          infrastructure, or funding. The matrix below records this.
+          questions: governance instruments (a policy, a register, a map of
+          model-assisted tasks, a statement of model use), licences and
+          terms, skills through the cookbooks and their reading paths,
+          computing and security for model servers, privacy-preserving
+          techniques, evaluation, costs, and partnerships. Strategy,
+          oversight bodies, legal frameworks, connectivity, and funding
+          structure remain the organization's own decisions. The matrix
+          below records this.
         </p>
       </div>
     </section>

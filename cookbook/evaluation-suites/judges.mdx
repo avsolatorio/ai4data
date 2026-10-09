@@ -16,11 +16,10 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 ## Rationale
 
 A rubric applied by readers scales to thirty answers a month; a language
-model applied as a grader scales to every answer of every run. The
-grader is a second system that can be wrong, and it is wrong in
-characteristic ways: it passes long, confident answers more often than
-readers do, it prefers the first of two answers it is shown, and it
-agrees with itself across runs while disagreeing with people. None of
+model applied as a grader scales to every answer of every run. The grader is a second system that can be wrong, and it is wrong in
+characteristic ways. It passes long, confident answers more often than
+readers do. It prefers the first of two answers it is shown. It agrees
+with itself across runs while disagreeing with people. None of
 this makes graders unusable; it makes validation a requirement. A grader
 is validated against human scores on a sample, its biases are measured
 and corrected in the rubric, a share of its grades is reviewed every run,

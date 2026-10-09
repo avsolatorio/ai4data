@@ -39,9 +39,19 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **Fine-tuning.** Training an existing model further on the organization's own labelled data so that it follows the organization's conventions.
 
+**Gate.** The rule that decides whether a change ships, applied to a comparison of the evaluation suite before and after the change.
+
+**Grader (judge).** A language model that scores answers with a rubric where no script can; validated against human scores before use.
+
 **Grounding.** Restricting a language model to answer only from material retrieved for the question.
 
+**GSBPM.** The Generic Statistical Business Process Model, the shared description of the steps of statistical production from specifying needs to disseminating and evaluating.
+
 **Hallucination.** A statement in a generated answer that has no support in the retrieved material.
+
+**ISCED.** The International Standard Classification of Education, whose levels classify educational attainment.
+
+**ISCO-08.** The International Standard Classification of Occupations, whose four-digit codes classify jobs; the label of the coding examples in this guide.
 
 **JSON-LD.** A JSON format for linked data, used to embed schema.org records in web pages.
 
@@ -67,6 +77,8 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **OpenAPI.** A standard, machine-readable description of a REST API.
 
+**Precision and recall.** Precision is the share of what a system found that is right; recall is the share of what is there that the system found. F1 is the average that combines the two.
+
 **Prompt injection.** Instructions hidden in content a system reads (a document, a web page, a user message) that try to change the system's behaviour.
 
 **Provenance.** The record of where a value came from: series, release, source, and when it was retrieved.
@@ -75,11 +87,15 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **Recall@k.** The share of questions for which the correct record appears in the top k results.
 
+**Rubric.** A written scale that says what each score means, so that two people, or a person and a model, score the same thing the same way.
+
 **schema.org Dataset.** A vocabulary for describing datasets on web pages, read by general crawlers and dataset search engines.
 
 **SDMX.** Statistical Data and Metadata eXchange, a standard for aggregate statistical data, their structure, and code lists.
 
 **Semantic search.** Search by meaning; see dense retrieval.
+
+**SKOS and XKOS.** SKOS is the web standard for publishing controlled vocabularies (concepts with labels and identifiers); XKOS extends it for statistical classifications and their correspondences.
 
 **Stable identifier.** An identifier for a series or dataset that does not change across releases or site redesigns.
 

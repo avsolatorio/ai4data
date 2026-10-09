@@ -15,15 +15,14 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Drafts and flags are only as good as the review they get. A review
-workflow has three parts: a pipeline that produces suggestions in a fixed
-form (what is wrong, how severe, what to change), a board where a curator
-sees the current and the proposed value side by side and decides, and a
-record of the decisions with reasons. The program's Metadata Reviewer
-provides the first two: an agentic pipeline in which several agents detect
-issues, a critic checks them, a categorizer assigns a category, and a
-severity scorer rates them, and a review board that shows each issue as a
-word-level diff.
+Drafts and flags are only as good as the review they get. A review workflow has three parts. A pipeline produces suggestions in a
+fixed form: what is wrong, how severe, what to change. A board shows a
+curator the current and the proposed value side by side, where the
+curator decides. A record keeps the decisions with their reasons. The
+program's Metadata Reviewer provides the first two. Its pipeline is a
+chain of model steps: several detect issues, a critic checks them, a
+categorizer assigns a category, and a severity scorer rates them. Its
+board shows each issue as a word-level diff.
 
 ## Target state
 

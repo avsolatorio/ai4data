@@ -93,3 +93,50 @@
   color: var(--ink-muted);
   font-size: 0.9rem;
 }
+
+/* ---------- Groups and reading paths ---------- */
+
+.group {
+  margin-bottom: 2.5rem;
+}
+
+.groupTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.paths {
+  margin-top: 1rem;
+}
+
+.pathGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.path {
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.2rem;
+  background: var(--canvas);
+}
+
+.pathRole {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  margin-bottom: 0.5rem;
+}
+
+.pathSteps {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}

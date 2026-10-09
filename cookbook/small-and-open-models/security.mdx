@@ -16,11 +16,10 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 ## Rationale
 
 A model is a large file downloaded from the internet and executed
-inside the organization's network on its most sensitive data. It
-deserves the care given to any software from outside: a recorded
-source, a verified digest, a safe file format that cannot execute code
-on load, a signature where the publisher provides one, and a lock file
-that says exactly which files the server loads. Updates arrive often,
+inside the organization's network on its most sensitive data. It deserves the care given to any software from outside. That means a
+recorded source, a verified digest, a safe file format that cannot
+execute code on load, a signature where the publisher provides one, and
+a lock file that says exactly which files the server loads. Updates arrive often,
 and each one is a change: it goes through the suite's gate like a
 prompt change, with the old version kept until the new one passes. The
 server itself runs with the access it needs and no more: the model

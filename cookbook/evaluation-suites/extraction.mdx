@@ -17,12 +17,12 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 Extractors find spans in text (dataset mentions, table cells, question
 numbers) and classifiers assign labels (a topic, an occupation code, a
-severity). Both are measured against a labelled sample with precision
-(how much of what it found is right), recall (how much of what is there
-it found), and F1, and both are measured wrong when the matching rule is
-left implicit: an extractor that finds "Labour Force Survey" when the
-label says "Labour Force Survey 2025" is either right or wrong depending
-on the rule. Two rules, exact and lenient, reported together, and an
+severity). Both are measured against a labelled sample with precision (how much
+of what it found is right), recall (how much of what is there it found),
+and F1, the average of the two. Both are measured wrong when the
+matching rule is left implicit. An extractor that finds "Labour Force
+Survey" when the label says "Labour Force Survey 2025" is either right or
+wrong depending on the rule. Two rules, exact and lenient, reported together, and an
 error taxonomy that names the kind of each error, turn a score into a
 list of fixes.
 

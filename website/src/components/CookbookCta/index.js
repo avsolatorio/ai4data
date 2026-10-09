@@ -1,19 +1,8 @@
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
+import {cookbooks, groups} from '@site/src/content/cookbooks';
 import styles from './styles.module.css';
-
-const Chapters = [
-  {to: '/cookbook/ai-ready-dissemination/find', n: '1', q: 'Can people and AI find our statistics?'},
-  {to: '/cookbook/ai-ready-dissemination/retrieve', n: '2', q: 'Can AI retrieve our data reliably?'},
-  {to: '/cookbook/ai-ready-dissemination/understand', n: '3', q: 'Can AI understand what the numbers mean?'},
-  {to: '/cookbook/ai-ready-dissemination/ask', n: '4', q: 'Can users ask questions naturally?'},
-  {to: '/cookbook/ai-ready-dissemination/trust', n: '5', q: 'Can answers be trusted and traced?'},
-  {to: '/cookbook/ai-ready-dissemination/evaluate', n: '6', q: 'Can we tell whether it works?'},
-  {to: '/cookbook/ai-ready-dissemination/monitor-use', n: '7', q: 'Can we see how our data are used?'},
-  {to: '/cookbook/ai-ready-dissemination/govern', n: '8', q: 'Can we operate this responsibly?'},
-  {to: '/cookbook/ai-ready-dissemination/sustain', n: '9', q: 'Can we maintain it?'},
-];
 
 export default function CookbookCta() {
   return (
@@ -23,33 +12,44 @@ export default function CookbookCta() {
           <div className={styles.text}>
             <span className="eyebrow">For national statistical organizations</span>
             <Heading as="h2" className={styles.title}>
-              Practical Guide to AI-Ready Data Dissemination
+              Practical guides for AI-ready data
             </Heading>
             <p className={styles.lede}>
-              A cookbook organized around nine questions a national statistical
-              organization can ask about its own dissemination system. Each chapter
-              lists steps at three maturity levels (foundational, AI-ready, and
-              AI-native), implementation options based on open standards,
-              tests, and a checklist. Generative AI is optional; the first
-              steps are complete metadata, open data, stable identifiers, and
-              documented APIs.
+              Eleven cookbooks, each organized around the questions a team asks
+              about one part of its work: dissemination, microdata, documents,
+              metadata, agent interfaces, models in production, synthetic data,
+              small and open models, evaluation, monitoring of use, and
+              datasets for machine learning. Every chapter has recipes at three
+              maturity levels, scripts that run on a shared example, open
+              standards, and a checklist. Generative AI is optional in the
+              first steps, which are complete metadata, open data, stable
+              identifiers, and documented interfaces.
             </p>
-            <Link
-              className={clsx('button button--md', styles.button)}
-              to="/cookbook/ai-ready-dissemination/">
-              Practical guide
-            </Link>
+            <div className={styles.actions}>
+              <Link className={clsx('button button--md', styles.button)} to="/cookbook/">
+                The cookbooks
+              </Link>
+              <Link className={styles.secondary} to="/modern-nso">
+                A modern statistical office →
+              </Link>
+            </div>
           </div>
-          <ol className={styles.list}>
-            {Chapters.map((c) => (
-              <li key={c.to}>
-                <Link className={styles.item} to={c.to}>
-                  <span className={styles.num}>{c.n}</span>
-                  <span>{c.q}</span>
-                </Link>
-              </li>
+          <div className={styles.groups}>
+            {groups.map((g) => (
+              <div key={g.title} className={styles.group}>
+                <span className={styles.groupTitle}>{g.title}</span>
+                <ul className={styles.list}>
+                  {g.ids.map((id) => cookbooks.find((c) => c.id === id)).map((c) => (
+                    <li key={c.id}>
+                      <Link className={styles.item} to={c.to}>
+                        {c.title.replace('Practical Guide to ', '')}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ol>
+          </div>
         </div>
       </div>
     </section>

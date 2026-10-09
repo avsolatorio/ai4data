@@ -101,3 +101,71 @@ export const cookbooks = [
     to: '/cookbook/ml-ready-datasets/',
   },
 ];
+
+// The cookbooks grouped by what they are about, in the order a reader meets them.
+export const groups = [
+  {
+    title: 'Data products that AI can use',
+    ids: ['ai-ready-dissemination', 'microdata-documentation', 'data-from-documents', 'ml-ready-datasets'],
+  },
+  {
+    title: 'Metadata and interfaces',
+    ids: ['metadata-curation-with-llms', 'serving-statistics-to-agents'],
+  },
+  {
+    title: 'Models inside the office',
+    ids: ['language-models-in-production', 'small-and-open-models', 'synthetic-data-for-sharing'],
+  },
+  {
+    title: 'Measurement',
+    ids: ['evaluation-suites', 'monitoring-data-use'],
+  },
+];
+
+// Where to start, by role. Each path is three or four chapters in order.
+export const readingPaths = [
+  {
+    role: 'Dissemination lead',
+    steps: [
+      {to: '/cookbook/ai-ready-dissemination/find', label: 'Findable records and search by meaning'},
+      {to: '/cookbook/ai-ready-dissemination/trust', label: 'Source, citation, and verified numbers'},
+      {to: '/cookbook/serving-statistics-to-agents/purpose', label: 'What an agent interface should do'},
+      {to: '/cookbook/monitoring-data-use/define', label: 'What counts as use of the data'},
+    ],
+  },
+  {
+    role: 'Microdata curator',
+    steps: [
+      {to: '/cookbook/microdata-documentation/produce', label: 'A dictionary from the files the office has'},
+      {to: '/cookbook/microdata-documentation/variables', label: 'The dictionary check before release'},
+      {to: '/cookbook/metadata-curation-with-llms/draft', label: 'Model drafts under a curator\'s decision'},
+      {to: '/cookbook/synthetic-data-for-sharing/purpose', label: 'When a synthetic file helps'},
+    ],
+  },
+  {
+    role: 'Methodologist',
+    steps: [
+      {to: '/cookbook/language-models-in-production/map', label: 'Where a model may assist production'},
+      {to: '/cookbook/language-models-in-production/coding', label: 'Coding with a threshold and a re-coded sample'},
+      {to: '/cookbook/evaluation-suites/questions', label: 'Test questions and labels'},
+      {to: '/cookbook/ml-ready-datasets/represent', label: 'Representativeness of training data'},
+    ],
+  },
+  {
+    role: 'IT and data science lead',
+    steps: [
+      {to: '/cookbook/small-and-open-models/when', label: 'When a small model is enough'},
+      {to: '/cookbook/small-and-open-models/serving', label: 'Sizing and running a model server'},
+      {to: '/cookbook/evaluation-suites/gates', label: 'Gates on every change'},
+      {to: '/cookbook/serving-statistics-to-agents/safety', label: 'Keeping the interface safe'},
+    ],
+  },
+  {
+    role: 'Management',
+    steps: [
+      {to: '/cookbook/ai-ready-dissemination/govern', label: 'The AI-use policy and the component register'},
+      {to: '/cookbook/language-models-in-production/assurance', label: 'The statement of model use'},
+      {to: '/cookbook/small-and-open-models/cost', label: 'What models cost to sustain'},
+    ],
+  },
+];

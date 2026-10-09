@@ -28,10 +28,10 @@ Two things make a split honest. The first is that related records stay
 together: two members of one household describe their jobs in similar
 words, and a model tested on one after training on the other has seen
 half the answer. The split therefore follows the group key of
-[chapter 2](./shape.mdx). The second is that the test part is drawn as
-the model will be used: a coder for next year's survey is best tested
-on a later round than it was trained on, so a time-based test part is
-the right one when the dataset spans rounds. Leakage is the name for
+[chapter 2](./shape.mdx). The second is that the test part is drawn as the model will be used.
+A coder for next year's survey is best tested on a later round than it
+was trained on, so a time-based test part is the right one when the
+dataset spans rounds. Leakage is the name for
 any way the answer reaches the model other than through the features,
 and this chapter's checks look for the common ones.
 

@@ -16,11 +16,12 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 ## Rationale
 
 A suite that reports is read once; a suite that gates is run every time.
-The gate is a rule: the same questions through the version before and
-the version after a change, the difference per slice, an interval around
-the difference that says what thirty or three hundred questions can
-decide, a tolerance for regression the organization accepts, and what
-happens when a slice is too small to decide. A change that passes ships;
+The gate is a rule with five parts. The same questions run through the
+version before and the version after a change. The difference is computed
+per slice. An interval around the difference says what thirty or three
+hundred questions can decide. A tolerance states how much regression the
+organization accepts. And the rule says what happens when a slice is too
+small to decide. A change that passes ships;
 a change that regresses a slice is blocked; a change that may have
 regressed a small slice goes to a person, and the set grows there. The
 rule is written down and run by a machine, so that it applies to every

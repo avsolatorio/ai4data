@@ -37,5 +37,7 @@ jobs:
         run: ruff check website/static/cookbook-files scripts/docs/new_cookbook.py scripts/docs/check_cookbooks.py
       - name: Check cookbook structure and writing rules
         run: python scripts/docs/check_cookbooks.py
+      - name: Quoted outputs match the scripts
+        run: for cb in $(ls cookbook | grep -v -e _template -e authoring); do python scripts/docs/refresh_cookbook_outputs.py $cb --check | tail -1 | grep -q '^0 block' || exit 1; done
       - name: Test
         run: pytest tests/test_cookbook_scripts.py tests/test_cookbook_microdata.py tests/test_cookbook_documents.py tests/test_cookbook_datause.py tests/test_cookbook_agents.py tests/test_cookbook_curation.py tests/test_cookbook_evaluation.py tests/test_cookbook_production.py tests/test_cookbook_synthetic.py tests/test_cookbook_small_models.py tests/test_cookbook_ml_ready.py -p no:cacheprovider --noconftest -q
