@@ -95,12 +95,10 @@ def describe(error, manifest: dict) -> str:
         return f"{where}not marked read-only (readOnlyHint true)"
     if error.validator == "maxItems":
         return f"{len(error.instance)} tools; more than {MAX_TOOLS} makes the interface hard for a model to use"
-    if (
-        error.validator == "required"
-        and path[-1:] == ["inputs"]
-        or (len(path) >= 4 and path[2] == "inputs")
-    ):
+    if len(path) >= 4 and path[2] == "inputs":
         return f"{where}input {path[3]!r} needs a type and a description"
+    if error.validator == "required" and "'example'" in error.message:
+        return f"{where}no example call"
     return f"{where}{error.message}"
 
 
