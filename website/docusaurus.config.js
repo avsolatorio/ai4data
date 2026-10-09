@@ -56,6 +56,9 @@ const config = {
           editUrl: 'https://github.com/worldbank/ai4data/edit/main/docs/',
         },
         blog: false,
+        sitemap: {
+          ignorePatterns: ['/ai4data/nso-roadmap', '/ai4data/nso-roadmap/**'],
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -123,6 +126,7 @@ const config = {
             label: 'Issues',
             href: 'https://github.com/worldbank/ai4data/issues',
           },
+          {label: 'Roadmap', to: '/nso-roadmap', className: 'footer__link-quiet'},
         ],
         copyright: `
           <div class="fb-brand">

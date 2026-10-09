@@ -302,6 +302,14 @@ div[class*='codeBlockContainer'] {
     justify-content: flex-start;
   }
 }
+/* Unlisted planning page: a low-contrast footer entry only. */
+.footer .footer__link-quiet {
+  color: #6f7982;
+  font-size: 0.74rem;
+}
+.footer .footer__link-quiet:hover {
+  color: #cbd2d8;
+}
 .footer__title {
   font-size: 0.78rem;
   letter-spacing: 0.05em;
