@@ -226,11 +226,12 @@ function Office({level, setLevel, aiOff}) {
         <div className={styles.head}>
           <span className="eyebrow">The office</span>
           <Heading as="h2" className={styles.title}>
-            Five units and what each one runs
+            The five units of the office
           </Heading>
           <p className={styles.lede}>
-            Open a unit to see its people, its tools, the AI components it
-            relies on at the chosen level, and who decides at each one.
+            Each unit opens to its people, its tools, and its AI components
+            at the chosen level. Every component names the person who
+            decides on its output.
           </p>
         </div>
         <div className={styles.floor}>

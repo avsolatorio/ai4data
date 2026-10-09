@@ -71,6 +71,9 @@ BANNED = re.compile(
     r", not |rather than|instead of|not just|isn.t\.|\bmerely\b|\bsimply\b|\bactually\b"
 )
 COMMA_TAG = re.compile(r", (and|with|but|so|then|because) ")
+CLAUSE_TAG = re.compile(
+    r"\b(and|with) (what|who|how|where|why|when|whether)\b"
+)  # "Five units and what each runs"
 SECOND_PERSON = re.compile(r"\b(you|your|yours)\b", re.IGNORECASE)
 FRONT = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 RECIPE = re.compile(r"<Recipe\s+([^>]*)>(.*?)</Recipe>", re.DOTALL)
@@ -155,6 +158,8 @@ def check_titles(path: Path, text: str, rep: Report) -> None:
             rep.error(path, f"comma-and-tag title: {t!r}")
         if ";" in t:
             rep.error(path, f"two statements joined in a title: {t!r}")
+        if CLAUSE_TAG.search(t):
+            rep.error(path, f"title with a clause tag: {t!r}")
     body = prose(text)
     for m in BANNED.finditer(body):
         line = body.count("\n", 0, m.start()) + 1
