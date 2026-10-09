@@ -2,6 +2,8 @@
 
   CUDA_VISIBLE_DEVICES=1 python -m relevance_explainer.tiny.pretrain --root data/corpus --out runs/pre-a --tokens 3e8
 Optional: --init-emb Qwen/Qwen3-0.6B initializes embeddings from Qwen (PCA to d_model, matched by token string).
+Domain mixing: --domain-root data/corpus_domain --domain-share 0.3 draws that share of sequences from a second corpus
+with the same layout (synth/domain_corpus.py), with its own held-out tail (DOMAIN_HOLDOUT tokens per language).
 """
 from __future__ import annotations
 
@@ -19,6 +21,7 @@ from .corpus import LANGS
 from .model import Config, TinyLM
 
 HOLDOUT = 1_000_000  # tokens per language kept out of training
+DOMAIN_HOLDOUT = 200_000  # the domain corpus is small: a shorter held-out tail per language
 
 
 def load_shards(root: Path) -> dict[str, np.ndarray]:
@@ -32,9 +35,9 @@ def load_shards(root: Path) -> dict[str, np.ndarray]:
     return out
 
 
-def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: np.random.Generator):
+def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: np.random.Generator, holdout: int = HOLDOUT):
     langs = list(shards)
-    sizes = np.array([max(len(shards[l]) - HOLDOUT, 1) for l in langs], dtype=float)
+    sizes = np.array([max(len(shards[l]) - holdout, 1) for l in langs], dtype=float)
     p = sizes**alpha
     p /= p.sum()
 
@@ -42,7 +45,7 @@ def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: 
         out = np.empty((bs, seq), dtype=np.int64)
         for i, k in enumerate(rng.choice(len(langs), size=bs, p=p)):
             s = shards[langs[k]]
-            o = int(rng.integers(0, len(s) - HOLDOUT - seq))
+            o = int(rng.integers(0, len(s) - holdout - seq))
             out[i] = s[o : o + seq]
         return torch.from_numpy(out)
 
@@ -50,25 +53,26 @@ def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: 
 
 
 @torch.no_grad()
-def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64, tk=None) -> dict[str, float]:
+def heldout_ppl(model: TinyLM, shards, seq: int, n_seq: int = 64, tk=None, holdout: int = HOLDOUT, prefix: str = "") -> dict[str, float]:
     """Held-out perplexity per token for each language. With a tokenizer, also bits per UTF-8 byte of the same
     text (key '<lang>_bpb'), which is comparable across vocabularies. The first token of each sequence is not
     predicted, so bits per byte is slightly optimistic by the same small factor for every vocabulary."""
     model.eval()
     res = {}
     for l, s in shards.items():
-        tail = np.asarray(s[-HOLDOUT:], dtype=np.int64)
+        tail = np.asarray(s[-holdout:], dtype=np.int64)
+        n_seq = min(n_seq, len(tail) // seq)
         x = torch.from_numpy(tail[: n_seq * seq].reshape(n_seq, seq)).cuda()
         tot = 0.0
         for i in range(0, n_seq, 16):
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 _, loss = model(x[i : i + 16], x[i : i + 16])
             tot += loss.item() * len(x[i : i + 16])
-        res[l] = round(math.exp(tot / n_seq), 2)
+        res[prefix + l] = round(math.exp(tot / n_seq), 2)
         if tk is not None:
             nbytes = len(tk.decode(tail[: n_seq * seq].tolist()).encode("utf-8"))
             # tot / n_seq is the mean loss per predicted token; n_seq * (seq - 1) tokens are predicted in total
-            res[f"{l}_bpb"] = round(tot / n_seq * n_seq * (seq - 1) / math.log(2) / nbytes, 4)
+            res[f"{prefix}{l}_bpb"] = round(tot / n_seq * n_seq * (seq - 1) / math.log(2) / nbytes, 4)
     model.train()
     return res
 
@@ -120,6 +124,8 @@ def main() -> None:
     ap.add_argument("--init-emb", default=None)
     ap.add_argument("--resume", default=None, help="model.pt to continue pretraining from")
     ap.add_argument("--eval-every", type=int, default=500)
+    ap.add_argument("--domain-root", default=None, help="second corpus (same layout) mixed in at --domain-share")
+    ap.add_argument("--domain-share", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
 
@@ -131,6 +137,14 @@ def main() -> None:
     shards = load_shards(root)
     batch, probs = sampler(shards, a.alpha, a.seq, a.bs, np.random.default_rng(a.seed))
     print("language sampling:", probs, flush=True)
+    dom = None
+    if a.domain_root and a.domain_share > 0:  # each batch takes round(share * bs) sequences from the domain corpus
+        dom = load_shards(Path(a.domain_root))
+        n_dom = round(a.domain_share * a.bs)
+        dbatch, dprobs = sampler(dom, a.alpha, a.seq, n_dom, np.random.default_rng(a.seed + 1), DOMAIN_HOLDOUT)
+        gbatch, _ = sampler(shards, a.alpha, a.seq, a.bs - n_dom, np.random.default_rng(a.seed))
+        batch = lambda: torch.cat([gbatch(), dbatch()])[torch.randperm(a.bs)]
+        print(f"domain corpus: {n_dom} of {a.bs} sequences per batch; language sampling {dprobs}", flush=True)
 
     if a.resume:  # continue from a saved checkpoint (a further pass over the corpus at a lower learning rate)
         ck = torch.load(a.resume, map_location="cpu")
@@ -170,6 +184,8 @@ def main() -> None:
                   f"{step * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
         if step % a.eval_every == 0 or step == steps:
             ppl = heldout_ppl(model, shards, a.seq, tk=tk)
+            if dom is not None:
+                ppl.update(heldout_ppl(model, dom, a.seq, n_seq=32, tk=tk, holdout=DOMAIN_HOLDOUT, prefix="domain_"))
             log.append({"step": step, "tokens": step * a.bs * a.seq, "train_loss": loss.item(), "heldout_ppl": ppl})
             print("heldout ppl:", ppl, flush=True)
             torch.save({"config": cfg.to_dict(), "state": model.state_dict()}, out / "model.pt")
