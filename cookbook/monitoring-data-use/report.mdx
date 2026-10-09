@@ -3,7 +3,7 @@ id: report
 title: "8. Reporting of use"
 sidebar_label: "8. Report"
 sidebar_position: 9
-description: Use per dataset by year and document type, combined with access statistics and an AI visibility check, and reported with the coverage and recall caveats that make the numbers interpretable.
+description: How use is reported so that management can read it, with the documents that mention and use each dataset by year and type, access statistics and an AI visibility check beside them, and the coverage and recall figures that say how much the numbers leave out.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -50,9 +50,9 @@ organizations' data alongside.
 
 <Recipe title="8.1 Produce the use report" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** for each dataset, how many documents mention it and how
-many use it, by year and by document type, with the other datasets it
-is used alongside.
+**Result:** for each dataset, the organization knows how many documents
+mention it and how many use it, by year and by document type, and which
+other datasets it is used alongside.
 
 The script reads the harmonized mentions of [chapter 7](./harmonize.mdx)
 and the documents table of [chapter 4](./collect.mdx), and counts by
@@ -78,12 +78,28 @@ other organizations' data mentioned alongside (co-use):
   'World Development Indicators': 1 document(s)
 ```
 
+The first line gives the totals. The table has one row per dataset of
+the organization, with the count of documents that mention it, the
+count that use it in the sense of the typology, and the breakdown by
+year and by document type. The last block lists the other
+organizations' datasets found in the same documents.
+
 1. Run the report on the harmonized mentions.
 2. Report documents as the unit and mentions as the secondary figure.
    Separate mentioned from used: a report cited as context is a
    different fact from a survey the analysis rests on.
 3. Keep the scope stable between periods. A change in sources is a
    break, and is marked as one.
+
+**Worked example.** In the run above, the household budget survey is
+mentioned in two documents and used in both: a 2023 journal article that
+builds its poverty analysis on the survey and a 2024 working paper that
+uses its consumption module. The food security report is mentioned in
+two documents and used in none, because both cite it as background. The
+dissemination lead reads the two facts differently. The survey has
+research users who depend on its documentation; the report is a
+reference that policy documents point to. Both findings go into the
+decisions of chapter 9 with the figures beside them.
 
 **What this does not do.** The counts cover the collected documents.
 Recipe 8.3 adds the caveats that make them interpretable, and the
@@ -93,9 +109,10 @@ report is never read without them.
 
 <Recipe title="8.2 Add access statistics, citation counts, and the AI visibility check" level="AI-ready" skills="Web analyst; dissemination officer" time="One day to set up; two hours per period">
 
-**Result:** downloads and API calls, identifier citations, mentions, and
-a record of how AI assistants answer questions the data answer, side by
-side per dataset.
+**Result:** the report shows, side by side for each dataset, the
+downloads and API calls, the identifier citations, the mentions in
+documents, and a record of how AI assistants answer the questions the
+data answer.
 
 1. Take the access counts of [chapter 2](./access.mdx) (regular and
    machine requests per dataset and month) and the citation counts of
@@ -111,6 +128,18 @@ side per dataset.
    and its caveat. They answer different questions and move
    differently.
 
+**Worked example.** The quarterly report's row for the labour force
+survey reads: 1,840 regular requests and 6,200 machine requests in the
+quarter, 3 citing documents found through its DOI, 1 document with a
+mention in the collection, and an AI visibility score of 7 out of 10
+questions answered with the organization cited. The row for the
+household budget survey reads 420 regular requests, 0 machine requests,
+5 citing documents, 2 documents with mentions, and 4 of 10 questions
+cited. The lead notes that the labour force survey is fetched by
+machines far more than it is cited, while the budget survey is cited far
+more than it is downloaded. Neither fact would be visible from one
+column alone.
+
 **What this does not do.** Downloads count files, citations count
 reference lists, mentions count documents, and the AI check samples
 answers. None is a count of users or of decisions influenced, and the
@@ -120,9 +149,9 @@ report says so.
 
 <Recipe title="8.3 State coverage and recall with every count" level="Foundational" skills="Dissemination officer" time="Part of each report">
 
-**Result:** every number in the report is read with the facts that
+**Result:** every number in the report is read with the two facts that
 bound it: how much of the known literature the collection contains, and
-how much of what is there the extractor finds.
+how much of what is in the collection the extractor finds.
 
 1. Coverage: the share of the reference list of known uses that the
    collection contained, per source type ([chapter 4](./collect.mdx)).
@@ -132,6 +161,18 @@ how much of what is there the extractor finds.
    ([chapter 7](./harmonize.mdx)).
 4. Print the three with the counts. When comparing periods, note any
    change in sources, model, or threshold.
+
+**Worked example.** The report's caveat box reads: "Coverage: the
+collection contains 31 of the 40 research uses on the reference list
+(78 percent) and 12 of the 25 policy uses (48 percent). Recall: the
+extractor finds 84 percent of the mentions in the labelled sample for
+English journal articles and 61 percent for French policy documents.
+Match rate: 83 percent of mentions were resolved to an identifier.
+Compared with the previous quarter, one source was added (the national
+research repository). The counts for research use are therefore not
+comparable with the previous period." A reader who sees "used in 2
+documents" for the budget survey knows that the true figure is higher,
+and roughly how much higher.
 
 **What this does not do.** Coverage and recall bound the counts from
 below; they do not estimate the true total. An estimate of total use
@@ -169,9 +210,9 @@ this guide covers.
 
 ## Verification
 
-- **Report:** produced per period from the harmonized mentions with the documents table; figures reproducible from the files.
-- **Caveats:** coverage, recall, and match rate stated in the report.
-- **Access statistics:** machine and regular access separated, following the Code of Practice.
+- **Report.** The report is produced each period from the harmonized mentions and the documents table, and its figures can be reproduced from the files.
+- **Caveats.** Coverage, recall, and match rate are stated in the report.
+- **Access statistics.** Machine and regular access are separated, following the Code of Practice.
 
 ## Checklist
 

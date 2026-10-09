@@ -3,7 +3,7 @@ id: collect-web
 title: "5. Collection from policy, news, and web sources"
 sidebar_label: "5. Collect (web)"
 sidebar_position: 6
-description: Collecting government and parliamentary documents, news, and reports from the web within each site's terms, with robots.txt checks, identification, and rate limits, and the sources that make this scale.
+description: How government and parliamentary documents, news, and reports are collected from the web within each site's terms, with a check of robots.txt before every fetch, an identified crawler, and rate limits, and how news and web datasets give breadth without crawling.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -54,9 +54,9 @@ are not fetched.
 
 <Recipe title="5.1 List the sources and their terms" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
 
-**Result:** the list of sites, archives, and datasets where policy,
-media, and institutional use of the data appears, with the collection
-method and the terms for each.
+**Result:** the organization has a list of the sites, archives, and
+datasets where policy, media, and institutional use of its data appears,
+with the collection method and the terms for each.
 
 1. Policy: ministries' publication pages, the parliament's records and
    questions, the budget and planning documents, subnational government
@@ -75,6 +75,18 @@ method and the terms for each.
    robots.txt rules and terms of use, the rate limit, and the licence
    of the content. Government documents are often open; news is not.
 
+**Worked example.** The example organization's web sources list has
+fourteen rows. The planning ministry's publications page is reached by
+its sitemap, with a crawl delay of five seconds and documents under an
+open government licence. The parliament's records are exported monthly
+as a file on request. The national news archive forbids crawling in its
+terms, so it is listed with the method "press monitoring export" and
+the note that article texts are not stored. The World Bank's country
+documents are queried through its documents API. GDELT and Common Crawl
+are listed as datasets with their query methods. Three regional
+newspapers whose terms forbid any automated collection are listed with
+the method "none" so that the coverage note can say so.
+
 **What this does not do.** The list is the scope. Sources whose terms do
 not allow collection stay out, and the report states it. A press
 monitoring service under contract covers part of that gap.
@@ -83,9 +95,9 @@ monitoring service under contract covers part of that gap.
 
 <Recipe title="5.2 Check robots.txt and crawl within the rules" level="AI-ready" skills="Developer" time="One day to set up; scheduled runs after">
 
-**Result:** a crawler that fetches only what each site allows,
-identifies itself, and waits between requests as the site asks, with
-the check run before every fetch.
+**Result:** the organization's crawler fetches only what each site
+allows, identifies itself, and waits between requests as the site asks,
+and the check runs before every fetch.
 
 A site's `robots.txt` file states which parts of the site automated
 programs may fetch, and how long to wait between requests. The sources
@@ -114,6 +126,12 @@ sitemaps: https://ministry.example.gov/sitemap.xml
 5 URLs, 3 disallowed
 ```
 
+The first line names the crawler and the delay the site asks of it.
+Each line that follows gives the decision for one candidate URL, with
+its document type from the sources file. The sitemaps line lists the
+sitemaps the site declares, which are the better route to its
+documents.
+
 1. Fetch each site's robots file and run the check on the candidate
    URLs with the crawler's own user-agent name. Fetch only the allowed
    ones, and wait the stated delay between requests (here five seconds
@@ -129,6 +147,17 @@ sitemaps: https://ministry.example.gov/sitemap.xml
    ministry usually grants a statistical office access on request, and
    an export is often easier for both.
 
+**Worked example.** The run above is the ministry site of the running
+example. The crawler, identified as `ai4data-monitor` with a contact
+URL, is allowed on the publications pages and told to wait five seconds
+between requests. The search page, the news section, and an internal
+API path are disallowed. The developer fetches the strategy document
+and the publications list, waits five seconds between them, and records
+the robots file and both decisions with the documents. For the budget
+speech under the disallowed news path, the officer writes to the
+ministry's web team, who send the speech as a file and add the
+statistical office's crawler to the allowed agents the following month.
+
 **What this does not do.** The robots file states what crawlers may
 fetch. The terms of use and the licence of the content are read
 separately and recorded in the sources list. The check is a gate, and a
@@ -138,8 +167,9 @@ pipeline stops on a disallowed URL.
 
 <Recipe title="5.3 Use news and web datasets for breadth" level="AI-ready" skills="Developer" time="Two days to set up">
 
-**Result:** mentions in news and on the web beyond the sites the
-organization crawls, taken from datasets that already collected them.
+**Result:** the organization finds mentions in news and on the web
+beyond the sites it crawls itself, taken from datasets that have already
+collected them.
 
 1. GDELT: query its event and mention tables (in BigQuery or from the
    raw files) for the canonical names and the organization's name.
@@ -153,6 +183,17 @@ organization crawls, taken from datasets that already collected them.
 4. Store each document with its source dataset and the crawl date, and
    deduplicate against the directly collected documents by URL.
 
+**Worked example.** A GDELT query for the organization's name and the
+six canonical names over the quarter returns 140 article records from
+38 outlets, with URLs and dates. The developer fetches the text of the
+52 articles from outlets whose terms allow it and stores the rest as
+URLs with their metadata. A Common Crawl index query for the six
+ministry domains returns 2,300 pages from the latest crawl, from which
+the 190 that link to a PDF are read from the crawl archive without
+touching the ministries' servers. After deduplication by URL, the
+quarter's web collection has 296 documents, of which the news article on
+the unemployment rate in the running example is one.
+
 **What this does not do.** News datasets cover online news in the
 languages and outlets they index; regional press in the national
 language may be absent. The coverage measure per source type shows the
@@ -164,7 +205,7 @@ gap.
 
 **Result:** every collected document has text the extractor can read,
 and the organization knows what share of the policy and media uses it
-already knew about the collection contains.
+already knew about is contained in the collection.
 
 1. Extract text from PDFs with PyMuPDF and from HTML with a readability
    step (the main text without navigation). Run OCR on scanned
@@ -175,6 +216,16 @@ already knew about the collection contains.
    communications team tracked.
 3. Measure coverage per source type (policy, international, media, web)
    and report it with the counts. Add sources where it is low.
+
+**Worked example.** The reference list of known policy and media uses
+has 25 entries from the communications team's press clippings and the
+ministries' strategy documents that staff know. The collection contains
+12 of them, a coverage of 48 percent. Of the 13 missing, 9 are articles
+in the three regional newspapers that forbid collection, and 4 are
+ministry documents published on pages the sitemap does not list. The
+officer asks the ministry to add the pages to its sitemap, records the
+48 percent in the report with the reason, and marks the regional press
+as a known gap that the press monitoring contract may close.
 
 **What this does not do.** Unknown uses in unlisted sources remain
 unknown. Coverage is a lower bound per source type.
@@ -211,10 +262,10 @@ unknown. Coverage is a lower bound per source type.
 
 ## Verification
 
-- **Sources:** each listed source has a recorded method, terms, and licence.
-- **Crawler:** a disallowed URL is never fetched (the check runs before every fetch and the log shows no disallowed URL); the delay is respected.
-- **Datasets:** GDELT or Common Crawl queries return documents for the domains in scope, deduplicated against direct collection.
-- **Coverage:** the share of the reference list found, per source type, reported with the latest run.
+- **Sources.** Each listed source has a recorded method, terms, and licence.
+- **Crawler.** A disallowed URL is never fetched, which the log confirms, and the delay is respected.
+- **Datasets.** GDELT or Common Crawl queries return documents for the domains in scope, deduplicated against the direct collection.
+- **Coverage.** The share of the reference list found is reported per source type with the latest run.
 
 ## Checklist
 

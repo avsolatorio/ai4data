@@ -26,15 +26,19 @@ and, increasingly, the answers of AI systems. Finding those uses tells an
 organization which products matter, where its data are misquoted, and how
 to argue for its budget.
 
-This guide is organized around nine questions: what counts as use, whether
-downloads and API calls can be counted consistently, whether citations can
-be counted through identifiers, whether the research documents and the
-policy, news, and web documents that use the data can be collected,
-whether mentions of the data can be found in them, whether mentions can be
-matched to the datasets they refer to, whether use can be reported and
-interpreted, and whether the results can improve the data and their
-documentation. Each chapter answers
-one question with recipes, maturity levels, and a checklist.
+This guide is organized around nine questions, in the order the work is
+done. The first three are about what can be counted without reading any
+document: what counts as use, whether downloads and API calls can be
+counted consistently, and whether citations can be counted through
+identifiers. The next four are about finding use in documents: whether
+the research documents and the policy, news, and web documents that use
+the data can be collected, whether mentions of the data can be found in
+them, and whether those mentions can be matched to the datasets they
+refer to. The last two are about what the organization does with the
+result: whether use can be reported and interpreted, and whether the
+results can improve the data and their documentation. Each chapter
+answers one question with recipes, maturity levels, worked examples, and
+a checklist.
 
 The recipes build on the program's [Monitoring of Data Use](/docs/data_use/)
 workstream, which extracts dataset mentions from documents with a
@@ -63,10 +67,10 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Write the typology and the canonical names table of [chapter 1](./define.mdx) (one day). Every count depends on them.
-2. Count access with the Code of Practice rules of [chapter 2](./access.mdx) (one day to set up the log). This is the cheapest evidence of use and arrives every month.
-3. Register DOIs for the main datasets and look up their citations ([chapter 3](./citations.mdx)) (half a day, then minutes per quarter).
-4. Search the main research and government sources by hand for the canonical names ([chapters 4](./collect.mdx) and [5](./collect-web.mdx)) and report the documents found ([chapter 8](./report.mdx)).
+1. Write the typology and the canonical names table of [chapter 1](./define.mdx). This takes a day, and every count depends on it.
+2. Count access with the Code of Practice rules of [chapter 2](./access.mdx). Setting up the log takes a day. This is the cheapest evidence of use, and it arrives every month.
+3. Register DOIs for the main datasets and look up their citations, following [chapter 3](./citations.mdx). This takes half a day, and then minutes each quarter.
+4. Search the main research and government sources by hand for the canonical names, as [chapters 4](./collect.mdx) and [5](./collect-web.mdx) describe, and report the documents found, following [chapter 8](./report.mdx).
 
 Automated mention detection ([chapters 6](./detect.mdx) and [7](./harmonize.mdx)) replaces the hand search once the names table and a labelled sample exist.
 

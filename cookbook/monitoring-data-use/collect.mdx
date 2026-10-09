@@ -3,7 +3,7 @@ id: collect
 title: "4. Collection from scholarly sources"
 sidebar_label: "4. Collect (research)"
 sidebar_position: 5
-description: Collecting research papers, working papers, and theses that may use the data from open scholarly indexes and repositories, with their metadata and text, and measuring the collection's coverage.
+description: How the research papers, working papers, and theses that may use the data are collected from open scholarly indexes and repositories, with their metadata and text, and how the organization measures what share of known research uses the collection contains.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -50,9 +50,9 @@ the article's reference list is what the text mining confirms.
 
 <Recipe title="4.1 List the scholarly sources and their terms" level="Foundational" skills="Dissemination officer; librarian" time="Half a day">
 
-**Result:** the list of indexes and repositories where research use of
-the data appears, with the terms under which each can be queried and
-its texts collected.
+**Result:** the organization has a list of the indexes and repositories
+where research use of its data appears, with the terms under which each
+one can be queried and its texts collected.
 
 1. Open indexes:
    - [OpenAlex](https://help.openalex.org/): works, abstracts,
@@ -74,6 +74,18 @@ its texts collected.
    availability (abstract, open full text, closed), and the licence of
    the content.
 
+**Worked example.** The example organization's list has nine sources.
+OpenAlex, Semantic Scholar, Crossref, and CORE are the open indexes,
+each with its API address and rate limit noted. The national research
+repository and the university theses collection are reached through
+OAI-PMH. The central bank's working paper series and the planning
+ministry's research unit publish lists that can be exported. The World
+Bank's Policy Research Working Papers are queried through OpenAlex by
+publisher. For each, the librarian records whether the full text is
+open; the theses collection, for example, holds abstracts only for
+theses before 2020. Google Scholar is noted as a source for the
+reference list by hand and nothing else.
+
 **What this does not do.** Google Scholar has no API and its terms do
 not allow collection. Its results serve the reference list by hand, and
 the collection comes from the indexes above.
@@ -82,9 +94,10 @@ the collection comes from the indexes above.
 
 <Recipe title="4.2 Collect texts by name search and by reference" level="AI-ready" skills="Developer" time="One to two weeks to set up; scheduled runs after">
 
-**Result:** a collection of documents gathered from each source by two
-routes (searching for the dataset's names, and asking for works that
-cite its DOI), with metadata and text, and duplicates removed.
+**Result:** the organization has a collection of documents gathered from
+each source by two routes, searching for the dataset's names and asking
+for the works that cite its DOI, with metadata and text, and with the
+duplicates removed.
 
 The collection is kept as a documents table with one row per document:
 
@@ -115,6 +128,18 @@ The collection is kept as a documents table with one row per document:
 5. Deduplicate across sources by DOI, then by title and year for
    records without one. Keep every source that found the document.
 
+**Worked example.** The quarterly run queries OpenAlex for the six
+canonical names and their variants and gets 212 works, then asks it for
+the works that reference the four DOIs and gets 9 more. Semantic
+Scholar and CORE add 61 and 34. After deduplication by DOI and then by
+title and year, 248 documents remain, 170 of them with an open full text
+and the rest with an abstract. The 2023 journal article on poverty is
+found by all three indexes and by the reference route, so its row in
+the documents table lists four sources. The 2024 working paper, which
+the identifier merge of chapter 3 had flagged as missing, is found this
+time through the reference route, because the index has since recorded
+its reference to the survey's DOI.
+
 **What this does not do.** Name search returns every document that
 contains the words, including other countries' surveys with the same
 name; the harmonization of [chapter 7](./harmonize.mdx) sorts them.
@@ -127,7 +152,7 @@ still show the citations.
 
 **Result:** every collected document has text the extractor can read,
 and the organization knows what share of the research uses it already
-knew about the collection contains.
+knew about is contained in the collection.
 
 1. Extract text per page with PyMuPDF (a Python library that reads
    PDFs), as the program's [document parser](/docs/data_use/) does.
@@ -139,6 +164,16 @@ knew about the collection contains.
 3. Measure coverage as the share of the reference list present in the
    collection, per source, and report it with the counts.
 4. Add sources where coverage is low, and re-measure.
+
+**Worked example.** The reference list has 40 research uses: 22 papers
+that staff knew of, 12 citing documents from the identifier services,
+and 6 from the "cited by" list the survey unit kept in a spreadsheet.
+The collection contains 31 of them, which gives a coverage of 78
+percent. Of the 9 missing, 5 are theses in the university collection
+before 2020, which has abstracts only, and 4 are papers in a regional
+journal that no index covers. The officer adds the journal's own
+archive as a source, and the next quarter's coverage is 85 percent. The
+report states both figures and the reason for the change.
 
 **What this does not do.** Coverage against a reference list measures
 the known uses. The measure is a lower bound, and the report says so.
@@ -175,9 +210,9 @@ the known uses. The measure is a lower bound, and the report says so.
 
 ## Verification
 
-- **Sources:** each listed source has a recorded method and terms.
-- **Collection:** the scheduled run produces documents with complete metadata from both routes; duplicates across sources are merged.
-- **Coverage:** the share of the reference list found, per source, reported with the latest run.
+- **Sources.** Each listed source has a recorded method and terms.
+- **Collection.** The scheduled run produces documents with complete metadata from both routes, and duplicates across sources are merged.
+- **Coverage.** The share of the reference list found is reported per source with the latest run.
 
 ## Checklist
 

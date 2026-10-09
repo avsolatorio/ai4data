@@ -3,7 +3,7 @@ id: detect
 title: "6. Detection of mentions"
 sidebar_label: "6. Detect"
 sidebar_position: 7
-description: Named-entity extraction of dataset mentions with the program's extractor, a labelled sample to measure precision and recall, and thresholds and deduplication.
+description: How mentions of the organization's datasets are found in the collected documents with the program's named-entity extractor, how its precision and recall are measured on a sample labelled by hand, and how the threshold and the deduplication are set.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,8 +52,9 @@ outlook) that a person did not count as a mention.
 
 <Recipe title="6.1 Run the extractor on the collected documents" level="AI-ready" skills="Developer with Python; a machine that runs a small language model" time="One day to set up; seconds per document">
 
-**Result:** for every document in the collection, one record per
-mention of a dataset, with the fields the later chapters need.
+**Result:** for every document in the collection, the organization has
+one record per mention of a dataset, with the fields the later chapters
+need.
 
 The program's extractor reads a document's text and finds the places
 where a dataset is named. It uses a zero-shot named-entity model (a
@@ -92,6 +93,19 @@ The mentions are stored one per line as JSON objects:
 3. Record the model, adapter, and threshold used with each run. A
    change in any of them changes the counts.
 
+**Worked example.** Run on the 2023 journal article, the extractor
+returns two mentions. The first is "Household Budget Survey 2021" in
+the sentence "We estimate poverty from the Household Budget Survey
+2021", tagged as named, with `is_used` true, the usage context
+"primary", and a confidence of 0.97. The second is "HBS" in the
+sentence "Weights from the HBS are applied throughout", also used, with
+a confidence of 0.91. Run on the regional food security outlook, it
+returns "food security report" in the sentence "as several food security
+reports in the region have noted", with a confidence of 0.52, which the
+labelled sample of recipe 6.2 shows to be a false positive. The run is
+recorded with the model, the adapter version, and no threshold applied
+yet.
+
 **What this does not do.** The extractor finds mentions in the text it
 is given. A document without a text layer yields nothing, and a mention
 in a figure or in a reference list stored as an image is invisible. The
@@ -102,9 +116,9 @@ need the measurement of recipe 6.2 before the counts are trusted.
 
 <Recipe title="6.2 Measure precision and recall on a labelled sample" level="AI-ready" skills="Dissemination officer for labelling; Python" time="One day for the first hundred sentences">
 
-**Result:** two numbers that say how good the extractor is on the
-organization's own documents, with the lists of what it missed and what
-it wrongly extracted.
+**Result:** the organization has two numbers that say how good the
+extractor is on its own documents, together with the lists of what it
+missed and what it wrongly extracted.
 
 Precision is the share of extracted mentions that are real; recall is
 the share of real mentions that were extracted. Both need a labelled
@@ -137,6 +151,12 @@ false negatives (labelled, not extracted):
   D04: 'population and housing census 2014'
 ```
 
+The first two lines give the counts and the three measures. Precision is
+the share of extracted mentions that the labellers also marked, recall
+is the share of labelled mentions that the extractor found, and F1 is
+their harmonic mean. The two lists that follow name the disagreements
+in each direction, which is where the review starts.
+
 1. Draw sentences from the collected documents across types and
    languages, and label each. Two labellers and an agreement check make
    the sample trustworthy.
@@ -148,6 +168,18 @@ false negatives (labelled, not extracted):
 4. Keep the sample and the scores with the model version, and re-run on
    every change.
 
+**Worked example.** The false negative in the run above is the sentence
+"The sampling frame was the Population and Housing Census 2014" in the
+working paper. The extractor did not mark it, and the two labellers
+disagreed about it at first: one held that a census used as a frame is
+not "used" in the typology's sense, the other that it is a mention
+whatever the use. They settled on marking it as a mention with the
+context "background", which is what the sample now records, and the
+sentence is added as a positive example. The false positive, "food
+security report" in a sentence about reports in general, is a phrase
+the extractor took for a document name. Its confidence of 0.52 is the
+lowest in the run, which is what the threshold of recipe 6.3 uses.
+
 **What this does not do.** Fourteen sentences demonstrate the measure.
 A few hundred sentences per document type and language, with two
 labellers, give a number to report. The script scores the mention text
@@ -157,8 +189,9 @@ only; the usage flag and the context are scored by review.
 
 <Recipe title="6.3 Set thresholds and deduplicate" level="AI-ready" skills="Developer" time="Half a day">
 
-**Result:** a confidence threshold chosen on the sample for the use the
-counts serve, and one record per distinct mention per document.
+**Result:** the confidence threshold is chosen on the sample for the use
+the counts serve, and each document has one record per distinct
+mention.
 
 1. Compute precision and recall on the sample at several thresholds of
    the extractor's confidence, and choose the threshold for the use the
@@ -170,6 +203,16 @@ counts serve, and one record per distinct mention per document.
    "Household Budget Survey 2021"), and keeps the context windows.
 3. Keep the mention count after deduplication as the secondary figure
    next to the document count ([chapter 1](./define.mdx), recipe 1.3).
+
+**Worked example.** On the labelled sample, a threshold of 0.5 gives a
+precision of 0.92 and a recall of 0.92. Raising it to 0.6 removes the
+"food security report" false positive and gives a precision of 1.00
+with the same recall, because no true mention in the sample scored
+below 0.6. The developer sets 0.6 for the published report and 0.4 for
+the review queue, where a missed mention costs more than a wrong one.
+Deduplication then merges the article's "Household Budget Survey 2021"
+and "HBS" into one mention with both forms and both context windows, so
+that the article counts as one use of the survey with two mentions.
 
 **What this does not do.** A threshold trades precision for recall; it
 does not improve the model. Recurring misses of one kind (datasets named
@@ -207,9 +250,9 @@ labelled sample and, at the AI-native level, for adapting the model.
 
 ## Verification
 
-- **Extraction:** every collected document has a mentions file with model, adapter, and threshold recorded.
-- **Measurement:** precision and recall per document type and language from the labelled sample, with the date.
-- **Deduplication:** a sample of documents shows one record per distinct mention.
+- **Extraction.** Every collected document has a mentions file, with the model, the adapter, and the threshold recorded.
+- **Measurement.** Precision and recall per document type and language have been measured on the labelled sample, with the date.
+- **Deduplication.** A sample of documents shows one record per distinct mention.
 
 ## Checklist
 

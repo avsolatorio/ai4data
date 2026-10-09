@@ -3,7 +3,7 @@ id: citations
 title: "3. Formal citations through identifiers"
 sidebar_label: "3. Citations"
 sidebar_position: 4
-description: Counting citations of datasets that carry DOIs through DataCite, Crossref, OpenAlex, and Scholix services, merging the sources, and checking the result against text mining.
+description: How citations of datasets that carry DOIs are counted through the identifier services, DataCite, Crossref, OpenAlex, and the Scholix hubs, how the sources are merged, and how the result is compared with text mining to see what each route misses.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -57,9 +57,9 @@ without reference lists), and one only by OpenAlex.
 
 <Recipe title="3.1 Register identifiers and publish the citation format" level="Foundational" skills="Catalog administrator" time="Half a day to set up; minutes per dataset">
 
-**Result:** every monitored dataset has a DOI (a persistent identifier
-registered with DataCite) whose metadata names the organization as
-publisher, and its page shows how to cite it.
+**Result:** every monitored dataset has a DOI, which is a persistent
+identifier registered with DataCite, and the DOI's metadata names the
+organization as the publisher. The dataset's page shows how to cite it.
 
 A DOI is what makes citations countable. When an author cites the
 dataset by its DOI and the publisher deposits the reference, the
@@ -78,6 +78,17 @@ citation becomes an event that the identifier services can report.
    identifier and register it with the services that accept it. The
    merge of recipe 3.2 keys on whatever identifier the record carries.
 
+**Worked example.** The example organization registers DOIs for its
+four monitored datasets through the national library, which is a
+DataCite member. The DOI of the household budget survey carries the
+title "Household Budget Survey 2021", the organization as creator and
+publisher, the year 2023, the resource type Dataset, and a related
+identifier that points to the survey's methodology report. The survey's
+catalog page shows the citation "National Statistics Office (example).
+2023. Household Budget Survey 2021. https://doi.org/10.xxxx/ex-hbs-2021",
+and the same text sits in the record's citation field, where reference
+managers find it.
+
 **What this does not do.** A DOI makes citations countable; it does not
 make authors cite. The citation format on the page, and the request in
 the terms of use, are what change behaviour, slowly.
@@ -86,9 +97,9 @@ the terms of use, are what change behaviour, slowly.
 
 <Recipe title="3.2 Collect citation events and merge them" level="AI-ready" skills="Developer" time="One day to set up; minutes per run">
 
-**Result:** one list of citing documents per dataset, with the services
-that found each, and the documents found by only one service listed for
-review.
+**Result:** each dataset has one list of citing documents, with the
+services that found each document, and the documents found by only one
+service are listed for review.
 
 Several services report citations of a DOI, and each sees a different
 part of the literature. The events file collects what each reported,
@@ -130,6 +141,12 @@ found by one source only (check the record and add the identifier where it is mi
   FS_UNDERNOURISH_PCT: Regional food security outlook 2025 (2025) found by text-mining only
 ```
 
+The first line counts the events and the unique citing documents they
+collapse into. The table has one row per dataset, with the unique count
+and the number of citing documents each service found. The "one source"
+column counts the documents that only one route found, and the list at
+the end names them.
+
 1. Collect events on a schedule from four services, and write each
    event with its source into the events file:
    - DataCite's Event Data or GraphQL API, for the dataset DOIs;
@@ -151,6 +168,19 @@ found by one source only (check the record and add the identifier where it is mi
    - found by text mining only, without a DOI (a policy document): use
      the services cannot see.
 
+**Worked example.** In the run above, the household budget survey has
+three unique citing documents. The 2023 journal article was found by
+Crossref, by OpenAlex, and by text mining, because the author cited the
+DOI and named the survey in the methods section. The 2024 working paper
+was found by DataCite and OpenAlex but not by text mining, which means
+the collection of chapter 4 did not contain it, and it is added. The
+national nutrition strategy was found by text mining only, because a
+policy document has no reference list that any service indexes. The
+paper on informality and wages, found by OpenAlex only, cites the labour
+force survey's DOI in a journal whose publisher does not deposit
+references with Crossref. Each of the four documents tells the officer
+something different about where the routes fail.
+
 **What this does not do.** The merge keys on identifiers, and leaves a
 preprint and its journal version as two documents until a mapping joins
 them. The services' coverage differs by discipline and publisher, and
@@ -160,8 +190,9 @@ the comparison with text mining is the only coverage measure available.
 
 <Recipe title="3.3 Report citations with the other measures" level="AI-ready" skills="Dissemination officer" time="Part of each report">
 
-**Result:** citation counts per dataset in the use report, with their
-source, a note on what they cover, and the comparison with text mining.
+**Result:** the use report carries citation counts per dataset, with
+their source, a note on what they cover, and the comparison with text
+mining.
 
 1. Report unique citing documents per dataset and year, by source, with
    the overlap figures from the merge.
@@ -173,6 +204,17 @@ source, a note on what they cover, and the comparison with text mining.
    URL.
 4. Feed the count to the prioritization of [chapter 9](./act.mdx)
    beside access and mentions.
+
+**Worked example.** The report's citation section reads: "Identifier
+citations: 5 citing documents across 4 datasets, found through DataCite,
+Crossref, and OpenAlex. These are works whose reference lists were
+deposited or whose links were registered. Policy and media use are
+counted in the mentions section. Of the 7 citing documents known in
+all, 2 were found by both routes, 3 by identifiers only, and 2 by text
+mining only." The household budget survey's catalog page gains a "Cited
+by" list with the three documents, each with its DOI or URL, and the
+count feeds the prioritization of chapter 9 beside the download and
+mention counts.
 
 **What this does not do.** A citation count ranks datasets by scholarly
 attention. It does not measure policy influence or media reach, which
@@ -210,9 +252,9 @@ the other chapters measure differently.
 
 ## Verification
 
-- **Identifiers:** every monitored dataset resolves through its DOI with the organization as publisher.
-- **Events:** the scheduled collection produces events from each configured service; the merge reports per source.
-- **Comparison:** the overlap with text mining is reported each run; one-source documents are reviewed.
+- **Identifiers.** Every monitored dataset resolves through its DOI, with the organization as publisher.
+- **Events.** The scheduled collection produces events from each configured service, and the merge reports them per source.
+- **Comparison.** The overlap with text mining is reported each run, and the one-source documents have been reviewed.
 
 ## Checklist
 

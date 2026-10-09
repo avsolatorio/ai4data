@@ -3,7 +3,7 @@ id: act
 title: "9. Action on the results"
 sidebar_label: "9. Act"
 sidebar_position: 10
-description: Prioritization of documentation and dissemination work by use, follow-up of misquotes, and links between document records and dataset pages built from the results.
+description: How the results of monitoring change what the organization does, by ordering documentation and dissemination work by use, following up misquoted figures, and linking document records and dataset pages from the results.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,11 +15,14 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Monitoring earns its cost when the results change something: which
-datasets get documentation work first, which misquotes are corrected,
-which documents and datasets are linked in the catalog, and which products
-are argued for at budget time. The chapter turns the report into those
-decisions.
+Monitoring earns its cost when the results change something. The
+report of chapter 8 is a set of numbers, and numbers that nobody acts
+on are an expense. The decisions that the report can inform are of four
+kinds: which datasets get documentation work first, which misquotes are
+corrected, which documents and datasets are linked in the catalog, and
+which products are argued for at budget time. This chapter turns the
+report into those decisions, and it records each decision so that the
+next report can show whether it made a difference.
 
 ## Target state
 
@@ -49,9 +52,10 @@ alone.
 
 <Recipe title="9.1 Prioritize documentation and dissemination work by use" level="AI-ready" skills="Dissemination lead" time="Half a day per period">
 
-**Result:** the work lists of the other cookbooks ordered by the use the
-report shows, so that the datasets people rely on most are documented
-first, and the gaps the report shows acted on.
+**Result:** the work lists of the other cookbooks are ordered by the use
+the report shows, so that the datasets people rely on most are
+documented first, and the gaps the report shows have a decision against
+them.
 
 1. For each dataset, put the use counts next to its documentation
    status: the completeness check of the
@@ -68,6 +72,19 @@ first, and the gaps the report shows acted on.
 4. Record the decisions with the report, so that the next period shows
    whether use changed where work was done.
 
+**Worked example.** The lead puts the use counts beside the
+documentation status. The household budget survey is used most in
+research and has a complete dictionary. The labour force survey is used
+in media and policy, where readers see the record and nothing else, and
+its dictionary fails the check with four errors. The 2014 census is
+mentioned nowhere in the collection, although it is the most downloaded
+file. Three decisions are recorded with the report. The labour force
+survey's variable documentation is completed this quarter. The census
+is looked into, starting with whether its recommended citation is on
+the page, to find out why it is downloaded and never cited. And a
+crosswalk to the Demographic and Health Survey, with which the budget
+survey is used, is proposed.
+
 **What this does not do.** Use measures demand as it was; it does not
 show demand that better documentation would create. Datasets never
 mentioned need a judgement about why.
@@ -76,9 +93,9 @@ mentioned need a judgement about why.
 
 <Recipe title="9.2 Follow up misquoted figures" level="AI-ready" skills="Dissemination officer" time="One hour per period plus follow-up">
 
-**Result:** figures quoted from the data in documents and in AI
-answers are checked against the catalog, and the causes on the
-organization's own side are fixed first.
+**Result:** figures quoted from the data in documents and in AI answers
+have been checked against the catalog, and the causes that lie on the
+organization's own side have been fixed first.
 
 1. For mentions whose context quotes a figure (the extractor's context
    window shows it), compare the figure with the catalog value for the
@@ -94,6 +111,17 @@ organization's own side are fixed first.
 4. Log misquotes by dataset and cause. A dataset misquoted often needs
    its page and its API response looked at.
 
+**Worked example.** The nutrition strategy quotes the prevalence of
+undernourishment as 7.6 percent for 2024, which matches the catalog. A
+news article quotes the unemployment rate as 6.3 percent "in the latest
+quarter" in September 2025, when the latest quarter was the second, at
+6.1. The officer checks the organization's page and finds that the
+second-quarter release was shown in a chart with the figure only in the
+image. The page is changed to state the latest value and its quarter in
+text. The misquote is logged against the unemployment rate with the
+cause "latest value not in text on the series page", and the journalist
+is sent the current figure with the citation.
+
 **What this does not do.** The check finds figures that differ from the
 catalog. A figure that differs because the document used an earlier
 vintage is correct for its date, and the revisions log says so.
@@ -102,8 +130,8 @@ vintage is correct for its date, and the revisions log says so.
 
 <Recipe title="9.3 Close the loop in the catalog" level="AI-native" skills="Catalog administrator; developer" time="One week to set up">
 
-**Result:** the results of monitoring become part of the catalog:
-documents link to the datasets they use, dataset pages list the
+**Result:** the results of monitoring have become part of the catalog.
+Documents link to the datasets they use, dataset pages list the
 documents that use them, and the names table grows from confirmed
 variants.
 
@@ -118,6 +146,18 @@ variants.
    evaluation question set of the dissemination cookbook.
 4. Expose the links through the catalog API, so that an AI system
    answering about a dataset can cite the documents that use it.
+
+**Worked example.** The 2023 journal article is in the organization's
+own document catalog, because a staff member co-authored it. Its record
+gains `EX-HBS-2021` in `data_sources`. The catalog page of the household
+budget survey gains a "Used in" section that lists the article and the
+2024 working paper with their years and types. The variant "the budget
+survey", confirmed in chapter 7, is written to the survey's `aliases`
+field, and the misquoted question about the latest unemployment rate is
+added to the evaluation question set with the expected answer of 6.1
+percent for 2025 Q2. An assistant that answers a question about the
+budget survey through the catalog API can now cite the two documents
+that use it.
 
 **What this does not do.** Automatic links carry the extractor's
 precision. Links on public pages are added for exact and reviewed
@@ -155,9 +195,9 @@ matches only; "contains" and fuzzy matches wait for review.
 
 ## Verification
 
-- **Decisions:** each period's report has a recorded set of decisions and, next period, their effect.
-- **Misquotes:** logged with cause and follow-up; the share caused by the organization's own side falls over time.
-- **Links:** "used in" lists and `data_sources` present for reviewed matches; aliases updated.
+- **Decisions.** Each period's report has a recorded set of decisions, and the next period's report records their effect.
+- **Misquotes.** Every misquote is logged with its cause and its follow-up, and the share caused by the organization's own side falls over time.
+- **Links.** "Used in" lists and `data_sources` entries exist for every reviewed match, and the aliases are updated.
 
 ## Checklist
 
