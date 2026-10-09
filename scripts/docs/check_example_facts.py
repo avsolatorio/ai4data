@@ -136,7 +136,6 @@ def main() -> int:
         text = re.sub(r"```.*?```", "", p.read_text(encoding="utf-8"), flags=re.DOTALL)
         for sid, info in facts["series"].items():
             for period, value in info["values"].items():
-                year = period.split("-")[0]
                 for m in re.finditer(
                     rf"(\d+(?:\.\d+)?)\s*(?:%|percent)[^.]{{0,60}}\b{re.escape(period)}\b",
                     text,
