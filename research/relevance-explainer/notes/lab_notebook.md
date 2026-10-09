@@ -1128,3 +1128,23 @@ Commit: 7d42657 (`synth/domain_corpus.py`, domain mixing in `tiny/pretrain.py`, 
 | Eurostat tables (agreed) | 71.3% (80.5%) | 68.7% (77.9%) | 69.2% (77.8%) | 67.5% (76.6%) |
 
 **Implication.** Pretraining on the synthetic text taught the model that text (domain perplexity fell by about a quarter) but gave no verdict gain over the same amount of general pretraining: domain minus general is +0.4 realistic, -0.5 paraphrase, -0.4 nine-type, -0.3 challenge, -1.7 tables, all within noise, and validation accuracy is identical. Continued pretraining of either kind adds about 1.6 to 2.0 points on the realistic test over the unchanged base for a 2-epoch fine-tune. A single 2-epoch fine-tune trails the chain by 2.6 points (realistic) to 3.8 points (paraphrase); validation accuracy was still rising at epoch 2 (79% to 83.5%), so the gap is at least partly under-training (2M row-passes against about 8.6M over the chain). The follow-up fine-tunes the best base by validation (domain, by 0.01 points; effectively a tie with general) for 4 epochs, then DPO, for the comparison with the deployed chain model. One seed per arm.
+
+## 2026-10-09 23:23 UTC — One 4-epoch fine-tune plus DPO comes within 0.3 to 1.9 points of the eight-stage chain
+
+Commit: ea4dc4e (`scripts/dapt_followup.sh`, `scripts/pick_best.py`). Compared with `runs/v2g-nosim-dpo` (deployed, eight stages).
+
+**Question/Context.** Follow-up to the previous entry: with more epochs, does a single fine-tuning stage plus DPO match the chain?
+
+**What was done.** The best base by validation accuracy (`pre-dapt`, tied with `pre-cont` at 83.5%) fine-tuned on round G's data for 4 epochs (lr 1e-3, standard recipe; `runs/v2g-from-dapt-4ep`), then on-policy DPO with the chain's settings (4,640 pairs, 440 with an invented number on the rejected side; `runs/v2g-from-dapt-4ep-dpo`). Evaluated and judged like the chain's model.
+
+**Result.** Validation verdict accuracy by epoch: 76.3%, 79.6%, 82.9%, 84.6% (chain's last stage 85.5%), still rising.
+| Test set | Chain + DPO (deployed) | Single 4 ep | Single 4 ep + DPO |
+|---|---|---|---|
+| Realistic (agreed) | 84.4% (91.4%) | 83.5% (91.0%) | 84.1% (91.3%) |
+| Paraphrase (agreed) | 82.0% (88.7%) | 80.6% (86.4%) | 80.1% (86.7%) |
+| Nine-type | 79.4% | 80.4% | 79.8% |
+| Challenge (agreed) | 73.0% (81.1%) | 73.2% (80.8%) | 72.5% (80.5%) |
+| Eurostat tables (agreed) | 71.0% (81.8%) | 70.0% (80.1%) | 69.2% (80.7%) |
+| Faithful, teacher / Gemma 4 | 4.56 / 4.70 | not judged | 4.50 / 4.64 |
+
+**Implication.** One fine-tuning stage of 4 epochs plus DPO reaches the deployed model within noise on the realistic, nine-type and challenge sets and is 1.9 points lower on paraphrases, 1.8 on tables and 0.06 on faithfulness. Validation accuracy was still rising, so the remaining gap is consistent with data exposure (3.9M row-passes against about 8.6M); 6 to 8 epochs is the next test. The single-stage recipe is reproducible from one command and is the candidate replacement for the chain if longer training closes the gap. The deployed model stays. One seed per arm.
