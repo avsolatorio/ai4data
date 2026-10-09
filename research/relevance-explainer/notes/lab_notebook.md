@@ -1103,3 +1103,28 @@ Commit: a03fe62, 72ff396 (data and driver); app switch in 6acb5d7. Models `runs/
 Challenge by phenomenon, F + DPO → G supervised: negation 36.9% → 60.4%, synonym 66.7% → 70.7%, proxy 50.7% → 56.0%, time phrase 65.1% → 69.8%, multi-ask 82.6% → 87.9%, group definition 58.0% → 60.0%, threshold 80.7% → 82.0%, look-alike 51.7% → 51.0%. Eurostat tables, F + DPO → G + DPO: synonym 40% → 68%, standard measure 52% → 70%, group definition 32% → 52%, question 74% → 88%, title 76% → 96%; look-alike 56% → 54%.
 
 **Implication.** The exclusion fix (wording plus consistent labels) worked: negation rose 23 points. Table data from a third statistical office raised held-out table accuracy by 10 points (16 on the agreed subset), the largest single gain so far, which supports adding more statistical-office tables. Look-alikes did not move with 6,805 lexical hard negatives; the student still calls an item relevant on shared words, so this needs another approach (or more capacity). Supervised G is the most accurate on the realistic test but less faithful; DPO restores faithfulness to within 0.04 of round F at -0.9 points realistic (-0.4 on the agreed subset, within noise). G + DPO replaces F + DPO in the app, with version-4 inputs.
+
+## 2026-10-09 15:24 UTC — Domain pretraining on all synthetic text: no gain over more general pretraining; one 2-epoch fine-tune trails the chain
+
+Commit: 7d42657 (`synth/domain_corpus.py`, domain mixing in `tiny/pretrain.py`, `scripts/dapt.sh`); follow-up ea4dc4e.
+
+**Question/Context.** Two questions from the user: does pretraining on every synthetic text (including rows left out of training) help, and can one fine-tuning stage from a pretrained base replace the eight-stage chain that produced the deployed model?
+
+**What was done.**
+1. Domain corpus (159M tokens, 10M to 24M per language): 910,452 documents of record metadata lines, search and explanation (no verdict line; includes rows the labellers disagreed on), 78,978 searches without explanations, 8,870 records. Left out: every test search; rows of validation and test themes; records of the challenge suite, the nine-type set and the Eurostat test half; explanations failing the language check (107) or stating a number absent from their original input (4,812, 0.5%).
+2. Three bases: `pre-wide-full2` unchanged (the chain's base); plus 600M tokens of the general corpus (`pre-cont`); plus 600M tokens with 30% of sequences from the domain corpus (`pre-dapt`). Both continuations: lr 3e-4, batch 128 x 1,024, from `pre-wide-full2`. The general corpus now includes the FineWeb-2 shards (the chain's base was Wikipedia only), the same for both continuations.
+3. Each base fine-tuned once on round G's data (`data/v2_g_itemfirst_nosim`, 977,538 rows), lr 1e-3, 2 epochs, the standard recipe; evaluated on the version-4 test sets. Compared with the chain's last supervised model (`v2g-nosim`).
+
+**Result.**
+- Pretraining: domain held-out perplexity (English) 4.95 after the first 1,000 steps and 3.84 at the end (2.6 to 4.4 across languages). Held-out Wikipedia perplexity, English: unchanged base 10.7, `pre-cont` 10.9, `pre-dapt` 11.5.
+- Validation verdict accuracy after 2 epochs: base 83.3%, cont 83.5%, dapt 83.5% (epoch 1: 79.3%, 79.1%, 79.0%); the chain's last stage 85.5%.
+
+| Test set | Chain (`v2g-nosim`) | Base, 2 ep | Cont, 2 ep | Domain, 2 ep |
+|---|---|---|---|---|
+| Realistic (agreed) | 86.1% (92.5%) | 81.5% (88.1%) | 83.1% (89.7%) | 83.5% (89.2%) |
+| Paraphrase | 81.6% | 78.0% | 78.3% | 77.8% |
+| Nine-type | 80.2% | 79.8% | 80.2% | 79.8% |
+| Challenge (agreed) | 73.5% (80.4%) | 71.0% (78.4%) | 72.2% (79.0%) | 71.9% (78.1%) |
+| Eurostat tables (agreed) | 71.3% (80.5%) | 68.7% (77.9%) | 69.2% (77.8%) | 67.5% (76.6%) |
+
+**Implication.** Pretraining on the synthetic text taught the model that text (domain perplexity fell by about a quarter) but gave no verdict gain over the same amount of general pretraining: domain minus general is +0.4 realistic, -0.5 paraphrase, -0.4 nine-type, -0.3 challenge, -1.7 tables, all within noise, and validation accuracy is identical. Continued pretraining of either kind adds about 1.6 to 2.0 points on the realistic test over the unchanged base for a 2-epoch fine-tune. A single 2-epoch fine-tune trails the chain by 2.6 points (realistic) to 3.8 points (paraphrase); validation accuracy was still rising at epoch 2 (79% to 83.5%), so the gap is at least partly under-training (2M row-passes against about 8.6M over the chain). The follow-up fine-tunes the best base by validation (domain, by 0.01 points; effectively a tie with general) for 4 epochs, then DPO, for the comparison with the deployed chain model. One seed per arm.
