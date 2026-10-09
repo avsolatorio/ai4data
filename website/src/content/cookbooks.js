@@ -6,7 +6,7 @@ export const cookbooks = [
     audience: 'National statistical organizations',
     title: 'Practical Guide to AI-Ready Data Dissemination',
     description:
-      'Nine questions a statistical organization can ask about its dissemination system. Each chapter has recipes with code and templates, steps at three maturity levels, tests, and a checklist. Includes a self-assessment.',
+      'Helps a statistical organization make its published statistics findable, retrievable, and understandable by people and by AI systems. Nine chapters cover catalog records, open files and APIs, documented meaning, natural-language access, provenance, evaluation, monitoring of use, governance, and sustainability, each with recipes, worked examples, and a checklist.',
     chapters: 9,
     to: '/cookbook/ai-ready-dissemination/',
   },
@@ -15,7 +15,7 @@ export const cookbooks = [
     audience: 'Data curators in national statistical organizations',
     title: 'Practical Guide to AI-Ready Microdata Documentation',
     description:
-      'Eight questions a curator can ask about a survey\'s documentation, from producing it out of existing files to comparability across rounds and access conditions, each answered with recipes, maturity levels, tests, and a checklist. Builds on DDI Codebook and the World Bank microdata schema.',
+      'Helps data curators document survey microdata so that people and AI systems can find a survey, interpret its variables, and obtain the data under the stated conditions. Eight chapters run from producing documentation out of existing files to comparability across rounds and access tiers, built on DDI Codebook and the World Bank microdata schema.',
     chapters: 8,
     to: '/cookbook/microdata-documentation/',
   },
@@ -24,7 +24,7 @@ export const cookbooks = [
     audience: 'Dissemination, library, and research data teams',
     title: 'Practical Guide to Extracting Data from Documents',
     description:
-      'Nine questions a team can ask about the statistics locked in its reports and PDFs, each answered with recipes for reading scans, locating, extracting, verifying, combining, publishing, and citing the data, and running the pipeline at scale. Builds on the Data Snapshots work.',
+      'Helps a team recover the statistics locked in its reports and PDFs as structured, verified, and citable data. Nine chapters cover the inventory of documents, text from scans, locating and extracting tables and figures, verification against the page, series across documents, publication, citation, and running the pipeline over a whole backlog.',
     chapters: 9,
     to: '/cookbook/data-from-documents/',
   },
@@ -33,7 +33,7 @@ export const cookbooks = [
     audience: 'Dissemination teams and management in national statistical organizations',
     title: 'Practical Guide to Monitoring Data Use',
     description:
-      'Nine questions a dissemination team can ask about how its data are used: counting access and citations, collecting research, policy, and web documents, finding and matching mentions, reporting use, and acting on it. Builds on the program\'s Monitoring of Data Use work.',
+      'Helps a dissemination team see where its data are used, in research, policy, news, and AI answers. Nine chapters cover what counts as use, access and citation counts, collecting documents, finding and matching mentions of the data, reporting use with its caveats, and acting on the results.',
     chapters: 9,
     to: '/cookbook/monitoring-data-use/',
   },
@@ -42,7 +42,7 @@ export const cookbooks = [
     audience: 'Developers and dissemination teams in national statistical organizations',
     title: 'Practical Guide to Serving Official Statistics to AI Agents',
     description:
-      'Nine questions an organization can ask before and after exposing its statistics to AI agents: scope, tools, context, provenance, access control, safety, evaluation, distribution, and operation, each answered with recipes and checks. Builds on the Data360 MCP server and the program\'s MCP work.',
+      'Helps developers and dissemination teams expose official statistics to AI assistants through the Model Context Protocol. Nine chapters cover the scope of agent access, the design of the tools, the context an assistant needs, provenance in every response, access control, safety, evaluation, distribution to clients, and operation, built on the Data360 MCP server.',
     chapters: 9,
     to: '/cookbook/serving-statistics-to-agents/',
   },
@@ -51,7 +51,7 @@ export const cookbooks = [
     audience: 'Metadata curators and their managers in national statistical organizations',
     title: 'Practical Guide to Metadata Curation with Language Models',
     description:
-      'Eight questions a curation team can ask about using language models for metadata: scope, migration of legacy records, drafting, assessment, review, vocabularies, translation, and improvement from curator decisions, each answered with recipes and scripts. Builds on the program\'s metadata quality and Metadata Reviewer work.',
+      'Helps a curation team use language models on catalog metadata with a curator deciding every change. Eight chapters cover which tasks a model may assist, migration of legacy records, drafting of missing fields, quality scoring, review of suggestions, vocabularies, translation, and improvement from the decisions curators record.',
     chapters: 8,
     to: '/cookbook/metadata-curation-with-llms/',
   },
@@ -60,7 +60,7 @@ export const cookbooks = [
     audience: 'Teams that deploy AI components in national statistical organizations',
     title: 'Practical Guide to Evaluation Suites for Statistical AI',
     description:
-      'How to build, run, and maintain the evaluation suites that decide whether search, assistants, extraction, and curation tools are good enough to publish and safe to change.',
+      'Helps a team build, run, and maintain the evaluation suites that decide whether a search, an assistant, an extractor, or a drafting tool is good enough to publish and safe to change. Nine chapters cover what to evaluate, question sets and labels, the measures for each kind of component, graders, gates on changes, evaluation in production, and reporting.',
     chapters: 9,
     to: '/cookbook/evaluation-suites/',
   },
@@ -69,7 +69,7 @@ export const cookbooks = [
     audience: 'Methodologists and production managers in national statistical organizations',
     title: 'Practical Guide to Language Models in Statistical Production',
     description:
-      'Where language models can assist each phase of statistical production, from questionnaire design and open-text coding to editing, commentary, and quality assurance, with the controls that keep the statistics official.',
+      'Helps methodologists and production managers use language models inside statistical production, from questionnaire design and open-text coding to editing, anomaly explanation, and release commentary. Seven chapters keep a person at every point of decision and document model use in the quality report.',
     chapters: 7,
     to: '/cookbook/language-models-in-production/',
   },
@@ -78,7 +78,7 @@ export const cookbooks = [
     audience: 'Microdata teams and methodologists in national statistical organizations',
     title: 'Practical Guide to Synthetic Data for Sharing',
     description:
-      'What synthetic microdata are for and what they are not, which method fits the data, how utility and disclosure risk are measured, how relational and longitudinal data are handled, and how a synthetic release is documented and put to use.',
+      'Helps microdata teams produce synthetic files that applicants, students, and developers can work with while the real file stays protected. Seven chapters cover what synthetic data are for, the choice of method, utility and disclosure risk, linked tables and panels, documentation and release, and the place of synthetic files in the access workflow.',
     chapters: 7,
     to: '/cookbook/synthetic-data-for-sharing/',
   },
@@ -87,7 +87,7 @@ export const cookbooks = [
     audience: 'IT and data science leads in national statistical organizations',
     title: 'Practical Guide to Small and Open Models for Statistical Offices',
     description:
-      'When a small or open-weight model is enough, which models are candidates and under which licences, how they are run, adapted, evaluated against larger models, kept secure and current, and what they cost to sustain.',
+      'Helps IT and data science leads run small and open-weight models on the organization\'s own servers for its narrow tasks. Seven chapters cover when a small model is enough, candidates and licences, hardware and serving, adaptation, comparison with larger models on the organization\'s own suite, security, and cost.',
     chapters: 7,
     to: '/cookbook/small-and-open-models/',
   },
@@ -96,7 +96,7 @@ export const cookbooks = [
     audience: 'Data managers and dissemination teams in national statistical organizations',
     title: 'Practical Guide to Publishing ML-Ready Datasets',
     description:
-      'How to select, shape, describe, document, split, license, and version datasets that a statistical organization publishes for training and evaluating machine-learning models, with Croissant records, dataset cards, representativeness reports, and integrity manifests.',
+      'Helps data managers publish the examples a statistical organization produces, such as coded responses and transcribed tables, as datasets for training and evaluating models. Eight chapters cover selection, file form, Croissant records, dataset cards, representativeness, splits, licence and privacy, and versions.',
     chapters: 8,
     to: '/cookbook/ml-ready-datasets/',
   },

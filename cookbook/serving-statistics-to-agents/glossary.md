@@ -23,6 +23,8 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Code list.** A published table of the codes used in a dataset (for geography, periods, categories) with their labels. In SDMX, a code list is part of the data structure definition.
 
+**Confidence.** A number between 0 and 1 that a model returns with its output to say how sure it is; the basis of a threshold rule.
+
 **COUNTER Code of Practice for Research Data.** Rules for logging and reporting dataset views and downloads, including the separation of machine access from regular access.
 
 **Coverage.** The share of a reference list of known uses that the collected documents contain.
@@ -107,8 +109,6 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Token.** The unit in which language models read and write text, roughly three quarters of a word; prices, context limits, and throughput are counted in tokens.
 
-**Tool execution error.** A tool result marked as an error with a message the model can act on, as distinct from a protocol error.
-
 **Tool use.** The ability of a language model to call functions or APIs during an answer, so that values come from the source.
 
 **Trace.** The logged record of one question: tools called, series used, answer, whether the agent declined, latency.
@@ -118,3 +118,5 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 **Use.** A document whose analysis, decision, or statement depends on the data, as opposed to a mention that cites them as context.
 
 **Verified.** The status of an extracted value that matched a printed label, a total, a derivation, or a catalog value.
+
+**Vocabulary.** A concept scheme with preferred labels, alternates, and URIs, to which free-text keywords and topics are mapped.

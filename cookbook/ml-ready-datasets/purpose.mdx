@@ -3,7 +3,7 @@ id: purpose
 title: "1. Purpose and selection of datasets"
 sidebar_label: "1. Purpose"
 sidebar_position: 2
-description: "What an ML-ready dataset is, how it differs from an AI-ready catalog, which of the organization's data are candidates for publication as training and evaluation data, and how the decision is recorded."
+description: "What an ML-ready dataset is and how it differs from an AI-ready catalog, which of the organization's data are candidates for publication as training and evaluation data, and how the decision to publish each one is recorded."
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -70,7 +70,7 @@ shape, describe, document, split, license, and version that dataset.
 
 <Recipe title="1.1 Write the statement of purpose" level="Foundational" skills="Head of dissemination; methodologist" time="Half a day">
 
-**Result:** a short, approved statement of what the organization
+**Result:** the organization has a short, approved statement of what it
 publishes as ML-ready datasets, what they may be used for, and what
 they may not be used for.
 
@@ -95,6 +95,18 @@ in every dataset card.
    the disclosure control unit.
 4. Publish the statement and link it from every dataset page.
 
+**Worked example.** The example organization's statement opens with its purpose. The
+office publishes datasets of examples from its own work, such as coded
+survey responses and transcribed tables, so that models for its tasks
+can be trained and compared on real official statistics. Its conditions
+follow. Every dataset is built from a public use file, from aggregates,
+or from synthetic data. Every dataset is released with a card, a
+loading record, a representativeness report, a licence, and a version.
+No dataset is a source of published statistics. The owner of the source data and the head of the
+disclosure control unit approve each publication. The statement is
+published as an annex to the data policy, and every dataset card
+repeats its three conditions in its out-of-scope section.
+
 **What this does not do.** A statement sets the rules. Whether a
 particular dataset meets them is decided dataset by dataset in the
 later chapters, and recorded in its card.
@@ -103,9 +115,9 @@ later chapters, and recorded in its card.
 
 <Recipe title="1.2 List the candidate datasets from the organization's tasks" level="Foundational" skills="Methodologist; production managers" time="One day">
 
-**Result:** a list of the datasets the organization could publish,
-each with the task it serves, the source it comes from, the number of
-examples, and the disclosure question it raises.
+**Result:** the organization has a list of the datasets it could
+publish, each with the task it serves, the source it comes from, the
+number of examples, and the disclosure question it raises.
 
 Most candidates come from work the organization already does by hand.
 Each such task produces pairs of an input and a correct output, which
@@ -132,6 +144,19 @@ is what a model learns from:
 4. Choose one to start with. A coding task with a few thousand coded
    examples and a clear disclosure treatment is the usual first choice.
 
+**Worked example.** The walk through production yields six candidates.
+Occupation coding has about 38,000 coded job descriptions over four
+rounds, with the disclosure question that a description can name an
+employer. Industry coding has the same records. Editing has 12,000
+before-and-after pairs, with the question that the full record is
+confidential. Table transcription has 1,900 verified tables from the
+documents cookbook, with no disclosure question at all, because the
+pages are published. Catalog search has 410 questions with their
+series. Translation has 2,300 reviewed label pairs. The list is ordered
+with occupation coding first, because a coding model is wanted and
+partners have asked for it, and transcription second. The 600-record
+extract in this guide stands in for the first.
+
 **What this does not do.** The list says what could be published. The
 disclosure control unit decides what can be, dataset by dataset
 ([chapter 7](./license.mdx)), and the representativeness report of
@@ -141,9 +166,10 @@ disclosure control unit decides what can be, dataset by dataset
 
 <Recipe title="1.3 Record the decision to publish" level="AI-ready" skills="Dataset owner" time="One hour per dataset">
 
-**Result:** for each dataset the organization publishes, a record of
-why, for which uses, from which source, under whose ownership, and
-with which approvals, which becomes the first part of its card.
+**Result:** each dataset the organization publishes has a record of
+why it is published, for which uses, from which source, under whose
+ownership, and with which approvals. The record becomes the first part
+of the dataset's card.
 
 1. Write the intended uses in the users' terms: training a coder for
    surveys that use ISCO-08; benchmarking coding models; teaching.
@@ -153,6 +179,19 @@ with which approvals, which becomes the first part of its card.
    round, and the approvals (data owner, disclosure control).
 4. File the record with the dataset's documentation. The card of
    [chapter 4](./document.mdx) carries the same content for users.
+
+**Worked example.** The decision record for the occupation-coding
+dataset lists as intended uses: training an automatic coder for surveys
+that use ISCO-08, comparing coding models on a common test part, and
+teaching occupation coding. Its out-of-scope uses are estimating
+employment or occupation shares from the examples, identifying
+respondents or employers, and any use the licence excludes. The owner
+is the labour statistics unit, with the coding supervisor as contact.
+The source is the public use file of the 2025 Q2 labour force survey,
+with the job descriptions screened as chapter 7 describes. The
+approvals are the head of the labour statistics unit and the head of
+the disclosure control unit, with the dates. The record is filed in the
+dataset's folder.
 
 **What this does not do.** A decision record is not a release. The
 release happens when the files, the card, the loading record, the
@@ -188,9 +227,9 @@ checked.
 
 ## Verification
 
-- **Statement:** approved and linked from every dataset page.
-- **Candidate list:** exists with counts and disclosure notes, ordered by value and demand.
-- **Decision record:** one per published dataset, with uses, source, owner, and approvals.
+- **Statement.** The statement is approved and linked from every dataset page.
+- **Candidate list.** The list exists with counts and disclosure notes, ordered by value and demand.
+- **Decision record.** Each published dataset has a decision record with its uses, source, owner, and approvals.
 
 ## Checklist
 

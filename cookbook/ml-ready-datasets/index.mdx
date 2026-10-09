@@ -33,12 +33,16 @@ An ML-ready dataset is a fixed, versioned set of examples with a
 documented structure, a stated purpose, a split for training and
 testing, a statement of whom the examples represent, and a licence
 that covers model training. This guide is organized around eight
-questions: which datasets to publish and for what uses; what form the
-files take; how a dataset is described so that tools load it; how it
-is documented for the people who train on it; how its coverage and
-representativeness are measured; how it is split and kept free of
-leakage; under what licence and terms it is released; and how versions,
-integrity, and use are maintained.
+questions, in the order a release is prepared. The first two settle
+what to publish and in what form: which datasets to publish and for
+what uses, and what form the files take. The next two describe it: how
+a dataset is described so that tools load it, and how it is documented
+for the people who train on it. Two measure and protect it: how its
+coverage and representativeness are measured, and how it is split and
+kept free of leakage. The last two release it: under what licence and
+terms, and how versions, integrity, and use are maintained. Each
+chapter answers one question with recipes, maturity levels, worked
+examples, and a checklist.
 
 The recipes build on the open standards the machine-learning community
 has settled on ([Croissant](https://mlcommons.org/croissant/) for
@@ -68,11 +72,11 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Write the statement of purpose and choose one coding or transcription task to start with ([chapter 1](./purpose.mdx)) (half a day).
-2. Lay out the file, write the dictionary, and split by group ([chapters 2](./shape.mdx) and [6](./splits.mdx)) (one day).
-3. Run the representativeness report and write the card ([chapters 5](./represent.mdx) and [4](./document.mdx)) (one day).
-4. Have the disclosure control unit review the free text and the licence ([chapter 7](./license.mdx)) (one to three days).
-5. Generate the Croissant record, build the manifest, register the DOI, and publish ([chapters 3](./describe.mdx) and [8](./version.mdx)) (half a day).
+1. Write the statement of purpose and choose one coding or transcription task to start with, following [chapter 1](./purpose.mdx). This takes half a day.
+2. Lay out the file, write the dictionary, and split by group, following [chapters 2](./shape.mdx) and [6](./splits.mdx). This takes a day.
+3. Run the representativeness report and write the card, following [chapters 5](./represent.mdx) and [4](./document.mdx). This takes a day.
+4. Have the disclosure control unit review the free text and the licence, following [chapter 7](./license.mdx). This takes one to three days.
+5. Generate the Croissant record, build the manifest, register the DOI, and publish, following [chapters 3](./describe.mdx) and [8](./version.mdx). This takes half a day.
 
 ## Self-assessment
 

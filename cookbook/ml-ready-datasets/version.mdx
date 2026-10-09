@@ -58,9 +58,9 @@ downloaded a partial or altered copy would see.
 
 <Recipe title="8.1 Adopt the version policy" level="Foundational" skills="Dataset owner" time="An hour">
 
-**Result:** a written rule for what changes the version number of a
-dataset and by how much, applied to the data, the card, and the
-loading record together.
+**Result:** the organization has a written rule for what changes the
+version number of a dataset and by how much, and the rule applies to
+the data, the card, and the loading record together.
 
 The policy uses three-part version numbers (major.minor.patch), as
 software does:
@@ -81,6 +81,17 @@ software does:
    superseded version is marked superseded on its page and never
    deleted, because papers cite it.
 
+**Worked example.** Version 1.0.0 is the first release. When a user reports three test records with the same title and
+different codes, the coding supervisor corrects them and the release
+becomes 1.0.1. The card's versions section reads "1.0.1: three
+labelling errors in the test part corrected (records r0112, r0387,
+r0541); no other change". When the 2025 Q3 round's examples join the training part, the
+release becomes 1.1.0, and the section says that the test part is
+unchanged. When the test part moves forward to the 2025 Q4 round, the
+release becomes 2.0.0, and the section warns that scores on version 2
+are not comparable with scores on version 1. All four versions stay at
+their own URLs.
+
 **What this does not do.** A policy names the change. Whether a change
 is worth a new major version (a test part that moves forward every
 year, for example) is a decision the owner takes with the users in
@@ -90,7 +101,7 @@ mind, and states in the card.
 
 <Recipe title="8.2 Build and verify the manifest" level="Foundational" skills="Python" time="Minutes">
 
-**Result:** a file that lists every file of the release with its size
+**Result:** the release has a file that lists every file with its size
 and checksum, built at release and verifiable by anyone who downloads
 the dataset.
 
@@ -132,6 +143,10 @@ manifest.json: version 1.0.0 of 2026-10-09; 5 file(s) listed
 result: FAIL
 ```
 
+The build line names the manifest, the version, and the total size. The
+verification lists each file with `ok`, `CHANGED` when its checksum
+differs, or `MISSING` when it is absent, and ends with the verdict.
+
 1. Build the manifest as the last step of a release, after the card
    and the Croissant record are final, because it fingerprints both.
 2. Verify it before publication and publish it with the files. Tell
@@ -140,6 +155,16 @@ result: FAIL
    checksums then cover the files. The
    [small and open models cookbook](/cookbook/small-and-open-models/security)
    describes the same practice for model files.
+
+**Worked example.** The second output above is what a partner saw after
+downloading the dataset over an unreliable connection: the splits file
+had been truncated and the dictionary had not arrived. The partner ran
+the verification as the dataset page instructs, saw the two lines, and
+downloaded the two files again, after which the verification passed.
+Without the manifest the partner would have trained a model on a
+truncated split file and reported a score on the wrong test part. The
+organization signs its manifests with its release key, so that a user
+can also confirm that the manifest itself is the organization's.
 
 **What this does not do.** A manifest proves that files are unchanged
 since release. It does not prove that the release was right, and it
@@ -152,8 +177,8 @@ it fingerprints and which the policy keeps in step.
 
 **Result:** every version of the dataset has a persistent identifier
 that resolves to it, and the organization counts the papers, models,
-and downloads that use the dataset, with the monitoring workflow it
-uses for its other products.
+and downloads that use the dataset with the monitoring workflow it uses
+for its other products.
 
 1. Register a DOI for each version through DataCite, with the version
    in the metadata and a relation to the previous version, as the
@@ -171,6 +196,17 @@ uses for its other products.
    and read it: a version nobody cites after a year can be superseded;
    a model card that reports a score far above the coders' agreement
    is a leak to look into.
+
+**Worked example.** Version 1.0.0 receives a DOI with the version in
+its metadata, and version 1.0.1 receives its own, related to the first
+as a new version. The canonical names table gains the rows "LFS
+occupation coding" and "lfs-occupation-ml". After a year the use report
+shows 1,100 downloads of version 1.0.1, two papers that cite the DOI,
+four papers that mention the dataset by name without citing it, and
+three model cards on the public repository that name it. One of the
+model cards reports an accuracy of 0.97 at four digits, above the
+coders' agreement of 0.91, and the dataset owner writes to the authors,
+who find that they had trained on the test part by mistake.
 
 **What this does not do.** Use tracking finds what is declared. Models
 trained on the data without citing it are invisible, which is why the
@@ -206,9 +242,9 @@ terms ask for citation and the card makes it easy.
 
 ## Verification
 
-- **Policy:** written and applied; the card's versions section names the version and what changed.
-- **Manifest:** built last, verified before publication, published with the files.
-- **Identifier and use:** a DOI per version; downloads, citations, and model cards reported per period.
+- **Policy.** The policy is written and applied, and the card's versions section names the version and what changed.
+- **Manifest.** The manifest is built last, verified before publication, and published with the files.
+- **Identifier and use.** Each version has a DOI, and downloads, citations, and model cards are reported each period.
 
 ## Checklist
 

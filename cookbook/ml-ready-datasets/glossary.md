@@ -42,6 +42,8 @@ description: Terms used in this guide, in plain language.
 
 **Decision.** A curator's recorded verdict on a suggestion: accept, edit (with the final text), or reject (with a reason).
 
+**Digest.** The SHA-256 hash of a model file, recorded in the lock file and verified before loading.
+
 **Disclosure control.** The measurement and reduction of the risk that a released file identifies a person or business or reveals something about one: removal of identifiers, top-coding, coarsening of geography, suppression of rare combinations; applied before any release.
 
 **DOI.** Digital object identifier, a persistent identifier registered with DataCite that resolves to a dataset or to one version of it, carries citation metadata, and makes citations countable.
@@ -49,6 +51,8 @@ description: Terms used in this guide, in plain language.
 **Feature.** A column a model may use as input.
 
 **Fine-tuning.** Changing a model's weights by training it further on the organization's own labelled examples, so that it does one task better or follows the organization's conventions.
+
+**Flagged.** The status of an extracted value that failed a check and awaits correction with the page open.
 
 **Gate.** The rule that decides whether a change ships, applied to a paired comparison of the evaluation suite before and after the change.
 

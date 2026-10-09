@@ -61,9 +61,9 @@ card states.
 
 <Recipe title="6.1 Split by group with a recorded seed" level="Foundational" skills="Python" time="Minutes">
 
-**Result:** a file that assigns every record to a part, with all
-records of a group in the same part, produced by a rule that gives the
-same assignment on every machine and every run.
+**Result:** a file assigns every record to a part, with all records of
+a group in the same part, and the rule that produced it gives the same
+assignment on every machine and every run.
 
 The script draws whole groups into the test part, then into the
 validation part, with scikit-learn's grouped split and a fixed random
@@ -100,6 +100,11 @@ distribution of 'region' per split (share of the split):
 splits written to splits.csv
 ```
 
+The first lines give the counts and shares of the three parts. The
+leakage line counts the groups that appear in more than one part, which
+has to be zero. The distribution table shows the share of each category
+of the stratifying variable within each part.
+
 1. Run the script with the group key of the dictionary and the shares
    the organization wants. The shares come out close to the targets,
    never exact, because whole groups move together.
@@ -113,6 +118,17 @@ splits written to splits.csv
 4. Record the seed, the shares, and the script version in the card's
    composition section, and keep the assignment file in the release.
 
+**Worked example.** The run above puts 416 records in the training
+part, 64 in validation, and 120 in test, with no household in two
+parts. The data manager reads the distribution table and sees that the
+Northern Region is 20 percent of the test part and 13 percent of the
+training part. On 600 records that is the luck of the draw, and the
+card's composition section states it: "Split by household with seed 1;
+the Northern Region is over-represented in the test part relative to
+the training part (20 against 13 percent)". For the full dataset of
+38,000 records the same script with the same seed gives shares within
+a point of each other across the parts, and the note is not needed.
+
 **What this does not do.** A grouped split keeps groups apart. It does
 not balance labels or regions across parts, and it does not know about
 groups the key does not name (two households of one extended family).
@@ -123,8 +139,8 @@ checks of recipe 6.3 look for leakage the key cannot prevent.
 
 <Recipe title="6.2 Use a time-based test part where rounds exist" level="AI-ready" skills="Methodologist" time="An hour">
 
-**Result:** a test part made of the latest round of the source, so
-that a model's score describes what it will do on the next round.
+**Result:** the test part is made of the latest round of the source,
+so that a model's score describes what it will do on the next round.
 
 1. Decide whether the model will be used on later data. A coder for
    next quarter's survey will. A dataset of a single round has no
@@ -145,6 +161,16 @@ that a model's score describes what it will do on the next round.
    [chapter 8](./version.mdx) whether it joins the training part (a
    minor version) or becomes the new test part (a major version).
 
+**Worked example.** The full dataset spans four rounds, from 2024 Q3 to
+2025 Q2. The methodologist makes the 2025 Q2 round the test part, 9,400
+records, and splits the three earlier rounds by household between
+training and validation. The card says: "The test part is the 2025 Q2 round. Scores on it
+describe a coder trained on earlier rounds and used on a new one." The
+reference model scores 0.88 on this test part, against 0.91 on a random
+grouped split of the same data, and the card reports the lower figure. When the 2025 Q3 round arrives, the owner
+decides that it joins the training part as version 1.1, and that the
+test part moves forward to 2025 Q4 in version 2.0 the following year.
+
 **What this does not do.** A time-based test part measures drift
 between two rounds. It does not measure what a model will do on a
 different survey or a different country, which a dataset from there
@@ -154,10 +180,10 @@ measures.
 
 <Recipe title="6.3 Check for leakage before release" level="AI-ready" skills="Data scientist" time="Half a day">
 
-**Result:** evidence that the test part contains nothing the training
-part gives away: no shared groups, no duplicated inputs across parts,
-no feature that encodes the label, and a reference score that is
-plausible.
+**Result:** the organization has evidence that the test part contains
+nothing the training part gives away: no shared groups, no duplicated
+inputs across parts, no feature that encodes the label, and a reference
+score that is plausible.
 
 1. Shared groups: the script's leakage line, which has to read zero.
 2. Duplicated inputs: find records in the test part whose input text
@@ -174,6 +200,17 @@ plausible.
    and compare its test score with the agreement between two coders
    stated in the card. A model that beats the coders has probably seen
    the answers.
+
+**Worked example.** The leakage line reads zero. The duplicate check
+finds 212 test records whose job title also appears, exactly, in the
+training part, such as "primary school teacher" and "taxi driver", all
+with the same code, and the card states the count. It also finds three
+pairs with the same title and different codes, which the coding
+supervisor reviews and corrects in version 1.0.1. The feature check
+finds no feature that determines the label after the industry code was
+removed in chapter 2. The reference model's test score of 0.88 is below
+the coders' agreement of 0.91, which is what an honest split looks
+like. The four results are written into the card's composition section.
 
 **What this does not do.** The checks find the common leaks. A
 dataset built from a system that orders records by code, or whose
@@ -208,9 +245,9 @@ exists.
 
 ## Verification
 
-- **Assignment:** the file exists, its shares are reported, and the leakage line reads zero.
-- **Time-based part:** stated in the card with the round, where rounds exist.
-- **Leakage checks:** run and recorded before release; the reference score is below the coders' agreement.
+- **Assignment.** The file exists, its shares are reported, and the leakage line reads zero.
+- **Time-based part.** Where rounds exist, the card states which round is the test part.
+- **Leakage checks.** The checks have run and been recorded before release, and the reference score is below the coders' agreement.
 
 ## Checklist
 

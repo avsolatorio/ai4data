@@ -21,6 +21,8 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Checksum.** A fingerprint of a file's content (here SHA-256) that changes if one byte of the file changes; used to prove that a file is as released.
 
+**Confidence.** A number between 0 and 1 that a model returns with its output to say how sure it is; the basis of a threshold rule.
+
 **Cost-quality frontier.** The candidates that no other candidate beats on both suite score and cost per query.
 
 **Coverage.** The share of a reference list of known uses that the collected documents contain.
@@ -52,6 +54,8 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 **Harness.** A program that sends questions to an agent connected to the server and logs the traces.
 
 **Inventory.** The list of documents with their type, year, page count, text-layer status, and counts of tables and figures.
+
+**ISCO-08.** The International Standard Classification of Occupations, whose four-digit codes classify jobs; the label of the coding examples in this guide.
 
 **Issue.** The review pipeline's output: a detected problem with a category, a severity from 1 to 5, the current value, and a proposed value.
 
@@ -103,7 +107,11 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Serving stack.** The software that loads a model and answers requests (a single-machine runtime or a batching server).
 
+**Slice.** A subset of the questions (a language, a question type) scored on its own, so that a change's effect on it is visible.
+
 **Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+
+**Split.** The division of a dataset into a training part (the model learns from it), a validation part (the model builder chooses settings on it), and a test part (touched once, to report a score).
 
 **Structured output.** A model's answer returned as data in a declared shape (a JSON object with named fields that conforms to a schema) so that a script can validate, read, and aggregate it.
 

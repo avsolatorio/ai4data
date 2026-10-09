@@ -87,6 +87,8 @@ description: Terms used in the Practical Guide to AI-Ready Microdata Documentati
 
 **MCP.** The Model Context Protocol, the open standard through which AI applications discover and call tools, read resources, and use prompts offered by a server, such as a statistics API.
 
+**Mention.** A reference to a dataset in a document, named or unnamed.
+
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX, schema.org, Croissant, and DCAT.
 
 **Missing-value code.** A code in a variable that marks a missing, inapplicable, refused, or unknown response, which has to be labelled so that it is never read as a value.

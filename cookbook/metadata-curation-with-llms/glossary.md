@@ -65,6 +65,8 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **Map.** The table of model-assisted tasks with phase, role, review, data sensitivity, model location, and owner.
 
+**Match type.** How a mention was matched: exact, phrase (contains), fuzzy, semantic, or none.
+
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
 
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX, schema.org, Croissant, and DCAT.
@@ -98,6 +100,8 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 **Structured output.** A model's answer returned as data in a declared shape (a JSON object with named fields that conforms to a schema) so that a script can validate, read, and aggregate it.
 
 **Threshold.** The value of a score (a confidence, a similarity, a garble rate) at which the rule changes what happens to an item; set from measurements.
+
+**Token.** The unit in which language models read and write text, roughly three quarters of a word; prices, context limits, and throughput are counted in tokens.
 
 **Trace.** The logged record of one question: tools called, series used, answer, whether the agent declined, latency.
 

@@ -27,6 +27,8 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **Code list.** A published table of the codes used in a dataset (for geography, periods, categories) with their labels. In SDMX, a code list is part of the data structure definition.
 
+**Confidence.** A number between 0 and 1 that a model returns with its output to say how sure it is; the basis of a threshold rule.
+
 **Content-Oriented Guidelines.** The SDMX guidelines that define cross-domain concepts (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`, and others) and cross-domain code lists for reuse across statistical domains.
 
 **COUNTER Code of Practice for Research Data.** Rules for logging and reporting dataset views and downloads, including the separation of machine access from regular access.
@@ -46,6 +48,8 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 **DDI.** The Data Documentation Initiative, the standard for documenting surveys and their variables, value labels, and files; the World Bank microdata schema is based on it.
 
 **DDI Codebook.** The Data Documentation Initiative standard for documenting a study and its variables; the World Bank microdata schema is its JSON form.
+
+**Decision.** A curator's recorded verdict on a suggestion: accept, edit (with the final text), or reject (with a reason).
 
 **Dense retrieval.** Search that represents queries and records as numeric vectors (embeddings) and ranks by similarity of meaning.
 

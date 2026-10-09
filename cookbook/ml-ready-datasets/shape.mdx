@@ -60,8 +60,9 @@ features, the respondent's characteristics as further features,
 
 <Recipe title="2.1 Lay out the records and write the dictionary" level="Foundational" skills="Data manager" time="Half a day per dataset">
 
-**Result:** a data file with one record per row and a dictionary file
-that says, for every column, what it means, its type, and its role.
+**Result:** the dataset has a data file with one record per row and a
+dictionary file that says, for every column, what it means, its type,
+and its role.
 
 The data file of the running example has twelve columns. Its
 dictionary has one row per column:
@@ -91,6 +92,19 @@ dictionary has one row per column:
    Croissant record of [chapter 3](./describe.mdx) is generated from
    it.
 
+**Worked example.** The dictionary row for `job_title` reads: label
+"Job title as reported", type `text`, description "The respondent's
+description of the main job, as written by the interviewer, in English
+or French; spelling is not corrected", role `feature`. The row for
+`isco_code` reads: label "ISCO-08 unit group", type `categorical`,
+description "Four-digit ISCO-08 code assigned by a trained coder; 9999
+means not codable", role `label`. The row for `weight` reads: type
+`numeric`, description "Survey weight calibrated to the population aged
+15 and over; corrects population estimates and is not a training
+weight", role `weight`. A data scientist at a partner organization reads
+the twelve rows and knows which columns to feed a model and which one it
+predicts without asking anyone.
+
 **What this does not do.** A dictionary describes columns. It does not
 say how the dataset was made or what it covers, which is the card of
 [chapter 4](./document.mdx), and it does not check the data against
@@ -102,8 +116,8 @@ does.
 
 <Recipe title="2.2 Separate identifiers, group keys, features, labels, and weights" level="Foundational" skills="Methodologist" time="Two hours per dataset">
 
-**Result:** every column has one role, and no column that is a
-feature contains the answer the model is supposed to find.
+**Result:** every column has one role, and no column that is a feature
+contains the answer the model is supposed to find.
 
 1. Identifiers: one column that identifies a record, with no meaning
    of its own. Remove any identifier from the source system that could
@@ -124,6 +138,18 @@ feature contains the answer the model is supposed to find.
    dictionary what it is for. A survey weight corrects population
    estimates; it is not, by default, a training weight.
 
+**Worked example.** The methodologist assigns the roles for the
+occupation dataset. `record_id` is the identifier, generated for the
+dataset and unrelated to the survey's own identifiers. `hhid` is the
+group key, because two members of a household describe their jobs in
+similar words. The features are `job_title`, `industry_text`, and the
+respondent's region, residence, sex, age group, and education, all of
+which a coder sees. The labels are `isco_code` and `isco_major`. The source file also carried `isic_code`, the industry code assigned by
+the same coder from the same text. The methodologist removes it from
+the features, because a coder who reads "sells vegetables at the
+market" assigns both codes from the same reading, and the industry code
+would hand a model half the answer. The decision is noted in the card.
+
 **What this does not do.** Roles are declared by a person who knows the
 source. Leakage through a subtle path (a record order that follows the
 label, a text field that quotes the code) is found by the split checks
@@ -135,8 +161,8 @@ what it relies on.
 <Recipe title="2.3 Choose the formats and the release layout" level="AI-ready" skills="Data manager; developer" time="Half a day">
 
 **Result:** every release of a dataset is one folder with a fixed set
-of files in open formats, named so that the dataset and the version
-are visible, which the later chapters describe, document, and seal.
+of files in open formats, named so that the dataset and the version are
+visible. The later chapters describe, document, and seal that folder.
 
 The release folder of the running example:
 
@@ -163,6 +189,18 @@ The release folder of the running example:
 4. Put the folder under the dataset's catalog page and, where the
    organization uses one, in a public dataset repository, with the
    catalog as the authority.
+
+**Worked example.** The release folder `lfs-occupation-ml/1.0.0/` holds
+the six files in the table. The data file is a CSV of 600 rows in
+UTF-8 with a header row, and the two text columns are quoted because
+some job descriptions contain commas. At 600 rows no Parquet file is
+needed, and the card says that one is added when the dataset passes a
+hundred thousand rows. The folder sits at
+`https://stats.example/datasets/lfs-occupation-ml/1.0.0/` under the
+dataset's catalog page, and a copy is uploaded to the organization's
+account on a public dataset repository, whose page links back to the
+catalog as the authority. Once published, the folder is never edited;
+a correction becomes version 1.0.1 in its own folder.
 
 **What this does not do.** The layout fixes the container. The content
 of each file is the subject of its own chapter, and the manifest of
@@ -198,9 +236,9 @@ as released.
 
 ## Verification
 
-- **Tidy:** every row has the same columns; the file loads with the expected number of rows.
-- **Dictionary:** one row per column; identifier, group key, label, and weight named.
-- **Layout:** one folder per release with the six files, none changed since release.
+- **Tidy.** Every row has the same columns, and the file loads with the expected number of rows.
+- **Dictionary.** There is one row per column, and the identifier, group key, label, and weight are named.
+- **Layout.** Each release is one folder with the six files, none of them changed since release.
 
 ## Checklist
 

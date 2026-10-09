@@ -61,9 +61,9 @@ under-represents the Northern Region and persons aged 15 to 24. All
 <Recipe title="5.1 Compare the composition with population benchmarks" level="Foundational" skills="Python; methodologist for the benchmarks" time="An hour to set up; minutes per run">
 
 **Result:** for each variable that matters for the task, the share of
-each group in the dataset next to its share in the population, with
-the difference in percentage points and a flag on groups that differ
-or are thin.
+each group in the dataset is set next to its share in the population,
+with the difference in percentage points and a flag on groups that
+differ or are thin.
 
 The benchmarks file has one row per variable and category:
 
@@ -121,6 +121,13 @@ categories more than 5 pp from the population (unweighted): 8: region=R01 (-12.7
 A dataset is not a sample of the population; the card states these differences and the weights, and the user decides.
 ```
 
+Each block is one variable, with its benchmark source. The columns give
+the count of records in each category, its unweighted share of the
+dataset, its weighted share, its share of the population, and the
+difference in percentage points, with a flag where the difference
+exceeds the stated limit. The summary lines count the thin categories
+and the categories that differ.
+
 1. Choose the variables: the ones a model's error could differ by, and
    the ones users will ask about. Region, residence, sex, and age are
    the usual minimum; language and education where the task depends on
@@ -137,6 +144,19 @@ A dataset is not a sample of the population; the card states these differences a
    the example card does: the groups that differ, by how much, and
    what the weight corrects.
 
+**Worked example.** The methodologist reads the run above. Urban
+residents are two thirds of the examples and two fifths of the
+population, a gap of 25 points that the survey weight narrows to 19,
+because the design sampled urban areas more heavily on purpose. Men are
+64 percent of the examples and 49 percent of the population, and the
+weight does nothing about it, because the gap comes from who was
+employed and coded, which the weight does not correct. The Northern
+Region is 14 percent of the examples against 27 percent of the
+population. The representativeness section of the card gains three
+sentences stating these gaps and the note "the survey weight corrects
+the design's sampling of urban areas and nothing else; a model trained
+on these examples has seen few rural and few northern job descriptions".
+
 **What this does not do.** The report compares marginal shares one
 variable at a time. Joint gaps (women aged 55 to 64 in the Northern
 Region) need the cross-tabulations of recipe 5.2, and the report says
@@ -147,9 +167,9 @@ of the card explains.
 
 <Recipe title="5.2 Report thin groups and the coverage of the label" level="AI-ready" skills="Methodologist" time="Half a day per dataset">
 
-**Result:** a list of the groups, and the combinations of groups, with
-too few examples to learn from, and a statement of which categories of
-the label the dataset covers and how many examples each has.
+**Result:** the groups, and the combinations of groups, with too few
+examples to learn from are listed, and the card states which categories
+of the label the dataset covers and how many examples each has.
 
 1. Set the minimum count per group for the task. Thirty examples is a
    floor for a category to be learnable at all; a text classifier
@@ -167,6 +187,18 @@ the label the dataset covers and how many examples each has.
    added synthetic examples (marked as such), or limited the stated
    use.
 
+**Worked example.** The cross-tabulation of region by sex on the 600
+records finds two cells below 30: women in the Northern Region, with 28
+examples, and women in the Western Region, with 26. The label count
+finds that the 600 records cover 44 of the 436 ISCO-08 unit groups and
+that the most common, shop sales assistants, has 29 examples. The card states both facts and says that the dataset is an
+illustration of the format. It adds that the full dataset of 38,000
+records covers 310 unit groups, with 60 of them above 100 examples, and
+that a model should not be expected to learn a code with fewer than 30
+examples. For the two thin
+cells, the card says that the next round's examples will be added in
+version 1.1.
+
 **What this does not do.** Thin groups are a fact about the dataset.
 Whether a model's error is worse on them is measured on the test split
 (recipe 5.3), and the two are published together.
@@ -175,9 +207,10 @@ Whether a model's error is worse on them is measured on the test split
 
 <Recipe title="5.3 Publish the model's error by group with the dataset" level="AI-native" skills="Data scientist; methodologist" time="One day">
 
-**Result:** for a reference model trained on the dataset, its error on
-the test split by group, published with the dataset so that users see
-the consequence of the composition and not only the composition.
+**Result:** a reference model trained on the dataset has its error on
+the test split measured by group, and the result is published with the
+dataset so that users see the consequence of the composition as well as
+the composition.
 
 1. Train a simple reference model on the training split and score it
    on the test split, overall and by the groups of recipe 5.1, with
@@ -192,6 +225,18 @@ the consequence of the composition and not only the composition.
    description and the version of the dataset it was trained on.
 4. Repeat at each release. A new version that adds examples for a
    thin group should move its score.
+
+**Worked example.** On the full dataset, a simple reference coder that
+retrieves index entries and chooses among them scores 0.88 at four
+digits on the test part overall. By group it scores 0.90 for urban and
+0.81 for rural respondents, 0.89 for men and 0.85 for women, and 0.79
+in the Northern Region on 140 test records. The gap between urban and
+rural is the one the representativeness report predicted, and the
+Northern Region's score is read with care because 140 records give a
+wide interval. The table is published with the dataset as the baseline,
+with the model described and the dataset version named, and version
+1.1, which adds the next round's northern examples, moves the Northern
+Region's score to 0.84.
 
 **What this does not do.** A baseline model's error by group describes
 that model. A user's model can do better or worse on the same groups;
@@ -224,9 +269,9 @@ the baseline tells them where to look.
 
 ## Verification
 
-- **Report:** runs at each release against recorded benchmarks; its numbers appear in the card.
-- **Thin groups and label coverage:** listed in the card with the minimum count used.
-- **Baseline by group:** published with the dataset at the AI-native level.
+- **Report.** The report runs at each release against recorded benchmarks, and its numbers appear in the card.
+- **Thin groups and label coverage.** Both are listed in the card with the minimum count used.
+- **Baseline by group.** The baseline is published with the dataset at the AI-native level.
 
 ## Checklist
 

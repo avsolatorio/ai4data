@@ -64,7 +64,7 @@ before release, and the review is recorded in the card.
 
 <Recipe title="7.1 Choose the licence and write the terms" level="Foundational" skills="Dissemination lead; legal" time="Half a day">
 
-**Result:** a licence for the dataset and a short terms text that says,
+**Result:** the dataset has a licence and a short terms text that says,
 in words a model builder reads, what the licence permits and what the
 organization asks in return.
 
@@ -87,6 +87,18 @@ organization asks in return.
 4. Record the decision in the AI-use policy of the organization
    ([dissemination cookbook, chapter 8](/cookbook/ai-ready-dissemination/govern)).
 
+**Worked example.** The licence section of the running example's card
+reads: "This dataset is published under the Creative Commons
+Attribution 4.0 licence. Training and evaluating models on it is
+permitted. Please attribute it as 'National Statistics Office (example),
+LFS occupation coding, version 1.0.0' in any publication, model card, or
+product that used it. Any attempt to identify a respondent or an
+employer, including by linking these records to other data, is
+prohibited. Models trained on this dataset are asked to cite it in
+their model card." Legal counsel reviewed the four sentences and asked
+for no separate terms document, and the decision is recorded in the
+AI-use policy under datasets for model training.
+
 **What this does not do.** A licence grants rights it has, and the
 terms ask for behaviour. Neither is enforced by the files. The use
 tracking of [chapter 8](./version.mdx) shows whether attribution
@@ -98,7 +110,7 @@ models say.
 <Recipe title="7.2 Make the licence and the terms machine-readable" level="AI-ready" skills="Catalog administrator; developer" time="An hour">
 
 **Result:** every system that reads the dataset's records reads the
-same licence: the Croissant record, the card's header, the catalog
+same licence, in the Croissant record, the card's header, the catalog
 record, and the dataset page.
 
 1. In the Croissant record, the `license` property is the licence's
@@ -113,6 +125,16 @@ record, and the dataset page.
 4. Where the terms go beyond the licence, give them a stable URL and
    link it from the card and the record's description.
 
+**Worked example.** The Croissant record's `license` property holds
+`https://creativecommons.org/licenses/by/4.0/`, and the check of chapter
+3 reports no warning. The card's header holds `license: cc-by-4.0`,
+which the public repository reads and shows as a filter. The catalog
+record's licence field holds the same URL, and the dataset page's
+schema.org block carries it as the `license` property. A developer who
+fetches the record, the page, or the repository listing gets the same
+answer, and a search for datasets under CC BY 4.0 finds the dataset in
+all three places.
+
 **What this does not do.** Machine-readable licensing tells tools what
 the licence is. It does not tell them what the terms ask; the terms are
 read by people, which is why the card carries them in plain words.
@@ -121,9 +143,9 @@ read by people, which is why the card carries them in plain words.
 
 <Recipe title="7.3 Review the dataset for disclosure before release" level="Foundational" skills="Disclosure control unit; dataset owner" time="One to three days per dataset">
 
-**Result:** a recorded review that the dataset can be published under
-the chosen tier, with the free text screened and the treatment of the
-source records stated in the card.
+**Result:** a recorded review confirms that the dataset can be published
+under the chosen tier, the free text has been screened, and the
+treatment of the source records is stated in the card.
 
 1. Establish the source. A dataset built from a public use file
    inherits its disclosure control
@@ -144,6 +166,18 @@ source records stated in the card.
 4. Record the review in the card's preprocessing and licence sections:
    what was removed, what was generalized, how many records changed,
    who reviewed, and when.
+
+**Worked example.** The source is the public use file of the 2025 Q2
+survey, so the records already have direct identifiers removed and
+geography coarsened to the region. The free-text screening runs a list
+of patterns for capitalized names, company suffixes, phone numbers, and
+place names below the region over the 600 job descriptions and flags
+41. A reviewer reads all 41 and the 60 unflagged descriptions drawn at
+random, finds 23 employer names such as "at the Central Hospital" and 4
+place names, and generalizes them to "at a hospital" and removes the
+places; 27 records change. The disclosure control unit's head reviews
+the screened file, approves open publication, and the card's
+preprocessing section records the counts, the reviewer, and the date.
 
 **What this does not do.** A review makes a release defensible under a
 stated threshold. The terms' prohibition of re-identification and the
@@ -180,9 +214,9 @@ text is reviewed again when a new version adds records.
 
 ## Verification
 
-- **Licence:** the same URL in the Croissant record, the card header, the catalog record, and the page markup.
-- **Terms:** the four statements of recipe 7.1 present in the card.
-- **Review:** recorded in the card with reviewer, date, and the count of records changed.
+- **Licence.** The same URL appears in the Croissant record, the card header, the catalog record, and the page markup.
+- **Terms.** The four statements of recipe 7.1 are present in the card.
+- **Review.** The review is recorded in the card with the reviewer, the date, and the count of records changed.
 
 ## Checklist
 

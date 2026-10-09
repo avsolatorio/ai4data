@@ -53,6 +53,8 @@ description: Terms used in the Practical Guide to Monitoring Data Use.
 
 **Fine-tuning.** Changing a model's weights by training it further on the organization's own labelled examples, so that it does one task better or follows the organization's conventions.
 
+**Flagged.** The status of an extracted value that failed a check and awaits correction with the page open.
+
 **Gate.** The rule that decides whether a change ships, applied to a paired comparison of the evaluation suite before and after the change.
 
 **Harmonization.** The matching of mention variants to canonical identifiers.
@@ -72,6 +74,8 @@ description: Terms used in the Practical Guide to Monitoring Data Use.
 **Match type.** How a mention was matched: exact, phrase (contains), fuzzy, semantic, or none.
 
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
+
+**MCP.** The Model Context Protocol, the open standard through which AI applications discover and call tools, read resources, and use prompts offered by a server, such as a statistics API.
 
 **Mention.** A reference to a dataset in a document, named or unnamed.
 
@@ -112,6 +116,10 @@ description: Terms used in the Practical Guide to Monitoring Data Use.
 **Use.** A document whose analysis, decision, or statement depends on the data, as opposed to a mention that cites them as context.
 
 **Variant.** A way of naming a dataset other than its canonical name: an acronym, an informal name, a translation, a misspelling.
+
+**Weight.** A variable that scales each record to the population, with the calibration and the estimates it applies to documented.
+
+**Weight (survey).** The number of population members a record stands for in a survey, kept as a column for population estimates; not a training weight by default.
 
 **World Bank metadata schemas.** JSON Schema definitions published by the Development Data Group for indicators, microdata, documents, geospatial data, tables, images, scripts, and videos, used by its catalogs and the Metadata Editor.
 

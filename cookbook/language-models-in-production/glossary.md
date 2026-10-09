@@ -67,6 +67,8 @@ description: Terms used in the Practical Guide to Language Models in Statistical
 
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
 
+**Mention.** A reference to a dataset in a document, named or unnamed.
+
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX, schema.org, Croissant, and DCAT.
 
 **Method of record.** The documented, reproducible imputation or estimation method the organization applies; a model proposes and explains beside it.

@@ -61,8 +61,8 @@ its version, and how to cite it.
 
 <Recipe title="4.1 Write the card from the template" level="Foundational" skills="Dataset owner; methodologist" time="Half a day per dataset">
 
-**Result:** a dataset card with a machine-readable header and twelve
-sections, which is the dataset's documentation for users.
+**Result:** the dataset has a card with a machine-readable header and
+twelve sections, which is its documentation for users.
 
 The card is a Markdown file. It opens with a YAML header (a short
 block of key and value pairs between two lines of three dashes) that
@@ -106,6 +106,18 @@ The sections and what each answers:
    and the licence section for [chapter 7](./license.mdx), and fill
    them when those chapters are done.
 
+**Worked example.** The collection process section of the running
+example's card reads, in part: "Job descriptions were written by
+interviewers from respondents' answers to the question on the kind of
+work done in the main job in the reference week. Codes were assigned by six trained coders using the ISCO-08 index, with
+a second coder on a tenth of the records. The two coders agreed on 91
+percent of four-digit codes and 97 percent of major groups." The
+preprocessing section lists four things. Employer names were replaced
+by a generic term. Place names below the region were removed. Spelling
+was not corrected. Records coded 9999 were kept. The out-of-scope section opens with "Do
+not estimate the share of any occupation or group from this dataset;
+it is a collection of examples and is not a sample of the population."
+
 **What this does not do.** A card documents. It does not make the
 collection process sound or the labels reliable, and a card that
 overstates either misleads every user. The subject-matter review of
@@ -115,11 +127,11 @@ recipe 4.3 is where accuracy is checked.
 
 <Recipe title="4.2 Check the card before release" level="Foundational" skills="Python" time="Minutes">
 
-**Result:** a check, run on every release, that the card has its
-header fields and its twelve sections. It also checks four statements:
-the out-of-scope section lists a use, the representativeness section
-states a number, the citation has a DOI or a URL, and the versions
-section names a version.
+**Result:** a check runs on every release and confirms that the card
+has its header fields and its twelve sections. It also checks four
+statements: that the out-of-scope section lists a use, that the
+representativeness section states a number, that the citation has a DOI
+or a URL, and that the versions section names a version.
 
 The script reads the card and reports each check:
 
@@ -156,6 +168,10 @@ Output for the running example:
 result: PASS
 ```
 
+The first four lines confirm the header fields, the next twelve confirm
+the sections, and the last four confirm the statements. The verdict
+follows.
+
 1. Run the check on the card. A missing section or statement blocks
    the release.
 2. Add the organization's own rules to the script: a sentence that
@@ -165,6 +181,15 @@ result: PASS
 3. Keep the check in the release pipeline with the Croissant check and
    the manifest.
 
+**Worked example.** The first draft of the card failed the check on two
+lines: the representativeness section was a placeholder with no number,
+because chapter 5 had not yet run, and the citation had no URL. After
+the representativeness report was written in and the citation gained
+the dataset's URL, the check passed. The data manager then added one
+organization-specific rule to the script, which requires the sentence
+"not a source of published statistics" somewhere in the card, and the
+check now fails any card that omits it.
+
 **What this does not do.** The check reads presence. A section that is
 present and wrong passes. Recipe 4.3 is the review for that.
 
@@ -172,8 +197,8 @@ present and wrong passes. Recipe 4.3 is the review for that.
 
 <Recipe title="4.3 Review the card and keep it current" level="AI-ready" skills="Subject-matter specialist; dataset owner" time="One hour per release">
 
-**Result:** a card whose statements a specialist has confirmed against
-the source, and which is updated with every version of the dataset.
+**Result:** a specialist has confirmed the card's statements against the
+source, and the card is updated with every version of the dataset.
 
 1. Have a specialist who knows the source survey read the collection
    process, preprocessing, and representativeness sections against the
@@ -189,6 +214,17 @@ the source, and which is updated with every version of the dataset.
 4. Keep the card under version control with the data, and publish it
    on the dataset page, in the repository, and as the description of
    the catalog record.
+
+**Worked example.** The labour statistician who runs the survey reads
+the card against the survey's documentation and corrects two statements. The coders used index version 4, where the
+card said version 3, and the second-coder sample was an eighth of the
+records, where the card said a tenth. The
+review is recorded in the versions section with her initials and the
+date. Three months after release, a partner reports that the model it
+trained fails on job descriptions in French, which the card had not
+mentioned. The known gaps section gains the sentence "about 12 percent
+of job descriptions are in French, concentrated in the Northern
+Region", and the card is released as version 1.0.1 with the same data.
 
 **What this does not do.** A card can only say what its authors know.
 The representativeness report measures part of the rest, and users'
@@ -223,9 +259,9 @@ contact and a version.
 
 ## Verification
 
-- **Completeness:** the check passes on every release.
-- **Accuracy:** a specialist's review is recorded in the versions section.
-- **Currency:** the composition and representativeness numbers match the current files.
+- **Completeness.** The check passes on every release.
+- **Accuracy.** A specialist's review is recorded in the versions section.
+- **Currency.** The composition and representativeness numbers match the current files.
 
 ## Checklist
 

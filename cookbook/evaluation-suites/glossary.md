@@ -41,6 +41,8 @@ description: Terms used in the Practical Guide to Evaluation Suites for Statisti
 
 **Error taxonomy.** The coded kinds of error a component makes, each pointing to a different fix: for an extractor, missed, spurious, boundary, wrong type; for curation suggestions, wrong flag, invented fact, wrong vocabulary term, style.
 
+**Estimated.** The status of an extracted value for which the document offers no check: no printed label, total, or derivation.
+
 **Evaluation set.** Decided records kept to test changes to prompts, manifests, rubrics, and models.
 
 **Flagged.** The status of an extracted value that failed a check and awaits correction with the page open.
