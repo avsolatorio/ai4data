@@ -491,7 +491,7 @@ export const dimensions = [
     short: 'Agent access',
     coverage: 'direct',
     summary:
-      'The program\'s work is concentrated in this dimension: MCP design for official statistics with two servers in operation (Data360 and NADA), grounded answers with every number verified (Proof-Carrying Numbers), evaluation of retrieval and answers, synthetic data for sharing, and small and agentic models for statistical tasks. The cookbook sequences these so that a conversational interface follows findability, retrieval, meaning, and trust.',
+      'The program\'s work is concentrated in this dimension: MCP design for official statistics with two servers in operation (Data360 and NADA), grounded answers with every number verified (Proof-Carrying Numbers), evaluation of retrieval and answers, synthetic data for sharing, ML-ready datasets with Croissant records and dataset cards, and small and agentic models for statistical tasks. The cookbook sequences these so that a conversational interface follows findability, retrieval, meaning, and trust.',
     questions: [
       {id: '2.5.1', topic: 'Generative AI for dissemination', covered: true},
       {id: '2.5.2', topic: 'Model Context Protocol adoption', covered: true},
@@ -507,6 +507,7 @@ export const dimensions = [
       {to: `${CB}trust`, label: 'Chapter 5, recipe 5.3: verify the numbers in a generated answer'},
       {to: `${CB}evaluate`, label: 'Chapter 6, recipe 6.3: numeric accuracy, citation validity, refusal accuracy'},
       {to: `${CB}find`, label: 'Chapter 1: Croissant records for datasets meant for model training'},
+      {to: '/cookbook/ml-ready-datasets/', label: 'Publishing ML-Ready Datasets: selection, Croissant records, dataset cards, representativeness, splits, licence, versions (question 2.5.3)'},
     ],
     steps: [
       {from: 'A', to: 'B', text: 'Expose the catalog and data through MCP tools over the existing API; start with read-only tools and provenance in every response.'},
@@ -522,19 +523,20 @@ export const dimensions = [
     short: 'Licensing',
     coverage: 'partial',
     summary:
-      'The World Bank\'s default licence for datasets (CC BY 4.0), the licence field in the metadata schemas, and the cookbook\'s recipes place a machine-readable licence in every record, page, and API response. Whether a licence addresses AI training and derived products (2.6.4) is a legal decision for the organization.',
+      'The World Bank\'s default licence for datasets (CC BY 4.0), the licence field in the metadata schemas, and the cookbook\'s recipes place a machine-readable licence in every record, page, and API response. The ML-ready datasets cookbook states, beside the licence, that training is permitted and how models attribute the data (2.6.4); the legal decision remains the organization\'s.',
     questions: [
       {id: '2.6.1', topic: 'Type of licence on public data', covered: true},
       {id: '2.6.2', topic: 'Licence associated with each dataset', covered: true},
       {id: '2.6.3', topic: 'Machine-readable licensing information', covered: true},
-      {id: '2.6.4', topic: 'Explicit coverage of AI and ML use'},
+      {id: '2.6.4', topic: 'Explicit coverage of AI and ML use', covered: true},
     ],
-    support: {tools: 1, methods: 0, recipes: 2, reference: 2, guidance: 2},
+    support: {tools: 1, methods: 0, recipes: 3, reference: 2, guidance: 2},
     resources: ['metadataSchemas', 'metadataEditor', 'cbStandards'],
     cookbook: [
       {to: `${CB}trust`, label: 'Chapter 5, recipe 5.1: licence in the record, on the page, and in the citation'},
       {to: `${CB}find`, label: 'Chapter 1, recipe 1.2: licence in the schema.org record'},
       {to: `${CB}retrieve`, label: 'Chapter 2: licence and terms of use in the API description'},
+      {to: '/cookbook/ml-ready-datasets/license', label: 'Publishing ML-Ready Datasets, chapter 7: licence and terms for model training, machine-readable in the Croissant record (question 2.6.4)'},
     ],
     steps: [
       {from: 'A', to: 'B', text: 'Choose one open licence (CC BY 4.0 is the World Bank default) and state it on every dataset page.'},

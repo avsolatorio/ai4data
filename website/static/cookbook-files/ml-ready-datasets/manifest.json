@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "date": "2026-10-09",
+  "files": {
+    "lfs_occupation_ml.csv": {
+      "bytes": 45481,
+      "sha256": "e6b0b1fd6a3230680e3598208f4c08b1b25e41873cc0d050009bd6f858264972"
+    },
+    "splits.csv": {
+      "bytes": 7998,
+      "sha256": "3e19cb3c1cbf086d573bdca297d8f799a423d1e89e878fc60bef83f1050051c8"
+    },
+    "dictionary.csv": {
+      "bytes": 1251,
+      "sha256": "06d8ea718e824f0f6f0cd18f872f17d8cec15701da00ab300c538231f6021c68"
+    },
+    "dataset_card.md": {
+      "bytes": 4318,
+      "sha256": "8b24e24d97c2dab642ac5551059018f8d7cf252fd58d8d11d2f390757f7d9b99"
+    },
+    "lfs_occupation_ml.croissant.json": {
+      "bytes": 10227,
+      "sha256": "698b8a01faf578999d8f7fba47ea9e5abd36fa2f13c1fd70b0bd48fb0af17ef9"
+    }
+  }
+}

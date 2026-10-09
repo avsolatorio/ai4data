@@ -91,4 +91,13 @@ export const cookbooks = [
     chapters: 7,
     to: '/cookbook/small-and-open-models/',
   },
+  {
+    id: 'ml-ready-datasets',
+    audience: 'Data managers and dissemination teams in national statistical organizations',
+    title: 'Practical Guide to Publishing ML-Ready Datasets',
+    description:
+      'How to select, shape, describe, document, split, license, and version datasets that a statistical organization publishes for training and evaluating machine-learning models, with Croissant records, dataset cards, representativeness reports, and integrity manifests.',
+    chapters: 8,
+    to: '/cookbook/ml-ready-datasets/',
+  },
 ];
