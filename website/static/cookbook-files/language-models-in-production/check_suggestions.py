@@ -7,7 +7,7 @@ the rules refer to) and reports, per suggestion, whether the suggested
 value satisfies every rule on its field and the record, and whether the
 reason names a field of the record (a grounded reason). Suggestions that
 still fail a rule are listed for the editor; those that pass go to the
-editor as proposals. Nothing is applied. Standard library only.
+editor as proposals. Nothing is applied. Uses pandas.
 
 Usage:
     python check_suggestions.py edit_rules.csv suggested_values.csv
@@ -22,42 +22,33 @@ limited to proposing and explaining.
 from __future__ import annotations
 
 import argparse
-import csv
 import re
 import sys
-from pathlib import Path
+
+import pandas as pd
+
+META = ("record_id", "field", "current_value", "suggested_value", "reason")
 
 
-def value(
-    record: dict[str, str], field: str, override: tuple[str, str] | None = None
-) -> float | None:
-    if override and override[0] == field:
-        raw = override[1]
-    else:
-        raw = record.get(field, "")
+def number(record: dict[str, str], field: str) -> float | None:
     try:
-        return float(raw)
+        return float(record.get(field, ""))
     except ValueError:
         return None
 
 
-def check(
-    rule: dict[str, str], record: dict[str, str], field: str, suggested: str
-) -> bool | None:
-    override = (field, suggested)
-    v = value(record, rule["field"], override)
+def check(rule: pd.Series, record: dict[str, str]) -> bool | None:
+    """Apply one edit rule to a record with the suggestion in place; None when the rule cannot be evaluated."""
+    v = number(record, rule["field"])
     if rule["rule"] == "range":
         lo, hi = (float(x) for x in rule["parameters"].split(";"))
         return None if v is None else lo <= v <= hi
     if rule["rule"] == "lte":
-        other = value(record, rule["parameters"], override)
+        other = number(record, rule["parameters"])
         return None if v is None or other is None else v <= other
     if rule["rule"] == "consistency":
         m = re.match(r"(\w+)==(\w+)", rule["parameters"])
-        if not m or v is None:
-            return None
-        status = record.get(m.group(1), "") if m.group(1) != field else suggested
-        return status == m.group(2)
+        return None if not m or v is None else record.get(m.group(1), "") == m.group(2)
     return None
 
 
@@ -65,47 +56,37 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("rules", type=Path)
-    parser.add_argument("suggestions", type=Path)
+    parser.add_argument("rules")
+    parser.add_argument("suggestions")
     args = parser.parse_args(argv)
-    with args.rules.open(newline="", encoding="utf-8") as fh:
-        rules = list(csv.DictReader(fh))
-    with args.suggestions.open(newline="", encoding="utf-8") as fh:
-        suggestions = list(csv.DictReader(fh))
-    fields = {
-        k
-        for s in suggestions
-        for k in s
-        if k not in ("record_id", "field", "current_value", "suggested_value", "reason")
-    }
+    rules = pd.read_csv(args.rules, dtype=str).fillna("")
+    suggestions = pd.read_csv(args.suggestions, dtype=str).fillna("")
+    fields = [c for c in suggestions.columns if c not in META]
 
     passes = fails = 0
     print(f"{len(suggestions)} suggestions against {len(rules)} rules\n")
-    for s in suggestions:
-        record = {k: s[k] for k in fields}
-        record[s["field"]] = s["suggested_value"]
-        failed = []
-        for rule in rules:
-            if (
-                rule["field"] != s["field"]
-                and rule["parameters"].split(";")[0] != s["field"]
-                and s["field"] not in rule["parameters"]
-            ):
-                continue
-            ok = check(rule, record, s["field"], s["suggested_value"])
-            if ok is False:
-                failed.append(f"{rule['rule_id']} ({rule['message']})")
+    for s in suggestions.to_dict("records"):
+        record = {k: s[k] for k in fields} | {s["field"]: s["suggested_value"]}
+        relevant = rules[
+            (rules["field"] == s["field"])
+            | rules["parameters"].str.contains(s["field"], regex=False)
+        ]
+        failed = [
+            f"{r['rule_id']} ({r['message']})"
+            for _, r in relevant.iterrows()
+            if check(r, record) is False
+        ]
         grounded = any(
             f in s["reason"]
-            for f in fields | {"roster", "respondent", "median", "status"}
+            for f in [*fields, "roster", "respondent", "median", "status"]
         )
+        passes += not failed
+        fails += bool(failed)
         verdict = (
             "to editor as proposal"
             if not failed
             else "still fails: " + "; ".join(failed)
         )
-        passes += not failed
-        fails += bool(failed)
         print(
             f"{s['record_id']:<9} {s['field']:<11} {s['current_value'] or '(empty)':>8} -> {s['suggested_value']:<6} {verdict}"
             + ("" if grounded else "  [reason does not cite the record]")

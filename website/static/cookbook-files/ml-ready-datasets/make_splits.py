@@ -6,7 +6,7 @@ one split and the assignment is the same on every run and every machine.
 Writes a file with one row per record (identifier and split), and prints
 the share of records per split, a check that no group appears in two
 splits, and the distribution of a stratifying variable in each split.
-Standard library only.
+Uses pandas and scikit-learn (GroupShuffleSplit).
 
 Usage:
     python make_splits.py data.csv --id record_id --group hhid \
@@ -26,45 +26,46 @@ choices.
 from __future__ import annotations
 
 import argparse
-import csv
-import hashlib
 import sys
-from collections import Counter, defaultdict
 from pathlib import Path
 
-
-def bucket(key: str, seed: str) -> float:
-    """Return a stable number in [0, 1) for a key."""
-    digest = hashlib.sha256(f"{seed}:{key}".encode()).digest()
-    return int.from_bytes(digest[:8], "big") / 2**64
+import pandas as pd
+from sklearn.model_selection import GroupShuffleSplit
 
 
 def assign(
-    rows: list[dict],
-    id_col: str,
+    df: pd.DataFrame,
     group_col: str,
     test: float,
     validation: float,
-    seed: str,
+    seed: int,
     time_col: str | None,
     test_from: str | None,
-) -> dict[str, str]:
-    """Return a mapping from record identifier to split name."""
-    splits: dict[str, str] = {}
-    for r in rows:
-        if time_col and test_from and r[time_col] >= test_from:
-            splits[r[id_col]] = "test"
-            continue
-        u = bucket(r[group_col], seed)
-        if time_col and test_from:
-            splits[r[id_col]] = "validation" if u < validation else "train"
-        elif u < test:
-            splits[r[id_col]] = "test"
-        elif u < test + validation:
-            splits[r[id_col]] = "validation"
-        else:
-            splits[r[id_col]] = "train"
-    return splits
+) -> pd.Series:
+    """A split name per record: whole groups go together, drawn with a fixed seed."""
+    split = pd.Series("train", index=df.index)
+    rest = df
+    if time_col and test_from:
+        is_test = df[time_col] >= test_from
+        split[is_test] = "test"
+        rest = df[~is_test]
+    elif test > 0:
+        _, test_idx = next(
+            GroupShuffleSplit(n_splits=1, test_size=test, random_state=seed).split(
+                rest, groups=rest[group_col]
+            )
+        )
+        split.iloc[test_idx] = "test"
+        rest = df[split == "train"]
+    if validation > 0 and len(rest):
+        share = validation / (1 - test) if not (time_col and test_from) else validation
+        _, val_idx = next(
+            GroupShuffleSplit(n_splits=1, test_size=share, random_state=seed + 1).split(
+                rest, groups=rest[group_col]
+            )
+        )
+        split[rest.index[val_idx]] = "validation"
+    return split
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -85,8 +86,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--validation", type=float, default=0.1)
     parser.add_argument(
         "--seed",
-        default="v1",
-        help="any string; change it to draw a different assignment",
+        type=int,
+        default=1,
+        help="random seed; change it to draw a different assignment",
     )
     parser.add_argument("--time-column", help="column for a time-based test split")
     parser.add_argument(
@@ -94,12 +96,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("-o", "--output", default="splits.csv")
     args = parser.parse_args(argv)
-
-    with open(args.data, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    splits = assign(
-        rows,
-        args.id,
+    df = pd.read_csv(args.data, dtype=str)
+    df["split"] = assign(
+        df,
         args.group,
         args.test,
         args.validation,
@@ -108,48 +107,31 @@ def main(argv: list[str] | None = None) -> int:
         args.test_from,
     )
 
-    counts = Counter(splits.values())
-    n = len(rows)
+    counts = df["split"].value_counts()
     print(
-        f"{n} records, {len({r[args.group] for r in rows})} groups by '{args.group}', seed '{args.seed}'"
+        f"{len(df)} records, {df[args.group].nunique()} groups by '{args.group}', seed {args.seed}"
     )
     for name in ("train", "validation", "test"):
-        print(f"  {name:<11} {counts.get(name, 0):>5}  {counts.get(name, 0) / n:5.2f}")
-
-    by_group: dict[str, set[str]] = defaultdict(set)
-    for r in rows:
-        by_group[r[args.group]].add(splits[r[args.id]])
-    leaks = [g for g, s in by_group.items() if len(s) > 1]
-    print(
-        f"groups in more than one split: {len(leaks)}" + (" (leakage)" if leaks else "")
-    )
+        print(
+            f"  {name:<11} {counts.get(name, 0):>5}  {counts.get(name, 0) / len(df):5.2f}"
+        )
+    leaks = int((df.groupby(args.group)["split"].nunique() > 1).sum())
+    print(f"groups in more than one split: {leaks}" + (" (leakage)" if leaks else ""))
 
     if args.stratify:
         print(f"distribution of '{args.stratify}' per split (share of the split):")
-        cats = sorted({r[args.stratify] for r in rows})
-        per = {
-            name: Counter(r[args.stratify] for r in rows if splits[r[args.id]] == name)
-            for name in counts
-        }
+        table = pd.crosstab(
+            df[args.stratify], df["split"], normalize="columns"
+        ).reindex(columns=["train", "validation", "test"], fill_value=0.0)
         print(
             "  "
             + f"{'category':<12}"
-            + "".join(f"{name:>12}" for name in ("train", "validation", "test"))
+            + "".join(f"{name:>12}" for name in table.columns)
         )
-        for c in cats:
-            line = f"  {c:<12}"
-            for name in ("train", "validation", "test"):
-                total = counts.get(name, 0)
-                line += (
-                    f"{(per.get(name, Counter())[c] / total if total else 0):>12.2f}"
-                )
-            print(line)
+        for cat, row in table.iterrows():
+            print(f"  {cat:<12}" + "".join(f"{v:>12.2f}" for v in row))
 
-    with open(args.output, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow([args.id, "split"])
-        for r in rows:
-            w.writerow([r[args.id], splits[r[args.id]]])
+    df[[args.id, "split"]].to_csv(args.output, index=False)
     print(f"splits written to {Path(args.output).name}")
     return 1 if leaks else 0
 

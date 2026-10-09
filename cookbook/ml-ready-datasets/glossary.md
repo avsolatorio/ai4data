@@ -22,7 +22,7 @@ description: Terms used in this guide, in plain language.
 
 **Group key.** The column that names the unit whose records must stay together in a split: a household, a firm, a document.
 
-**Hash.** A fixed formula that turns a key into a number, used here to assign groups to splits so that the assignment is the same on every run.
+**Grouped split.** A draw of whole groups (households, documents) into the parts of a dataset, so that no group is divided between training and test.
 
 **JSON-LD.** JSON with a vocabulary attached, so that each key has a defined meaning that different tools read the same way.
 

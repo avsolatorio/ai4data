@@ -14,7 +14,7 @@ unit, status) and a draft commentary (Markdown) and reports:
                   provisional
 
 Exit status 1 when any number is unverified or a claim is unsourced, so
-that a draft cannot be published unchecked. Standard library only.
+that a draft cannot be published unchecked. Uses pandas.
 
 Usage:
     python commentary_check.py release_table.csv commentary_draft.md
@@ -28,10 +28,12 @@ cookbook's number check can supply when the full series is given.
 from __future__ import annotations
 
 import argparse
-import csv
+import math
 import re
 import sys
 from pathlib import Path
+
+import pandas as pd
 
 NUMBER = re.compile(r"(?<![\w.])(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?![\w])")
 CLAIM = re.compile(
@@ -41,56 +43,55 @@ CLAIM = re.compile(
 YEAR = re.compile(r"^(19|20)\d{2}$")
 
 
+def known_figures(table: pd.DataFrame) -> dict[float, str]:
+    """Every figure the release table supports: values, previous values, changes, and rounded forms."""
+    known: dict[float, str] = {}
+    for r in table.itertuples():
+        v, p = float(r.value), float(r.previous_value)
+        known[v] = f"{r.series} value"
+        known[p] = f"{r.series} previous"
+        known[round(v - p, 3)] = f"{r.series} change"
+        if str(r.unit).startswith("thousands"):
+            known[round(v / 1000, 2)] = f"{r.series} value in millions"
+            known[(v - p) * 1000] = f"{r.series} change in units"
+    return known
+
+
+def lookup(n: float, digits: int, known: dict[float, str]) -> str | None:
+    """A known figure equal to n, or, for a large number, within half a unit of its second-last digit."""
+    tol = 0.5 * 10 ** (digits - 2) if n >= 1000 else 0.0
+    return next(
+        (label for k, label in known.items() if math.isclose(k, n, abs_tol=tol)), None
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("table", type=Path)
+    parser.add_argument("table")
     parser.add_argument("draft", type=Path)
     args = parser.parse_args(argv)
-    with args.table.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    table = pd.read_csv(args.table, dtype={"status": str})
     text = args.draft.read_text(encoding="utf-8")
-
-    known: dict[float, str] = {}
-    for r in rows:
-        v, p = float(r["value"]), float(r["previous_value"])
-        known[v] = f"{r['series']} value"
-        known[p] = f"{r['series']} previous"
-        known[round(v - p, 3)] = f"{r['series']} change"
-        if r["unit"].startswith("thousands"):
-            known[round(v / 1000, 2)] = f"{r['series']} value in millions"
-            known[(v - p) * 1000] = f"{r['series']} change in units"
+    known = known_figures(table)
 
     verified = unverified = 0
     for whole, frac in NUMBER.findall(text):
-        raw = whole + ("." + frac if frac else "")
         if YEAR.match(whole) and not frac:
             continue
-        n = float(raw.replace(",", ""))
-        match = next(
-            (
-                label
-                for k, label in known.items()
-                if abs(k - n) < 1e-9
-                or (
-                    n >= 1000
-                    and abs(k - n) <= 0.5 * 10 ** (len(whole.replace(",", "")) - 2)
-                )
-            ),
-            None,
-        )
+        raw = whole + ("." + frac if frac else "")
+        match = lookup(float(raw.replace(",", "")), len(whole.replace(",", "")), known)
         if match:
             verified += 1
             print(f"verified   {raw:>8}  {match}")
         else:
             unverified += 1
             print(f"UNVERIFIED {raw:>8}  not in the release table")
-    claims = CLAIM.findall(text)
-    sentences = [" ".join(m.group(0).split()) for m in CLAIM.finditer(text)]
-    for s in sentences:
-        print(f"CLAIM      {s[:90]}")
-    provisional = any(r["status"] == "P" for r in rows)
+    claims = [" ".join(m.group(0).split()) for m in CLAIM.finditer(text)]
+    for c in claims:
+        print(f"CLAIM      {c[:90]}")
+    provisional = (table["status"] == "P").any()
     says = "provisional" in text.lower()
     print(
         f"\n{verified} verified, {unverified} unverified, {len(claims)} claim(s) needing a source; provisional values {'are stated as provisional' if says or not provisional else 'are NOT stated as provisional'}"

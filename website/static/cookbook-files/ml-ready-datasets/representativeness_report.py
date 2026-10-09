@@ -7,7 +7,7 @@ weighted where a weight column is given, next to the population share
 and the difference in percentage points. It flags categories whose share
 differs from the population by more than a threshold and categories with
 fewer records than a minimum. Exit status 1 when any category is below
-the minimum count. Standard library only.
+the minimum count. Uses pandas.
 
 Usage:
     python representativeness_report.py data.csv census_benchmarks.csv \
@@ -23,22 +23,9 @@ only as current as its source.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import defaultdict
 
-
-def shares(
-    rows: list[dict], var: str, weight: str | None
-) -> tuple[dict[str, int], dict[str, float]]:
-    """Return counts and weighted shares per category of a variable."""
-    counts: dict[str, int] = defaultdict(int)
-    wsum: dict[str, float] = defaultdict(float)
-    for r in rows:
-        counts[r[var]] += 1
-        wsum[r[var]] += float(r[weight]) if weight else 1.0
-    total = sum(wsum.values())
-    return dict(counts), {c: w / total for c, w in wsum.items()}
+import pandas as pd
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -61,52 +48,58 @@ def main(argv: list[str] | None = None) -> int:
         help="difference in percentage points that is flagged",
     )
     args = parser.parse_args(argv)
+    data = pd.read_csv(args.data, dtype=str)
+    bench = pd.read_csv(args.benchmarks, dtype={"category": str})
+    n = len(data)
 
-    with open(args.data, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    bench: dict[str, dict[str, float]] = defaultdict(dict)
-    sources: dict[str, str] = {}
-    with open(args.benchmarks, newline="", encoding="utf-8") as f:
-        for b in csv.DictReader(f):
-            bench[b["variable"]][b["category"]] = float(b["population_share"])
-            sources[b["variable"]] = b.get("source", "")
-
-    n = len(rows)
     print(
-        f"{n} records; benchmarks for {len(bench)} variable(s)"
+        f"{n} records; benchmarks for {bench['variable'].nunique()} variable(s)"
         + (f"; weighted by '{args.weight}'" if args.weight else "")
     )
-    small: list[str] = []
-    off: list[str] = []
-    for var, pop in bench.items():
-        if var not in rows[0]:
+    small, off = [], []
+    for var, b in bench.groupby("variable", sort=False):
+        if var not in data:
             print(f"\n{var}: not in the dataset")
             continue
-        counts, _ = shares(rows, var, None)
-        _, wshare = shares(rows, var, args.weight) if args.weight else (None, None)
-        print(f"\n{var}  (benchmark: {sources.get(var, '')})")
-        head = (
+        counts = data[var].value_counts()
+        weighted = (
+            data.groupby(var)[args.weight].apply(lambda s: pd.to_numeric(s).sum())
+            if args.weight
+            else None
+        )
+        table = (
+            pd.DataFrame({"n": counts, "dataset": counts / n})
+            .join(
+                b.set_index("category")["population_share"].rename("population"),
+                how="outer",
+            )
+            .fillna({"n": 0, "dataset": 0.0})
+        )
+        if args.weight:
+            table["weighted"] = (
+                (weighted / weighted.sum()).reindex(table.index).fillna(0.0)
+            )
+        table["diff"] = (table["dataset"] - table["population"]) * 100
+        print(f"\n{var}  (benchmark: {b['source'].iloc[0]})")
+        print(
             f"  {'category':<10}{'n':>6}{'dataset':>10}"
             + (f"{'weighted':>10}" if args.weight else "")
             + f"{'population':>12}{'diff pp':>9}"
         )
-        print(head)
-        for cat in sorted(set(pop) | set(counts)):
-            c = counts.get(cat, 0)
-            d = c / n
-            p = pop.get(cat)
-            diff = (d - p) * 100 if p is not None else None
-            line = f"  {cat:<10}{c:>6}{d:>10.3f}"
-            if args.weight:
-                line += f"{wshare.get(cat, 0.0):>10.3f}"
-            line += f"{(f'{p:.3f}' if p is not None else '-'):>12}{(f'{diff:+.1f}' if diff is not None else '-'):>9}"
+        for cat, r in table.sort_index().iterrows():
             flags = []
-            if c < args.min_count:
+            if r["n"] < args.min_count:
                 flags.append(f"fewer than {args.min_count} records")
-                small.append(f"{var}={cat} ({c})")
-            if diff is not None and abs(diff) > args.max_diff:
+                small.append(f"{var}={cat} ({int(r['n'])})")
+            if pd.notna(r["diff"]) and abs(r["diff"]) > args.max_diff:
                 flags.append("differs from the population")
-                off.append(f"{var}={cat} ({diff:+.1f} pp)")
+                off.append(f"{var}={cat} ({r['diff']:+.1f} pp)")
+            pop = f"{r['population']:.3f}" if pd.notna(r["population"]) else "-"
+            diff = f"{r['diff']:+.1f}" if pd.notna(r["diff"]) else "-"
+            line = f"  {cat:<10}{int(r['n']):>6}{r['dataset']:>10.3f}" + (
+                f"{r['weighted']:>10.3f}" if args.weight else ""
+            )
+            line += f"{pop:>12}{diff:>9}"
             print(line + ("  " + "; ".join(flags) if flags else ""))
 
     print()

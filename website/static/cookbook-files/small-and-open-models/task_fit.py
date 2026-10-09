@@ -19,7 +19,7 @@ batch|interactive) and applies the decision rule of this guide:
 
 Prints the first choice and the comparison per task with the reasons,
 so that the evaluation of the comparison chapter has its candidates.
-Standard library only.
+Uses pandas.
 
 Usage:
     python task_fit.py tasks.csv
@@ -32,14 +32,15 @@ rule, and a large model that fails on the national language is not.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from pathlib import Path
+
+import pandas as pd
 
 SMALL_OUTPUTS = {"code", "spans", "vector", "short text", "structured"}
 
 
-def decide(t: dict[str, str]) -> tuple[str, str, str]:
+def decide(t: pd.Series) -> tuple[str, str, str]:
+    """First choice, the model to compare it with, and the reasons, from the task's properties."""
     reasons = []
     confidential = t["confidential"].strip().lower() == "yes"
     volume = int(t["volume_per_month"])
@@ -72,17 +73,18 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("tasks", type=Path)
+    parser.add_argument("tasks")
     args = parser.parse_args(argv)
-    with args.tasks.open(newline="", encoding="utf-8") as fh:
-        tasks = list(csv.DictReader(fh))
+    tasks = pd.read_csv(args.tasks, dtype=str).fillna("")
+    decisions = tasks.apply(decide, axis=1, result_type="expand").set_axis(
+        ["first", "compare", "why"], axis=1
+    )
+
     print(f"{len(tasks)} tasks\n")
     print(f"{'task':<32} {'first choice':<30} {'compare with':<24} reasons")
-    small = 0
-    for t in tasks:
-        first, compare, why = decide(t)
-        small += first.startswith("small")
-        print(f"{t['task']:<32} {first:<30} {compare:<24} {why}")
+    for task, d in zip(tasks["task"], decisions.itertuples()):
+        print(f"{task:<32} {d.first:<30} {d.compare:<24} {d.why}")
+    small = int(decisions["first"].str.startswith("small").sum())
     print(
         f"\n{small} of {len(tasks)} tasks start with a small open model; every first choice is tested against its comparison on the suite"
     )

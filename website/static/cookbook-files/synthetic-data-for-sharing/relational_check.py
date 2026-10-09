@@ -13,8 +13,7 @@ of a synthetic release, and optionally the real pair, and reports:
                 compared with the real pair when given (total variation
                 distance)
 
-Exit status 1 when any integrity or structure fault is found. Standard
-library only.
+Exit status 1 when any integrity or structure fault is found. Uses pandas.
 
 Usage:
     python relational_check.py households_synth.csv persons_synth.csv \
@@ -30,66 +29,67 @@ fails some structure rules, which is what the rules are for.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import Counter, defaultdict
-from pathlib import Path
+
+import pandas as pd
 
 
-def load(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+def tvd(a: pd.Series, b: pd.Series) -> float:
+    pa, pb = a.value_counts(normalize=True), b.value_counts(normalize=True)
+    return 0.5 * pa.subtract(pb, fill_value=0).abs().sum()
 
 
-def tvd(a: Counter, b: Counter) -> float:
-    na, nb = sum(a.values()), sum(b.values())
-    return 0.5 * sum(abs(a[k] / na - b[k] / nb) for k in set(a) | set(b))
+def faults_in(hh: pd.DataFrame, pp: pd.DataFrame) -> list[str]:
+    """Integrity (every person has a household, every household has persons, sizes match) and structure (one head, ages)."""
+    faults = []
+    members = pp.groupby("hhid")
+    counts = members.size()
+    faults += [
+        f"person {p.hhid}/{p.pid} belongs to no household"
+        for p in pp[~pp["hhid"].isin(hh["hhid"])].itertuples()
+    ]
+    faults += [
+        f"household {h.hhid} has no persons"
+        for h in hh[~hh["hhid"].isin(pp["hhid"])].itertuples()
+    ]
+    sized = hh[hh["hhid"].isin(counts.index)]
+    faults += [
+        f"household {h.hhid} size {h.size} but {counts[h.hhid]} persons"
+        for h in sized.itertuples()
+        if int(h.size) != counts[h.hhid]
+    ]
+    for hid, m in members:
+        heads = m[m["relationship"] == "1"]
+        if len(heads) != 1:
+            faults.append(f"household {hid} has {len(heads)} head(s)")
+            continue
+        head_age = int(heads["age"].iloc[0])
+        ages = m["age"].astype(int)
+        faults += [
+            f"household {hid}: child {p.pid} aged {p.age} is not younger than the head ({head_age})"
+            for p in m[(m["relationship"] == "3") & (ages >= head_age)].itertuples()
+        ]
+        faults += [
+            f"household {hid}: spouse {p.pid} and head differ by more than 25 years"
+            for p in m[
+                (m["relationship"] == "2") & ((ages - head_age).abs() > 25)
+            ].itertuples()
+        ]
+    return faults
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("households", type=Path)
-    parser.add_argument("persons", type=Path)
-    parser.add_argument("--real-households", type=Path)
-    parser.add_argument("--real-persons", type=Path)
+    parser.add_argument("households")
+    parser.add_argument("persons")
+    parser.add_argument("--real-households")
+    parser.add_argument("--real-persons")
     args = parser.parse_args(argv)
-    hh, pp = load(args.households), load(args.persons)
-    by_hh: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for p in pp:
-        by_hh[p["hhid"]].append(p)
-    ids = {h["hhid"] for h in hh}
+    hh, pp = (pd.read_csv(p, dtype=str) for p in (args.households, args.persons))
 
-    faults = []
-    orphans = [p for p in pp if p["hhid"] not in ids]
-    faults += [
-        f"person {p['hhid']}/{p['pid']} belongs to no household" for p in orphans
-    ]
-    faults += [
-        f"household {h['hhid']} has no persons" for h in hh if h["hhid"] not in by_hh
-    ]
-    faults += [
-        f"household {h['hhid']} size {h['size']} but {len(by_hh[h['hhid']])} persons"
-        for h in hh
-        if h["hhid"] in by_hh and int(h["size"]) != len(by_hh[h["hhid"]])
-    ]
-    for hid, members in by_hh.items():
-        heads = [m for m in members if m["relationship"] == "1"]
-        if len(heads) != 1:
-            faults.append(f"household {hid} has {len(heads)} head(s)")
-            continue
-        head_age = int(heads[0]["age"])
-        for m in members:
-            if m["relationship"] == "3" and int(m["age"]) >= head_age:
-                faults.append(
-                    f"household {hid}: child {m['pid']} aged {m['age']} is not younger than the head ({head_age})"
-                )
-            if m["relationship"] == "2" and abs(int(m["age"]) - head_age) > 25:
-                faults.append(
-                    f"household {hid}: spouse {m['pid']} and head differ by more than 25 years"
-                )
-
+    faults = faults_in(hh, pp)
     print(f"{len(hh)} households, {len(pp)} persons")
     if faults:
         print(f"\n{len(faults)} fault(s):")
@@ -98,14 +98,16 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print("\nno integrity or structure faults")
     if args.real_households and args.real_persons:
-        rhh, rpp = load(args.real_households), load(args.real_persons)
-        rby = Counter(p["hhid"] for p in rpp)
-        sizes_real = Counter(h["size"] for h in rhh)
-        sizes_synth = Counter(h["size"] for h in hh)
-        persons_real = Counter(str(n) for n in rby.values())
-        persons_synth = Counter(str(len(m)) for m in by_hh.values())
+        rhh, rpp = (
+            pd.read_csv(p, dtype=str) for p in (args.real_households, args.real_persons)
+        )
+        sizes = tvd(rhh["size"], hh["size"])
+        persons = tvd(
+            rpp.groupby("hhid").size().astype(str),
+            pp.groupby("hhid").size().astype(str),
+        )
         print(
-            f"\nhousehold size distribution: TVD {tvd(sizes_real, sizes_synth):.3f}; persons per household: TVD {tvd(persons_real, persons_synth):.3f}"
+            f"\nhousehold size distribution: TVD {sizes:.3f}; persons per household: TVD {persons:.3f}"
         )
     return 1 if faults else 0
 

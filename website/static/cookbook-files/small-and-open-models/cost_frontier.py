@@ -6,7 +6,7 @@ latency_ms_p50, license) and prints the frontier: the models that no
 other model beats on both the suite score and the cost. Then applies a
 required score (overall and on the national language) and prints the
 cheapest model that meets it, with the saving against the best-scoring
-model. Standard library only.
+model. Uses pandas.
 
 Usage:
     python cost_frontier.py candidates.csv --required 0.90 --required-national 0.85
@@ -20,16 +20,26 @@ describes; a frontier drawn from list prices is a sketch.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from pathlib import Path
+
+import pandas as pd
+
+
+def on_frontier(df: pd.DataFrame) -> pd.Series:
+    """True for candidates no other candidate beats on both score and cost."""
+    score, cost = df["suite_score"].to_numpy(), df["cost_per_1k_queries"].to_numpy()
+    dominated = [
+        ((score >= s) & (cost <= c) & ((score > s) | (cost < c))).any()
+        for s, c in zip(score, cost)
+    ]
+    return ~pd.Series(dominated, index=df.index)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("candidates", type=Path)
+    parser.add_argument("candidates")
     parser.add_argument(
         "--required", type=float, default=0.0, help="required suite score"
     )
@@ -40,48 +50,35 @@ def main(argv: list[str] | None = None) -> int:
         help="required score on the national language",
     )
     args = parser.parse_args(argv)
-    with args.candidates.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    for r in rows:
-        r["score"] = float(r["suite_score"])
-        r["nat"] = float(r["national_language_score"])
-        r["cost"] = float(r["cost_per_1k_queries"])
+    df = pd.read_csv(args.candidates)
+    df["frontier"] = on_frontier(df)
 
-    frontier = [
-        r
-        for r in rows
-        if not any(
-            o["score"] >= r["score"]
-            and o["cost"] <= r["cost"]
-            and (o["score"] > r["score"] or o["cost"] < r["cost"])
-            for o in rows
-        )
-    ]
-    print(f"{len(rows)} candidates; {len(frontier)} on the cost-quality frontier\n")
+    print(
+        f"{len(df)} candidates; {int(df['frontier'].sum())} on the cost-quality frontier\n"
+    )
     print(
         f"{'model':<14} {'hosting':<7} {'score':>6} {'national':>8} {'cost/1k':>8} {'p50 ms':>7}  {'frontier':<8} licence"
     )
-    for r in sorted(rows, key=lambda r: r["cost"]):
+    for r in df.sort_values("cost_per_1k_queries", kind="stable").itertuples():
         print(
-            f"{r['model']:<14} {r['hosting']:<7} {r['score']:>6.2f} {r['nat']:>8.2f} {r['cost']:>8.2f} {r['latency_ms_p50']:>7}  {'yes' if r in frontier else '':<8} {r['license']}"
+            f"{r.model:<14} {r.hosting:<7} {r.suite_score:>6.2f} {r.national_language_score:>8.2f} {r.cost_per_1k_queries:>8.2f} {r.latency_ms_p50:>7}  {'yes' if r.frontier else '':<8} {r.license}"
         )
-    eligible = [
-        r
-        for r in rows
-        if r["score"] >= args.required and r["nat"] >= args.required_national
+    eligible = df[
+        (df["suite_score"] >= args.required)
+        & (df["national_language_score"] >= args.required_national)
     ]
-    if not eligible:
+    if eligible.empty:
         print(
             f"\nno candidate meets the required scores ({args.required:.2f} overall, {args.required_national:.2f} national); raise the model size or improve the adaptation"
         )
         return 1
-    cheapest = min(eligible, key=lambda r: r["cost"])
-    best = max(rows, key=lambda r: r["score"])
+    cheapest = eligible.loc[eligible["cost_per_1k_queries"].idxmin()]
+    best = df.loc[df["suite_score"].idxmax()]
     print(
-        f"\ncheapest candidate meeting {args.required:.2f} overall and {args.required_national:.2f} national: {cheapest['model']} at {cheapest['cost']:.2f} per 1,000 queries"
+        f"\ncheapest candidate meeting {args.required:.2f} overall and {args.required_national:.2f} national: {cheapest.model} at {cheapest.cost_per_1k_queries:.2f} per 1,000 queries"
     )
     print(
-        f"best-scoring candidate: {best['model']} at {best['cost']:.2f}; choosing the cheapest passing model saves {(1 - cheapest['cost'] / best['cost']):.0%} per query"
+        f"best-scoring candidate: {best.model} at {best.cost_per_1k_queries:.2f}; choosing the cheapest passing model saves {(1 - cheapest.cost_per_1k_queries / best.cost_per_1k_queries):.0%} per query"
     )
     return 0
 

@@ -39,7 +39,7 @@ the same examples.
 record_id, hhid, region, urban, sex, age_group, educ, job_title,
 industry_text, isco_code (the label), isco_major, weight. The
 dictionary file describes each column. Records are split into training
-(72%), validation (10%), and test (18%) by household, so that no
+(69%), validation (11%), and test (20%) by household, so that no
 household appears in two splits.
 
 ## Collection process

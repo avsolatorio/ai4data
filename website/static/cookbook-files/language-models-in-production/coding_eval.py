@@ -6,7 +6,7 @@ such as ISCO-08 (major group 1 digit, sub-major 2, minor 3, unit group
 4) and reports the accuracy at each level, then the trade-off that
 decides the production rule: for several confidence thresholds, the
 share of responses the model would code automatically and the accuracy
-on those, with the rest routed to human coders. Standard library only.
+on those, with the rest routed to human coders. Uses pandas and scikit-learn (accuracy).
 
 Usage:
     python coding_eval.py occupation_coding.csv --levels 1 2 3 4
@@ -22,51 +22,49 @@ evaluation cookbook describe.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from pathlib import Path
+
+import pandas as pd
+from sklearn.metrics import accuracy_score
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("coded", type=Path)
+    parser.add_argument("coded")
     parser.add_argument("--levels", type=int, nargs="+", default=[1, 2, 3, 4])
     parser.add_argument(
         "--thresholds", type=float, nargs="+", default=[0.0, 0.5, 0.6, 0.8, 0.9]
     )
     args = parser.parse_args(argv)
-    with args.coded.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    n = len(rows)
+    df = pd.read_csv(args.coded, dtype={"gold_code": str, "model_code": str})
+    n = len(df)
+
     print(f"{n} responses\n")
     print("accuracy by level")
     for level in args.levels:
-        hits = sum(1 for r in rows if r["gold_code"][:level] == r["model_code"][:level])
-        print(f"  {level}-digit {hits / n:.2f} ({hits}/{n})")
+        acc = accuracy_score(df["gold_code"].str[:level], df["model_code"].str[:level])
+        print(f"  {level}-digit {acc:.2f} ({round(acc * n)}/{n})")
+
     print(
         "\nauto-coding rule: code automatically at or above the threshold, route the rest to coders"
     )
     print(
         f"{'threshold':>9} {'auto-coded':>10} {'accuracy (4-digit)':>18} {'to coders':>9}"
     )
+    correct = df["gold_code"] == df["model_code"]
     for t in args.thresholds:
-        auto = [r for r in rows if float(r["confidence"]) >= t]
-        acc = (
-            sum(1 for r in auto if r["gold_code"] == r["model_code"]) / len(auto)
-            if auto
-            else 0.0
-        )
-        print(
-            f"{t:>9.2f} {len(auto) / n:>10.2f} {acc:>18.2f} {1 - len(auto) / n:>9.2f}"
-        )
-    wrong = [r for r in rows if r["gold_code"] != r["model_code"]]
-    if wrong:
+        auto = df["confidence"] >= t
+        acc = correct[auto].mean() if auto.any() else 0.0
+        print(f"{t:>9.2f} {auto.mean():>10.2f} {acc:>18.2f} {1 - auto.mean():>9.2f}")
+
+    wrong = df[~correct]
+    if not wrong.empty:
         print("\nerrors (gold -> model, confidence):")
-        for r in wrong:
+        for r in wrong.itertuples():
             print(
-                f"  {r['response_id']} {r['response_text']!r}: {r['gold_code']} -> {r['model_code']} ({r['confidence']})"
+                f"  {r.response_id} {r.response_text!r}: {r.gold_code} -> {r.model_code} ({r.confidence})"
             )
     return 0
 

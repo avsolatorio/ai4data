@@ -66,7 +66,7 @@ def test_risk_report_finds_exact_copies(scripts, capsys):
     assert rc == 1
     out = capsys.readouterr().out
     assert "exact copies: 15 synthetic record(s) identical to a real record" in out
-    assert "nearest-neighbour accuracy 0.43 vs majority baseline 0.56" in out
+    assert "nearest-neighbour accuracy 0.42 vs majority baseline 0.56" in out
 
 
 def test_relational_check_reports_faults_and_distributions(scripts, capsys):

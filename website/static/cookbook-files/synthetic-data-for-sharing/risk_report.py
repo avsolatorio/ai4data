@@ -17,7 +17,7 @@ checks that a release of synthetic microdata needs:
                       nearest-neighbour lookup), compared with a baseline
                       that always predicts the most common band
 
-Standard library only. Quasi-identifiers and the sensitive attribute are
+Uses pandas and scikit-learn (nearest neighbours). Quasi-identifiers and the sensitive attribute are
 arguments; the defaults match the running example.
 
 Usage:
@@ -35,106 +35,136 @@ produced them needs a parameter change and a rerun.
 from __future__ import annotations
 
 import argparse
-import csv
-import random
-import statistics
 import sys
-from collections import Counter
-from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 
-def load(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
-
-
-def band(value: str) -> str:
-    if value == "":
+def band(value: float) -> str:
+    if pd.isna(value):
         return "none"
-    v = float(value)
-    return "low" if v < 500 else "mid" if v < 1200 else "high"
+    return "low" if value < 500 else "mid" if value < 1200 else "high"
 
 
-def distance(
-    a: dict[str, str], b: dict[str, str], quasi: list[str], ranges: dict[str, float]
-) -> float:
-    d = 0.0
-    for q in quasi:
-        if q in ranges:
-            d += (
-                abs(float(a[q]) - float(b[q])) / ranges[q]
-                if a[q] != "" and b[q] != ""
-                else 1.0
-            )
-        else:
-            d += 0.0 if a[q] == b[q] else 1.0
-    return d / len(quasi)
+def encoder(real: pd.DataFrame, quasi: list[str]) -> ColumnTransformer:
+    """Scale numeric quasi-identifiers to [0, 1] and one-hot categoricals (weighted so a mismatch counts 1), fitted on the real file."""
+    numeric = [
+        q
+        for q in quasi
+        if pd.to_numeric(real[q], errors="coerce").notna().all()
+        and real[q].nunique() > 12
+    ]
+    categorical = [q for q in quasi if q not in numeric]
+    return ColumnTransformer(
+        [
+            ("num", MinMaxScaler(), numeric),
+            (
+                "cat",
+                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                categorical,
+            ),
+        ],
+        sparse_threshold=0,
+    ).fit(real[quasi])
+
+
+def distances(
+    enc: ColumnTransformer,
+    quasi: list[str],
+    query: pd.DataFrame,
+    reference: pd.DataFrame,
+) -> np.ndarray:
+    """Distance from each query record to its closest reference record, averaged over the quasi-identifiers (0 identical, 1 different on every one)."""
+    weights = np.array(
+        [1.0] * len(enc.transformers_[0][2])
+        + [0.5]
+        * (enc.transform(reference[quasi]).shape[1] - len(enc.transformers_[0][2]))
+    )
+    nn = NearestNeighbors(n_neighbors=1, metric="manhattan").fit(
+        enc.transform(reference[quasi]) * weights
+    )
+    d, _ = nn.kneighbors(enc.transform(query[quasi]) * weights)
+    return d[:, 0] / len(quasi)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("real", type=Path)
-    parser.add_argument("synthetic", type=Path)
+    parser.add_argument("real")
+    parser.add_argument("synthetic")
     parser.add_argument("--quasi", nargs="+", default=["region", "sex", "age", "educ"])
     parser.add_argument("--sensitive", default="income")
     parser.add_argument("--seed", type=int, default=7)
     args = parser.parse_args(argv)
-    real, synth = load(args.real), load(args.synthetic)
-    rng = random.Random(args.seed)
+    real, synth = (
+        pd.read_csv(p, dtype=str, keep_default_na=False)
+        for p in (args.real, args.synthetic)
+    )
 
-    keys = {tuple(r.values()) for r in real}
-    copies = [i for i, s in enumerate(synth) if tuple(s.values()) in keys]
+    copy_rows = synth.index[
+        synth.apply(tuple, axis=1).isin(set(real.apply(tuple, axis=1)))
+    ].tolist()
     print(f"real {len(real)} rows, synthetic {len(synth)} rows")
     print(
-        f"\nexact copies: {len(copies)} synthetic record(s) identical to a real record"
-        + (f" (rows {', '.join(str(i + 1) for i in copies)})" if copies else "")
+        f"\nexact copies: {len(copy_rows)} synthetic record(s) identical to a real record"
+        + (f" (rows {', '.join(str(i + 1) for i in copy_rows)})" if copy_rows else "")
     )
 
-    ranges = {}
     for q in args.quasi:
-        vals = [
-            float(r[q])
-            for r in real
-            if r[q] != "" and r[q].replace(".", "", 1).isdigit()
-        ]
-        if len(vals) == len(real) and len(set(vals)) > 12:
-            ranges[q] = (max(vals) - min(vals)) or 1.0
-    half = rng.sample(range(len(real)), len(real) // 2)
-    a, b = (
-        [real[i] for i in half],
-        [real[i] for i in range(len(real)) if i not in set(half)],
-    )
-    d_syn = [min(distance(s, r, args.quasi, ranges) for r in real) for s in synth]
-    d_real = [min(distance(x, r, args.quasi, ranges) for r in b) for x in a]
+        real[q] = (
+            pd.to_numeric(real[q])
+            if real[q].str.fullmatch(r"-?\d+(\.\d+)?").all()
+            else real[q]
+        )
+        synth[q] = (
+            pd.to_numeric(synth[q])
+            if synth[q].str.fullmatch(r"-?\d+(\.\d+)?").all()
+            else synth[q]
+        )
+    enc = encoder(real, args.quasi)
+    half_a = real.sample(frac=0.5, random_state=args.seed)
+    half_b = real.drop(half_a.index)
+    d_syn = distances(enc, args.quasi, synth, real)
+    d_real = distances(enc, args.quasi, half_a, half_b)
     print("\nclosest record distance on the quasi-identifiers (0 = identical)")
     print(
-        f"  synthetic to real:      median {statistics.median(d_syn):.3f}, share at 0: {sum(1 for d in d_syn if d == 0) / len(d_syn):.2f}"
+        f"  synthetic to real:      median {np.median(d_syn):.3f}, share at 0: {(d_syn < 1e-9).mean():.2f}"
     )
     print(
-        f"  real half to other half: median {statistics.median(d_real):.3f}, share at 0: {sum(1 for d in d_real if d == 0) / len(d_real):.2f}"
+        f"  real half to other half: median {np.median(d_real):.3f}, share at 0: {(d_real < 1e-9).mean():.2f}"
     )
     print(
         "  a synthetic file much closer to the real one than the real halves are to each other has copied records"
     )
 
-    bands_real = Counter(band(r[args.sensitive]) for r in real)
-    majority = bands_real.most_common(1)[0][0]
-    hits = 0
-    for r in real:
-        nearest = min(synth, key=lambda s: distance(r, s, args.quasi, ranges))
-        hits += band(nearest[args.sensitive]) == band(r[args.sensitive])
+    bands_real = pd.to_numeric(real[args.sensitive], errors="coerce").map(band)
+    bands_synth = pd.to_numeric(synth[args.sensitive], errors="coerce").map(band)
+    weights = np.array(
+        [1.0] * len(enc.transformers_[0][2])
+        + [0.5]
+        * (enc.transform(synth[args.quasi]).shape[1] - len(enc.transformers_[0][2]))
+    )
+    nn = NearestNeighbors(n_neighbors=1, metric="manhattan").fit(
+        enc.transform(synth[args.quasi]) * weights
+    )
+    _, idx = nn.kneighbors(enc.transform(real[args.quasi]) * weights)
+    accuracy = (bands_synth.iloc[idx[:, 0]].to_numpy() == bands_real.to_numpy()).mean()
+    majority = bands_real.value_counts(normalize=True).iloc[0]
     print(
         f"\nattribute inference of {args.sensitive} band from the quasi-identifiers through the synthetic file"
     )
     print(
-        f"  nearest-neighbour accuracy {hits / len(real):.2f} vs majority baseline {bands_real[majority] / len(real):.2f}"
+        f"  nearest-neighbour accuracy {accuracy:.2f} vs majority baseline {majority:.2f}"
     )
     print(
         "  an accuracy far above the baseline means the synthetic file reveals the attribute for people like the quasi-identifiers; the disclosure control unit sets the limit"
     )
-    return 1 if copies else 0
+    return 1 if copy_rows else 0
 
 
 if __name__ == "__main__":

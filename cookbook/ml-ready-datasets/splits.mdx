@@ -51,9 +51,9 @@ and this chapter's checks look for the common ones.
 
 :::info[Running example]
 The 600 records of 344 households are split by household with a
-hashed key: 72 percent training, 10 percent validation, 18 percent
+grouped draw: 69 percent training, 11 percent validation, 20 percent
 test. No household appears in two parts. The Northern Region is a
-quarter of the test part and an eighth of the training part, which the
+fifth of the test part and an eighth of the training part, which the
 card states.
 :::
 
@@ -65,11 +65,11 @@ card states.
 records of a group in the same part, produced by a rule that gives the
 same assignment on every machine and every run.
 
-The script hashes the group key (turns it into a number between 0 and
-1 by a fixed formula) and assigns the group to a part by where the
-number falls. The seed is a word mixed into the hash; the same seed
-gives the same assignment, and a different seed gives a different one.
-The output has one row per record:
+The script draws whole groups into the test part, then into the
+validation part, with scikit-learn's grouped split and a fixed random
+seed. The same seed gives the same assignment on every run, and a
+different seed gives a different one. The output has one row per
+record:
 
 | Column | Meaning |
 |---|---|
@@ -86,17 +86,17 @@ python make_splits.py lfs_occupation_ml.csv --id record_id --group hhid --strati
 Output for the running example:
 
 ```text
-600 records, 344 groups by 'hhid', seed 'v1'
-  train         433   0.72
-  validation     58   0.10
-  test          109   0.18
+600 records, 344 groups by 'hhid', seed 1
+  train         416   0.69
+  validation     64   0.11
+  test          120   0.20
 groups in more than one split: 0
 distribution of 'region' per split (share of the split):
   category           train  validation        test
-  R01                 0.13        0.07        0.25
-  R02                 0.45        0.47        0.45
-  R03                 0.26        0.34        0.18
-  R04                 0.16        0.12        0.12
+  R01                 0.13        0.14        0.20
+  R02                 0.45        0.42        0.47
+  R03                 0.28        0.28        0.16
+  R04                 0.14        0.16        0.17
 splits written to splits.csv
 ```
 
@@ -106,8 +106,8 @@ splits written to splits.csv
 2. Read the leakage line. A group in two parts is an error, and the
    script's exit status says so.
 3. Read the distribution per part. Here the Northern Region is a
-   quarter of the test part and an eighth of the training part, by
-   chance of the hash on a small file. For a small dataset where this
+   fifth of the test part and an eighth of the training part, by
+   chance of the draw on a small file. For a small dataset where this
    matters, draw with another seed, or stratify by hand: split each
    region's households separately and combine.
 4. Record the seed, the shares, and the script version in the card's
@@ -185,7 +185,7 @@ exists.
 
 ## Implementation options
 
-- **Assignment:** hashed group key (this chapter, reproducible without a random state); a stored random assignment with the seed; stratified grouped assignment by hand for small datasets.
+- **Assignment:** a grouped random draw with a recorded seed (this chapter); a hash of the group key, which gives the same assignment without a random state; stratified grouped assignment by hand for small datasets.
 - **Test part:** random by group; the latest round; a held-out region or language where the intended use is transfer.
 - **Where the split lives:** an assignment file named in the Croissant record (this chapter); one file per part; a split column in the data file.
 

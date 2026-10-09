@@ -50,7 +50,7 @@ def test_make_splits_is_grouped_and_reproducible(scripts, tmp_path, capsys):
     ]
     assert scripts["make_splits"].main(args) == 0
     text = capsys.readouterr().out
-    assert "600 records, 344 groups by 'hhid', seed 'v1'" in text
+    assert "600 records, 344 groups by 'hhid', seed 1" in text
     assert "groups in more than one split: 0" in text
     assert out.read_text(encoding="utf-8") == (SCRIPTS / "splits.csv").read_text(
         encoding="utf-8"
@@ -58,7 +58,7 @@ def test_make_splits_is_grouped_and_reproducible(scripts, tmp_path, capsys):
     # a different seed gives a different assignment
     out2 = tmp_path / "splits2.csv"
     assert (
-        scripts["make_splits"].main(args[:-2] + ["--seed", "v2", "-o", str(out2)]) == 0
+        scripts["make_splits"].main(args[:-2] + ["--seed", "2", "-o", str(out2)]) == 0
     )
     assert out2.read_text(encoding="utf-8") != out.read_text(encoding="utf-8")
 

@@ -14,7 +14,7 @@ phase, then the flags:
                          draft; people decide
 
 Exit status 1 when any flag is raised, so that the map can be checked in
-a pipeline. Standard library only.
+a pipeline. Uses pandas.
 
 Usage:
     python map_components.py gsbpm_map.csv
@@ -29,44 +29,45 @@ organization's own version.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import defaultdict
-from pathlib import Path
+
+import pandas as pd
 
 VISIBLE = {"answer", "draft", "code"}
+
+
+def flags_for(r: pd.Series) -> list[str]:
+    """The rules a component can break: unreviewed visible output, confidential data hosted, a deciding role."""
+    out = []
+    if r["model_role"] in VISIBLE and r["review"] == "none":
+        out.append(
+            f"{r['component']}: {r['model_role']} output reaches people with no review"
+        )
+    if r["data_sensitivity"] == "confidential" and r["model_location"] == "hosted":
+        out.append(f"{r['component']}: confidential data to a hosted model")
+    if r["model_role"] == "decide":
+        out.append(
+            f"{r['component']}: a model does not decide; change the role to propose or flag"
+        )
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("map", type=Path)
+    parser.add_argument("map")
     args = parser.parse_args(argv)
-    with args.map.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    by_phase: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for r in rows:
-        by_phase[r["phase"]].append(r)
-    print(f"{len(rows)} components across {len(by_phase)} phases\n")
-    for phase, comps in by_phase.items():
+    df = pd.read_csv(args.map, dtype=str).fillna("")
+
+    print(f"{len(df)} components across {df['phase'].nunique()} phases\n")
+    for phase, comps in df.groupby("phase", sort=False):
         print(phase)
-        for c in comps:
+        for c in comps.itertuples():
             print(
-                f"  {c['sub_process']:<34} {c['component']:<28} {c['model_role']:<8} review {c['review']:<7} {c['data_sensitivity']:<13} {c['model_location']}"
+                f"  {c.sub_process:<34} {c.component:<28} {c.model_role:<8} review {c.review:<7} {c.data_sensitivity:<13} {c.model_location}"
             )
-    flags = []
-    for r in rows:
-        if r["model_role"] in VISIBLE and r["review"] == "none":
-            flags.append(
-                f"{r['component']}: {r['model_role']} output reaches people with no review"
-            )
-        if r["data_sensitivity"] == "confidential" and r["model_location"] == "hosted":
-            flags.append(f"{r['component']}: confidential data to a hosted model")
-        if r["model_role"] == "decide":
-            flags.append(
-                f"{r['component']}: a model does not decide; change the role to propose or flag"
-            )
+    flags = [f for _, r in df.iterrows() for f in flags_for(r)]
     print()
     if flags:
         print("flags:")
