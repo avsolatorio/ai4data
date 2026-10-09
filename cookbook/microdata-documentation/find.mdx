@@ -3,7 +3,7 @@ id: find
 title: "1. Findability of surveys"
 sidebar_label: "1. Find"
 sidebar_position: 2
-description: Study-level documentation in the DDI-based World Bank schema, catalog publication, persistent identifiers, and schema.org markup so that people and AI systems find the survey.
+description: How to make a survey findable by people and by AI systems, through a study record in the DDI-based World Bank schema, publication in a catalog that crawlers can read, and a persistent identifier.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -53,9 +53,9 @@ it is validated, and what the AI-ready profile still asks for.
 
 <Recipe title="1.1 Write the study record in the World Bank microdata schema" level="Foundational" skills="Data curator; the Metadata Editor or a text editor" time="Half a day per survey">
 
-**Result:** a description of the survey (the study record) in a form
-any catalog can import, which passes the schema and the organization's
-own list of required fields.
+**Result:** the survey has a description, called the study record, in a
+form that any catalog can import. The record passes the schema and the
+organization's own list of required fields.
 
 The study record is the survey's catalog entry: its title, who ran it,
 when, whom it covers, how the sample was drawn, how to cite it. The
@@ -91,6 +91,18 @@ example is a minimal record in that schema:
 4. Keep the record in version control next to the data documentation,
    and re-run the check whenever it changes.
 
+**Worked example.** The study record of the running example names the
+survey "Labour Force Survey 2025, Quarter 2" and gives the identifier
+`EX-LFS-2025-Q2`. It names the example organization as the authoring
+entity and gives the collection dates of April to June 2025. Its universe
+is "persons aged 15 and over in private households", its analysis unit is
+the individual, and its sampling procedure is a two-stage stratified
+sample. Its citation requirement gives the
+form users should copy. The check at the foundational level reports the
+record valid against the schema, complete against the nine fields of the
+profile, and free of validity issues. At the AI-ready level it reports
+`data_files` and `variables` missing, which chapter 3 supplies.
+
 **What this does not do.** The check verifies that fields are present
 and well-formed. Whether the abstract describes the survey correctly,
 whether the sampling text is accurate, and whether the universe matches
@@ -102,8 +114,8 @@ suggestions on such text in front of a curator.
 
 <Recipe title="1.2 Publish the record in a catalog with a persistent identifier" level="AI-ready" skills="Catalog administrator" time="Two hours per survey once the catalog exists">
 
-**Result:** the survey is visible to search engines, harvesters, and AI
-systems, and citable by an identifier that will not change.
+**Result:** the survey is visible to search engines, to harvesters, and
+to AI systems, and it can be cited by an identifier that will not change.
 
 1. Import the record into [NADA](https://nada.ihsn.org/) (or an
    equivalent DDI-aware catalog). NADA stores the record in the World
@@ -120,6 +132,16 @@ systems, and citable by an identifier that will not change.
 4. Verify with a structured-data validator that the page's record is
    parsed, and search for the survey's title in a general search engine
    after a few weeks.
+
+**Worked example.** The catalog administrator imports the record into
+the organization's NADA catalog, where it becomes study 412 at a
+permanent URL. The DOI registered through DataCite resolves to that
+page, and the citation requirement is updated to include it. The study
+page's schema.org block names the survey, its abstract, its temporal
+coverage, and the organization, and the validator parses it without
+errors. Four weeks later, a search for "labour force survey 2025" in a
+general search engine shows the study page in its first results, and the
+IHSN survey catalog has harvested the record.
 
 **What this does not do.** Catalog publication makes the survey
 findable by title and abstract. Users who search for a variable will
@@ -160,10 +182,10 @@ still not find it until the variables are documented
 
 ## Verification
 
-- **Schema and profile:** the metadata checker reports the record valid and complete at the target level.
-- **Catalog page:** the study page carries a schema.org record that a validator parses.
-- **Identifier:** the DOI resolves to the study page.
-- **Known-item search:** the survey appears in the top results for its title and for two paraphrases of its subject.
+- **Schema and profile.** The metadata checker reports the record valid and complete at the target level.
+- **Catalog page.** The study page carries a schema.org record that a validator parses.
+- **Identifier.** The DOI resolves to the study page.
+- **Known-item search.** The survey appears in the top results for its title and for two paraphrases of its subject.
 
 ## Checklist
 

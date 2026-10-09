@@ -26,14 +26,17 @@ nothing without the label, the value codes, the universe, and the question
 that produced it. An AI system that reads an undocumented file will guess,
 and a user who relies on the answer will not know that it guessed.
 
-This guide is organized around eight questions a curator can ask about the
-documentation of a survey: whether people and AI can find it, whether the
-documentation can be produced from the files the organization already has,
-whether AI can interpret the variables, relate them to concepts and
-classifications, find the right variable among hundreds, follow a variable
-across survey rounds, judge whether the data fit a purpose, and obtain the
-data under the stated conditions. Each chapter answers one question with
-recipes, maturity levels, and a checklist.
+This guide is organized around eight questions that a curator can ask
+about the documentation of a survey. The first two are about getting
+started: whether people and AI can find the survey, and whether its
+documentation can be produced from the files the organization already
+has. The next three are about meaning: whether AI can interpret the
+variables, relate them to concepts and classifications, and find the
+right variable among hundreds. The last three are about use over time
+and under conditions: whether a variable can be followed across survey
+rounds, whether the data fit a purpose, and whether the data can be
+obtained under the stated conditions. Each chapter answers one question
+with recipes, maturity levels, worked examples, and a checklist.
 
 The recipes build on the DDI Codebook standard as implemented in the
 [World Bank microdata schema](https://github.com/worldbank/metadata-schemas),
@@ -63,10 +66,10 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Adopt the access policy with tiers of [chapter 8](./access.mdx) (one day). It makes every later publication safe.
-2. Take the most requested survey, draft its dictionary from the data file ([chapter 2](./produce.mdx)), and run the dictionary check of [chapter 3](./variables.mdx) (one day). The errors it finds are the first work list.
-3. Write the study record and publish it in the catalog with a persistent identifier ([chapter 1](./find.mdx)) (half a day).
-4. Attach the question text and the classifications used ([chapter 4](./concepts.mdx)) and document the design and weights ([chapter 7](./fitness.mdx)).
+1. Adopt the access policy with tiers of [chapter 8](./access.mdx). It takes a day, and it makes every later publication safe.
+2. Take the most requested survey, draft its dictionary from the data file as [chapter 2](./produce.mdx) describes, and run the dictionary check of [chapter 3](./variables.mdx). This takes a day, and the errors the check finds are the first work list.
+3. Write the study record and publish it in the catalog with a persistent identifier, following [chapter 1](./find.mdx). This takes half a day.
+4. Attach the question text and the classifications used, following [chapter 4](./concepts.mdx), and document the design and the weights, following [chapter 7](./fitness.mdx).
 
 Variable-level search and thematic groups ([chapter 5](./navigate.mdx)) and crosswalks between rounds ([chapter 6](./rounds.mdx)) build on that documentation and come after it.
 

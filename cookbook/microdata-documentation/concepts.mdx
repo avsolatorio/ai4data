@@ -3,7 +3,7 @@ id: concepts
 title: "4. Questions, concepts, and classifications"
 sidebar_label: "4. Concepts"
 sidebar_position: 5
-description: Question text attached to variables, concept maps to international classifications with versions, and harmonized names for reuse across surveys.
+description: How to relate each variable to the question that produced it and to the concept and classification it follows, so that variables can be compared across surveys, years, and countries.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,9 +52,9 @@ its version, level, and URI, and gives each a harmonized name.
 
 <Recipe title="4.1 Attach the question text to every collected variable" level="Foundational" skills="Data curator with the questionnaire" time="Two to four hours per survey">
 
-**Result:** each variable record states the question as it was asked,
-so that a label can be checked against it and a user can see the
-wording.
+**Result:** each variable record states the question exactly as it was
+asked, so that a label can be checked against it and a user can see the
+wording that produced the data.
 
 1. Take the question text from the final questionnaire, including the
    question number and the placeholders as printed ("Q4. How old was
@@ -68,6 +68,17 @@ wording.
 4. Record the questionnaire version in the study record, and re-attach
    the text when the questionnaire changes.
 
+**Worked example.** The variable `hours` has the label "Hours worked
+last week". Its question, taken from the questionnaire, reads "Q15. How
+many hours did [NAME] work last week in all jobs?". The question text
+tells a user two things the label does not: that the figure is the hours
+worked in the reference week, as distinct from usual hours, and that it
+covers all jobs.
+The pre-question text, "Ask of persons who worked at least one hour last
+week", is added as the interviewer instruction, because it is the skip
+rule that defines the universe. For the derived variable `lfs_status`,
+the question column reads "Derived from Q14 to Q18".
+
 **What this does not do.** Question text in the dictionary does not
 make the questionnaire itself machine-readable (skip patterns, response
 options, routing). DDI Lifecycle and a question bank do that, and
@@ -77,10 +88,10 @@ recipe 4.3 starts there.
 
 <Recipe title="4.2 Map variables to concepts and classifications" level="AI-ready" skills="Subject-matter statistician; classification specialist" time="One day per survey the first time">
 
-**Result:** a concept map with one row per variable that names the
-concept it measures, the classification it follows, the version, a web
-address for the concept, and a harmonized name, stored in the variable
-records.
+**Result:** the survey has a concept map with one row per variable. Each
+row names the concept the variable measures, the classification it
+follows, the version, a web address for the concept, and a harmonized
+name, and the same information is stored in the variable records.
 
 A concept is what a variable measures, stated independently of this
 survey: "educational attainment", "labour force status". A
@@ -110,6 +121,17 @@ education, ISCO for occupation. The concept map is a CSV:
 3. Check that the value codes in the dictionary are consistent with the
    named classification (ISCED levels 0 to 5, ISCO-08 two-digit codes).
 
+**Worked example.** The concept map of the running example has four
+rows. The row for `educ` names the concept "educational attainment", the
+classification ISCED, the version 2011, the URI of the ISCED 2011
+scheme, and the harmonized name `educ_isced11`. Its note reads "codes 0
+to 5 are ISCED levels 0 to 5; level 6 and above are merged into 5". The
+row for `occupation` names ISCO-08 at the sub-major group level, which
+is two digits, and the check confirms that every code in the dictionary
+is a valid two-digit ISCO-08 code. The row for `lfs_status` names the
+19th ICLS resolution as its standard, because labour force status is
+defined by a resolution and has no code list of its own.
+
 **What this does not do.** A concept map names the classification. It
 does not verify that the coding followed it. A sample check of coded
 values against the classification's definitions, or AI-assisted coding
@@ -119,9 +141,9 @@ review (the program's classification and coding workstream), does that.
 
 <Recipe title="4.3 Reuse questions and concepts across surveys" level="AI-native" skills="Methodologist; data curator" time="Ongoing; one week to set up">
 
-**Result:** the organization's recurring concepts have one definition,
-one harmonized name, and one question wording, so that a system can
-find every survey that measures a concept and compare them.
+**Result:** each of the organization's recurring concepts has one
+definition, one harmonized name, and one question wording, so that a
+system can find every survey that measures a concept and compare them.
 
 1. List the concepts measured in more than one survey (labour force
    status, educational attainment, household composition) and give each
@@ -136,6 +158,17 @@ find every survey that measures a concept and compare them.
    Question Bank workstream develops this for development surveys.
 4. When a new survey is designed, draw questions from the bank, so that
    the concept links exist before the data do.
+
+**Worked example.** The example organization measures educational
+attainment in the labour force survey, the household budget survey, and
+the census. The three questionnaires word the question differently, and
+two of the three use the national scheme. The methodologist defines the
+concept once, as "highest level of education completed, ISCED 2011",
+gives it the harmonized name `educ_isced11`, and publishes it in the
+organization's concept scheme with labels in English and French. Each
+survey's `educ` variable now points to that concept, and a search for
+"educational attainment" returns all three surveys, with the crosswalk
+from the national scheme attached to the two that need it.
 
 **What this does not do.** Harmonized names and shared definitions do
 not make data from two surveys comparable when the samples, modes, or
@@ -174,10 +207,10 @@ reference periods differ. The quality statements of
 
 ## Verification
 
-- **Question text:** every collected variable has it; a sample compared with the questionnaire matches word for word.
-- **Concept map:** every classified variable has a classification, a version, and a resolving URI.
-- **Code consistency:** the value codes of each classified variable are valid codes of the named classification at the stated level.
-- **Cross-survey search:** a query for a concept returns every survey that measures it ([chapter 5](./navigate.mdx)).
+- **Question text.** Every collected variable has its question text, and a sample compared with the questionnaire matches word for word.
+- **Concept map.** Every classified variable has a classification, a version, and a URI that resolves.
+- **Code consistency.** The value codes of each classified variable are valid codes of the named classification at the stated level.
+- **Cross-survey search.** A query for a concept returns every survey that measures it ([chapter 5](./navigate.mdx)).
 
 ## Checklist
 

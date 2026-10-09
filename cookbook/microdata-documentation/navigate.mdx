@@ -3,7 +3,7 @@ id: navigate
 title: "5. Navigation of large dictionaries"
 sidebar_label: "5. Navigate"
 sidebar_position: 6
-description: Thematic variable groups, variable-level search across surveys, and a question set that measures whether users find the right variable.
+description: How users and AI systems find the right variable among hundreds, through thematic variable groups, a question set that measures the variable search, and search by meaning across surveys.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,9 +52,9 @@ label says "Age in completed years".
 
 <Recipe title="5.1 Group variables into themes" level="AI-ready" skills="Data curator; Python for the automated version" time="Half a day per survey by hand; minutes with the pipeline, plus review">
 
-**Result:** the variables of a survey organized into named groups by
-topic, so that a user browses "Employment" or "Education" in place of a
-600-row list.
+**Result:** the variables of a survey are organized into named groups by
+topic, so that a user can browse "Employment" or "Education" where
+before there was a list of 600 rows.
 
 1. By hand: group variables by the questionnaire section they come
    from, then merge and rename groups by topic ("Household
@@ -82,6 +82,17 @@ topic, so that a user browses "Employment" or "Education" in place of a
    an identifier, a label, a definition, a universe, and the variable
    list) and import them into the catalog.
 
+**Worked example.** Run on the 18 variables of the running example, the
+pipeline proposes five groups. "Identification and weights" holds
+`hhid`, `pid`, and `weight`. "Household and demographics" holds
+`region`, `urban`, `relationship`, `sex`, and `age`. "Education" holds
+`educ` alone. "Labour force" holds `lfs_status`, `occupation`,
+`industry`, `hours`, `informal`, `q17b`, and `jobsearch`. "Income" holds
+`income`. The self-consistency check flags `informal`, which one run
+placed under "Income". The curator keeps it under "Labour force", writes
+a definition for each group, and sets the universe of "Labour force" to
+"persons aged 15 and over".
+
 **What this does not do.** The groups organize variables; they do not
 define concepts. A group named "Education" is a navigation aid, and the
 concept links of [chapter 4](./concepts.mdx) are what make `educ`
@@ -93,9 +104,9 @@ model, which can be a local open-weight one; see
 
 <Recipe title="5.2 Measure variable search with a known-variable question set" level="AI-ready" skills="Data curator; speakers of each supported language; Python" time="One day for the first 30 questions">
 
-**Result:** two numbers per language that say how well the catalog's
-variable search finds the variable a user is looking for, for any
-search that returns a ranked list of variable names.
+**Result:** for each language, two numbers say how well the catalog's
+variable search finds the variable a user is looking for. The scorer
+works with any search that returns a ranked list of variable names.
 
 The two numbers are Recall@5 (the share of questions for which the
 right variable is in the first five results) and MRR (the mean
@@ -130,6 +141,10 @@ en      10   0.80   0.72
 fr       2   0.00   0.00
 ```
 
+The first row scores all questions together, and the following rows
+score each language. The `n` column counts the questions with an
+expected variable, so the one unanswerable question is left out.
+
 1. Write the question set: questions the way users ask them, each with
    the variable that should come first. Include paraphrases, questions
    that are ambiguous between variables (hours in all jobs or in the
@@ -144,6 +159,17 @@ fr       2   0.00   0.00
 4. Extend the set across surveys, so that it measures cross-survey
    search, and keep it in version control.
 
+**Worked example.** The curator reads the two English misses. For "age
+of household member" the label says "Age in completed years", and the
+word "age" appears, so the miss comes from the ranking: three other
+variables mention "household" and outrank it. For "employed or
+unemployed" the label says "Labour force status" and the question text
+says "Derived from Q14 to Q18", so no word of the query appears
+anywhere. The curator adds the concept "employment status" and the
+keywords "employed; unemployed" to the `lfs_status` row. The next run
+finds both, and the English Recall@5 rises from 0.80 to 1.00, while the
+French questions still miss until the search of recipe 5.3 is in place.
+
 **What this does not do.** Twelve scored questions over one dictionary
 give a demonstration; 30 to 50 per language over several surveys give a
 measure. The questions in languages other than English were drafted
@@ -153,9 +179,10 @@ without a native speaker and are marked as such in the file.
 
 <Recipe title="5.3 Add semantic variable search across surveys" level="AI-native" skills="Developer with Python" time="One to two weeks including evaluation">
 
-**Result:** a search that returns `lfs_status` for "employed or
-unemployed" and `age` for "age of household member", across every
-survey in the catalog, scored against the keyword baseline.
+**Result:** the catalog's variable search returns `lfs_status` for
+"employed or unemployed" and `age` for "age of household member", across
+every survey in the catalog, and its scores are compared with the keyword
+baseline.
 
 Semantic search matches by meaning: each variable's documentation is
 turned into a vector (an embedding) by a language model, and the
@@ -176,6 +203,17 @@ meaning come out close together even when they share no words.
 5. NADA provides semantic search over its records. An organization that
    runs it has this layer with the catalog, and the question set
    measures it the same way.
+
+**Worked example.** The developer embeds each variable of the three
+documented surveys as one text, for example "Labour force status.
+Derived from Q14 to Q18. Employment status. Labour Force Survey 2025
+Q2", with a multilingual embedding model. For the French question
+"statut d'emploi", the semantic search ranks `lfs_status` first in both
+labour force survey rounds and the census employment variable third,
+although none of the three texts is in French. The scorer reports a
+French Recall@5 of 1.00 where the keyword baseline had 0.00, and the
+English scores stay at 1.00. The developer records the model name, the
+date, and the three catalog versions with the result.
 
 **What this does not do.** Semantic search finds variables whose
 documentation describes them. It cannot find a variable labelled with
@@ -213,9 +251,9 @@ its name only, which is why [chapter 3](./variables.mdx) comes first.
 
 ## Verification
 
-- **Groups:** every variable belongs to a group; a sample of groups reviewed by a subject-matter statistician.
-- **Search scores:** Recall@5 and MRR per language, compared with the baseline, kept with the date and configuration.
-- **Cross-survey:** a query for a harmonized concept returns every survey that measures it.
+- **Groups.** Every variable belongs to a group, and a sample of groups has been reviewed by a subject-matter statistician.
+- **Search scores.** Recall@5 and MRR per language are compared with the baseline and kept with the date and the configuration.
+- **Cross-survey.** A query for a harmonized concept returns every survey that measures it.
 
 ## Checklist
 
