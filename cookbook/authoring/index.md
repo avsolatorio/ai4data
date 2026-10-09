@@ -80,11 +80,15 @@ A recipe uses the `Recipe` component:
 ```mdx
 <Recipe title="N.M Imperative title naming the result" level="Foundational | AI-ready | AI-native" skills="Who can do this" time="How long">
 
-**Result:** one sentence on what exists when the recipe is done.
+**Result:** what the team has when the recipe is done, in one or two full sentences.
 
-1. Step.
+One or two paragraphs that explain the thing the recipe produces, the terms it uses, and why the organization wants it, before any instruction.
+
+1. Step, with the reason it is done this way.
 2. Step, with code or a template where useful.
 3. How to check that it worked.
+
+**Worked example.** The recipe carried out on the running example, with the actual input, the action, and the output.
 
 **What this does not do.** Where the example stops and what the full version adds.
 
@@ -101,7 +105,24 @@ A recipe uses the `Recipe` component:
   ````
 
 - Every recipe ends with a **What this does not do** paragraph. Simplified examples stay useful only when they say where they stop.
-- A recipe is written for a reader who has not read the author's notes. Before the steps, one or two plain sentences say what the reader will have at the end and why it matters, without referring to "the rule", "the script", or "the measures" before they have been introduced. Every file or code block is introduced by a sentence that says what it is, and its columns or fields are explained in a short table or list beside it. A term of art (embedding, structured output, token, span) is explained in a parenthesis at its first use in the chapter. Each step is one action in a short sentence; a step that lists several things uses sub-bullets. The reader test: a statistician with no background in language models can say, after reading the recipe once, what to do first and what the file in front of them means.
+- A recipe is written for a reader who has not read the author's notes. It explains before it instructs: one or two paragraphs before the steps say what the recipe produces, what the terms mean, and why the organization wants the result. Every file or code block is introduced by a sentence that says what it is, and its columns or fields are explained in a short table or list beside it. A term of art (embedding, structured output, token, span) is explained at its first use in the chapter, in a full sentence where a parenthesis would be cramped. Each step says what to do and, where it is not obvious, why. The reader test: a statistician with no background in language models can say, after reading the recipe once, what to do first, why, and what the file in front of them means.
+- Where a recipe has a concrete procedure, it has a **Worked example** paragraph: the recipe carried out on the running example, with the real input, the action, and the output. For a script, the example is the command and its output. For a template or a policy, it is the template filled in for the example organization. For a design decision, it is the decision the example organization took and the reason. A worked example uses the values of the running example's facts file and never invents a new figure.
+
+### Register
+
+The cookbooks are read by statisticians, curators, and developers who are
+new to the subject. The prose is that of a colleague explaining the work in
+full sentences, in a guidance-document register. The following rules hold
+throughout a cookbook, and they override any habit of compressing text:
+
+- Every sentence has a subject and a verb. A "Result" line, a running-example admonition, a description in the front matter, and a bullet in "Verification" or "Common mistakes" are full sentences, never a stack of nouns ("A small set of read-only tools with typed inputs, structured outputs, and a check").
+- Explanation comes before instruction. A step that says "keep the set small" is preceded by the sentence that says why a small set matters to the model.
+- No aphorisms. A short pronouncement ("A manifest is a plan.", "Twenty words is a floor.") followed by a list reads as a slogan. Say the thing in a sentence that carries its reason.
+- No semicolon-balanced contrasts as a habit ("four tools produce correct calls; twenty produce wrong ones"). State the point, then the consequence, in two sentences.
+- A list of more than four items becomes a bulleted list; a sentence cannot hold it. Two parentheticals in a row ("([chapter 2]) (one day)") become a sentence or a table.
+- A bullet is a sentence or two, never a label with a colon and a fragment ("Manifest check: no errors; warnings decided.").
+- Length follows the explanation needed. A recipe is as long as it takes to be understood on one reading; short is not a goal.
+
 
 ### Standards page (`standards.md`)
 

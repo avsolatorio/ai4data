@@ -3,7 +3,7 @@ id: index
 title: Practical Guide to Serving Official Statistics to AI Agents
 sidebar_label: Overview
 sidebar_position: 0
-description: A cookbook for developers and dissemination teams in national statistical organizations that expose their statistics to AI agents through the Model Context Protocol, with tool design, provenance, safety, evaluation, and operation.
+description: A cookbook for developers and dissemination teams in national statistical organizations that want to expose their statistics to AI agents through the Model Context Protocol. It covers the design of the tools, provenance, access control, safety, evaluation, distribution, and operation.
 ---
 
 # Practical Guide to Serving Official Statistics to AI Agents
@@ -19,38 +19,46 @@ recipe.
 :::
 
 AI assistants answer questions about statistics whether or not the
-organization that produces them takes part. When they cannot reach the
-official figures, they answer from training data, from copies on other
-sites, or from guesses. An agent interface changes that: the assistant
-calls the organization's own tools, receives the official values with their
-unit, release, source, and licence, and cites them. The
+organization that produces those statistics takes part. When an assistant
+cannot reach the official figures, it answers from its training data, from
+copies of the figures on other websites, or from a guess, and it presents
+the result with the same confidence either way. An agent interface changes
+this. The assistant calls the organization's own tools, receives the
+official values together with their unit, their release date, their
+source, and their licence, and cites them. The
 [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is the
-open standard for this. One server serves every compatible assistant.
+open standard for such an interface. One server built on it serves every
+compatible assistant.
 
-This guide is organized around nine questions an organization can ask
-before and after exposing its statistics to agents: what an agent should
-be able to do with the data, which tools to offer with which inputs and
-outputs, what context the agent needs beyond the tools, how every response
-carries its source, who may call the interface and under which terms, how
-it is kept safe, how it is evaluated, how users and developers connect,
-and how it is operated and maintained. Each chapter
-answers one question with recipes, maturity levels, and a checklist.
+This guide is organized around nine questions that an organization can ask
+before and after it exposes its statistics to agents. The questions run in
+the order a team meets them. The first three are about design: what an
+agent should be able to do with the data, which tools to offer and with
+which inputs and outputs, and what context the agent needs beyond the
+tools. The next three are about trust: how every response carries its
+source, who may call the interface and under which terms, and how the
+interface is kept safe. The last three are about running it: how it is
+evaluated, how users and developers connect to it, and how it is operated
+and maintained. Each chapter answers one question with recipes, maturity
+levels, worked examples, and a checklist.
 
 The recipes build on the program's [MCP work](/docs/mcp/) and on two
 servers in operation: the World Bank's
 [Data360 MCP server](https://github.com/worldbank/data360-mcp) and the MCP
-interface of [NADA](https://nada.ihsn.org/). The
+interface of [NADA](https://nada.ihsn.org/). An agent interface is a thin
+layer over the organization's existing API and catalog, so the
 [dissemination cookbook](/cookbook/ai-ready-dissemination/) covers what
 has to be in place underneath: a catalog, an API, and documented meaning.
-The [standards page](./standards.md) lists each standard and where it
-applies.
+The [standards page](./standards.md) lists each standard this guide uses
+and where it applies.
 
 :::tip[A thin layer over a solid API]
 An MCP server is a small program that wraps the organization's existing
 API and catalog in tools a model can call. The quality of what the agent
-returns is the quality of the API, the metadata, and the provenance behind
-it. Where those are weak, the agent interface makes the weakness visible
-faster; the dissemination cookbook's chapters 1 to 5 come first.
+returns is therefore the quality of the API, the metadata, and the
+provenance behind it. Where those are weak, the agent interface makes the
+weakness visible faster than the website did. Chapters 1 to 5 of the
+dissemination cookbook come first for an organization in that position.
 :::
 
 ## Prerequisites
@@ -63,14 +71,18 @@ The recipes assume the following are in place or can be arranged:
 
 ## First steps
 
-For a team with limited time, this sequence gives the most useful result first:
+A team with limited time gets the most useful result from this sequence.
+Each step names its chapter and a realistic estimate of the time it takes.
 
-1. Decide the uses and the scope and write ten questions with expected answers ([chapter 1](./purpose.mdx)) (half a day).
-2. Write the tool manifest and the guidance resource before any code ([chapters 2](./tools.mdx) and [3](./context.mdx)) (one day).
-3. Build the prototype over the API, read-only over public data, with provenance in every response ([chapters 2](./tools.mdx), [4](./provenance.mdx), and [6](./safety.mdx)) (one week).
-4. Run the ten questions through an assistant and score the traces ([chapter 7](./evaluate.mdx)) before anyone outside the team connects.
+1. Decide what agents may do with the data and which data are in scope, and write ten questions with their expected answers. This is [chapter 1](./purpose.mdx), and it takes about half a day.
+2. Write the tool manifest and the guidance text before any code exists, so that the design can be reviewed and checked. This is [chapter 2](./tools.mdx) and [chapter 3](./context.mdx), and it takes about a day.
+3. Build the prototype over the API, read-only over public data, with provenance in every response. [Chapters 2](./tools.mdx), [4](./provenance.mdx), and [6](./safety.mdx) describe it, and it takes about a week.
+4. Run the ten questions through an assistant and score what it did, as [chapter 7](./evaluate.mdx) describes, before anyone outside the team connects.
 
-Access tiers ([chapter 5](./access.mdx)), distribution ([chapter 8](./distribute.mdx)), and operation ([chapter 9](./operate.mdx)) follow once the prototype passes its questions.
+Access tiers ([chapter 5](./access.mdx)), distribution
+([chapter 8](./distribute.mdx)), and operation
+([chapter 9](./operate.mdx)) follow once the prototype passes its
+questions.
 
 ## Self-assessment
 
@@ -105,27 +117,31 @@ state on its own.
 
 ## Running example
 
-The example organization of the dissemination cookbook exposes its five
-published series through a server with four read-only tools (search,
-metadata, observations, code lists) and three resources (guidance, code
-lists, release calendar). A question set of eight questions, including one
-the organization cannot answer and one about a region the series does not
-cover, is run through an agent, and the logged traces are scored: six
-questions pass, one answer gives a wrong value, and one answers a regional
-figure the series does not have. A guidance resource, a client registry
-with a day's requests, and a registry listing complete the example. All
-values are invented.
+Every chapter works on the same example. The example organization of the
+dissemination cookbook exposes its five published series through a server
+with four read-only tools, for search, metadata, observations, and code
+lists, and three resources, for guidance, code lists, and the release
+calendar. A question set of eight questions represents what the server
+should do. Two of the questions are ones an agent should decline: one asks
+for a figure the organization does not publish, and one asks for a
+regional value of a series that exists only at the national level. The
+questions are run through an agent, and the logged traces are scored. Six
+questions pass. One answer gives a wrong value, and one answers with a
+regional figure the series does not have. A guidance resource, a client
+registry with one day's requests, and a registry listing complete the
+example. All values are invented, and they are the same values the other
+cookbooks use.
 
 ## Scope of the examples
 
-The examples are small on purpose: four tools, eight questions, eight
+The examples are small on purpose: four tools, eight questions, and eight
 traces, so that a reader can run them in an afternoon and see the shape of
 each check. They are starting points. Each recipe ends with a **What this
 does not do** note that says where the example stops and what the full
 version adds. The server code itself is the
 [MCP example of the dissemination cookbook](/cookbook/ai-ready-dissemination/retrieve)
-and the Data360 server; the scripts here check its design and its
-behaviour.
+and the Data360 server. The scripts in this guide check the server's
+design and its behaviour.
 
 ## Files
 
@@ -161,4 +177,4 @@ https://worldbank.github.io/ai4data/cookbook/serving-statistics-to-agents/
 
 ## Version history
 
-- **0.1 (October 2026).** First draft: six chapters, recipes, scripts, self-assessment.
+- **0.1 (October 2026).** First draft: nine chapters, recipes with worked examples, scripts, self-assessment.

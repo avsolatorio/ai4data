@@ -115,6 +115,19 @@ The steps:
    `data360://system-prompt`, `data360://codelists`, and
    `data360://search-usage` resources are good models for these.
 
+**Worked example.** The first tool in the manifest of the running example
+is `search_series`. Its description reads: "Search the published series by
+words in the name, definition, or keywords. Returns up to `limit` matches
+with idno, name, measurement_unit, periodicity, and coverage, ranked by
+relevance. Use this first when the series identifier is unknown." The
+description tells the model what comes back, and its last sentence tells
+the model when to call it. The tool has two inputs. The `query` input is a
+string described as "words from the user's question, in any supported
+language", and the `limit` input is an integer from 1 to 20 with a default
+of 5. The example call is `{"query": "unemployment rate", "limit": 3}`.
+The tool is marked read-only, and its outputs are the catalog's own field
+names, from `idno` to `time_period_end`, plus a relevance `score`.
+
 **What this does not do.** The manifest is a plan. Recipe 2.3 checks the
 plan against the design rules, and [chapter 7](./evaluate.mdx) checks
 whether assistants use the tools as intended, which is the only real test
@@ -153,6 +166,17 @@ most of the work is mapping each tool to the right API call.
    message "unknown reference area code; call list_code_values" lets the
    model correct its call. A bare error code does not.
 
+**Worked example.** For the running example, the `get_observations` tool
+calls the API's observations endpoint with the series code, the area code,
+and the period range the model supplied. For the unemployment rate in the
+second quarter of 2025 the API returns one observation. The tool returns
+it as a structured object in which `SERIES` is `LF_UNEMP_PCT`, `REF_AREA`
+is the national code, `TIME_PERIOD` is `2025-Q2`, `OBS_VALUE` is 6.1, and
+`OBS_STATUS` is `P` for provisional. `UNIT_MEASURE` says that the value
+is a percentage of the labour force. The provenance fields of
+[chapter 4](./provenance.mdx) travel in the same object. The text content of the response renders
+the same object as one readable line.
+
 **What this does not do.** A prototype serves one user. Transport,
 authentication, rate limits, and hosting are the subjects of
 [chapters 5](./access.mdx), [6](./safety.mdx), and [9](./operate.mdx).
@@ -189,6 +213,12 @@ statistics-example 1.0.0: 4 tool(s), 3 resource(s)
 0 error(s), 0 warning(s)
 Not checked here: whether the server behaves as the manifest says; the evaluation in chapter 5 does that.
 ```
+
+The output's first line names the server and counts its tools and
+resources. The last line is a reminder of what the check leaves to the
+evaluation. When the check finds a problem, it prints one line per rule
+broken, named by the tool, for example "get_observations: data tool lacks
+provenance fields ['license', 'citation']".
 
 1. Run the check on the manifest, and also on the server's own tool
    listing exported in the same form. The two should agree. A difference
