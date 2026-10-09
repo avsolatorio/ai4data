@@ -3,7 +3,7 @@ id: standardize
 title: "6. Alignment with vocabularies"
 sidebar_label: "6. Standardize"
 sidebar_position: 7
-description: A SKOS vocabulary for keywords and topics, mapping of free text to it with review of unmapped terms, model proposals for the rest, and translated labels under native-speaker review.
+description: How free-text keywords and topics are aligned with a controlled vocabulary, by building the vocabulary as a SKOS scheme, mapping the catalog's free text to it, reviewing the terms that do not map, and letting a model propose concepts for the rest.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,14 +15,19 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Keywords written freely by many curators over years say the same thing in
-many ways: "hunger", "food insecurity", "undernourishment". Search,
-filters, and AI systems treat them as different. A controlled vocabulary
-gives each concept one preferred label, alternates, and a URI, and mapping
-free text to it makes the catalog consistent. Most of the mapping is
-string matching against the alternates; the rest is where a language
-model proposes a concept for a curator to confirm, and where the
-vocabulary grows.
+Keywords written freely by many curators over many years say the same
+thing in many ways. "Hunger", "food insecurity", and "undernourishment"
+describe one concept, and a user who filters on one of them misses the
+records tagged with the other two. Search, filters, and AI systems all
+treat the three as different, because nothing tells them otherwise.
+
+A controlled vocabulary gives each concept one preferred label, a list
+of the other forms people write, and a web address that identifies it.
+Mapping the catalog's free text to the vocabulary makes the catalog
+consistent for every system that reads it. Most of the mapping is plain
+string matching against the alternates, and it runs in seconds. The
+terms that do not match are where a language model can propose a
+concept for a curator to confirm, and where the vocabulary grows.
 
 ## Target state
 
@@ -49,9 +54,9 @@ until an alternate is added or a model proposes the concept.
 
 <Recipe title="6.1 Build the vocabulary" level="Foundational" skills="Curator; subject-matter staff" time="Two days for the first version">
 
-**Result:** a list of the concepts the catalog uses for keywords and
-topics, each with one preferred label, a web address that identifies it,
-and the other forms curators have written for it.
+**Result:** the catalog has a list of the concepts it uses for keywords
+and topics, each with one preferred label, a web address that identifies
+it, and the other forms curators have written for it.
 
 A controlled vocabulary turns "poverty rate", "poverty headcount", and
 "poverty incidence" into one filter. Its minimum form is a
@@ -80,6 +85,18 @@ CSV with one row per concept:
    `topics` fields, which carry a vocabulary and a URI in the World Bank
    schema.
 
+**Worked example.** The vocabulary of the running example has eight
+concepts. The row for undernourishment has the preferred label
+"Undernourishment", the URI `https://stats.example/vocab/undernourishment`,
+and the alternates "food insecurity; prevalence of undernourishment;
+undernutrition". The row for unemployment has the alternates
+"unemployment rate; unemployment rates; joblessness". The curator
+building it started from the 140 distinct keywords in the catalog,
+ranked by frequency, and merged them into eight concepts in a morning,
+recording the SDG indicator URI beside the undernourishment concept
+because SDG 2.1.1 covers it. The CSV is converted to a SKOS file and
+published at the vocabulary's address.
+
 **What this does not do.** A vocabulary built from existing keywords
 reflects what curators wrote, which may omit what users search for. The
 search logs and the question sets of the dissemination cookbook show
@@ -90,8 +107,8 @@ the user side.
 <Recipe title="6.2 Map free text to the vocabulary" level="AI-ready" skills="Python; curator for the review" time="Minutes to run; an hour per period to review">
 
 **Result:** every free-text keyword in the catalog is either mapped to a
-preferred label of the vocabulary or listed as unmapped for a curator
-to decide.
+preferred label of the vocabulary or listed as unmapped for a curator to
+decide.
 
 The input is a file of the keywords as curators wrote them, one row per
 record and keyword (`record_id`, `keyword`). The script matches each
@@ -117,6 +134,12 @@ unmapped (add an alternate, add a concept, or let a model propose a mapping for 
   LF_UNEMP_PCT: 'jobless'
 ```
 
+Each line shows the match type, the similarity score, the record, the
+keyword as the curator wrote it, and the preferred label it was mapped
+to. An exact match scores 1.00, a fuzzy match scores by string
+similarity, and an unmapped keyword scores zero and appears again in the
+list at the end.
+
 1. Accept exact matches. Check fuzzy matches on a sample; a similarity
    threshold of 0.85 catches plurals and spelling, and some false
    friends.
@@ -127,6 +150,18 @@ unmapped (add an alternate, add a concept, or let a model propose a mapping for 
    to confirm in the board.
 3. Write the mapped terms into the records with the vocabulary and URI,
    through the editor.
+
+**Worked example.** In the run above, "food insecurity" maps exactly to
+Undernourishment because it is listed as an alternate, and
+"unemployment rates" maps to Unemployment by similarity with a score of
+0.92, because the alternate is the singular. The curator checks the two
+fuzzy matches and confirms both. For the two unmapped terms, the model
+is given each term, its record, and the vocabulary, and it proposes
+Undernourishment for "hunger" with a confidence of 0.9 and Unemployment
+for "jobless" with 0.95. The curator confirms both in the board, and
+"hunger" and "jobless" are added as alternates. The next run maps all
+fourteen keywords exactly, and the records' `keywords` fields now carry
+the preferred labels with the vocabulary name and URI.
 
 **What this does not do.** String matching maps known forms. Matching by
 meaning (with embeddings) maps more, and a model proposes the rest.
@@ -163,10 +198,10 @@ filter for every user.
 
 ## Verification
 
-- **Vocabulary:** every concept has a preferred label, a URI, and alternates; published as SKOS.
-- **Mapping:** the share of keywords mapped exactly, by similarity, and unmapped, per period, with unmapped terms decided.
-- **Records:** keywords and topics carry the vocabulary and URI.
-- **Languages:** labels per language with review status, from chapter 7.
+- **Vocabulary.** Every concept has a preferred label, a URI, and alternates, and the scheme is published as SKOS.
+- **Mapping.** The share of keywords mapped exactly, by similarity, and unmapped is reported each period, and the unmapped terms have been decided.
+- **Records.** The keywords and topics carry the vocabulary and the URI.
+- **Languages.** Labels exist per language with their review status, from chapter 7.
 
 ## Checklist
 

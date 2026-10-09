@@ -3,7 +3,7 @@ id: review
 title: "5. Review of suggestions"
 sidebar_label: "5. Review"
 sidebar_position: 6
-description: The Metadata Reviewer's agentic pipeline, its issues with category, severity, and proposed fix, the review board with its diff view, and the recorded decisions that close the loop.
+description: How curators review and decide on model suggestions, with the Metadata Reviewer's pipeline producing issues that carry a category, a severity, and a proposed fix, a review board that shows the change as a diff, and a file that records every decision with its reason.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,14 +15,22 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Drafts and flags are only as good as the review they get. A review workflow has three parts. A pipeline produces suggestions in a
-fixed form: what is wrong, how severe, what to change. A board shows a
-curator the current and the proposed value side by side, where the
-curator decides. A record keeps the decisions with their reasons. The
-program's Metadata Reviewer provides the first two. Its pipeline is a
-chain of model steps: several detect issues, a critic checks them, a
-categorizer assigns a category, and a severity scorer rates them. Its
-board shows each issue as a word-level diff.
+Drafts and flags are only as good as the review they get. A suggestion
+that a curator accepts without reading is a published guess, and a
+suggestion nobody looks at is wasted. A review workflow therefore has
+three parts. A pipeline produces suggestions in a fixed form that says
+what is wrong, how severe it is, and what to change. A board shows a
+curator the current and the proposed value side by side, and that is
+where the curator decides. A record keeps the decisions with their
+reasons, so that the system can learn from them and an auditor can see
+why each record changed.
+
+The program's Metadata Reviewer provides the first two parts. Its
+pipeline is a chain of model steps: several detect issues, a critic
+checks the detections, a categorizer assigns each a category, and a
+severity scorer rates it from 1 to 5. Its board shows each issue as a
+word-level diff. The third part, the decisions file, is a CSV that this
+chapter defines.
 
 ## Target state
 
@@ -50,7 +58,7 @@ vocabulary. The curator decides each in the board and records the reason.
 
 <Recipe title="5.1 Run the review pipeline" level="AI-ready" skills="Developer; curator" time="One day to set up; minutes per batch">
 
-**Result:** for each record, a list of detected issues with a category,
+**Result:** every record has a list of detected issues with a category,
 a severity, and a proposed fix, in a form the review board can show.
 
 The program's Metadata Reviewer is a pipeline of several model calls
@@ -82,6 +90,19 @@ is), and `suggested_metadata` (the proposed fix).
 4. Write the issues to the board's input workbook with the record
    identifier, so that decisions can be traced to the record.
 
+**Worked example.** The five records of the running example are
+submitted with the default manifest and a hosted model, because all
+five are public. The pipeline returns eleven issues. For the poverty
+headcount it returns one issue with the description "The name refers to
+the national poverty line but the definition describes the
+international line of 2.15 dollars a day". The issue has the category
+"Inconsistency / Conflict" and severity 4, and it carries the current
+definition and a proposed definition that names the national line. For the under-five mortality rate it returns
+"Measurement unit may not match the values", severity 3, with a
+proposed unit of "per 100 live births", which the curator later rejects.
+For three records it returns keywords outside the vocabulary at severity
+2. The issues are written to the workbook with their record identifiers.
+
 **What this does not do.** The pipeline detects and proposes; it does
 not apply. A proposed fix is as fallible as a draft. The critic agent
 reduces false flags without removing them, which the rejected unit flag
@@ -91,8 +112,8 @@ in the example of recipe 3.3 shows.
 
 <Recipe title="5.2 Review in the board" level="AI-ready" skills="Curator" time="One to three minutes per issue">
 
-**Result:** every issue seen by a curator with the current and the
-proposed text side by side, and a decision on each.
+**Result:** a curator has seen every issue with the current and the
+proposed text side by side, and has taken a decision on each.
 
 The [review board](/docs/metadata-reviewer/user-manual/review-board) is
 a single HTML file that opens in a browser with no server. It shows one
@@ -109,6 +130,20 @@ suggested values shown as a word-level diff (changed words highlighted).
    the vocabulary, all accepted), apply the decision as a rule and let
    the pipeline handle the category with lighter review.
 
+**Worked example.** The curator opens the board and sees the five
+records with their issue counts. The poverty headcount is first, with
+one severity-4 issue. Its diff highlights "international poverty line
+of 2.15 dollars a day" in the current definition and "national poverty
+line as set by the household budget survey" in the proposed one. The
+curator knows the series, confirms that the definition was copied from
+the wrong record years ago, and accepts the proposal. The under-five
+mortality rate's unit issue shows "per 1,000 live births" against "per
+100 live births"; the curator checks the values, which run from 41 to
+48, and rejects the flag. The three keyword issues are all accepted, and
+after the second batch shows the same pattern the unit makes
+"keyword outside the vocabulary, replacement in the vocabulary" a
+category that a junior curator reviews.
+
 **What this does not do.** The diff shows what changed. Whether the
 change is right is a separate question, and the curator's knowledge of
 the series answers it. That is why severity-4 and 5 issues on method or
@@ -118,9 +153,9 @@ definition fields go to the subject-matter curator.
 
 <Recipe title="5.3 Record the decisions" level="Foundational" skills="Curator" time="Part of each review">
 
-**Result:** a file that links every suggestion to a decision, a final
-text, a reason, a reviewer, and a date, which is the audit trail of why
-each record changed and the input to every measurement in this guide.
+**Result:** a file links every suggestion to a decision, a final text,
+a reason, a reviewer, and a date. It is the audit trail of why each
+record changed, and it is the input to every measurement in this guide.
 
 The decisions file has one row per suggestion:
 
@@ -148,6 +183,18 @@ model's confidence:
    [chapter 8](./improve.mdx).
 3. Apply accepted and edited values in the Metadata Editor, which
    validates the record and publishes to NADA.
+
+**Worked example.** The decisions file after the first review has ten
+rows. The row for the poverty headcount's definition reads: `decision`
+accept, `final_text` empty because the proposal was taken as written,
+`reason` "definition described the wrong poverty line; proposal is
+correct", the senior curator's initials, and the date. The row for the
+under-five mortality rate's unit reads: `decision` reject, `reason` "the
+unit is correct; the values are per 1,000 as stated; flag was wrong".
+When the reasons are coded a month later, the first becomes "wrong
+content in record" and the second "wrong flag", and both codes appear in
+the taxonomy of chapter 8. The accepted definition is applied in the
+Metadata Editor, which validates the record and publishes it.
 
 **What this does not do.** The file records decisions; it does not make
 them consistent between curators. A sample reviewed by a second curator
@@ -184,9 +231,9 @@ measures that, and disagreements refine the typology and the rubric.
 
 ## Verification
 
-- **Pipeline:** every issue has a category, a severity, a current value, and a proposed value.
-- **Board:** reviews recorded for every issue of the batch; none applied without a decision.
-- **Decisions file:** complete, with reasons coded, and traceable to the editor's changes.
+- **Pipeline.** Every issue has a category, a severity, a current value, and a proposed value.
+- **Board.** A review is recorded for every issue of the batch, and none has been applied without a decision.
+- **Decisions file.** The file is complete, its reasons are coded, and each decision can be traced to the editor's changes.
 
 ## Checklist
 

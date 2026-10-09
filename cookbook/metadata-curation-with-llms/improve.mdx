@@ -3,7 +3,7 @@ id: improve
 title: "8. Improvement from decisions"
 sidebar_label: "8. Improve"
 sidebar_position: 9
-description: Acceptance rates and an error taxonomy tracked per field and model, an evaluation set built from curator decisions that gates prompt and model changes, and model choice and cost for routine tasks.
+description: How curator decisions improve the system over time, through acceptance rates and an error taxonomy tracked per field and model, an evaluation set built from the decisions that every prompt or model change has to pass, and the choice of the smallest model that passes for each task.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -50,9 +50,9 @@ is tested on the decided records before it ships.
 
 <Recipe title="8.1 Track acceptance and the error taxonomy" level="Foundational" skills="Curator; Python" time="One hour per period">
 
-**Result:** a time series of acceptance rates per field, task, and
-model, and a coded list of why suggestions fail, from which the unit
-sees what to fix.
+**Result:** the unit has a time series of acceptance rates per field,
+task, and model, and a coded list of why suggestions fail, from which it
+can see what to fix.
 
 1. Run the acceptance script of [chapter 3](./draft.mdx) on each
    period's decisions and keep the output with the model, prompt, and
@@ -66,6 +66,17 @@ sees what to fix.
 4. Report the rates with the curation unit's other measures (records
    completed, time per record).
 
+**Worked example.** After three months the table has three columns of
+rates per field. Definitions run at 0.85, 0.88, and 0.90. Keywords run
+at 0.95 throughout. Unit flags run at 0.40, 0.45, and 0.70, with the
+jump in the third month after the critic agent's instructions were
+changed. The taxonomy counts for the quarter are: wrong flag 11,
+invented fact 4, wrong vocabulary term 3, style 9, too long 2. The head
+of the unit reads the "style" count as a prompt problem, adds the
+catalog's style rules to the definition prompt, and watches the count
+the following month. The unit's time per completed record has fallen
+from 25 minutes to 9.
+
 **What this does not do.** Acceptance rates measure agreement between
 curators and the model. Two curators who disagree with each other put a
 ceiling on what the rate can show, and a sample decided by two curators
@@ -76,8 +87,8 @@ each period measures that ceiling.
 <Recipe title="8.2 Gate changes on an evaluation set" level="AI-ready" skills="Developer; curator" time="One day to set up; part of each change">
 
 **Result:** no change to a prompt, an agents manifest, a rubric, or a
-model goes live without its effect measured on a fixed set of records
-whose right answers are known.
+model goes live before its effect has been measured on a fixed set of
+records whose right answers are known.
 
 An evaluation set is a collection of records with their suggestions and
 the curators' decisions on them. A candidate change is run on the set,
@@ -99,6 +110,18 @@ they rejected?
    [evaluation chapter](/cookbook/ai-ready-dissemination/evaluate) does
    for search.
 
+**Worked example.** The evaluation set after the first quarter holds 80
+decided items: 30 definitions, 25 keyword sets, 15 flags, and 10
+translations, each with the suggestion and the curator's decision and
+final text. When the developer proposes the lighter single-pass manifest
+to cut cost, it is run on the 80 items. It reproduces 27 of the 30
+accepted definitions and 24 of the 25 keyword sets, but it makes 6 of
+the 11 flags that curators had rejected as wrong, where the default
+manifest made 2. The change is not shipped. The developer instead keeps
+the default manifest and tightens the critic's instruction, which on the
+same set makes 1 of the rejected flags and keeps every accepted
+suggestion, and that change ships.
+
 **What this does not do.** The set measures agreement with past
 decisions. A change that improves on a new kind of record is not
 credited until such records enter the set, which is why the set grows.
@@ -108,8 +131,8 @@ credited until such records enter the set, which is why the set grows.
 <Recipe title="8.3 Choose the model per task and know the cost" level="AI-native" skills="Developer" time="One to two days per task">
 
 **Result:** each task runs on the smallest model that passes the
-evaluation set, and the cost per record (model calls plus review time)
-is known and reported.
+evaluation set, and the cost per record, which is the model calls plus
+the review time, is known and reported.
 
 1. Test candidate models from small to large on the evaluation set, per
    task: keywords and vocabulary proposals first (short outputs suit
@@ -124,6 +147,19 @@ is known and reported.
    a re-run after a decision does not re-draft what was accepted.
 4. Report cost per record per task per period. The review time is the
    larger part, and the acceptance rate is what reduces it.
+
+**Worked example.** For keyword drafting, a small open-weight model run
+on the organization's server reaches an acceptance of 0.93 on the
+evaluation set, against 0.95 for the hosted model, so the small model
+takes the task at no token cost. For definitions, the small model
+reaches 0.71 and a mid-sized open-weight model 0.86, against 0.90 for
+the hosted model; the mid-sized model is chosen, because it passes the
+threshold of 0.85 and can also process unpublished records. The review
+pipeline stays on the hosted model, whose batch endpoint costs about
+two cents per record. The quarterly cost report reads: keywords 0 cents
+of model cost and 1 minute of review per record; definitions 0.4 cents
+and 4 minutes; review pipeline 2 cents and 6 minutes. Review time is
+nine tenths of the total.
 
 **What this does not do.** Model choice follows the evaluation set. A
 set of 50 items distinguishes large differences, and close calls between
@@ -163,9 +199,9 @@ to models the organization runs.
 
 ## Verification
 
-- **Rates:** acceptance per field and model reported per period, with the error taxonomy counts.
-- **Gate:** the last change to a prompt, manifest, or model has scores on the evaluation set at or above the previous version.
-- **Cost:** cost per record per task reported, with the model used.
+- **Rates.** Acceptance per field and model is reported each period, with the error taxonomy counts.
+- **Gate.** The last change to a prompt, manifest, or model has scores on the evaluation set at or above the previous version.
+- **Cost.** The cost per record per task is reported, with the model used.
 
 ## Checklist
 

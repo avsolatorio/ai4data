@@ -3,7 +3,7 @@ id: migrate
 title: "2. Migration of legacy records"
 sidebar_label: "2. Migrate"
 sidebar_position: 3
-description: "Moving records from spreadsheets and old catalogs into the schema: a field mapping with model-proposed rows a curator confirms, transforms for codes and dates, unplaced columns reported, and the migrated records routed into the checks and the review."
+description: How records in spreadsheets and old catalogs are moved into the schema without losing what they say, through a field mapping that a model proposes and a curator confirms, a migration script that reports what it could not place, and validation and review before publication.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -53,10 +53,10 @@ know.
 
 <Recipe title="2.1 Map the legacy columns to the schema" level="AI-ready" skills="Curator; a model for the proposal" time="Half a day per source">
 
-**Result:** a mapping file that says, for every column of the old
-catalog export, which field of the World Bank indicator schema it
-becomes, how its values are transformed, and whether a curator has
-confirmed the mapping.
+**Result:** the curation unit has a mapping file that says, for every
+column of the old catalog export, which field of the World Bank indicator
+schema it becomes, how its values are transformed, and whether a curator
+has confirmed the mapping.
 
 The old catalog is a spreadsheet with its own column names ("Indicator
 name", "Source agency", "Tags"). The target is the schema, with fields
@@ -91,6 +91,18 @@ confirms it. The mapping file has one row per legacy column:
 4. Keep the mapping with the source under version control. The next
    export of the same source reuses it.
 
+**Worked example.** The legacy spreadsheet of the running example has
+eleven columns. The model's proposal maps "Indicator name" to `name`
+with a confidence of 0.99, "Frequency" to `periodicity` with the
+transform `code_map` and the note "values are A, Q, M", and "Last
+updated" to `date_last_update` with the transform `date_dmy`. It maps
+"Source agency" to `sources` with a confidence of 0.85 and the note
+"check whether the field is a list". For "Notes" it proposes nothing and
+lists `series_break`, `notes`, and `limitation` as candidates. The
+curator confirms eight rows in twenty minutes, leaves "Source agency"
+and "Tags" as proposed with a remark to check the values, and leaves
+"Notes" unplaced, because its two values belong in two different fields.
+
 **What this does not do.** The model proposes from names and examples.
 Whether "Description" holds the definition or the methodology is a
 question for whoever knows the source, which is why every row has a
@@ -100,8 +112,8 @@ status and the migration reports proposed rows every time.
 
 <Recipe title="2.2 Run the migration and review the report" level="Foundational" skills="Python; curator" time="Minutes to run; an hour to review">
 
-**Result:** one schema-shaped record for every row of the old catalog,
-and a report that lists exactly what the curator still has to decide.
+**Result:** every row of the old catalog has become one schema-shaped
+record, and a report lists exactly what the curator still has to decide.
 
 The script reads the legacy export and the mapping file, applies the
 transforms, writes the records, and prints what it could not resolve:
@@ -149,6 +161,18 @@ The report has four parts, and each is a task for the curator:
    Here the frequency code `Other` has no schema value, and the curator
    sets it from the record ("survey years only" suggests irregular).
 
+**Worked example.** The curator works through the report above in an
+hour. The two proposed mappings are confirmed after a look at the
+values: "Source agency" holds one agency per row, so `sources` becomes a
+list of one, and "Tags" holds free text that chapter 6 will map to the
+vocabulary. For the unplaced "Notes" column, the value "Break in 2018
+(registration coverage)" belongs to the under-five mortality rate and
+is written into its `series_break` field by hand, and "Survey years
+only" belongs to the poverty headcount and becomes its `limitation`. The
+empty definition is the unemployment rate's, which chapter 3 drafts. The
+frequency "Other" for the poverty headcount is set to "irregular", with
+the reason recorded.
+
 **What this does not do.** The script applies rules. A legacy value that
 is wrong stays wrong, in the schema's shape. The assessment of
 [chapter 4](./assess.mdx) and the review of [chapter 5](./review.mdx)
@@ -158,9 +182,9 @@ are where the content is judged.
 
 <Recipe title="2.3 Validate the migrated records and route them into review" level="AI-ready" skills="Python; curator" time="Minutes per source">
 
-**Result:** every migrated record is checked against the schema, has
-its missing fields listed, carries a note of where it came from, and
-enters the review queue marked as migrated.
+**Result:** every migrated record has been checked against the schema,
+has its missing fields listed, carries a note of where it came from, and
+sits in the review queue marked as migrated.
 
 1. Run the [metadata checker](/cookbook/ai-ready-dissemination/find) of
    the dissemination cookbook on the migrated records with the indicator
@@ -176,6 +200,17 @@ enters the review queue marked as migrated.
    checker listed.
 4. Publish only after the review. A migrated record is a draft until a
    curator decides.
+
+**Worked example.** The checker run on the five migrated records with
+the indicator profile reports all five valid against the schema. At the
+AI-ready level it lists the missing fields per record. The unemployment
+rate lacks `definition_long`, `methodology`, and `limitation`, and the
+others lack between two and five fields each.
+Each record gains a provenance note that reads "migrated from
+legacy_catalog.csv with field_mapping.csv v1 on 2026-10-02". The five
+records enter the review queue with the flag "migrated", and the
+reviewer who opens the poverty headcount sees that its frequency was set
+by the curator from a legacy code and can check the choice.
 
 **What this does not do.** Validation checks shape and completeness.
 Errors of meaning that the legacy source carried (a unit that does not
@@ -212,10 +247,10 @@ match the values) are the review's and the assessment's to find.
 
 ## Verification
 
-- **Mapping:** every legacy column has a row; no row is proposed at publication time.
-- **Report:** unplaced columns, empty fields, and untransformed values decided and recorded.
-- **Validation:** every migrated record passes the schema; the profile's missing fields are in the drafting backlog.
-- **Traceability:** a migrated value can be traced to its legacy column and source file.
+- **Mapping.** Every legacy column has a row, and no row is still proposed at publication time.
+- **Report.** The unplaced columns, empty fields, and untransformed values have been decided and recorded.
+- **Validation.** Every migrated record passes the schema, and the profile's missing fields are in the drafting backlog.
+- **Traceability.** A migrated value can be traced to its legacy column and source file.
 
 ## Checklist
 

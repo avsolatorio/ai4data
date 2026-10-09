@@ -3,7 +3,7 @@ id: assess
 title: "4. Assessment of quality"
 sidebar_label: "4. Assess"
 sidebar_position: 5
-description: Scoring of records on completeness, semantic alignment, specificity, and consistency with structured output, calibration of the scores against curators, and catalog reports that drive the work list.
+description: How a model scores every record on completeness, semantic alignment, specificity, and consistency with the same rubric, how the scores are calibrated against curators on a sample, and how they are aggregated into a catalog report that orders the work.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -50,9 +50,9 @@ the curator, which is flagged for calibration.
 
 <Recipe title="4.1 Score records on the four dimensions" level="Foundational" skills="Curator with access to a model; Python for the batch" time="One hour to set up; seconds per record">
 
-**Result:** for every record, four scores from 1 to 5 with a one-line
-reason each, which tell the curation unit which records need work and
-why.
+**Result:** every record has four scores from 1 to 5 with a one-line
+reason each, and the scores tell the curation unit which records need
+work and why.
 
 The four dimensions are completeness (are the fields filled), semantic
 alignment (do the name, the definition, and the unit agree with each
@@ -74,6 +74,19 @@ the rubric and returns the scores in a fixed format.
 4. Score the start set by hand with the same rubric, for the
    calibration of recipe 4.2.
 
+**Worked example.** The poverty headcount record scores 4 on
+completeness, with the reason "all required fields filled except
+limitation". It scores 2 on semantic alignment, with the reason "the
+name says national poverty line, the definition describes the
+international line". It scores 4 on specificity. It scores 3 on
+consistency, with the reason "the unit is written as % here and as
+percent in the related series". The
+semantic alignment reason is what the curator acts on, because it names
+a real disagreement between two fields that would send users to the
+wrong figure. The five records' scores are stored with the model name,
+rubric version 1, and the date, and the curator scores the same five by
+hand with the same rubric.
+
 **What this does not do.** Scores describe the record's text. They do
 not describe the truth of its content: a definition that is complete,
 aligned, specific, and consistent can still be wrong, and subject-matter
@@ -83,9 +96,9 @@ review catches that.
 
 <Recipe title="4.2 Calibrate the scores against curators" level="AI-ready" skills="Two curators; Python" time="One day for 50 records">
 
-**Result:** for each dimension, how often the model's score agrees with
-a curator's and in which direction it errs, so that its scores can be
-read with the right correction.
+**Result:** for each dimension, the unit knows how often the model's
+score agrees with a curator's and in which direction it errs, so that
+the model's scores can be read with the right correction.
 
 The two input files have the same layout: one row per record, with the
 record identifier and the four scores, one file from the model and one
@@ -116,6 +129,12 @@ consistency              0.60      0.80      +0.60  model more lenient
 Scores are compared with the curators' scores as the reference; the curators' own agreement is reported separately.
 ```
 
+The table has one row per dimension. "Exact" is the share of records on
+which the model and the curator gave the same score, "within 1" the
+share on which they differed by at most one point, and "mean diff" the
+average difference, positive when the model scores higher. A note marks
+a dimension whose mean difference reaches half a point.
+
 1. Read the mean difference per dimension. Here the model scores
    consistency more leniently than the curator, so its consistency
    scores are read with that correction, or the rubric wording for
@@ -123,6 +142,18 @@ Scores are compared with the curators' scores as the reference; the curators' ow
 2. Have two curators score the sample and report their own agreement.
    The model is compared with a reference only as good as that.
 3. Re-run after any change to the model or the rubric.
+
+**Worked example.** In the run above, the model and the curator agree
+exactly on four of five completeness scores and on three of five for
+each other dimension. On consistency the model scores 0.6 points higher
+on average, and in one case two points higher, which is why that
+dimension is marked. The curator reads the model's consistency reasons
+and finds that it treats a unit written two ways as a minor matter,
+where the rubric calls it a 2. The rubric's wording for consistency is
+tightened to name that case, and the next run agrees within one point on
+every record. A second curator then scores the same five records, and
+the two curators agree exactly on 15 of 20 scores, which is the ceiling
+against which the model's agreement is read.
 
 **What this does not do.** Five records demonstrate; 50 to 100 records
 per calibration are needed, across topics and lengths. Agreement on
@@ -133,9 +164,9 @@ read as well.
 
 <Recipe title="4.3 Aggregate into a catalog report" level="AI-ready" skills="Python" time="Minutes per period">
 
-**Result:** a report of the catalog's quality by field, dimension,
-topic, and producing unit, and a work list ordered so that the records
-most used and least good come first.
+**Result:** the unit has a report of the catalog's quality by field,
+dimension, topic, and producing unit, and a work list ordered so that the
+records most used and least good come first.
 
 1. Aggregate the scores by dimension, by the field named in the reasons
    (missing definition, unit mismatch), by topic, and by producing unit.
@@ -146,6 +177,18 @@ most used and least good come first.
    from recipe 4.2 beside it.
 4. After decisions are applied ([chapter 5](./review.mdx)), re-score and
    report the gain.
+
+**Worked example.** The first quarterly report over the whole catalog of
+340 indicator records shows a mean completeness score of 3.1 and a mean
+semantic alignment score of 3.8. The field most often named in the
+reasons is `definition_long`, missing or thin in 140 records, followed
+by `limitation` in 95. By producing unit, the labour statistics unit's
+records score highest and the agriculture unit's lowest. Joined with use,
+the work list puts 22 records first: used in the top quartile and scored
+below 3 on at least one dimension. After the quarter's decisions are
+applied and the records are re-scored, the mean completeness score of
+those 22 rises from 2.4 to 4.1, and the report shows the gain beside the
+calibration note.
 
 **What this does not do.** A report orders work; it does not do it. The
 drafts of [chapter 3](./draft.mdx) and the reviews of
@@ -181,9 +224,9 @@ drafts of [chapter 3](./draft.mdx) and the reviews of
 
 ## Verification
 
-- **Rubric:** written per dimension and level; used for both model and curators.
-- **Calibration:** agreement and mean difference per dimension reported, with the curators' own agreement.
-- **Report:** produced per period with the calibration note; the work list follows it.
+- **Rubric.** The rubric is written per dimension and level, and the model and the curators both use it.
+- **Calibration.** Agreement and mean difference per dimension are reported, with the curators' own agreement.
+- **Report.** The report is produced each period with the calibration note, and the work list follows it.
 
 ## Checklist
 

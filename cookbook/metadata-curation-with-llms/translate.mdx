@@ -3,7 +3,7 @@ id: translate
 title: "7. Translation of metadata"
 sidebar_label: "7. Translate"
 sidebar_position: 8
-description: Which fields and languages are translated and by whom, model translation with the vocabulary as glossary, automatic checks for changed numbers and dropped content, native-speaker review, and publication with language codes and status.
+description: How metadata is translated so that every language gets the same meaning, by deciding the fields, languages, and reviewers, translating with a model that is given the vocabulary as a glossary, checking for changed numbers and dropped content, and publishing only reviewed text under a language code.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,8 +55,9 @@ speaker.
 
 <Recipe title="7.1 Decide the fields, the languages, and the reviewers" level="Foundational" skills="Head of the curation unit" time="Half a day">
 
-**Result:** a short table of which fields are translated into which
-languages, in which order, and who reviews each language.
+**Result:** the unit has a short table that says which fields are
+translated into which languages, in which order, and who reviews each
+language.
 
 1. Fields: name, definition, unit, keywords, and the short description
    first; methodology and limitations next; notes last. Codes and
@@ -69,6 +70,16 @@ languages, in which order, and who reviews each language.
    with the time per record estimated. The review is the cost, and the
    checks of recipe 7.3 are what keep it small.
 
+**Worked example.** The example organization's table has two rows, one
+per target language. French, the second official language, comes first:
+name, definition, unit, and keywords of every indicator record, in order
+of use, reviewed by the labour statistician who is a native speaker, at
+an estimated four minutes per record. English comes second for the
+survey records whose documentation exists only in French, reviewed by
+the dissemination officer. Methodology and limitations are listed for a
+second phase. Codes, identifiers, and URLs are marked "never
+translated".
+
 **What this does not do.** The decision sets scope. The vocabulary of
 [chapter 6](./standardize.mdx) in each language is what makes the
 translations consistent, and it comes first.
@@ -77,9 +88,10 @@ translations consistent, and it comes first.
 
 <Recipe title="7.2 Translate with the model and the vocabulary as glossary" level="AI-ready" skills="Curator with access to a model" time="Seconds per record">
 
-**Result:** a translation of each field, produced by a model that was
-given the organization's own terms, returned in a fixed format and
-marked as machine-translated until a person reviews it.
+**Result:** each field has a translation produced by a model that was
+given the organization's own terms. The translation is returned in a
+fixed format and marked as machine-translated until a person reviews
+it.
 
 1. Build the prompt from four parts:
    - the field and its definition;
@@ -97,6 +109,19 @@ marked as machine-translated until a person reviews it.
 4. For a language with little model support, use the model for a draft
    and plan more review time, or translate by hand with the glossary.
 
+**Worked example.** The prompt for the unemployment rate's definition
+gives the field, the English definition, the glossary rows for
+"unemployment rate: taux de chômage" and "labour force: population
+active", and the rules. The model returns `{"definition_long": "Part de
+la population active sans emploi, disponible pour travailler et à la
+recherche active d'un emploi au cours de la période de référence,
+mesurée chaque trimestre à partir de l'enquête sur la population
+active. Exprimée en pourcentage de la population active.",
+"glossary_used": ["taux de chômage", "population active"]}`. The
+translation is written into the record's French definition field with
+the status `machine`, the model name, and the date, and the English
+definition stays the published one until the French is reviewed.
+
 **What this does not do.** A model with a glossary uses the right terms
 most of the time, and still drops a clause or changes a figure now and
 then. Recipe 7.3 catches the form, and the reviewer the sense.
@@ -106,8 +131,8 @@ then. Recipe 7.3 catches the form, and the reviewer the sense.
 <Recipe title="7.3 Check translations before review" level="AI-ready" skills="Python" time="Minutes per batch">
 
 **Result:** translations with a changed number, with content dropped or
-added, or with text left untranslated are held back, and the rest reach
-the reviewer with the flags that matter.
+added, or with text left untranslated have been held back, and the rest
+reach the reviewer with the flags that matter.
 
 The input file has one row per translated field:
 
@@ -148,12 +173,31 @@ ED_PRIMARY_NER_PCT     name              fr   reviewed  ok
 2 machine translation(s) held back for numbers or length; the rest go to the native speaker
 ```
 
+The table has one row per translated field, with its status and the
+flags the check raised. "Unreviewed" means only that no person has
+looked at it yet. "Numbers changed" names the numbers in the source and
+in the translation. "Length ratio" gives the translation's length as a
+share of the source's. The last line counts what was held back.
+
 1. Run the check on each batch. A held-back translation goes back to
    the model with the rule it broke, or to a person.
 2. Read the untranslated flag with care. A unit such as "%" is the same
    in both languages, and the flag is a prompt to look.
 3. Add checks for the organization's own cases: glossary terms that
    must appear, date formats, decimal separators.
+
+**Worked example.** In the run above, the definition of the under-five
+mortality rate is held back because the source says "per 1,000 live
+births" and the translation says "pour 100 naissances vivantes". The
+curator returns it to the model with the rule "keep every number
+exactly", and the second draft keeps the 1,000. The undernourishment
+definition is held back because the translation is 45 percent of the
+source's length; the model had dropped the second sentence, which
+explains the three-year average. The unit "%" of the under-five
+mortality rate is flagged as untranslated, which the curator reads and
+dismisses, because the unit is "per 1,000" in the source and the
+translation of that unit is correct. The remaining four machine
+translations go to the native speaker.
 
 **What this does not do.** The check reads form. The wrong statistical
 term in fluent text passes, and the native speaker with the vocabulary
@@ -163,9 +207,9 @@ at hand catches it.
 
 <Recipe title="7.4 Review, publish per language, and measure" level="AI-ready" skills="Native-speaking reviewer; catalog administrator" time="Minutes per record for review">
 
-**Result:** published translations with a reviewer and a date,
-searchable in each language, and an acceptance rate per language and
-field.
+**Result:** every published translation has a reviewer and a date, the
+records can be searched in each language, and the unit has an
+acceptance rate per language and field.
 
 1. Review in the board of [chapter 5](./review.mdx) with the source and
    the translation side by side. Record accept, edit, or reject with the
@@ -180,6 +224,18 @@ field.
 4. Track acceptance per language and field ([chapter 8](./improve.mdx)).
    A language with low acceptance needs a better glossary, a better
    model, or more human translation.
+
+**Worked example.** The labour statistician reviews the six French
+translations in the board in twenty minutes. She accepts four, edits
+the unemployment rate's definition to replace "sans emploi" with the
+standard term "en chômage", and rejects the poverty headcount's name,
+which the model had rendered as "taux de pauvreté" where the catalog's
+term is "incidence de la pauvreté". The five accepted or edited texts
+are published under the code `fr`, with her initials and the date, and
+the French search index is rebuilt. The question "taux de chômage" in
+the dissemination cookbook's question set now returns the unemployment
+rate first. The period's acceptance rate for French is 5 of 6, and the
+rejection reason "wrong standard term" goes into the taxonomy.
 
 **What this does not do.** Reviewed translations make records findable
 in a language. The search engine's handling of that language (word
@@ -216,10 +272,10 @@ stems, embeddings) is a separate check in the dissemination cookbook.
 
 ## Verification
 
-- **Scope:** the table of fields, languages, order, and reviewers exists.
-- **Checks:** every batch runs the check; held-back items have a recorded outcome.
-- **Publication:** every published translation has status `reviewed`, a reviewer, and a date; the page carries the language.
-- **Search:** a question in each language finds the record.
+- **Scope.** The table of fields, languages, order, and reviewers exists.
+- **Checks.** Every batch runs the check, and every held-back item has a recorded outcome.
+- **Publication.** Every published translation has the status `reviewed`, a reviewer, and a date, and the page carries the language.
+- **Search.** A question in each language finds the record.
 
 ## Checklist
 

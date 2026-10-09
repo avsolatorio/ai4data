@@ -3,7 +3,7 @@ id: scope
 title: "1. Scope of model assistance"
 sidebar_label: "1. Scope"
 sidebar_position: 2
-description: A typology of curation tasks by the role a model can take, decision rights that keep publication with a named curator, the confidentiality rule, and the choice of records to start with.
+description: How a curation unit decides which tasks a language model may assist and in what role, which decisions stay with a named curator, which records may be sent to which model, and which twenty records to start with.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -15,14 +15,21 @@ import Checklist from '@site/src/components/Cookbook/Checklist';
 
 ## Rationale
 
-Curation tasks differ in what a wrong output costs. A model that drafts a
-keyword list costs a curator a minute to correct; a model that rewrites a
-definition can change the meaning of a series for every future user. The
-first decision is therefore which tasks a model may take, in which role
-(draft, flag, align, translate, summarize), and which decisions stay with
-a person. The second is what may be sent to a model at all: a record of a
-public series is public; an unpublished record or a confidential
-microdata dictionary is not.
+Curation tasks differ in what a wrong output costs. A model that drafts
+a keyword list costs a curator a minute to correct. A model that rewrites
+a definition can change the meaning of a series for every future user,
+and nobody may notice for years. The first decision is therefore which
+tasks a model may take, in which role, and which decisions stay with a
+person. The roles are few: a model can draft text, flag a possible
+problem, align text with a vocabulary, translate, or summarize, and in
+every case someone decides what happens next.
+
+The second decision is what may be sent to a model at all. A model run
+by a provider receives whatever text is sent to it. A record of a public
+series is public, and sending it is no concern. An unpublished record or
+a confidential microdata dictionary is a different matter, and the rule
+has to be written before anyone is tempted. This chapter writes both
+decisions down and chooses the records on which to try the workflow.
 
 ## Target state
 
@@ -50,8 +57,9 @@ records a decision.
 
 <Recipe title="1.1 Write the task typology with decision rights" level="Foundational" skills="Head of the curation unit" time="Half a day">
 
-**Result:** a one-page table that says, for each kind of curation task,
-what a language model is allowed to do and what a curator decides.
+**Result:** the curation unit has a one-page table that says, for each
+kind of curation task, what a language model is allowed to do and what
+a curator decides.
 
 Curation work falls into a few families of task: filling a missing
 field, proposing keywords, flagging a field that disagrees with another,
@@ -81,6 +89,17 @@ starting typology:
 3. Name the curator role that decides, and where decisions are recorded
    ([chapter 5](./review.mdx), recipe 5.3).
 
+**Worked example.** The example organization's typology follows the
+table above with two changes. Its curators decided that a model may
+draft keywords and definitions for the five indicator records, may flag
+any field, and may propose vocabulary mappings. The unit and the
+methodology text are listed as "flag only", because the unit of the
+under-five mortality rate was once changed by a well-meaning editor and
+took a year to notice. Translations are allowed as drafts into French,
+with the native-speaking statistician named as the reviewer. The senior
+metadata curator is named as the person who decides on every
+suggestion, and the decisions file of chapter 5 is named as the record.
+
 **What this does not do.** The typology sets roles. It does not make
 drafts good; [chapters 3](./draft.mdx) and [4](./assess.mdx) measure
 them.
@@ -89,9 +108,10 @@ them.
 
 <Recipe title="1.2 Set the confidentiality and approval rules" level="Foundational" skills="Head of the curation unit; legal" time="One day">
 
-**Result:** two written rules that every staff member and every pipeline
-follows: which records may be sent to which model, and what has to
-happen before a model's output reaches the published catalog.
+**Result:** two written rules exist that every staff member and every
+pipeline follows. The first says which records may be sent to which
+model. The second says what has to happen before a model's output reaches
+the published catalog.
 
 A model run by a provider receives whatever text is sent to it. For a
 public catalog record that is no concern; for an unpublished record or
@@ -110,6 +130,19 @@ own server receives nothing that leaves the building.
    date) in the AI component register. The program's tools accept any
    provider, including a local model, so the rule can be met either way.
 
+**Worked example.** The example organization's confidentiality rule
+reads: "Records of published series and published surveys may be sent to
+the hosted model named in the register. Records that are not yet
+published, and every microdata dictionary, are processed only by the
+open-weight model on the organization's own server." Its approval rule
+reads: "A model's suggestion is stored with the status draft and the
+model's name. It becomes part of the published record only when the
+senior metadata curator records accept or edit in the decisions file."
+The register entry for the pipeline names the hosted model and the
+local model. It names the public catalog records as the data and the
+head of the curation unit as the owner, and it sets a review date six
+months out.
+
 **What this does not do.** Rules state the practice. The review board
 and the decision log of [chapter 5](./review.mdx) are where the practice
 is visible and auditable.
@@ -118,9 +151,9 @@ is visible and auditable.
 
 <Recipe title="1.3 Choose the records to start with" level="Foundational" skills="Curator; dissemination officer" time="Two hours">
 
-**Result:** a first set of about twenty records on which model
-assistance is worth the review effort, and a written definition of what
-success on them looks like.
+**Result:** the unit has a first set of about twenty records on which
+model assistance is worth the review effort, and a written definition of
+what success on them looks like.
 
 1. Take the records with the highest use (the
    [monitoring cookbook](/cookbook/monitoring-data-use/) counts it) and
@@ -134,6 +167,19 @@ success on them looks like.
    gain after the decisions are applied.
 4. Record the baseline (completeness, curator time per record) before
    the first run, so that the gain can be measured.
+
+**Worked example.** The example organization has only five indicator
+records in the running example, so its start set is those five plus
+fifteen survey records chosen from the monitoring report's list of most
+used datasets. The completeness check at the AI-ready level shows that
+the five indicators lack between two and eight fields each and that the
+unemployment rate has no definition at all. The baseline reads:
+completeness 0 of 20 records at the AI-ready level, and 25 minutes of
+curator time per record when a definition is written from scratch. The
+definition of success reads: at least 70 percent of drafts accepted or
+edited, at least 80 percent of flags confirmed, and at least 15 of the
+20 records complete at the AI-ready level after the decisions are
+applied.
 
 **What this does not do.** Twenty records calibrate the workflow. The
 catalog-scale run comes after the acceptance rates of
@@ -170,9 +216,9 @@ catalog-scale run comes after the acceptance rates of
 
 ## Verification
 
-- **Typology:** every curation task in the team's procedures has a row with a role and a decision.
-- **Rules:** staff can state both; the register has the pipeline with an owner.
-- **Start set:** twenty records chosen with recorded use and completeness, and a baseline.
+- **Typology.** Every curation task in the team's procedures has a row with a role and a decision.
+- **Rules.** Staff can state both rules, and the register lists the pipeline with an owner.
+- **Start set.** Twenty records have been chosen with their use and completeness recorded, and a baseline exists.
 
 ## Checklist
 
