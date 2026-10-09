@@ -1059,3 +1059,20 @@ Commit: a03fe62 (verdict rules, render version 4, hard-negative miner, compariso
 - Realistic control: 70 of 800 teacher labels changed (8.8%), symmetrically (P→I 25, I→P 24, P→R 13, R→P 8); agreement 85% → 84%. The rules do not shift ordinary labels, and the teacher sampled twice (temperature 0.4) agrees with itself on about 91% of ordinary pairs.
 
 **Implication.** Part of the challenge gap is label inconsistency, worst for exclusions and periods, and part is a wording trap in the inputs. The teacher's self-agreement of about 91% bounds what any student can score against single teacher labels on ordinary searches; the realistic unanimous subset (91.8%) is the better accuracy figure. Training keeps only rows where both labellers agree, so the rules increase the usable consistent rows for the hard phenomena. Challenge accuracy will be reported on the agreed subset of the relabelled suite. Round G (next) relabels the phenomenon and concept slices with the rules, adds 8,000 lexical hard negatives mined from the catalog (real searches paired with records that share their words; `synth/hardneg.py`), 6,000 more exclusion/look-alike/proxy/group/period searches, and Eurostat tables: half for training searches, half as a held-out table test (the nine-type set has only 18 distinct tables, too few to measure table accuracy).
+
+## 2026-10-09 02:24 UTC — Verdict confidence is calibrated enough to flag uncertain verdicts
+
+Commit: dae8ff8 (`tiny/confidence.py`; app pages). Model `runs/v2f-nosim-dpo` (INT8).
+
+**Question/Context.** For a catalog deployment, can the model say when its verdict is unreliable?
+
+**What was done.** Scored the three verdict lines by teacher forcing after the prompt, normalised over the three, and took the probability of the most probable verdict as confidence (the three verdicts start with different tokens, so this matches the first-step probabilities the app already streams). Accuracy by coverage (keeping the most confident share) and by confidence bin, on three test sets.
+
+**Result.**
+| Test set | All | Most confident 80% | Most confident 50% | Accuracy, confidence 0.5-0.7 | Accuracy, confidence ≥ 0.97 (share) |
+|---|---|---|---|---|---|
+| Realistic, 1,495 | 85.3% (unanimous 91.8%) | 92.6% (97.6%) | 98.5% (99.8%) | 57% | 99.0% (47%) |
+| Nine-type, 482 | 78.8% | 87.0% | 93.8% | 47% | 93.8% (46%) |
+| Challenge, 2,244 | 70.8% | 76.0% | 85.2% | 52% | 92.2% (27%) |
+
+**Implication.** Confidence separates reliable from unreliable verdicts on all three sets, sharply on in-distribution searches and less so on the challenge phenomena, where high-confidence errors remain (92% at ≥ 0.97). The app now marks a verdict below 0.7 as uncertain (18% of realistic searches, about 55% accurate; the rest about 93%). This is the first deployable control on errors that does not depend on improving the model.
