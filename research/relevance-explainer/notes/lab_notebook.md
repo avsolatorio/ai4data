@@ -1129,7 +1129,7 @@ Commit: 7d42657 (`synth/domain_corpus.py`, domain mixing in `tiny/pretrain.py`, 
 
 **Implication.** Pretraining on the synthetic text taught the model that text (domain perplexity fell by about a quarter) but gave no verdict gain over the same amount of general pretraining: domain minus general is +0.4 realistic, -0.5 paraphrase, -0.4 nine-type, -0.3 challenge, -1.7 tables, all within noise, and validation accuracy is identical. Continued pretraining of either kind adds about 1.6 to 2.0 points on the realistic test over the unchanged base for a 2-epoch fine-tune. A single 2-epoch fine-tune trails the chain by 2.6 points (realistic) to 3.8 points (paraphrase); validation accuracy was still rising at epoch 2 (79% to 83.5%), so the gap is at least partly under-training (2M row-passes against about 8.6M over the chain). The follow-up fine-tunes the best base by validation (domain, by 0.01 points; effectively a tie with general) for 4 epochs, then DPO, for the comparison with the deployed chain model. One seed per arm.
 
-## 2026-10-09 23:23 UTC — One 4-epoch fine-tune plus DPO comes within 0.3 to 1.9 points of the eight-stage chain
+## 2026-10-09 23:27 UTC — One 4-epoch fine-tune plus DPO comes within 0.3 to 1.9 points of the eight-stage chain
 
 Commit: ea4dc4e (`scripts/dapt_followup.sh`, `scripts/pick_best.py`). Compared with `runs/v2g-nosim-dpo` (deployed, eight stages).
 
