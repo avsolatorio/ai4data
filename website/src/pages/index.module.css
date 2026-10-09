@@ -175,14 +175,14 @@
 
 .lockupDdg {
   display: block;
-  height: 48px;
+  height: 62px;
   width: auto;
   max-width: 100%;
 }
 
 .lockupProgram {
   display: block;
-  height: 64px;
+  height: 62px;
   width: auto;
   max-width: 100%;
 }
@@ -193,12 +193,9 @@
     padding: 0.8rem 1.1rem;
   }
 
-  .lockupDdg {
-    height: 36px;
-  }
-
+  .lockupDdg,
   .lockupProgram {
-    height: 50px;
+    height: 46px;
   }
 }
 
