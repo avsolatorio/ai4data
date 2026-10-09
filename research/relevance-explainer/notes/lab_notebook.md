@@ -1060,7 +1060,7 @@ Commit: a03fe62 (verdict rules, render version 4, hard-negative miner, compariso
 
 **Implication.** Part of the challenge gap is label inconsistency, worst for exclusions and periods, and part is a wording trap in the inputs. The teacher's self-agreement of about 91% bounds what any student can score against single teacher labels on ordinary searches; the realistic unanimous subset (91.8%) is the better accuracy figure. Training keeps only rows where both labellers agree, so the rules increase the usable consistent rows for the hard phenomena. Challenge accuracy will be reported on the agreed subset of the relabelled suite. Round G (next) relabels the phenomenon and concept slices with the rules, adds 8,000 lexical hard negatives mined from the catalog (real searches paired with records that share their words; `synth/hardneg.py`), 6,000 more exclusion/look-alike/proxy/group/period searches, and Eurostat tables: half for training searches, half as a held-out table test (the nine-type set has only 18 distinct tables, too few to measure table accuracy).
 
-## 2026-10-09 02:24 UTC — Verdict confidence is calibrated enough to flag uncertain verdicts
+## 2026-10-09 02:02 UTC — Verdict confidence is calibrated enough to flag uncertain verdicts
 
 Commit: dae8ff8 (`tiny/confidence.py`; app pages). Model `runs/v2f-nosim-dpo` (INT8).
 
