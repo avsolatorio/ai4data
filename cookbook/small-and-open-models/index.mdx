@@ -30,12 +30,15 @@ verified, adapted to the organization's data, compared with larger
 models on the organization's own suite, and chosen by the cheapest
 model that passes.
 
-This guide is organized around seven questions: when a small or open
-model is enough; which models are candidates and under which licences;
-how they are run; how they are adapted to the organization's tasks; how
-they compare with larger models on the organization's suite; how they
-are kept secure and current; and what they cost and how the capacity is
-sustained.
+This guide is organized around seven questions. The first two are about
+choosing: when a small or open model is enough, and which models are
+candidates and under which licences. The next three are about making
+them work: how they are run, how they are adapted to the organization's
+tasks, and how they compare with larger models on the organization's
+own suite. The last two are about keeping them: how they are kept secure
+and current, and what they cost and how the capacity is sustained. Each
+chapter answers one question with recipes, maturity levels, worked
+examples, and a checklist.
 
 The recipes build on the program's
 [Efficient and Inclusive AI Applications](/docs/inclusive-ai/) work,
@@ -65,9 +68,9 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Describe the tasks and apply the rule of [chapter 1](./when.mdx) (two hours). It says which tasks start small.
-2. Shortlist two candidates for one narrow task, read their licences, and check their cards ([chapter 2](./candidates.mdx)) (one day).
-3. Run one of them on an existing machine, measure throughput ([chapter 3](./serving.mdx)), and run the task's suite ([chapter 5](./comparison.mdx)) (one day).
+1. Describe the tasks and apply the rule of [chapter 1](./when.mdx). This takes two hours, and it says which tasks start small.
+2. Shortlist two candidates for one narrow task, read their licences, and check their cards, following [chapter 2](./candidates.mdx). This takes a day.
+3. Run one of them on an existing machine and measure its throughput, following [chapter 3](./serving.mdx), then run the task's suite as [chapter 5](./comparison.mdx) describes. This takes a day.
 4. Lock the model files and isolate the server before anything depends on it ([chapter 6](./security.mdx)) (half a day).
 
 Fine-tuning ([chapter 4](./adaptation.mdx)) and the cost and staffing plan ([chapter 7](./cost.mdx)) follow once the first task runs on a small model and passes.

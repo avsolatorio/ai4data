@@ -3,7 +3,7 @@ id: candidates
 title: "2. Candidate models and licences"
 sidebar_label: "2. Candidates"
 sidebar_position: 3
-description: Where candidate open-weight models are found, what their licences permit and restrict, what a model card has to state before the organization considers a model, and how candidates are shortlisted for the suite.
+description: Where candidate open-weight models are found, how their licences are read and classified, what a model card has to state before the organization considers a model, and how a short list of candidates is kept for the suite.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,8 +55,8 @@ evaluation with a date and numbers, limitations, hardware, contact.
 
 <Recipe title="2.1 Find candidates from named sources and shortlist" level="Foundational" skills="Data scientist" time="Half a day">
 
-**Result:** a shortlist of two or three candidate models per size class
-for each kind of task, with each model's languages and licence noted.
+**Result:** each kind of task has a shortlist of two or three candidate
+models per size class, with each model's languages and licence noted.
 
 Hundreds of open-weight models are published every year. A shortlist is
 needed because every candidate costs a full evaluation run; the
@@ -78,6 +78,17 @@ its licence can be accepted.
    candidates cost more evaluation runs than they return.
 4. Record each candidate with its source, version, and the date.
 
+**Worked example.** For the coding task, the data scientist filters the
+model hub for text-generation models under permissive or open-weight
+licences whose cards list French and Swahili, the organization's
+languages, and reads the program's measurements. The shortlist has
+three local candidates in the small, mid-sized, and large classes,
+one large local model as the ceiling, and two hosted models. One
+popular model is left out because its card lists neither language, and
+another because its publisher has released nothing for two years. Each
+candidate is recorded with its hub address, its version tag, and the
+date of the shortlist.
+
 **What this does not do.** A leaderboard score is a result on someone
 else's questions. It says which models are worth testing; it does not
 say how they will do on the organization's tasks and languages.
@@ -86,8 +97,8 @@ say how they will do on the organization's tasks and languages.
 
 <Recipe title="2.2 Read and classify the licence" level="Foundational" skills="Legal; data scientist" time="An hour per candidate">
 
-**Result:** for each candidate, a one-line classification of its
-licence for the organization's uses, with any restrictions recorded.
+**Result:** each candidate has a one-line classification of its licence
+for the organization's uses, with any restrictions recorded.
 
 An open-weight model comes with a licence text. Some are the same
 permissive licences used for open-source software (Apache 2.0, MIT),
@@ -109,6 +120,17 @@ builds anything on the model.
 4. For a model the organization fine-tunes, choose a licence for the
    derived weights that the base model's licence allows.
 
+**Worked example.** The legal adviser reads the three local candidates'
+licences in an afternoon. The small and the mid-sized model are under
+Apache 2.0 and are classified permissive. The 14-billion model is under an open-weight licence with an
+acceptable-use policy and a clause that forbids use by organizations
+above a number of monthly users, which the organization is far below.
+It is classified restricted, with the two clauses recorded and the note
+"check again before serving outputs to the public". A fourth model whose licence allows research use only is
+classified unusable. The classifications, the reader's name, and the
+date go into the registry, and the fine-tuned coder derived from the
+small model is given Apache 2.0, which the base licence allows.
+
 **What this does not do.** The classification is the organization's own
 reading for its own uses. It is not legal advice to anyone else, and a
 new use (serving the model to the public, for example) means checking the
@@ -120,7 +142,8 @@ restrictions again.
 
 **Result:** every candidate, and every model the organization has
 fine-tuned itself, has a model card that states the facts the
-organization needs, checked by a script before any evaluation runs.
+organization needs, and a script has checked the card before any
+evaluation runs.
 
 A model card is a short document that accompanies a model: who made it,
 from what data, under which licence, for which uses, with which known
@@ -172,6 +195,10 @@ example-org/stats-coder-3b 1.2.0: licence Apache-2.0, languages en, fr, sw
 result: PASS
 ```
 
+The first line names the model, its licence, and its languages. Each
+line that follows confirms one required field, and the last line is
+the verdict.
+
 1. For a published model, fill the card from the publisher's own model
    card. Where the publisher does not state a fact, write that it is not
    stated; a card with gaps counts against the candidate.
@@ -180,6 +207,18 @@ result: PASS
    that they stayed inside the organization.
 3. Run the check. A card that fails is completed, or the candidate is
    dropped.
+
+**Worked example.** The card shown above is the organization's own, for
+the fine-tuned coder. Its training data field reads "48,000 occupation
+responses with coder-assigned ISCO-08 codes from the 2024 and 2025
+labour force surveys; all data stayed on the organization's servers; no
+external data". Its evaluation field names the coding suite, the date,
+and the scores of 0.93 overall and 0.90 on the national language. Its
+out-of-scope use says "any task other than ISCO-08 coding of
+occupation responses; any confidential text outside the organization's
+network". For the hosted large model, the card the organization writes
+from the publisher's page has "not stated" in the training data field,
+which counts against the candidate in the registry.
 
 **What this does not do.** The check confirms that the card says these
 things; whether they are true is a separate question. The scores on a card are reproduced on
@@ -217,9 +256,9 @@ before they count for anything.
 
 ## Verification
 
-- **Shortlist:** two or three candidates per size class with source, version, and date.
-- **Licences:** each classified by a named reader with restrictions recorded.
-- **Cards:** each passes the check; digests recorded.
+- **Shortlist.** There are two or three candidates per size class, each with its source, version, and date.
+- **Licences.** Each licence is classified by a named reader, with restrictions recorded.
+- **Cards.** Each card passes the check, and the digests are recorded.
 
 ## Checklist
 

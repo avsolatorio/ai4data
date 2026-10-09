@@ -3,7 +3,7 @@ id: comparison
 title: "5. Comparison with larger models"
 sidebar_label: "5. Comparison"
 sidebar_position: 6
-description: Running every candidate through the organization's suite, drawing the cost-quality frontier per task, applying the required scores overall and on the national language, and choosing the cheapest model that passes.
+description: How the candidates are compared with larger models on the organization's own suite, how the cost-quality frontier is drawn for a task, and how the cheapest model that meets the required scores overall and on the national language is chosen.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -53,7 +53,7 @@ two-point difference the required score does not need.
 
 <Recipe title="5.1 Run every candidate on the suite under the same conditions" level="Foundational" skills="Developer" time="Half a day per candidate">
 
-**Result:** a score for each candidate model on the organization's own
+**Result:** each candidate model has a score on the organization's own
 test questions, overall and for each language, with the conditions of
 the run written down.
 
@@ -77,6 +77,17 @@ between the scores come from the models and from nothing else.
 4. Record the scores with the model's version, the prompt and index
    versions, and the date.
 
+**Worked example.** The six candidates for the coding task all answer the same 3,200
+responses of suite version 2.1 with prompt version 2 and the same
+retrieved index entries. The one exception is the fine-tuned small
+model, which uses the prompt without examples because it learned the
+conventions, and the record says so. The scores overall run from 0.86
+for the small prompt-only model to 0.96 for the hosted large model. On
+the national language the order changes: the hosted large model scores
+0.89 and the local 14-billion model 0.90, while the hosted small model
+drops to 0.79, because its training covered the language thinly. The
+scores are filed with the versions and the date.
+
 **What this does not do.** The scores are the organization's own, on
 its own questions and languages. Another organization's catalog and
 users give other scores, which is why public leaderboards only shortlist
@@ -86,9 +97,9 @@ and the suite decides.
 
 <Recipe title="5.2 Measure cost per query and draw the frontier" level="AI-ready" skills="Developer; finance" time="Half a day">
 
-**Result:** the cost of each candidate per thousand requests, set beside
+**Result:** each candidate's cost per thousand requests is set beside
 its score, and the cheapest candidate that meets the organization's
-required score.
+required score is known.
 
 With a score and a cost for each candidate, the choice is a simple
 comparison. A candidate is dominated when another candidate scores at
@@ -142,6 +153,12 @@ cheapest candidate meeting 0.90 overall and 0.85 national: mid-8b-q4 at 0.11 per
 best-scoring candidate: hosted-large at 0.90; choosing the cheapest passing model saves 88% per query
 ```
 
+The table has one row per candidate with its scores, its cost per
+thousand queries, its median latency, whether it is on the frontier,
+and its licence class. The two lines after it name the cheapest
+candidate that meets the required scores and the saving against the
+best-scoring one.
+
 1. Measure the cost per thousand requests. For a hosted model, multiply
    the tokens per request by the provider's current prices. For a local
    model, divide the server's cost per hour by the measured requests per
@@ -153,6 +170,17 @@ best-scoring candidate: hosted-large at 0.90; choosing the cheapest passing mode
    saving against the best-scoring candidate is what the organization
    keeps by setting a required score and holding to it.
 4. Record the frontier, the choice, and the date with the task.
+
+**Worked example.** In the run above, the hosted small model and the
+large local model are off the frontier: the first scores less than the
+local mid-sized model and costs more, and the second scores less than
+the hosted large model and costs more. Of the four frontier models, the
+small local model fails the required scores, the mid-sized local model
+passes both, and the two larger models pass at higher cost. The choice
+is the mid-sized local model at 0.11 per thousand queries. At 250,000
+responses a month that is about 28 a month against 225 for the hosted
+large model, for a two-point difference the required score does not
+need. The frontier, the choice, and the date go into the register.
 
 **What this does not do.** A frontier drawn from list prices and one
 test run is a sketch. The measured cost after a month in production
@@ -176,6 +204,17 @@ names.
    configuration change.
 4. Publish the frontier for each task on its report card
    ([evaluation cookbook, chapter 9](/cookbook/evaluation-suites/reporting)).
+
+**Worked example.** Six months later a new small open model is
+released with the national language in its training data. It is
+imported, verified, carded, and run on the suite, where it scores 0.91
+overall and 0.87 on the national language at 0.05 per thousand queries.
+It joins the frontier below the mid-sized model and passes the required
+scores, so the choice changes. The switch runs through the gate of the
+evaluation cookbook, which finds no slice regressed, and the gateway's
+routing table is changed so that the coding task calls the new model
+while the editing task stays on the mid-sized one. The coding task's
+report card shows the new frontier with the date.
 
 **What this does not do.** Routing by the frontier lowers cost at the
 required score; it never lowers the score. A task whose cheapest passing
@@ -213,9 +252,9 @@ retrieval, its scope); the required score stays.
 
 ## Verification
 
-- **Scores:** every candidate scored on the same suite version, per language, with conditions recorded.
-- **Frontier:** drawn with measured costs; the choice is the cheapest passing model; recorded with the date.
-- **Revisits:** the frontier redrawn on the last notable release; routing matches it.
+- **Scores.** Every candidate is scored on the same suite version, per language, with the conditions recorded.
+- **Frontier.** The frontier is drawn with measured costs, the choice is the cheapest passing model, and both are recorded with the date.
+- **Revisits.** The frontier was redrawn on the last notable release, and the routing matches it.
 
 ## Checklist
 

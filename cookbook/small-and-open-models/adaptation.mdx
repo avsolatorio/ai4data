@@ -3,7 +3,7 @@ id: adaptation
 title: "4. Prompting, retrieval, and fine-tuning"
 sidebar_label: "4. Adaptation"
 sidebar_position: 5
-description: The three ways to adapt a small model to the organization's tasks, in order of cost (prompting with the right context, retrieval of the organization's own material, fine-tuning on labelled data), when each is enough, and how the suite decides between them.
+description: How a small model is adapted to the organization's tasks, in order of cost, by prompting with the right context, by retrieving the organization's own material at query time, and by fine-tuning on labelled data, with the suite deciding when each is enough.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,10 +55,10 @@ three times the cost per query.
 
 <Recipe title="4.1 Prompt with the context the task needs" level="Foundational" skills="Developer; task owner" time="Half a day per task">
 
-**Result:** a written prompt for the task, kept as a versioned file,
+**Result:** the task has a written prompt, kept as a versioned file,
 that gives the model its instructions, the reference material it needs,
-and the format of the answer, with its score on the task's test
-questions recorded.
+and the format of the answer, and its score on the task's test
+questions is recorded.
 
 A prompt is the text sent to the model with each request: the
 instruction, any reference material, examples, and the form the answer
@@ -82,6 +82,17 @@ a day and needs no training.
    comparison rule of the [evaluation cookbook](/cookbook/evaluation-suites/gates)
    decides whether the change stays.
 
+**Worked example.** The coding prompt's instruction reads "Choose the
+ISCO-08 unit group that best matches the occupation response, using
+only the candidate entries below; return the code, a confidence from 0 to 1, and the entry relied on, as JSON." The reference material is
+the three to five index entries retrieved for the response, each with
+its code and definition. The examples are three responses from the
+organization's own survey with the codes coders gave them. The prompt
+is 410 tokens, which leaves room for the response and the entries at a
+concurrency of eight. Version 1 scores 0.83 on the suite with the small
+model. Version 2 adds the respondent's industry and employment status
+to the context and scores 0.86, and the comparison rule keeps it.
+
 **What this does not do.** A prompt cannot teach the model facts about
 the organization's catalog that it has never seen; retrieval does that
 (recipe 4.2). A prompt that has grown past a page is a sign that the
@@ -92,9 +103,9 @@ task needs retrieval or fine-tuning.
 <Recipe title="4.2 Retrieve the organization's material at query time" level="AI-ready" skills="Developer" time="One to two days per task">
 
 **Result:** for each request, the model receives the few records,
-definitions, or index entries that are relevant to it, found by a search
-over the organization's own material, and the search itself is scored
-separately from the model.
+definitions, or index entries that are relevant to it, found by a
+search over the organization's own material. The search itself is
+scored separately from the model.
 
 Retrieval means searching the organization's material for each request
 and putting the results into the prompt, so that the model writes from
@@ -117,6 +128,18 @@ entries; for questionnaire design, the question bank.
    [PI-FT toolkit](/pift-toolkit/pipeline) does this for structured
    metadata.
 
+**Worked example.** For the coding task, the index is the 4,000 entries
+of the national occupation index with their codes, indexed by keyword
+and by an embedding model. For the response "drives a taxi in the city",
+the retrieval returns "taxi driver", "car driver", and "bus driver" in
+that order, and the model chooses the first. Scored on its own with the
+evaluation cookbook's measures, the retrieval puts the correct entry in
+its top five for 94 percent of the suite's responses. Of the model's
+remaining errors, two thirds are cases where the right entry was
+retrieved and the model chose another, and one third are cases where
+the index has no entry for the occupation at all, which is a retrieval
+gap and goes to the index's maintainers.
+
 **What this does not do.** Retrieval grounds the model in the
 organization's material. It does not teach the model the organization's
 conventions, such as the style of a definition or the code a coder would
@@ -126,10 +149,11 @@ choose; fine-tuning does that (recipe 4.3).
 
 <Recipe title="4.3 Fine-tune on the organization's labelled data" level="AI-ready" skills="Data scientist with a GPU" time="One to two weeks for the first model">
 
-**Result:** a version of the model trained further on the
-organization's own labelled examples, so that it follows the
-organization's conventions, with a model card, a licence, and test
-scores, and approved through the same comparison as any other change.
+**Result:** the organization has a version of the model trained further
+on its own labelled examples, so that the model follows the
+organization's conventions. The derived model has a model card, a
+licence, and test scores, and it was approved through the same
+comparison as any other change.
 
 Fine-tuning changes the model's weights by training it on examples the
 organization has: responses with the codes coders gave them, drafts with
@@ -152,6 +176,17 @@ small model match a large one on the organization's own data.
 4. Compare the fine-tuned model with the prompt-only version and with
    the larger candidates on the test questions, and record the result on
    the cost-quality comparison of [chapter 5](./comparison.mdx).
+
+**Worked example.** The data scientist collects 48,000 responses with
+the codes coders gave them in the 2024 and 2025 rounds, holds out 4,000,
+and trains an adapter on the small model for six hours on the 24 GB
+card. On the held-out responses the fine-tuned model scores 0.93 at
+four digits, against 0.86 for the same model with the prompt alone and
+0.91 for the prompt-only mid-sized model. The model card is written with
+the organization as publisher, the licence is Apache 2.0, and the
+comparison of chapter 5 puts the fine-tuned small model on the frontier
+at a third of the mid-sized model's cost per query. The new round's
+corrections are set aside for the next training run.
 
 **What this does not do.** A model fine-tuned on one survey's responses
 learns that survey's language. A new survey or a new version of the
@@ -189,9 +224,9 @@ the workflows keep recording are what make the next run cheap.
 
 ## Verification
 
-- **Prompts:** versioned per task with suite scores per version.
-- **Retrieval:** indexes versioned; retrieval scores reported separately from answer scores.
-- **Fine-tuned models:** card, licence, held-out results, and a gate decision on record.
+- **Prompts.** Each task's prompt is versioned, with suite scores per version.
+- **Retrieval.** The indexes are versioned, and the retrieval scores are reported separately from the answer scores.
+- **Fine-tuned models.** Each has a card, a licence, held-out results, and a gate decision on record.
 
 ## Checklist
 
