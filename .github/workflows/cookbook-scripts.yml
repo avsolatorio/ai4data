@@ -34,11 +34,17 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest ruff -r website/static/cookbook-files/requirements.txt
       - name: Lint
-        run: ruff check website/static/cookbook-files scripts/docs/new_cookbook.py scripts/docs/check_cookbooks.py
+        run: ruff check website/static/cookbook-files scripts/docs
       - name: Check cookbook structure and writing rules
         run: python scripts/docs/check_cookbooks.py
       - name: Quoted outputs match the scripts
         run: for cb in $(ls cookbook | grep -v -e _template -e authoring); do python scripts/docs/refresh_cookbook_outputs.py $cb --check | tail -1 | grep -q '^0 block' || exit 1; done
+      - name: Glossary pages match the shared glossary
+        run: python scripts/docs/build_glossaries.py --check
+      - name: Overview tables and landing cards match the chapter files
+        run: python scripts/docs/sync_cookbook_indexes.py --check
+      - name: Running example agrees with its facts file
+        run: python scripts/docs/check_example_facts.py
       - name: Investment view is up to date
         run: python scripts/docs/investment_view.py && git diff --exit-code website/src/content/investment.json
       - name: Test

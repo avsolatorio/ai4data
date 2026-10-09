@@ -25,8 +25,8 @@ release date and status of each observation.
 Every data response carries `SOURCE_URL`, `RELEASE`, `license`, and
 `citation`. Quote the value with its unit and period, name the organization,
 and give the source URL and release date. Example: "Unemployment rate, 2025
-Q2: 7.4% of the labour force (National Statistical Organization, released
-2025-08-15, https://stats.example/series/LF_UNEMP_PCT)."
+Q2: 6.1% of the labour force (National Statistical Organization, released
+2025-08-20, https://stats.example/series/LF_UNEMP_PCT)."
 
 ## Licence
 

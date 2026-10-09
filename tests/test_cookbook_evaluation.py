@@ -58,7 +58,7 @@ def test_retrieval_by_slice(scripts, capsys):
 def test_answer_scores(scripts, capsys):
     assert scripts["answer_scores"].main([str(SCRIPTS / "answers_run.jsonl")]) == 0
     out = capsys.readouterr().out
-    assert "a03: expected [38.0], answer gave [35.0, 2024.0]" in out
+    assert "a03: expected [41.0], answer gave [35.0, 2020.0]" in out
     assert (
         "a06: should have declined" in out
         and "a07: cited EDU_STATS_2024, which was not retrieved" in out

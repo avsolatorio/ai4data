@@ -45,7 +45,7 @@ COOKBOOK = REPO / "cookbook"
 SIDEBARS = REPO / "website" / "sidebars-cookbook.js"
 CARDS = REPO / "website" / "src" / "content" / "cookbooks.js"
 STATIC = REPO / "website" / "static" / "cookbook-files"
-SKIP = {"_template", "authoring"}
+SKIP = {"_template", "_shared", "authoring"}
 
 LEVELS = {"Foundational", "AI-ready", "AI-native"}
 INDEX_SECTIONS = [
@@ -314,6 +314,146 @@ def check_cookbook(folder: Path, rep: Report) -> None:
         rep.warn(folder, f"no folder website/static/cookbook-files/{cid}/")
 
 
+# --- cross-references -------------------------------------------------------
+
+CHAPTER_LINK = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
+MAP_FILE = REPO / "website" / "src" / "content" / "readinessMap.js"
+
+
+def chapter_map(folder: Path) -> dict[str, tuple[int, str, set[str]]]:
+    """slug -> (chapter number, title, recipe numbers) for every chapter of a cookbook."""
+    out = {}
+    for p in sorted(folder.glob("*.mdx")):
+        text = p.read_text(encoding="utf-8")
+        if "<Recipe" not in text:
+            continue
+        title = front_matter(text).get("title", "")
+        m = re.match(r"(\d+)\.\s+(.*)", title)
+        if not m:
+            continue
+        recipes = {
+            r.group(1) for r in re.finditer(r'<Recipe\s+title="(\d+\.\d+)\s', text)
+        }
+        out[p.stem] = (int(m.group(1)), m.group(2).strip(), recipes)
+    return out
+
+
+def resolve_target(
+    target: str, here: Path, maps: dict[str, dict]
+) -> tuple[str, str] | None:
+    """(cookbook id, slug) for a chapter link, or None when the link is not a chapter."""
+    target = target.split("#")[0]
+    if target.startswith("./") and target.endswith(".mdx"):
+        return here.parent.name, target[2:-4]
+    m = re.match(r"/cookbook/([^/]+)/([^/]+)/?$", target)
+    if m and m.group(1) in maps:
+        return m.group(1), m.group(2)
+    return None
+
+
+def check_references(folder: Path, maps: dict[str, dict], rep: Report) -> None:
+    """Chapter and recipe numbers in prose and in the index agree with the files."""
+    own = maps[folder.name]
+    for p in sorted(folder.glob("*.mdx")):
+        text = prose(p.read_text(encoding="utf-8"))
+        for m in CHAPTER_LINK.finditer(text):
+            label, target = m.group(1), m.group(2)
+            hit = resolve_target(target, p, maps)
+            if not hit:
+                continue
+            cb, slug = hit
+            if slug not in maps[cb]:
+                if (
+                    not (COOKBOOK / cb / f"{slug}.mdx").exists()
+                    and not (COOKBOOK / cb / f"{slug}.md").exists()
+                ):
+                    rep.error(p, f"link to a page that does not exist: {target}")
+                continue
+            number, title, recipes = maps[cb][slug]
+            before = text[max(0, m.start() - 60) : m.start()]
+            n = re.search(r"\bchapters?\s+(\d+)\b", label, re.IGNORECASE) or (
+                re.fullmatch(r"\d+", label.strip())
+                and re.search(r"\bchapters\b", before, re.IGNORECASE)
+                and re.match(r"(\d+)", label.strip())
+            )
+            if n and int(n.group(1)) != number:
+                rep.error(p, f"'{label}' links to chapter {number} ({slug})")
+            r = re.search(r"\brecipe\s+(\d+\.\d+)\b", label, re.IGNORECASE)
+            if r and r.group(1) not in recipes:
+                rep.error(
+                    p, f"'{label}' links to {slug}, which has no recipe {r.group(1)}"
+                )
+            if re.match(r"\d+\.\s", label) and label.strip() != f"{number}. {title}":
+                rep.error(
+                    p,
+                    f"index row '{label}' differs from the chapter title '{number}. {title}'",
+                )
+        # bare mentions: "recipe N.M" refers to this cookbook; "chapter N" has to exist
+        own_numbers = {v[0]: k for k, v in own.items()}
+        own_recipes = {r for _, _, rs in own.values() for r in rs}
+        plain = CHAPTER_LINK.sub(" ", text)
+        for r in re.finditer(r"\brecipes?\s+(\d+\.\d+)\b", plain, re.IGNORECASE):
+            if r.group(1) not in own_recipes:
+                rep.error(
+                    p,
+                    f"mentions recipe {r.group(1)}, which this cookbook does not have",
+                )
+        for c in re.finditer(r"\bchapters?\s+(\d+)\b", plain, re.IGNORECASE):
+            if int(c.group(1)) not in own_numbers:
+                rep.warn(
+                    p,
+                    f"mentions chapter {c.group(1)}, which this cookbook does not have",
+                )
+
+
+def check_readiness_map(maps: dict[str, dict], rep: Report) -> None:
+    """Chapter and recipe numbers in the readiness map's labels agree with the files."""
+    src = MAP_FILE.read_text(encoding="utf-8")
+    cb_prefix = re.search(r"const CB = '/cookbook/([^/']+)/'", src)
+    for m in re.finditer(
+        r"\{to: (?:`\$\{CB\}([^`#]*)(?:#[^`]*)?`|'([^'#]+)(?:#[^']*)?'), label: '((?:[^'\\]|\\.)*)'\}",
+        src,
+    ):
+        slug_from_cb, path, label = m.group(1), m.group(2), m.group(3)
+        if slug_from_cb is not None and cb_prefix:
+            cb, slug = cb_prefix.group(1), slug_from_cb
+        elif path:
+            mm = re.match(r"/cookbook/([^/]+)/([^/]*)/?$", path)
+            if not mm:
+                continue
+            cb, slug = mm.group(1), mm.group(2)
+        else:
+            continue
+        if cb not in maps:
+            rep.error(MAP_FILE, f"link to unknown cookbook '{cb}'")
+            continue
+        if not slug:
+            continue
+        if slug not in maps[cb]:
+            if (
+                not (COOKBOOK / cb / f"{slug}.md").exists()
+                and not (COOKBOOK / cb / f"{slug}.mdx").exists()
+            ):
+                rep.error(
+                    MAP_FILE,
+                    f"link to a page that does not exist: /cookbook/{cb}/{slug}",
+                )
+            continue
+        number, _, recipes = maps[cb][slug]
+        n = re.search(r"\bchapters?\s+(\d+)\b", label, re.IGNORECASE)
+        if n and int(n.group(1)) != number:
+            rep.error(
+                MAP_FILE,
+                f"label '{label[:60]}' names chapter {n.group(1)}; {cb}/{slug} is chapter {number}",
+            )
+        r = re.search(r"\brecipe\s+(\d+\.\d+)\b", label, re.IGNORECASE)
+        if r and r.group(1) not in recipes:
+            rep.error(
+                MAP_FILE,
+                f"label '{label[:60]}' names recipe {r.group(1)}, which {cb}/{slug} does not have",
+            )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -333,8 +473,12 @@ def main(argv: list[str] | None = None) -> int:
             sys.exit(f"no cookbook named {args.id!r}")
 
     rep = Report()
+    maps = {f.name: chapter_map(f) for f in folders}
     for folder in folders:
         check_cookbook(folder, rep)
+        check_references(folder, maps, rep)
+    if not args.id:
+        check_readiness_map(maps, rep)
 
     for w in rep.warnings:
         print(f"warning  {w}")

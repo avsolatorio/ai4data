@@ -54,7 +54,9 @@ def fill(text: str, values: dict[str, str]) -> str:
 def parse_chapter(spec: str) -> tuple[str, str, str]:
     parts = spec.split(":", 2)
     if len(parts) != 3 or not SLUG.match(parts[0]):
-        sys.exit(f'chapter must be "slug:Title:Question" with a lowercase slug: {spec!r}')
+        sys.exit(
+            f'chapter must be "slug:Title:Question" with a lowercase slug: {spec!r}'
+        )
     return parts[0], parts[1].strip(), parts[2].strip()
 
 
@@ -63,18 +65,31 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "--id", required=True, help="folder and URL slug, for example microdata-documentation"
+        "--id",
+        required=True,
+        help="folder and URL slug, for example microdata-documentation",
     )
     parser.add_argument(
-        "--title", required=True, help='for example "Practical Guide to AI-Ready Microdata Documentation"'
+        "--title",
+        required=True,
+        help='for example "Practical Guide to AI-Ready Microdata Documentation"',
     )
-    parser.add_argument("--audience", required=True, help='for example "National statistical organizations"')
+    parser.add_argument(
+        "--audience",
+        required=True,
+        help='for example "National statistical organizations"',
+    )
     parser.add_argument("--subtitle", help='default: "A cookbook for <audience>."')
     parser.add_argument(
-        "--description", help="one sentence for the landing card and the overview front matter"
+        "--description",
+        help="one sentence for the landing card and the overview front matter",
     )
-    parser.add_argument("--chapters", nargs="+", required=True, metavar="SLUG:TITLE:QUESTION")
-    parser.add_argument("--force", action="store_true", help="overwrite an existing cookbook folder")
+    parser.add_argument(
+        "--chapters", nargs="+", required=True, metavar="SLUG:TITLE:QUESTION"
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="overwrite an existing cookbook folder"
+    )
     args = parser.parse_args(argv)
 
     if not SLUG.match(args.id):
@@ -84,7 +99,10 @@ def main(argv: list[str] | None = None) -> int:
         sys.exit(f"{dest} exists; pass --force to overwrite")
     chapters = [parse_chapter(c) for c in args.chapters]
     today = dt.datetime.now(tz=dt.timezone.utc).date()  # noqa: UP017 (Python 3.10 compatible)
-    subtitle = args.subtitle or f"A cookbook for {args.audience[0].lower() + args.audience[1:]}."
+    subtitle = (
+        args.subtitle
+        or f"A cookbook for {args.audience[0].lower() + args.audience[1:]}."
+    )
     description = args.description or (
         f"{len(chapters)} questions {args.audience[0].lower() + args.audience[1:]} can ask, "
         "each answered with recipes, maturity levels, tests, and a checklist."
@@ -159,10 +177,14 @@ def main(argv: list[str] | None = None) -> int:
     print(f"created cookbook/{args.id}/ with {len(chapters)} chapter(s)")
     print("files to edit:")
     for path in sorted(dest.iterdir()):
-        placeholders = len(re.findall(r"\{\{[A-Z_]+\}\}|\{/\*.*?\*/\}", path.read_text(), re.DOTALL))
+        placeholders = len(
+            re.findall(r"\{\{[A-Z_]+\}\}|\{/\*.*?\*/\}", path.read_text(), re.DOTALL)
+        )
         print(f"  {path.relative_to(REPO)}  ({placeholders} placeholder(s))")
     print(f"  website/static/cookbook-files/{args.id}/  (downloadable files)")
-    print("registered in website/sidebars-cookbook.js and website/src/content/cookbooks.js")
+    print(
+        "registered in website/sidebars-cookbook.js and website/src/content/cookbooks.js"
+    )
     print("next: python scripts/docs/check_cookbooks.py --id", args.id)
     return 0
 

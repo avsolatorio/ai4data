@@ -138,6 +138,19 @@ Use "organization" for the audience institution, as the AI-readiness
 assessment framework does, and name the specific kind on first use
 ("national statistical organization").
 
+Glossary terms live in one file, `cookbook/_shared/glossary.md`, as
+`**Term.** definition` entries. Each cookbook's `glossary.md` is generated
+from it by `scripts/docs/build_glossaries.py`, which keeps the terms whose
+name appears in that cookbook's chapters. Edit the shared file and run the
+script; do not edit a cookbook's glossary page by hand.
+
+The running example (the example organization, its series, datasets, and
+documents, with their values and release dates) is defined once in
+`website/static/cookbook-files/_example/facts.json`. Fixtures and chapters
+use those identifiers and values. `scripts/docs/check_example_facts.py`
+reports an identifier the facts file does not know, a fixture value that
+differs from it, and a chapter sentence that quotes a different value.
+
 ## Code and files
 
 - Files for download live in `website/static/cookbook-files/<cookbook-id>/`. The page embeds them by code import and links to them with `pathname:///cookbook-files/<cookbook-id>/<file>`.
@@ -183,9 +196,30 @@ python scripts/docs/check_cookbooks.py --id microdata-documentation
 ```
 
 The checker reports errors (missing required parts, unregistered cookbook,
-banned constructions in headings) and warnings (missing optional parts,
-recipes without a scope note, second person in prose). Errors fail the
+banned constructions in headings, a chapter or recipe number in a link or a
+readiness-map label that differs from the file it points to, an index row
+whose title differs from the chapter's) and warnings (missing optional
+parts, recipes without a scope note, second person in prose, a bare
+"chapter N" that the cookbook does not have). Errors fail the
 continuous-integration job for changes under `cookbook/`.
+
+Three more scripts keep the parts that repeat information in step:
+
+```bash
+python scripts/docs/sync_cookbook_indexes.py          # overview tables and landing cards
+python scripts/docs/build_glossaries.py               # glossary pages from the shared glossary
+python scripts/docs/check_example_facts.py            # fixtures and chapters against facts.json
+python scripts/docs/refresh_cookbook_outputs.py <id>  # quoted outputs from the scripts
+```
+
+`sync_cookbook_indexes.py` rewrites the chapter and question columns of each
+index page's "Chapters and questions" table from the chapter files, rewrites
+the chapter count of the landing card in `website/src/content/cookbooks.js`,
+and reports a file in `cookbook-files/<id>/` that the "Files" table does not
+list, a table row whose file is missing, and a chapter without a
+self-assessment question. The practical-topics column and the "Used in" text
+of a new file are written by hand. The continuous-integration job runs all
+four with `--check` and fails when anything differs.
 
 ## Review before publication
 
