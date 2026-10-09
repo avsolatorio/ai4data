@@ -82,9 +82,10 @@ a day and needs no training.
    comparison rule of the [evaluation cookbook](/cookbook/evaluation-suites/gates)
    decides whether the change stays.
 
-**Worked example.** The coding prompt's instruction reads "Choose the
-ISCO-08 unit group that best matches the occupation response, using
-only the candidate entries below; return the code, a confidence from 0 to 1, and the entry relied on, as JSON." The reference material is
+**Worked example.** The coding prompt's instruction reads "Choose the ISCO-08 unit group
+that best matches the occupation response, using only the candidate
+entries below". It continues: "Return the code, a confidence from 0 to
+1, and the entry relied on, as JSON." The reference material is
 the three to five index entries retrieved for the response, each with
 its code and definition. The examples are three responses from the
 organization's own survey with the codes coders gave them. The prompt
@@ -134,11 +135,10 @@ and by an embedding model. For the response "drives a taxi in the city",
 the retrieval returns "taxi driver", "car driver", and "bus driver" in
 that order, and the model chooses the first. Scored on its own with the
 evaluation cookbook's measures, the retrieval puts the correct entry in
-its top five for 94 percent of the suite's responses. Of the model's
-remaining errors, two thirds are cases where the right entry was
-retrieved and the model chose another, and one third are cases where
-the index has no entry for the occupation at all, which is a retrieval
-gap and goes to the index's maintainers.
+its top five for 94 percent of the suite's responses. Of the model's remaining errors, two thirds are cases where the right
+entry was retrieved and the model chose another. One third are cases
+where the index has no entry for the occupation at all, which is a
+retrieval gap and goes to the index's maintainers.
 
 **What this does not do.** Retrieval grounds the model in the
 organization's material. It does not teach the model the organization's
