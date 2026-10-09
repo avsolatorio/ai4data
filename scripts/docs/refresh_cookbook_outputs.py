@@ -36,7 +36,7 @@ changed = 0
 for mdx in sorted((REPO / "cookbook" / cb).glob("*.mdx")):
     text = mdx.read_text()
 
-    def repl(m):
+    def repl(m, mdx=mdx):
         global changed
         cmd, between, old = m.group(1), m.group(2), m.group(3)
         if (
