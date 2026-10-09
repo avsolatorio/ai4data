@@ -3,7 +3,7 @@ id: publish
 title: "7. Publication next to the document"
 sidebar_label: "7. Publish"
 sidebar_position: 8
-description: Tidy files published with the document under its licence, a record for each extracted table in the World Bank table schema, and links between the document record and the data.
+description: How extracted data are published next to the document they came from, as tidy files under the document's licence, with a record for each table in the World Bank table schema and links in both directions between the document and the data.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,8 +52,9 @@ document record.
 
 <Recipe title="7.1 Publish the tidy file next to the document" level="Foundational" skills="Web editor" time="Half an hour per document">
 
-**Result:** the data of each table and chart downloadable from the
-document's page, with their source and status, under a stated licence.
+**Result:** the data of each table and chart can be downloaded from the
+document's page, with their source and their status, under a stated
+licence.
 
 1. Place the tidy files (recipe 4.3) under the document's URL, named by
    the document and table identifiers
@@ -68,6 +69,17 @@ document's page, with their source and status, under a stated licence.
 4. Version the files with the document. A corrected value is a new
    version with an erratum ([chapter 8](./cite.mdx)).
 
+**Worked example.** The page of the 2025 food security report gains a
+section headed "Data from this report". It lists the four tables
+extracted so far, each as a CSV file named by its table number, with
+the file for Table 3.1 at `/documents/EX-REP-2025-03/tables/T3.1.csv`.
+The note above the list reads: "These files were extracted from the
+report's tables by the dissemination unit, verified against the printed
+totals, and reviewed; the status column marks each value as verified or
+estimated. They are published under the report's CC BY 4.0 licence, and
+the citation is given with each file." The section ends with the version
+and the date.
+
 **What this does not do.** A file on a page is findable from the
 document and nowhere else. The table record of recipe 7.2 makes it
 findable from the catalog and from the series.
@@ -76,9 +88,9 @@ findable from the catalog and from the series.
 
 <Recipe title="7.2 Describe each extracted table as a table record" level="AI-ready" skills="Data curator; Python for the check" time="Half an hour per table">
 
-**Result:** a catalog record for the extracted table in the World Bank
-table schema, validated against the schema and a profile, and linked
-to the document and the series.
+**Result:** the extracted table has a catalog record in the World Bank
+table schema, validated against the schema and a profile, and linked to
+the document and to the series.
 
 The record for the district table shows the fields that carry the
 provenance:
@@ -113,6 +125,17 @@ maturity level, with the reason for each:
 3. Publish the record in the catalog (NADA catalogs tables as a data
    type) and add the table to the document record's related items.
 
+**Worked example.** The record shown above describes Table 3.1. Its
+`data_sources` names the report and page 24 and the series
+`FS_UNDERNOURISH_PCT`. Its `definitions` field links to the definition
+page of that series. Its `license` is CC BY 4.0, inherited from the
+report, and its `citation` is the form of chapter 8 with the page and
+the table number. The `notes` field says "extracted with pdfplumber;
+verified against the printed totals and the derived prevalence; one
+value corrected", and `relations` names the document record as the
+parent. The checker reports the record valid and complete at the
+AI-ready level, and it is published in the catalog as table 31.
+
 **What this does not do.** The record describes one table. A document
 with 140 tables needs 140 records, which is the case for the pipeline
 at the AI-native level: the record is generated from the extraction's
@@ -123,8 +146,9 @@ definitions.
 
 <Recipe title="7.3 Link the document record and the data in both directions" level="AI-ready" skills="Data curator" time="Minutes per document">
 
-**Result:** from the document, a user or a system reaches its tables and
-the series behind them; from a series, the documents that report it.
+**Result:** from a document, a user or a system reaches its tables and
+the series behind them, and from a series, the documents that report
+it.
 
 1. In the document record, list the series and surveys in
    `data_sources` ([chapter 1](./inventory.mdx)) and the extracted
@@ -139,6 +163,16 @@ the series behind them; from a series, the documents that report it.
 4. In the series record, the documents that use the series come from
    the [monitoring of data use](/docs/data_use/). The table records
    close the loop for the organization's own documents.
+
+**Worked example.** A user who opens the catalog page of the 2025 food
+security report sees, under "Tables extracted from this document", the
+four table records. Opening Table 3.1 shows the snapshot, the tidy file,
+and a link to the undernourishment series. A user who starts from the
+series page sees, under "Documents that report this series", the three
+food security reports and the 2023 yearbook. The schema.org block on
+the table page carries `isBasedOn` with the report's URL, and the block
+on the report page carries `hasPart` with the four tables, so that a
+dataset search engine shows the same relations.
 
 **What this does not do.** Links describe relations; they do not
 reconcile values. A document figure and a series value can differ by
@@ -177,9 +211,9 @@ which.
 
 ## Verification
 
-- **Files:** every verified extraction downloadable from the document page with status and licence.
-- **Records:** the checker reports every table record valid and complete at the target level.
-- **Links:** from a document page a user reaches its tables and the series; from a series page, the documents.
+- **Files.** Every verified extraction can be downloaded from the document page with its status and licence.
+- **Records.** The checker reports every table record valid and complete at the target level.
+- **Links.** From a document page a user reaches its tables and the series, and from a series page the documents.
 
 ## Checklist
 

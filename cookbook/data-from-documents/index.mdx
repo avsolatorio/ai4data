@@ -25,16 +25,19 @@ by hand. Software cannot query them, an AI system that reads the PDF will
 transcribe them with errors, and nothing links a number quoted from a
 report back to the page it came from.
 
-This guide is organized around nine questions a team can ask about the data
-in its documents: which documents hold data, whether scanned documents can
-be read reliably, whether the tables and figures can be located, whether
-the data can be extracted into a structured form, whether the extracted
-values can be verified against the document, whether tables from many
+This guide is organized around nine questions that a team can ask about
+the data in its documents. The questions follow the order of the work.
+The first two are about the documents themselves: which of them hold
+data, and whether scanned documents can be read reliably. The next three
+are about getting the data out: whether the tables and figures can be
+located, whether the data can be extracted into a structured form, and
+whether the extracted values can be verified against the document. The
+last four are about what happens afterwards: whether tables from many
 documents can be combined into one series, whether the data can be
-published next to the document with their provenance, whether they can be
-found and cited back to the page, and whether the pipeline can run over the
-whole backlog. Each chapter answers
-one question with recipes, maturity levels, and a checklist.
+published next to the document with their provenance, whether they can
+be found and cited back to the page, and whether the pipeline can run
+over the whole backlog. Each chapter answers one question with recipes,
+maturity levels, worked examples, and a checklist.
 
 The recipes build on the program's Data Snapshots work, which benchmarks
 open-source layout detection models on institutional documents and
@@ -63,9 +66,9 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. Build the inventory of [chapter 1](./inventory.mdx) (one day). It says where the data are, which files are scans, and how large the work is.
-2. Pick the five most requested tables, extract them from the text layer ([chapter 4](./extract.mdx)), and run the verification of [chapter 5](./verify.mdx) (two days). Publish them next to the documents with their provenance ([chapter 7](./publish.mdx)).
-3. For scanned documents, run OCR on one priority document and score it ([chapter 2](./scanned.mdx)) before investing in the rest.
+1. Build the inventory of [chapter 1](./inventory.mdx). It takes a day, and it says where the data are, which files are scans, and how large the work is.
+2. Pick the five most requested tables, extract them from the text layer as [chapter 4](./extract.mdx) describes, and run the verification of [chapter 5](./verify.mdx). This takes two days. Then publish them next to the documents with their provenance, following [chapter 7](./publish.mdx).
+3. For scanned documents, run OCR on one priority document and score it, following [chapter 2](./scanned.mdx), before investing in the rest.
 
 Layout detection ([chapter 3](./locate.mdx)), series across documents ([chapter 6](./series.mdx)), and the pipeline ([chapter 9](./operate.mdx)) come once the first tables are published and used.
 

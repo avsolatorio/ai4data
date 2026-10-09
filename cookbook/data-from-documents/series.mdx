@@ -3,7 +3,7 @@ id: series
 title: "6. Series across documents"
 sidebar_label: "6. Series"
 sidebar_position: 7
-description: Combining tables extracted from successive reports into one time series with provenance per value, resolving revisions and unit differences, detecting breaks, and publishing the series as a catalog record.
+description: How tables extracted from successive reports are combined into one time series, with the source of every value kept, revisions and unit differences resolved, breaks recorded, and the series published as a catalog record.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -56,9 +56,9 @@ were revised in the later report. The series joins the catalog as
 
 <Recipe title="6.1 Map extracted tables to a series and combine them" level="Foundational" skills="Data curator; Python" time="An hour per series to map; minutes to run">
 
-**Result:** one values file per series, with one row per area and
-period, the source document and page of each value, and a status that
-says whether a value was confirmed or revised by a later document.
+**Result:** each series has one values file with one row per area and
+period. Every value carries its source document and page, and a status
+that says whether a later document confirmed or revised it.
 
 The same series appears in several documents: the 2024 report has
 values up to 2023, the 2025 report up to 2024, and the overlapping
@@ -91,6 +91,12 @@ revised: Northern Region 2023: 9.7 (EX-REP-2024-03) -> 9.6 (EX-REP-2025-03)
 revised: Total 2023: 7.9 (EX-REP-2024-03) -> 7.8 (EX-REP-2025-03)
 ```
 
+The first line counts the tidy rows read and the series values written.
+The second counts the values by status: `single` when one document
+reports the value, `confirmed` when two documents agree, and `revised`
+when they differ. The lines that follow name each revision with both
+values and both documents.
+
 1. Write the mapping
    ([series_mapping.csv](pathname:///cookbook-files/data-from-documents/series_mapping.csv)).
 2. Run the script on the tidy files of [chapter 4](./extract.mdx),
@@ -106,6 +112,19 @@ revised: Total 2023: 7.9 (EX-REP-2024-03) -> 7.8 (EX-REP-2025-03)
    mapping does not cover. Extend the mapping, with a model's proposal
    where the catalog is large.
 
+**Worked example.** The mapping has two rows, one per report, both
+feeding `FS_UNDERNOURISH_PCT`, with the row as the area and the column
+as the period, and `percent` and `%` listed as aliases of the unit. The
+2024 report's table covers 2021 to 2023 and the 2025 report's covers
+2022 to 2024, for the Northern Region, the Central Region, and the
+total. The script finds the four overlapping values for 2022 confirmed
+and two of the three for 2023 revised. The curator reads the 2025
+report's note, which says that the 2023 figures were updated with final
+survey data, and records the two changes as revisions. The combined
+file's row for the Northern Region in 2023 reads 9.6, with the status
+`revised`, the earlier value 9.7, and the source `EX-REP-2025-03`, page
+24.
+
 **What this does not do.** The script matches area and period labels
 exactly and keeps the latest value. Renamed areas, split regions, and
 fiscal-year periods need rows in the mapping or a code list, and the
@@ -116,8 +135,8 @@ choice between "revision" and "break" is the curator's.
 <Recipe title="6.2 Detect and record breaks in the series" level="AI-ready" skills="Subject-matter statistician" time="Half a day per series">
 
 **Result:** every point at which the series stops being comparable with
-its past is recorded in the series record with the reason, and marked
-in the values file.
+its past is recorded in the series record with its reason, and marked in
+the values file.
 
 A break is a change in definition, coverage, classification, sample
 design, or base year, after which the values mean something slightly
@@ -138,6 +157,18 @@ alike in the numbers and differ in the documents.
    the correspondence or the overlap period so that users can link the
    segments. Otherwise publish two series.
 
+**Worked example.** When the curator extends the series back to the
+2016 food security report, every overlapping value with the 2017 report
+differs by between 0.6 and 0.9 points, and all in the same direction.
+That pattern is a level shift, and the methodology section of the 2017
+report confirms it: the 2016 household survey changed the food item
+list, so the prevalence from 2016 onwards is measured on a different
+basis. The statistician records a break at 2016 in the series record
+with that reason, marks the 2016 and later values with `OBS_STATUS` B,
+and publishes the two overlapping years so that a user can see the size
+of the shift. The 2023 changes, by contrast, are small and limited to
+one year, and stay recorded as revisions.
+
 **What this does not do.** A break detected from numbers alone is a
 guess. The documents' notes are the evidence, and a statistician
 decides. A language model can draft the break explanation from the
@@ -149,7 +180,7 @@ notes for review, which the AI-native level does.
 
 **Result:** the combined series is an indicator record in the catalog
 with a values file, the source of every value, and its breaks recorded,
-served like any other series.
+and it is served like any other series.
 
 1. Create the indicator record in the World Bank indicator schema
    ([dissemination cookbook, chapter 1](/cookbook/ai-ready-dissemination/find)),
@@ -165,6 +196,18 @@ served like any other series.
    verification of printed numbers against the catalog
    ([chapter 5](./verify.mdx), recipe 5.3), which now has the series to
    check against.
+
+**Worked example.** The indicator record for the regional prevalence of
+undernourishment names the three food security reports as its sources.
+Its methodology field says that the values were extracted from the
+reports' district tables, verified against the printed totals, and
+combined with the latest revision kept. The values file follows the
+dissemination cookbook's layout, with `OBS_STATUS` B from 2016 and the
+source document and page as attributes on each row. The record links
+to the three table records and the three document records, and each of
+them links back. The completeness check passes at the AI-ready level,
+and the number verification of chapter 5 now checks the printed figures
+of future reports against this series.
 
 **What this does not do.** A series built from documents has the
 quality of the documents. The record says so in its methodology, and
@@ -202,10 +245,10 @@ the source per value lets a user go back to the page.
 
 ## Verification
 
-- **Mapping:** every extracted table that belongs to a series has a mapping row; no rows unmatched.
-- **Overlaps:** every revised value has its earlier value recorded; revisions reviewed against the documents' notes.
-- **Breaks:** recorded in the record and marked in the values file.
-- **Catalog:** the series record passes the completeness check and the printed-number verification finds the series.
+- **Mapping.** Every extracted table that belongs to a series has a mapping row, and no rows are unmatched.
+- **Overlaps.** Every revised value has its earlier value recorded, and the revisions have been reviewed against the documents' notes.
+- **Breaks.** The breaks are recorded in the record and marked in the values file.
+- **Catalog.** The series record passes the completeness check, and the printed-number verification finds the series.
 
 ## Checklist
 

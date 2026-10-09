@@ -3,7 +3,7 @@ id: cite
 title: "8. Findability and citation"
 sidebar_label: "8. Cite"
 sidebar_position: 9
-description: Extracted tables findable in the catalog and in search by their printed titles, cited to the document and page, with corrections logged as errata and use monitored.
+description: How extracted tables are found and cited, through catalog records under their printed titles, a citation format that names the document, the page, and the table, a log of corrections, and monitoring of where the data are used.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -66,6 +66,16 @@ returns the table record and its data.
    cookbook ([chapter 6](/cookbook/ai-ready-dissemination/evaluate)), so
    that search over extracted data is scored with the rest.
 
+**Worked example.** After the four table records are published, the
+catalog administrator searches the catalog for "undernourishment by
+district" and gets Table 3.1 first. A search for "hunger by region"
+returns nothing, because neither word is in the record, so the
+administrator adds "hunger" and "region" to the table's keywords, which
+the series record already carries. Two questions, "undernourishment by
+district 2024" and "which region has the most hunger", go into the
+known-item question set with the table as the expected result, and the
+next scoring run reports both found in the top five.
+
 **What this does not do.** Findability by title serves users who know
 roughly what they want. Users who ask a question in their own words are
 served by search by meaning over the records, which the dissemination
@@ -75,8 +85,9 @@ cookbook covers.
 
 <Recipe title="8.2 Cite to the document, the page, and the table" level="Foundational" skills="Dissemination officer" time="One hour to set the format">
 
-**Result:** one citation format for extracted data, used in the record,
-on the page, and by systems that quote the data.
+**Result:** the organization has one citation format for extracted data,
+and the same format is used in the record, on the page, and by systems
+that quote the data.
 
 The format names the organization, the year, the document, the table,
 the page, and the document's address with a page fragment that opens
@@ -97,6 +108,15 @@ Table 3.1, page 24. https://stats.example/documents/EX-REP-2025-03.pdf#page=26
    number in the citation text. They differ, and both are in the
    records.
 
+**Worked example.** The citation of Table 3.1 is the one shown above.
+Its printed page is 24, and its PDF page is 26, because the report has
+two unnumbered pages of front matter, so the URL fragment reads
+`#page=26` while the text reads "page 24". When an assistant answers
+"What was the prevalence of undernourishment in the Eastern Region in
+2024?" from the tidy file, it quotes 9.2 percent and gives that
+citation. The interface shows the snapshot of the table beside the
+answer, because the tidy file's `page` and `bbox` columns point to it.
+
 **What this does not do.** A citation to a page does not freeze the
 document. If the document is corrected, the citation needs the version,
 which recipe 8.3 records.
@@ -106,7 +126,7 @@ which recipe 8.3 records.
 <Recipe title="8.3 Log corrections and monitor use" level="AI-ready" skills="Dissemination officer" time="Ongoing">
 
 **Result:** every correction to extracted data is dated and versioned,
-superseded files stay available, and the organization sees where its
+superseded files stay available, and the organization can see where its
 extracted data are used.
 
 1. When a value is corrected after publication (an extraction error, a
@@ -123,6 +143,18 @@ extracted data are used.
 4. When an AI system quotes an old or wrong figure from the document,
    check first whether the table record and the tidy file are findable
    and current. Most fixes are on the organization's side.
+
+**Worked example.** In November a reader reports that the Western
+Region's population in Table 3.1 is printed as 1,430 thousand in the
+report but as 1,340 in the tidy file. The reviewer confirms the
+transposition against page 24, publishes version 1.1 of the file and
+the record, keeps version 1.0, and adds the entry "T3.1, Western Region,
+Population (thousands): 1340 corrected to 1430; transposed digits;
+2026-11-12" to the corrections log on the table's page. The monthly AI
+visibility check, which asks two assistants for the Eastern Region's
+prevalence, shows one assistant citing the report and page and the
+other quoting the national figure without a source. The table record's
+keywords are extended, and the check is repeated the next month.
 
 **What this does not do.** Monitoring finds mentions of the document
 and the tables by name. Values quoted without attribution are not
@@ -160,10 +192,10 @@ provenance exist.
 
 ## Verification
 
-- **Search:** a query for a table's printed title returns the table record.
-- **Citation:** every table record has a citation with page and table number; the URL with the page fragment opens the right page.
-- **Errata:** every correction after publication appears in the log with a version.
-- **Use:** mentions of the document and its tables are counted per month.
+- **Search.** A query for a table's printed title returns the table record.
+- **Citation.** Every table record has a citation with the page and the table number, and the URL with the page fragment opens the right page.
+- **Errata.** Every correction after publication appears in the log with a version.
+- **Use.** Mentions of the document and its tables are counted each month.
 
 ## Checklist
 

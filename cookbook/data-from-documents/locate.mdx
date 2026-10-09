@@ -3,7 +3,7 @@ id: locate
 title: "3. Location of tables and figures"
 sidebar_label: "3. Locate"
 sidebar_position: 4
-description: Layout detection of tables and figures in institutional documents, data snapshots with bounding boxes, and review against annotated pages.
+description: How tables and figures are located on the page with a layout detection model, saved as data snapshots with their coordinates, and reviewed against pages the organization has annotated by hand.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -56,9 +56,9 @@ page, the box, and the snapshot.
 
 <Recipe title="3.1 Run a layout detection model over the pages" level="AI-ready" skills="Developer with Python and a machine with a GPU or patience" time="One to two days to set up; seconds per page after">
 
-**Result:** for every page, a list of the regions a model detected as a
-table or a figure, each with its class and the rectangle that encloses
-it.
+**Result:** for every page, the organization has a list of the regions a
+model detected as a table or a figure, each with its class and the
+rectangle that encloses it.
 
 A layout detection model looks at the image of a page and returns
 rectangles (bounding boxes) around the things it recognizes: tables,
@@ -83,6 +83,18 @@ figure in the lower middle of page 12:
 4. Keep the detections with the document, versioned, so that a later
    model run can be compared with them.
 
+**Worked example.** The developer renders the 48 pages of the 2025 food
+security report at 150 dots per inch and runs the model chosen from the
+benchmark. It returns 71 regions: 39 tables and 32 figures. On page 24
+it returns one table, `Table 3.1 Undernourishment by district, 2024`,
+with the box `[0.12, 0.31, 0.88, 0.62]`, and the record stores the
+document identifier `EX-REP-2025-03`, the page, the class, the box, the
+model name and version, and the date. On page 12 of the working paper
+in the data-snapshot dataset, the same model returns the bar chart with
+the box `[0.266, 0.525, 0.734, 0.781]`, which is the example record
+above. The 71 detections replace the hand estimate of 36 tables and 29
+figures in the inventory.
+
 **What this does not do.** Detection finds regions; it does not read
 them. It also misses context: a title above a table or a note below it
 may fall outside the box, which is one of the failure modes the
@@ -92,9 +104,9 @@ benchmark reports. Recipe 3.3 reviews for this before extraction.
 
 <Recipe title="3.2 Save snapshots with their coordinates" level="AI-ready" skills="Developer" time="Part of the detection run">
 
-**Result:** one image file per detected table or figure, named so that
-it can be traced to the document and page, with its coordinates in a
-small file beside it.
+**Result:** every detected table or figure is one image file, named so
+that it can be traced to the document and the page, with its
+coordinates in a small file beside it.
 
 1. Crop each detected region from the page image, with a small margin
    so that titles and notes at the edge are kept, and save it as an
@@ -109,6 +121,16 @@ small file beside it.
 4. Store the snapshots next to the document and the text layer, under
    the same version.
 
+**Worked example.** The table on page 24 of the food security report is
+cropped with a margin of two percent of the page on each side and saved
+as `EX-REP-2025-03_p024_t01.png`. Its sidecar file repeats the detection
+record. The reviewer notices that the detected box cut off the footnote
+"Provisional; based on the 2024 household survey". The box is extended
+downwards to `[0.12, 0.31, 0.88, 0.66]`, and both boxes are kept in the
+sidecar, with the adjusted one marked as the box citations use. The
+snapshot now shows the title, the five rows, and the footnote, which is
+what a reader sees when a citation points to it.
+
 **What this does not do.** A snapshot is an image. Its content becomes
 data in [chapter 4](./extract.mdx); until then the snapshot is what a
 person reviews and what a citation shows.
@@ -117,9 +139,9 @@ person reviews and what a citation shows.
 
 <Recipe title="3.3 Review detections against annotated pages" level="AI-ready" skills="Dissemination officer; developer for the scoring" time="Half a day for a sample of 50 pages">
 
-**Result:** a measured precision and recall for the detection on the
-organization's own documents, and a growing set of pages, marked by
-hand, against which future runs are measured.
+**Result:** the organization has measured the precision and recall of
+the detection on its own documents, and it has a growing set of pages,
+marked by hand, against which future runs are measured.
 
 1. Draw a sample of pages across document types (reports, bulletins,
    yearbook, census volume) and mark every table and figure on them by
@@ -136,6 +158,17 @@ hand, against which future runs are measured.
    figures split or merged) are the ones to expect.
 4. Keep the annotated sample, add to it with each review, and re-run
    the comparison whenever the model changes.
+
+**Worked example.** The dissemination officer draws 50 pages: 15 from
+reports, 10 from bulletins, 15 from the yearbook, and 10 from the census
+report, and marks 62 tables and 41 figures on them in an annotation tool.
+The comparison at an intersection over union of 0.5 finds 57 of the 62
+tables and 36 of the 41 figures, with 9 false detections. Precision is
+0.91 and recall is 0.90 overall, but recall on the yearbook's dense
+pages is 0.78, because the model merges adjacent tables. Six of the nine
+false detections are decorative graphics in the reports. The officer
+records the figures with the model version and adds the 50 pages to
+the organization's test set.
 
 **What this does not do.** Fifty pages give a first measure. Precision
 and recall per document type need more, and a yearbook with dense
@@ -174,9 +207,9 @@ that two annotators agree.
 
 ## Verification
 
-- **Coverage:** every document in the inventory has detections; the counts of tables and figures replace the hand estimates.
-- **Precision and recall:** measured on the annotated sample, per class and document type, and recorded with the model version.
-- **Snapshots:** a sample opened by a person shows the full table or figure with its title.
+- **Coverage.** Every document in the inventory has detections, and the counts of tables and figures replace the hand estimates.
+- **Precision and recall.** Both are measured on the annotated sample, per class and document type, and recorded with the model version.
+- **Snapshots.** A sample opened by a person shows the full table or figure with its title.
 
 ## Checklist
 

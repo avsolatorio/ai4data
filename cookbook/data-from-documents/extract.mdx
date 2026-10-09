@@ -3,7 +3,7 @@ id: extract
 title: "4. Extraction of structured data"
 sidebar_label: "4. Extract"
 sidebar_position: 5
-description: Extraction of tables from the text layer and of chart data from snapshots into a structured form with units and notes, and conversion to tidy files with provenance per value.
+description: How tables and charts are turned into structured data, by parsing tables from the text layer, reading charts from snapshots with a vision-language model, and converting every extraction into a tidy file that carries the provenance of each value.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -53,8 +53,8 @@ that the extraction got wrong.
 
 <Recipe title="4.1 Extract tables from the text layer" level="Foundational" skills="Python" time="One hour to set up; review time per table">
 
-**Result:** each table turned into a JSON record of its columns, rows,
-units, and footnote, which keeps the page and the box it came from.
+**Result:** each table is a JSON record of its columns, rows, units, and
+footnote, and the record keeps the page and the box the table came from.
 
 The record for the running example's district table shows the fields.
 Beyond the rows themselves, it names the total row, the column that is
@@ -75,6 +75,19 @@ method by which it was produced:
 4. Record the method in `method`, including that a person reviewed the
    header and footnote.
 
+**Worked example.** The parser reads the region of page 24 inside the
+adjusted box and returns a grid of six rows by four columns. The header
+row reads "District", "Population (thousands)", "Undernourished
+(thousands)", and "Prevalence (%)". The reviewer splits each header into
+a column label and a unit, so that the `units` map reads "thousands" for
+the two counts and "%" for the rate. The last row, "National", is marked
+as the total row. The prevalence column is marked as derived from the
+two counts, because the footnote says so. The footnote itself goes into
+the `footnote` field, and `method` records "pdfplumber 0.11; header and
+footnote reviewed by hand". The result is the record shown above, with
+one value, the Eastern Region's prevalence, that the parser read wrongly
+and that chapter 5 finds.
+
 **What this does not do.** Text-layer parsing fails on tables whose
 cells are images, on rotated tables, and on scanned pages. Those go
 through recipe 4.2 as images. A parser that returns a grid cannot tell
@@ -85,9 +98,9 @@ table layout.
 
 <Recipe title="4.2 Extract chart data from snapshots" level="AI-ready" skills="Developer with access to a vision-language model" time="One day to set up; seconds per chart, plus review">
 
-**Result:** each chart turned into a JSON record of its type, its
-categories, its series and their values, and a statement of whether
-the values were printed on the chart or estimated from the axes.
+**Result:** each chart is a JSON record of its type, its categories, its
+series and their values, and a statement of whether the values were
+printed on the chart or estimated from the axes.
 
 A vision-language model is a model that takes an image and a question
 and answers in text. Given a chart image and a fixed instruction, it
@@ -110,6 +123,17 @@ values were printed on the bars.
    stacked bars, dual axes, and charts with more than four series,
    where models fail most.
 
+**Worked example.** The snapshot of the bar chart from page 12 of the
+working paper is sent to the model with the fixed instruction. The model
+returns a record with the chart type "bar", the title "Type of guarantee
+systems", the categories MUTUAL and PUBLIC, and two series, HIGH and
+LOW_MIDDLE, with the values 15 and 7 for HIGH and 7 and 17 for
+LOW_MIDDLE. It reports `value_labels_printed` as true, because each bar
+carries its value, and it lists the four printed values. The method
+field records the model name and version. The reviewer compares the
+record with the snapshot and confirms all four values, which is the
+case the verification of chapter 5 then confirms automatically.
+
 **What this does not do.** Values read from axes are estimates with an
 error that depends on the chart's resolution. They are published as
 estimates ([chapter 7](./publish.mdx)) and never as the official figure.
@@ -120,8 +144,8 @@ are a pointer to the series, which is the number to use.
 
 <Recipe title="4.3 Convert extractions to tidy files with provenance" level="AI-ready" skills="Python" time="Minutes">
 
-**Result:** one CSV per table or chart with one row per value, in which
-every value carries the columns that trace it back to the page.
+**Result:** every table or chart has a CSV file with one row per value,
+and every value carries the columns that trace it back to the page.
 
 A tidy file has one value per row. The columns are:
 
@@ -148,6 +172,16 @@ python snapshot_to_tidy.py example_table.json -o T3.1.csv
    value.
 3. Name the file from the document and table identifiers and keep it
    with the document, the snapshot, and the sidecar record.
+
+**Worked example.** The converter turns the district table into a file
+of fifteen rows, one per value. The row for the Eastern Region's
+population reads: document `EX-REP-2025-03`, page 24, the adjusted box,
+class Table, the printed title, row "Eastern Region", column "Population
+(thousands)", value 860, unit "thousands", status `extracted`. After the
+verification of chapter 5, the converter runs again with the report and
+sets the status of fourteen rows to `verified` and of the Eastern
+Region's prevalence row to `flagged`. The file is named
+`EX-REP-2025-03-T3.1.csv` and stored beside the snapshot.
 
 **What this does not do.** The tidy file carries the values as
 extracted. It does not correct them. A flagged value stays flagged until
@@ -186,9 +220,9 @@ documented edit.
 
 ## Verification
 
-- **Structure:** every table record has columns, rows, units, and a footnote; every chart record has categories, series, and `value_labels_printed`.
-- **Tidy files:** every value has document, page, bounding box, and status.
-- **Sample:** a sample of extractions opened next to the snapshot by a person; the error rate recorded ([chapter 5](./verify.mdx), recipe 4.2).
+- **Structure.** Every table record has columns, rows, units, and a footnote, and every chart record has categories, series, and `value_labels_printed`.
+- **Tidy files.** Every value has a document, a page, a bounding box, and a status.
+- **Sample.** A sample of extractions has been opened next to the snapshot by a person, and the error rate is recorded ([chapter 5](./verify.mdx)).
 
 ## Checklist
 

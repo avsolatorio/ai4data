@@ -3,7 +3,7 @@ id: scanned
 title: "2. Text from scanned documents"
 sidebar_label: "2. Scanned"
 sidebar_position: 3
-description: Telling scans from documents with a text layer, choosing an OCR engine for the organization's languages and layouts, scoring OCR quality page by page, and keeping the text layer with the document.
+description: How scanned documents are turned into text that extraction can rely on, by telling scans from documents with a text layer, choosing an OCR engine on the organization's own pages, scoring the quality of every page, and keeping the text layer with the document.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -58,7 +58,7 @@ would otherwise read as values.
 <Recipe title="2.1 Tell a scan from a text layer and mark it in the inventory" level="Foundational" skills="Developer" time="Minutes for a few hundred documents">
 
 **Result:** the inventory's `text_layer` column is correct for every
-document, and the number of pages that need OCR is known.
+document, and the organization knows how many pages need OCR.
 
 A scanned PDF is a sequence of images; a PDF produced from a word
 processor contains text. The quickest test is to count the characters
@@ -83,6 +83,16 @@ print(f"{text_pages} of {len(doc)} pages have text")
 3. Where an existing OCR layer is poor (recipe 2.3 scores it), treat the
    document as a scan and re-run OCR.
 
+**Worked example.** The developer runs the count on the eight documents
+of the inventory. Seven report text on every page. The 2014 census
+report reports zero characters on 218 of its 220 pages, and the two
+pages that have text are the cover and the colophon, which were added
+later from a word processor. The inventory row for `EX-CEN-2014-01`
+gets `text_layer = no` and the note "220 pages to OCR". The 2023
+yearbook, which the inventory had marked `ocr`, reports text on every
+page, but the text of a sample page is a run of symbols without spaces,
+so its row is changed to `no` as well.
+
 **What this does not do.** A character count does not tell whether the
 text is correct. Recipe 2.3 scores quality; recipe 2.2 chooses the
 engine.
@@ -91,9 +101,9 @@ engine.
 
 <Recipe title="2.2 Choose and run the OCR engine for the organization's pages" level="AI-ready" skills="Developer" time="Two days to test; minutes per page to run">
 
-**Result:** an OCR engine, its settings, and the scan resolution chosen
-by measuring the candidates on the organization's own pages in each
-language, and the OCR output stored as a searchable PDF beside the
+**Result:** the organization has chosen an OCR engine, its settings, and
+the scan resolution by measuring the candidates on its own pages in each
+language. The OCR output is stored as a searchable PDF beside the
 original.
 
 An OCR engine is a program that reads text from an image of a page.
@@ -131,6 +141,18 @@ error rate matters most, because digits are what the tables contain.
    PDF/A with the text layer positioned on the image, plus the page
    text as files for search and extraction.
 
+**Worked example.** The developer builds a test set of sixty pages:
+twenty prose pages, twenty table pages, and twenty two-column pages, in
+English and French, with the worst scans of the census report among
+them. The correct text of each is typed by two assistants over three
+days. Three engines are run. On table pages, the first engine has a
+digit error rate of 2.1 percent, the second 0.9 percent, and the third
+0.7 percent, but the third needs a GPU the organization does not have.
+The second engine is chosen. Its name, version, and settings go into the
+pipeline configuration, with the note "300 dpi, deskew on, French and
+English models loaded". The census report is run through it over a
+weekend, and the searchable PDF/A is stored beside the original scan.
+
 **What this does not do.** A test set of twenty pages per type finds
 large differences between engines; small differences need more pages. A
 language whose script the engine does not support, or a historical
@@ -142,7 +164,7 @@ typeface, needs a model trained for it, which the engines above allow.
 
 **Result:** every OCR page has a quality score and a list of lines to
 review, and pages over the threshold are marked for re-OCR before any
-extraction.
+extraction starts.
 
 OCR errors in numbers have recognizable shapes: a letter O where a
 zero should be, a lowercase l where a one should be. The script reads
@@ -175,6 +197,12 @@ broken words: 2: Tab1e, 9: popu1ation, 11: ~~, 11: ~~
 verdict: re-OCR recommended (garble rate 9.1%, threshold 3%)
 ```
 
+The first line counts the lines, the number tokens, and the garbled
+ones. The list that follows shows each line with a garble count, so that
+a reviewer can see at a glance which table rows are affected. The
+"broken words" line names words with a stray character, and the verdict
+compares the garble rate with the threshold.
+
 1. Run the score on every page of the OCR output and store the rate
    with the page in the inventory or the processing log.
 2. Read the lines to review for a sample. The garbled tokens in the
@@ -186,6 +214,16 @@ verdict: re-OCR recommended (garble rate 9.1%, threshold 3%)
 4. Set the threshold from the test set of recipe 2.2: the garble rate of
    pages whose digit error rate was acceptable.
 5. Keep corrected pages as test pages for the next engine change.
+
+**Worked example.** The page above is a population table from the
+census report. Three of its 33 number tokens are garbled: `631,2O5`
+with a letter O, `98O,775` with a letter O, and `l,412,006` with a
+letter l. The garble rate of 9.1 percent is three times the threshold,
+so the page is marked for re-OCR. Run again at 400 dots per inch with
+the second engine, the page comes back with zero garbled tokens, and
+the three values read 631,205, 980,775, and 1,412,006. The total check
+of chapter 5 later confirms that the four regions sum to the printed
+total of 5,784,035. The corrected page joins the test set.
 
 **What this does not do.** The score finds errors by shape. A `3` read
 as `8` is a digit and invisible here. The total and derived-rate checks
@@ -223,10 +261,10 @@ of [chapter 5](./verify.mdx) catch those, which is why both run.
 
 ## Verification
 
-- **Inventory:** every document has a `text_layer` value checked on a sample of pages.
-- **Engine:** the choice is recorded with its digit error rate on the test set.
-- **Scores:** every OCR page has a score; pages over the threshold are listed and handled.
-- **Storage:** the searchable PDF/A opens with selectable text positioned on the image.
+- **Inventory.** Every document has a `text_layer` value that was checked on a sample of pages.
+- **Engine.** The choice of engine is recorded with its digit error rate on the test set.
+- **Scores.** Every OCR page has a score, and the pages over the threshold are listed and handled.
+- **Storage.** The searchable PDF/A opens with selectable text positioned on the image.
 
 ## Checklist
 
