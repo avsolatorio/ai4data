@@ -3,7 +3,7 @@ id: design
 title: "2. Questionnaire and concept work"
 sidebar_label: "2. Design"
 sidebar_position: 3
-description: Model assistance in the design phase, from flagging ambiguous question wording and proposing matches to a question bank, to drafting variable descriptions and translations of questionnaires, with the methodologist deciding every case.
+description: How a model assists the design phase, by flagging question wording against a written checklist, proposing matches to the question bank, and drafting variable descriptions and questionnaire translations, with the methodologist deciding every case.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,7 +55,7 @@ one description.
 
 <Recipe title="2.1 Flag wording problems against a written checklist" level="Foundational" skills="Methodologist; access to a model" time="An hour per questionnaire">
 
-**Result:** for every question in a draft questionnaire, the model's
+**Result:** every question in a draft questionnaire has the model's
 verdict against each rule of the organization's wording checklist, with
 a reason, and the methodologist's decision on each flag.
 
@@ -78,6 +78,20 @@ seconds to dismiss.
 4. Keep cognitive testing with respondents. The model reads a question
    as text; respondents hear it in an interview.
 
+**Worked example.** The draft question reads "How many hours did [NAME]
+work last week in the main job and in other jobs?". Against rule 1 of
+the checklist, "one concept per question", the model returns "flag:
+asks for hours in the main job and in other jobs in one question; a
+respondent with two jobs cannot answer with one number", and suggests
+two questions. Against rule 2, "reference period stated", it returns
+"pass: last week". Against rule 5, "answer categories cover every
+case", it returns "flag: no option for a person who did not work last
+week", which the methodologist dismisses because the routing already
+skips such persons. The methodologist accepts the first flag and splits
+the question. Across the 62 questions, the model raises 19 flags, of
+which the methodologist accepts 11, and the acceptance per rule is
+recorded.
+
 **What this does not do.** A checklist review finds what the checklist
 names. Cultural and linguistic problems in the language of the
 interview are found by native speakers and by testing. A rewording the
@@ -87,10 +101,10 @@ model suggests is a draft for the methodologist to accept or discard.
 
 <Recipe title="2.2 Match new questions to the question bank" level="AI-ready" skills="Methodologist; developer" time="Half a day to set up; minutes per questionnaire">
 
-**Result:** for each new question in a questionnaire, the questions in
-the organization's question bank that measure the same concept, each
-with the model's confidence and reason, confirmed or rejected by the
-methodologist.
+**Result:** each new question in a questionnaire has been matched to
+the questions in the organization's question bank that measure the same
+concept, each with the model's confidence and reason, and the
+methodologist has confirmed or rejected each match.
 
 A question bank is the organization's collection of questions already
 used in its surveys, each tied to the concept it measures. Reusing a
@@ -114,6 +128,18 @@ the model judges each one.
 4. Track the share of proposals confirmed at each level of confidence.
    Stop showing proposals below the level at which few are confirmed.
 
+**Worked example.** The new question "In the last four weeks, which of
+the following did [NAME] do to find work?" with eight answer categories
+is sent to the matcher. The search by meaning returns three candidates
+from the bank. The model judges the first, a question from the 2019
+labour force survey with the same wording and seven categories, as
+"same concept, different categories" with a confidence of 0.86, and
+notes that the new question adds "used an online platform". It judges
+the second, a question about whether the person looked for work at all,
+as a different concept. The methodologist confirms the first match, the
+new variable inherits the concept "job search methods" and its
+definition, and the comparability note records the added category.
+
 **What this does not do.** A match says that two questions measure the
 same concept. It does not make their data comparable; that depends on
 the survey mode, the population, and the categories
@@ -123,10 +149,10 @@ the survey mode, the population, and the categories
 
 <Recipe title="2.3 Draft variable descriptions and translations from the questionnaire" level="AI-ready" skills="Methodologist; data curator" time="Minutes per variable; review time">
 
-**Result:** a drafted label, description, and universe for every
-variable, written from its question and categories, and drafted
-translations of the questionnaire, each checked by script and reviewed
-by a person before use.
+**Result:** every variable has a drafted label, description, and
+universe written from its question and categories, and the
+questionnaire has drafted translations. Each draft is checked by script
+and reviewed by a person before use.
 
 1. For each variable, give the model the question text, the answer
    categories, and the routing (who is asked the question). Ask for the
@@ -142,6 +168,20 @@ by a person before use.
    the field is tested with respondents.
 3. Record the source and status of each draft in the metadata; the
    Metadata Editor holds the result.
+
+**Worked example.** For the split question on hours in the main job,
+the model is given the wording, the categories (a number of hours), and
+the routing ("asked of persons who worked at least one hour last week").
+It returns the label "Hours worked last week in the main job" and the
+description "Number of hours the respondent worked in the main job
+during the reference week, as reported". The universe it returns is
+"Employed persons aged 15 and over who worked at least one hour in the
+reference week". The methodologist edits the description to add "including paid
+overtime", which the interviewer instructions mention and the model was
+not shown. The French translation of the questionnaire is drafted with
+the glossary, passes the number and length checks, and goes to the
+French-speaking statistician, who corrects four terms before the
+questionnaire is tested with respondents.
 
 **What this does not do.** A description drafted from the questionnaire
 describes the question. Derived variables (computed after collection)
@@ -179,9 +219,9 @@ No draft is published without review.
 
 ## Verification
 
-- **Review:** every question in the latest draft has flags decided and recorded.
-- **Matching:** every new question has a confirmed or rejected proposal; acceptance per confidence band is known.
-- **Drafts:** every variable description and translation carries source and status; none published unreviewed.
+- **Review.** Every question in the latest draft has its flags decided and recorded.
+- **Matching.** Every new question has a confirmed or rejected proposal, and the acceptance per confidence band is known.
+- **Drafts.** Every variable description and translation carries its source and status, and none has been published unreviewed.
 
 ## Checklist
 

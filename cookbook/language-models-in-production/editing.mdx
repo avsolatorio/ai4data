@@ -3,7 +3,7 @@ id: editing
 title: "4. Editing, imputation, and anomaly explanation"
 sidebar_label: "4. Editing"
 sidebar_position: 5
-description: Models in the processing and analysis phases, explaining edit failures in plain language, proposing values that the edit rules bound, and drafting explanations of anomalous aggregates with cited evidence, with the editor and the analyst deciding.
+description: How a model supports the processing and analysis phases, by explaining edit failures in plain language, proposing values that the edit rules then check, and drafting explanations of anomalous aggregates with cited evidence, with the editor and the analyst deciding every case.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -73,6 +73,19 @@ reading.
    partly right, or wrong. A wrong explanation points to a problem in
    the model's instructions or in the rule's wording.
 
+**Worked example.** Record H0009-2 fails rule E04, "hours worked are
+reported only for employed persons". The editor used to see "E04
+failed" and the record. Now the model is given the rule and the fields
+`lfs_status`, `hours`, and `q17b`, and returns: "This person is coded as
+outside the labour force (lfs_status 3) but reports 45 hours of work
+last week. Either the labour force status was derived wrongly from the
+job search answers, or the hours belong to another household member."
+The editor reads it, checks the roster, and finds that the hours were
+keyed against the wrong person. On the round's sample of 150
+explanations, editors rate 132 as right, 14 as partly right, and 4 as
+wrong, and the four wrong ones all concern a rule whose message named
+the wrong field.
+
 **What this does not do.** The explanation says, in words, why the rule
 fired. The editor still judges whether the record or the rule is wrong.
 The rules remain the organization's, written and versioned as before.
@@ -81,11 +94,11 @@ The rules remain the organization's, written and versioned as before.
 
 <Recipe title="4.2 Propose values and check them against the rules" level="AI-ready" skills="Python; editing supervisor" time="Half a day to set up; minutes per batch">
 
-**Result:** for a record that failed an edit, a value the model proposes
-with a reason, checked against every edit rule before an editor sees
-it. Proposals that pass reach the editor as suggestions, and proposals
-that fail go back. Nothing is applied to the data without an editor's
-decision.
+**Result:** a record that failed an edit has a value the model proposes
+with a reason, and the value has been checked against every edit rule
+before an editor sees it. Proposals that pass reach the editor as
+suggestions, and proposals that fail go back. Nothing is applied to the
+data without an editor's decision.
 
 The example uses two files. The edit rules file has one rule per row:
 the field it applies to, the type of rule (`range` for an allowed
@@ -118,6 +131,12 @@ H0012-4   income       (empty) -> 1200   to editor as proposal
 4 suggestions pass the rules and go to the editor; 2 still fail and go back with the rule named; nothing is applied automatically
 ```
 
+Each line shows the record, the field, the current and proposed values,
+and the outcome of the check. A proposal that passes every rule goes to
+the editor. A proposal that still fails names the rule it fails. A note
+in brackets marks a proposal whose reason does not refer to anything in
+the record, which the editor reads with more care.
+
 1. Keep the edit rules in a file the script can read. The file in this
    chapter is a minimum; most editing systems can export their rules in
    a similar form.
@@ -132,6 +151,20 @@ H0012-4   income       (empty) -> 1200   to editor as proposal
    produces the value and the model only explains it. The method of
    record does not change because a model is available.
 
+**Worked example.** For record H0003-2, whose age of 140 fails the range rule, the model
+proposes 41. Its reason reads: "the household roster lists this person
+as the spouse of the 43-year-old head, and the first two digits of 140
+transposed give 41, which is consistent with the birth year on the next
+line". The proposal passes every rule and goes to
+the editor, who accepts it. For H0009-2, the model proposes keeping the
+45 hours and changing the labour force status, but the check only
+examines the proposed field, so the proposal still fails E04 and goes
+back with the rule named. For H0012-4, the missing income, the
+organization's method of record is a donor imputation; the donor value
+of 1,200 is produced by that method, and the model's role is only to
+write the sentence that explains to the editor which donor was used and
+why.
+
 **What this does not do.** A value that satisfies every rule can still
 be wrong for that person; the editor's knowledge of the survey is the
 check. The imputation method and its documentation stay the
@@ -142,8 +175,8 @@ organization's.
 <Recipe title="4.3 Draft anomaly explanations with cited evidence" level="AI-ready" skills="Analyst; developer" time="One day to set up">
 
 **Result:** when an aggregate is flagged as unusual, the analyst
-receives a drafted explanation that names the most likely cause, with
-the evidence it rests on, and records a verdict on it.
+receives a drafted explanation that names the most likely cause and the
+evidence it rests on, and the analyst's verdict on it is recorded.
 
 An anomaly is a value in a series that differs from what its history
 would predict: a jump, a fall, a value out of line with related series.
@@ -167,6 +200,19 @@ and draft the explanation; the analyst judges it.
    model.
 4. Publish the confirmed explanations with the release where they
    matter ([dissemination cookbook, chapter 3](/cookbook/ai-ready-dissemination/understand)).
+
+**Worked example.** The detector flags the youth unemployment rate for
+the second quarter of 2025, which fell from 17.5 to 16.8 percent while
+the overall rate fell by only 0.2 points. The model is given the two
+series, the four previous quarters, the participation rate, the release
+notes, and the revisions log. It returns the cause class "real change"
+with a confidence of 0.7, citing the release note that a public works
+programme for young people started in April and the participation rate
+of the 15 to 24 group, which rose in the same quarter. The analyst
+reads the draft, checks the programme's enrolment figures from the
+ministry, and records the verdict "confirmed: real change; programme
+enrolment of 28,000 accounts for most of the fall". The explanation is
+published with the release as a note on the youth series.
 
 **What this does not do.** An explanation drafted from the evidence
 given cannot reach a cause outside it, such as a field event nobody
@@ -203,9 +249,9 @@ the analyst's verdict is the record.
 
 ## Verification
 
-- **Explanations:** editors rate a sample each round; the wrong share is tracked.
-- **Proposals:** every proposal shown to an editor passed the rules; the log shows no automatic application.
-- **Anomalies:** every flag has a drafted explanation with cited evidence and a recorded verdict.
+- **Explanations.** Editors rate a sample each round, and the share rated wrong is tracked.
+- **Proposals.** Every proposal shown to an editor passed the rules, and the log shows no automatic application.
+- **Anomalies.** Every flag has a drafted explanation with cited evidence and a recorded verdict.
 
 ## Checklist
 

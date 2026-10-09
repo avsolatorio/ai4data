@@ -3,7 +3,7 @@ id: running
 title: "6. Models inside the production environment"
 sidebar_label: "6. Running"
 sidebar_position: 7
-description: Running models where production data live, with local open-weight models for confidential text, batch processing for the large jobs, measured cost and time per record, pinned versions, and the separation that keeps the production systems independent of the model layer.
+description: How models are run inside the production environment, with open-weight models on the organization's own servers for confidential text, batch jobs with a cost and a duration estimated in advance, pinned versions, and a switch-off test that proves production does not depend on the model layer.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -54,9 +54,9 @@ are confidential, and schedules the job overnight.
 
 <Recipe title="6.1 Run an open-weight model inside the production network" level="Foundational" skills="Infrastructure; developer" time="Two to three days">
 
-**Result:** a model running on a server inside the organization's own
-network, which production jobs can call, with its version fixed and no
-data leaving the organization.
+**Result:** a model runs on a server inside the organization's own
+network, production jobs can call it, its version is fixed, and no data
+leave the organization.
 
 An open-weight model is one whose files can be downloaded and run by
 the organization itself. Running one on the organization's own server
@@ -77,6 +77,16 @@ is what makes it possible to use a model on confidential text at all.
    a token is roughly three quarters of a word) and keep the figure. The
    cost estimate of recipe 6.2 uses it.
 
+**Worked example.** The example organization installs a small
+open-weight model, chosen in the small and open models cookbook for
+coding, on a server with one accelerator card inside the production
+network. It serves the model with vLLM, limits access to the service
+account of the coding job and the editing tool, and records the model's
+name, its file fingerprint, the server version, and the prompt files'
+commit in the component register. A throughput test with the coding
+prompt at a batch of 64 requests measures 900 tokens per second, and
+the figure is written beside the register entry with the date.
+
 **What this does not do.** A local server removes the risk of data
 leaving the organization. It does not remove the need for access
 control, logging, and the rules of the map. A hosted model remains an
@@ -86,9 +96,9 @@ option for public and aggregate inputs where it is better or cheaper.
 
 <Recipe title="6.2 Estimate cost and time before a batch job" level="AI-ready" skills="Developer; production manager" time="Minutes">
 
-**Result:** before a large job is scheduled, an estimate of its cost
-and duration under two options, a hosted model and the local server,
-from the organization's own measurements.
+**Result:** before a large job is scheduled, the organization has an
+estimate of its cost and duration under two options, a hosted model and
+the local server, from its own measurements.
 
 A batch job sends many records through a model, such as the 250,000
 open-text responses of a labour force survey. Its cost depends on how
@@ -118,6 +128,11 @@ local (900 tokens/s): 14.8 hours of server time, cost 17.78, 0.071 per 1,000 rec
 Add review time per record from the assurance chapter's measurements; it is usually the larger cost.
 ```
 
+The first line sums the tokens the job will send and receive. The two
+lines that follow give, for each option, the cost in the currency of the
+prices entered, the duration, and the cost per thousand records. The
+last line is the reminder that review time is the larger part.
+
 1. Measure the tokens per record on a sample of real inputs, including
    the prompt and the reference material. The prompt is often the
    larger part, and shortening it is the first saving.
@@ -129,6 +144,18 @@ Add review time per record from the assurance chapter's measurements; it is usua
 4. Record the estimate with the job. Compare it with the measured run
    afterwards and correct the inputs.
 
+**Worked example.** The run above is the occupation coding job of the
+running example. The developer measured 180 input tokens per response
+on a sample of 200 real responses, of which 140 are the prompt and the
+candidate definitions, and 12 output tokens. The hosted option would
+cost about 14 at the batch discount and take five hours; the local
+option takes about fifteen hours of server time at a cost of about 18.
+The responses are confidential, so the map's rule decides for the local
+server, and the job is scheduled to start at 18:00 on a Friday. The
+measured run takes 13.5 hours, because the batch size was raised, and
+the throughput figure in the register is updated to 1,000 tokens per
+second.
+
 **What this does not do.** The estimate covers the model's time. The
 time of the people who review the outputs (coders on the routed share,
 editors on proposals) is the larger cost for any reviewed task and comes
@@ -138,8 +165,8 @@ from the measurements of [chapter 7](./assurance.mdx).
 
 <Recipe title="6.3 Run jobs in batch with manifests and pass the switch-off test" level="AI-ready" skills="Developer; operations" time="One day to set up">
 
-**Result:** model jobs that can resume where they stopped after an
-interruption, that record which versions they ran with, and that can be
+**Result:** model jobs can resume where they stopped after an
+interruption, they record which versions they ran with, and they can be
 stopped without stopping production.
 
 1. Run each job from a manifest: a list of the records to process with
@@ -157,6 +184,18 @@ stopped without stopping production.
    back to coders, that editing shows failures without explanations, and
    that the release goes out. Production must never depend on the model
    layer.
+
+**Worked example.** The coding job's manifest lists the 250,000
+responses with a status each. When the server is restarted for a
+security patch at record 91,400, the job resumes there on Monday and
+finishes the remaining responses in six hours. The output file's header
+reads: model and fingerprint, prompt version 3, ISCO-08 with index
+version 4, threshold 0.80, run started 2025-07-11 18:02. In the
+switch-off test, the operations officer stops the model server on the
+test system. The coding tool shows every response to coders without
+candidates, the editing tool shows failures without explanations, the
+commentary tool opens an empty draft, and the release pipeline runs to
+the end. The test is recorded in the register with the date.
 
 **What this does not do.** Batch jobs cover the production pattern.
 Interactive uses, such as an editor asking for an explanation on
@@ -194,10 +233,10 @@ capacity for it, which the measured throughput sizes.
 
 ## Verification
 
-- **Serving:** the model server is inside the network; access is limited; the version is pinned and recorded.
-- **Estimates:** every job has a recorded estimate and a measured outcome.
-- **Batch:** a job interrupted in testing resumes; output headers carry the versions.
-- **Independence:** the switch-off test passes with the fallbacks exercised.
+- **Serving.** The model server is inside the network, access is limited, and the version is pinned and recorded.
+- **Estimates.** Every job has a recorded estimate and a measured outcome.
+- **Batch.** A job interrupted in testing resumes, and the output headers carry the versions.
+- **Independence.** The switch-off test passes with the fallbacks exercised.
 
 ## Checklist
 

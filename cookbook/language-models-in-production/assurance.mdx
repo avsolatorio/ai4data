@@ -3,7 +3,7 @@ id: assurance
 title: "7. Quality assurance and documentation of model use"
 sidebar_label: "7. Assurance"
 sidebar_position: 8
-description: The controls that keep model-assisted production official (human oversight at defined points, evaluation suites per task, versioning), the measurement of effects on the statistics, and a statement of model use in the quality report of each release.
+description: How model-assisted production is kept official, through defined points of human decision, an evaluation suite per task, pinned versions, a measurement of the effect on the statistics, and a statement of model use in the quality report of each release.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -54,7 +54,7 @@ finds every section and every number it requires.
 
 <Recipe title="7.1 Define the decision points and the suite per task" level="AI-ready" skills="Methodologist; developer" time="One day per task">
 
-**Result:** for every task in the map, a written statement of where a
+**Result:** every task in the map has a written statement of where a
 person decides, an evaluation suite with the scores the task has to
 reach, and the versions that make any run reproducible.
 
@@ -71,6 +71,20 @@ reach, and the versions that make any run reproducible.
 4. Keep the three (decision points, suite, versions) in the register,
    and require all three before a task leaves its pilot phase.
 
+**Worked example.** For occupation coding, the decision point reads:
+"A coder decides every response below the confidence threshold, seeing
+the response, the related fields, and the model's three candidates. For
+responses above the threshold, the coding supervisor decides on the
+re-coded sample each round, without seeing the model's code. Decisions
+are recorded in the coding system." The suite is the labelled sample of
+3,200 responses with coder agreement of 0.91, the measures are accuracy
+by level, and the required score is 0.90 at four digits on the
+automated share. The versions recorded per run are ISCO-08 as published
+in 2012 with the national index version 4, the model's name and
+version, the prompt version, and the threshold of 0.80. The register
+row for the task carries all three, and the task left its pilot phase
+only when the row was complete.
+
 **What this does not do.** These controls cover the tasks in the map. A
 task done informally outside it, such as an analyst pasting records
 into an assistant, is outside every control. The AI-use policy's rules
@@ -80,8 +94,9 @@ and staff training are the remedy for that.
 
 <Recipe title="7.2 Measure the effect on the statistics" level="AI-ready" skills="Methodologist" time="Half a day per release">
 
-**Result:** for each task, evidence of whether model assistance changed
-the published statistics, and by how much, reported with the release.
+**Result:** each task has evidence of whether model assistance changed
+the published statistics and by how much, and the evidence is reported
+with the release.
 
 1. Coding: compare the distribution of codes by major group between the
    automatically coded share and the coder-coded share, and between
@@ -97,6 +112,19 @@ the published statistics, and by how much, reported with the release.
 4. Report these measurements in the statement of model use, with the
    method and the sample sizes.
 
+**Worked example.** For the second quarter of 2025, the share of responses coded to major
+group 5 (service and sales workers) is 14.2 percent in the
+automatically coded part and 14.6 percent in the coder-coded part. The
+difference is within what the sample sizes would produce by chance. The
+distribution by major group differs from the first quarter by less than
+one point in every group. The re-coded sample
+of 400 responses agrees with the model at four digits in 92 percent of
+cases. For editing, the editors' acceptance of proposed values was
+compared on two batches of 300 failures, one with proposals shown and
+one without, and the share of records corrected was the same within two
+points. The commentary check recorded seven numbers verified and none
+unverified. The statement reports all three with the sample sizes.
+
 **What this does not do.** A measured effect within sampling variation
 does not prove that there was none. It is the organization's evidence at
 the stated precision, which is how every other quality measure is
@@ -106,10 +134,10 @@ reported.
 
 <Recipe title="7.3 Publish a statement of model use with each release" level="Foundational" skills="Methodologist; dissemination officer" time="An hour per release">
 
-**Result:** a section in the release's quality report that says where
+**Result:** the release's quality report has a section that says where
 models were used, which ones, how well they performed, who decided, and
-what the effect on the statistics was, checked for completeness before
-publication.
+what the effect on the statistics was, and the section has been checked
+for completeness before publication.
 
 The example statement below is for the labour force survey release. It
 has six sections: where a model was used (one bullet per task, each
@@ -145,6 +173,12 @@ measured numbers in the performance section: 7
 result: PASS
 ```
 
+The first six lines confirm that each required section is present. The
+next line counts the listed uses that name their GSBPM sub-process, and
+the one after counts the numbers found in the performance section,
+because a performance section without numbers is a claim. The last line
+is the verdict.
+
 1. Write the statement from the register, the suites, and the run
    records.
 2. Run the check. Publish the statement in the quality report and link
@@ -155,6 +189,20 @@ result: PASS
 4. Once a year, audit one run from end to end: from the statement to
    the register, to the suite's report card, to the job's recorded
    versions, to a result reproduced on the labelled sample.
+
+**Worked example.** The statement for the labour force survey release
+lists three uses under "Where a model was used": occupation coding at
+GSBPM 5.2, edit failure explanation at 5.3, and release commentary at
+6.5. Under "Models and versions" it names the local open-weight model
+and its version for the first two and the hosted model and its version
+for the third. Under "Measured performance" it gives the coding accuracy
+of 0.92 on the re-coded sample of 400, the editors' rating of 88
+percent of explanations as right on a sample of 150, and the
+commentary check's seven verified numbers. Under "Human oversight" it
+names the coder, the editor, and the analyst at each point. Under
+"Effect on the statistics" it gives the distribution comparison of
+recipe 7.2. The check passes, and the statement is linked from the
+release page.
 
 **What this does not do.** The statement reports. The controls it
 describes are what give assurance, and a statement that cannot be
@@ -192,10 +240,10 @@ reproduced from the records is what the audit is there to find.
 
 ## Verification
 
-- **Tasks:** every map row has decision points, a suite with required scores, and recorded versions.
-- **Effects:** measured and reported per release with sample sizes.
-- **Statement:** passes the check; published with each release; the series is kept.
-- **Audit:** one run reproduced in the last year with the finding recorded.
+- **Tasks.** Every map row has decision points, a suite with required scores, and recorded versions.
+- **Effects.** The effects are measured and reported per release, with sample sizes.
+- **Statement.** The statement passes the check, is published with each release, and the series is kept.
+- **Audit.** One run has been reproduced in the last year, with the finding recorded.
 
 ## Checklist
 

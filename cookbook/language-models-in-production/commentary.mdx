@@ -3,7 +3,7 @@ id: commentary
 title: "5. Commentary and summaries with verified numbers"
 sidebar_label: "5. Commentary"
 sidebar_position: 6
-description: Drafting release commentary, summaries, and explanatory notes from the output tables with a model, verifying every number in the draft against the tables, sourcing comparative claims, and keeping the analyst's approval as the step that publishes.
+description: How a model drafts release commentary and summaries from the output tables, how every number in the draft is verified against the tables and every comparative claim is listed for a source, and how the analyst's edit and approval remain the step that publishes.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -52,9 +52,9 @@ services) is in no table and is flagged; the claim "lowest level since
 
 <Recipe title="5.1 Draft from the output tables with the style guide" level="Foundational" skills="Analyst; access to a model" time="Minutes per release">
 
-**Result:** a first draft of the release commentary, written by a model
-from the release's own tables in the organization's style, clearly
-marked as a draft.
+**Result:** the release has a first draft of its commentary, written by
+a model from the release's own tables in the organization's style, and
+clearly marked as a draft.
 
 1. Give the model four inputs:
    - the output tables, as CSV or as a compact text table with series,
@@ -70,6 +70,19 @@ marked as a draft.
 3. Save the draft with the model's name and the date. It goes to the
    check of recipe 5.2 before any person edits it.
 
+**Worked example.** For the labour force release of the second quarter
+of 2025, the analyst gives the model the release table with its eight
+series, the metadata that marks the quarter as provisional, the
+two-page style guide, and the first quarter's commentary. The draft
+comes back in a minute. Its first paragraph reads: "The unemployment
+rate fell to 6.1% in the second quarter of 2025, from 6.3% in the
+previous quarter. Youth unemployment stood at 16.8%, and the labour
+force participation rate rose to 61.2%. The number of employed persons
+reached 4.31 million, an increase of 44,000. All figures for the quarter
+are provisional." A later paragraph says that services added 38,000
+jobs and that unemployment is at its lowest level since 2019. The draft
+is saved as `commentary_draft.md` with the model's name and the date.
+
 **What this does not do.** A draft from the tables says what the tables
 say. The analysis (why the rate moved, what it means) is the analyst's.
 The draft is a starting text, never the published one.
@@ -78,10 +91,10 @@ The draft is a starting text, never the published one.
 
 <Recipe title="5.2 Verify every number and list every claim" level="AI-ready" skills="Python" time="Seconds per draft">
 
-**Result:** every number in the draft matched to the release table or
-flagged, every comparative claim listed for sourcing, and a check that
-provisional values are stated as provisional, all before an analyst
-reads the draft.
+**Result:** every number in the draft has been matched to the release
+table or flagged, every comparative claim is listed for sourcing, and
+the draft has been checked for stating provisional values as
+provisional, all before an analyst reads it.
 
 The example uses the release table (one row per series with its value,
 its previous value, its unit, and its status, where `P` means
@@ -113,6 +126,12 @@ CLAIM      lowest level since 2019.
 6 verified, 1 unverified, 1 claim(s) needing a source; provisional values are stated as provisional
 ```
 
+Each line names a number found in the draft, its status, and how it was
+matched: as a value, as a previous value, as a change computed from the
+two, or as a rounded form. A number that matches nothing is marked
+unverified, a comparative phrase is listed as a claim, and the last line
+sums up and confirms the provisional wording.
+
 1. Run the check on every draft. A draft with an unverified number or
    an unsourced claim does not go further.
 2. For an unverified number, either add the table it came from to the
@@ -125,6 +144,17 @@ CLAIM      lowest level since 2019.
 4. Keep the check's output with the draft as the record of
    verification.
 
+**Worked example.** In the run above, the 44,000 is verified as the
+change in employed persons from 4,268 thousand to 4,312 thousand, and
+4.31 million is verified as the rounded form of the same series. The
+38,000 jobs in services match nothing, because the release table has no
+sector breakdown; the analyst checks the sector table, which the model
+was never given, finds that services added 36,000, and removes the
+sentence from the draft. The claim "lowest level since 2019" is checked
+against the series history, where the rate was 5.9 percent in the fourth
+quarter of 2019, so the claim is false and is removed. The check's
+output is saved beside the draft.
+
 **What this does not do.** A verified number can still be attached to
 the wrong series in a sentence; the analyst reads the draft. The check
 knows the claim patterns written into it; when an analyst finds a new
@@ -134,9 +164,9 @@ one, it is added.
 
 <Recipe title="5.3 Edit, approve, and measure" level="AI-ready" skills="Analyst; head of the unit" time="Part of each release">
 
-**Result:** published commentary that an analyst has edited and
-approved, with the approval recorded, the final text checked again, and
-a measure of how much the draft was changed.
+**Result:** the published commentary has been edited and approved by an
+analyst, the approval is recorded, the final text has been checked
+again, and the organization knows how much the draft was changed.
 
 1. The analyst edits the checked draft in the publication tool and
    approves it. Record the approval, the analyst, and the date with the
@@ -151,6 +181,19 @@ a measure of how much the draft was changed.
    glossary and run the translation checks of the
    [curation cookbook](/cookbook/metadata-curation-with-llms/translate).
    A native speaker approves each language.
+
+**Worked example.** The analyst edits the checked draft in forty
+minutes, adding two sentences of interpretation about the seasonal
+pattern and rewriting the paragraph on participation. The approval is
+recorded with her initials and the date. The check runs again on the
+final text and verifies every number, including the 0.4 point
+seasonal difference she added from the seasonally adjusted table, which
+was added to the model's inputs for the next release. The edit measure
+shows the headline paragraph 10 percent changed, the youth paragraph
+unchanged, and the participation paragraph 70 percent changed. The
+unchanged youth paragraph is read again by the head of the unit, who
+confirms it. The French version is drafted with the glossary and
+approved by the French-speaking statistician.
 
 **What this does not do.** Approval makes the text official. The check
 and the analyst's reading are the controls, and the statement of model
@@ -187,9 +230,9 @@ use ([chapter 7](./assurance.mdx)) records that both were applied.
 
 ## Verification
 
-- **Check:** every published commentary has a check record with zero unverified numbers and every claim sourced.
-- **Approval:** recorded with analyst and date; the final text re-checked.
-- **Measure:** edit distance per section tracked per release.
+- **Check.** Every published commentary has a check record with zero unverified numbers and every claim sourced.
+- **Approval.** The approval is recorded with the analyst and the date, and the final text has been re-checked.
+- **Measure.** The edit distance per section is tracked for each release.
 
 ## Checklist
 

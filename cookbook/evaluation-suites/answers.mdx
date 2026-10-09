@@ -69,12 +69,12 @@ values that were retrieved for it.
    with the assistant's version and the set's version in the file name
    or in a header line.
 
-**Worked example.** One line of the example run reads, in short: question
-`a01` in English, expected behaviour "answer", retrieved identifier
-`FS_UNDERNOURISH_PCT`, retrieved values 7.6, 7.9, and 8.4, the answer
-"About 7.6% of the population was undernourished in 2024, down from 7.9%
-in 2023 (FS_UNDERNOURISH_PCT)", the cited identifier
-`FS_UNDERNOURISH_PCT`, and `declined` false. The expected value of 7.6
+**Worked example.** One line of the example run holds question `a01` in English, with the
+expected behaviour "answer". Its retrieved identifier is
+`FS_UNDERNOURISH_PCT`, with the retrieved values 7.6, 7.9, and 8.4. Its
+answer reads "About 7.6% of the population was undernourished in 2024,
+down from 7.9% in 2023 (FS_UNDERNOURISH_PCT)", its cited identifier is
+`FS_UNDERNOURISH_PCT`, and `declined` is false. The expected value of 7.6
 is in the question set; the line does not carry it. The file is named
 `answers_run_assistant-1.3_set-1.2.jsonl`.
 
@@ -186,10 +186,10 @@ is written down so that every reader applies the same one.
 
 **Worked example.** The reader takes the eight answers of the example
 run and applies the five rubric questions to each. The answer to `a01`
-passes all five. The answer to `a04`, which gives the unemployment rate
-for the second quarter of 2025 in French, has the right series, period,
-and unit, but it does not say that the value is provisional, and the
-metadata carries that caveat, so it fails the fourth question. The
+passes all five. The answer to `a04`, which gives the unemployment rate for the second
+quarter of 2025 in French, has the right series, period, and unit. It
+does not say that the value is provisional, and the metadata carries
+that caveat, so it fails the fourth question. The
 reader records "no" with the note "provisional status omitted", and the
 question goes back into the set with the expected caveat added to its
 expected answer. Five of the eight answers pass every rubric question,
