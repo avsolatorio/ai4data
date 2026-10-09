@@ -707,3 +707,152 @@
 .version a {
   color: #fff;
 }
+
+/* ---------- What it takes ---------- */
+
+.invControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.8rem;
+}
+
+.invHint {
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+.sizeSwitch {
+  display: inline-flex;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 0.15rem;
+  gap: 0.15rem;
+  background: var(--canvas);
+}
+
+.sizeItem {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.sizeOn {
+  background: var(--primary);
+  color: #fff;
+}
+
+.invWrap {
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--canvas);
+}
+
+.inv {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  margin: 0;
+  display: table;
+}
+
+.inv th,
+.inv td {
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  text-align: left;
+  vertical-align: top;
+  background: transparent;
+  line-height: 1.5;
+}
+
+.inv thead th {
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.inv th[scope='row'] {
+  white-space: nowrap;
+}
+
+.invGrade {
+  display: block;
+  font-weight: 600;
+}
+
+.invLevel {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.invMore {
+  display: block;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--primary);
+  background: none;
+  border: 0;
+  padding: 0.2rem 0 0;
+  cursor: pointer;
+}
+
+.invLine {
+  display: block;
+}
+
+.invList {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.invList li {
+  margin: 0.15rem 0;
+}
+
+.invRecipes td {
+  background: var(--surface-1);
+}
+
+.invFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 0;
+}
+
+.invFacts div {
+  border-left: 2px solid var(--primary);
+  padding-left: 0.8rem;
+}
+
+.invFacts dt {
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.invFacts dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media screen and (max-width: 900px) {
+  .invFacts {
+    grid-template-columns: 1fr;
+  }
+}

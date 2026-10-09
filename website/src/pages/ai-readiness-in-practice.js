@@ -10,6 +10,8 @@ import {
   resources,
   supportKinds,
 } from '@site/src/content/readinessMap';
+import investment from '@site/src/content/investment.json';
+import {LEVEL_TO_GRADE, investmentNotes} from '@site/src/content/investmentNotes';
 import styles from './ai-readiness-in-practice.module.css';
 
 const PILLARS = {
@@ -218,6 +220,145 @@ function Matrix({onPick}) {
   );
 }
 
+const SIZES = [
+  {id: 'small', label: 'Small office'},
+  {id: 'medium', label: 'Medium office'},
+  {id: 'large', label: 'Large office'},
+];
+
+function effortLabel([lo, hi]) {
+  if (hi === 0) {
+    return 'under a day';
+  }
+  if (lo === hi) {
+    return `about ${lo} person-day${lo === 1 ? '' : 's'}`;
+  }
+  return `${lo} to ${hi} person-days`;
+}
+
+function Investment({dim}) {
+  const [size, setSize] = useState('medium');
+  const [open, setOpen] = useState(null);
+  const data = investment[dim];
+  const notes = investmentNotes[dim];
+  if (!data || !notes) {
+    return null;
+  }
+  const levels = Object.keys(data);
+  return (
+    <div className={styles.block}>
+      <Heading as="h4" className={styles.blockTitle}>
+        What it takes{' '}
+        <span className={styles.blockMeta}>roles and effort summed from the linked recipes; systems and hosting written per dimension</span>
+      </Heading>
+      <div className={styles.invControls}>
+        <span className={styles.invHint}>Hosting shown for</span>
+        <div className={styles.sizeSwitch} role="group" aria-label="Office size">
+          {SIZES.map((s) => (
+            <button key={s.id} type="button" className={clsx(styles.sizeItem, size === s.id && styles.sizeOn)} aria-pressed={size === s.id} onClick={() => setSize(s.id)}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className={styles.invWrap}>
+        <table className={styles.inv}>
+          <thead>
+            <tr>
+              <th scope="col">Step</th>
+              <th scope="col">Who</th>
+              <th scope="col">One-off effort</th>
+              <th scope="col">Work that recurs</th>
+              <th scope="col">Systems that have to exist</th>
+            </tr>
+          </thead>
+          <tbody>
+            {levels.map((lv) => {
+              const d = data[lv];
+              const isOpen = open === lv;
+              return (
+                <Fragment key={lv}>
+                  <tr>
+                    <th scope="row">
+                      <span className={styles.invGrade}>{LEVEL_TO_GRADE[lv]}</span>
+                      <span className={styles.invLevel}>{lv} recipes</span>
+                    </th>
+                    <td>{d.roles.slice(0, 4).join(', ')}{d.roles.length > 4 ? `, and ${d.roles.length - 4} more` : ''}</td>
+                    <td>
+                      {effortLabel(d.effort_days)}
+                      <button type="button" className={styles.invMore} onClick={() => setOpen(isOpen ? null : lv)} aria-expanded={isOpen}>
+                        {isOpen ? 'hide' : 'show'} the {d.recipes.length} recipes
+                      </button>
+                    </td>
+                    <td>
+                      {d.per_item.length > 0 && <span className={styles.invLine}>Per item: {d.per_item.slice(0, 3).join('; ').toLowerCase()}</span>}
+                      {d.per_period.length > 0 && <span className={styles.invLine}>Per period: {d.per_period.slice(0, 3).join('; ').toLowerCase()}</span>}
+                      {d.per_item.length === 0 && d.per_period.length === 0 && '—'}
+                    </td>
+                    <td>
+                      <ul className={styles.invList}>
+                        {(notes.systems[lv] || []).map((x) => (
+                          <li key={x}>{x}</li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                  {isOpen && (
+                    <tr className={styles.invRecipes}>
+                      <td colSpan={5}>
+                        <ul className={styles.invList}>
+                          {d.recipes.map((r) => (
+                            <li key={r.chapter + r.title}>
+                              <Link to={`/cookbook/${r.chapter}`}>{r.title}</Link>
+                              <span className={styles.resNote}>{r.skills} · {r.time}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <dl className={styles.invFacts}>
+        <div>
+          <dt>Hardware and hosting, {SIZES.find((s) => s.id === size).label.toLowerCase()}</dt>
+          <dd>{notes.hosting[size]}</dd>
+        </div>
+        <div>
+          <dt>Kinds of cost</dt>
+          <dd>
+            <ul className={styles.invList}>
+              {notes.money.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>Depends on</dt>
+          <dd>
+            {notes.dependsOn.length === 0
+              ? 'No other dimension; this is where the data side starts.'
+              : notes.dependsOn.map((x, i) => (
+                  <Fragment key={x}>
+                    {i > 0 && ', '}
+                    <a href={`#dim-${x}`}>{x} {dimensions.find((q) => q.id === x).name}</a>
+                  </Fragment>
+                ))}
+          </dd>
+        </div>
+      </dl>
+      <p className={styles.fine}>
+        Effort is the sum of the time lines of the recipes the dimension links, written for a first implementation on the running examples; a large catalog multiplies the per-item work. Money is given as kinds of cost because prices differ too much between countries and years for a figure to hold. Pillar I has no such table: its investments are institutional decisions the program does not cost.
+      </p>
+    </div>
+  );
+}
+
 function Explorer({selected, setSelected}) {
   const d = dimensions.find((x) => x.id === selected);
   const pillar = PILLARS[d.pillar];
@@ -319,6 +460,8 @@ function Explorer({selected, setSelected}) {
                 </div>
               </div>
             )}
+
+            {d.pillar === 2 && <Investment dim={d.id} />}
 
             {d.cookbook.length > 0 && (
               <div className={styles.block}>

@@ -1,0 +1,1585 @@
+{
+  "2.1": {
+    "Foundational": {
+      "roles": [
+        "Developer or data engineer",
+        "Data curator",
+        "Subject-matter staff",
+        "Catalog or data manager",
+        "Management",
+        "Methodologist",
+        "Dissemination officer"
+      ],
+      "effort_days": [
+        3,
+        3
+      ],
+      "per_period": [
+        "minutes after that",
+        "minutes on each release"
+      ],
+      "per_item": [
+        "About 30 minutes per indicator",
+        "Half an hour per document",
+        "Two to four hours per survey"
+      ],
+      "recipes": [
+        {
+          "title": "1.1 Check the records against the schema and a completeness profile",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day the first time; minutes after that",
+          "skills": "Anyone who can export the catalog and run a Python script; a metadata lead to set the profile"
+        },
+        {
+          "title": "3.1 Write a definition and method note with a fixed template",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "About 30 minutes per indicator",
+          "skills": "Subject-matter statistician"
+        },
+        {
+          "title": "3.1 Check the data dictionary before release",
+          "chapter": "microdata-documentation/variables",
+          "time": "One hour the first time; minutes on each release",
+          "skills": "Data curator; Python"
+        },
+        {
+          "title": "4.1 Attach the question text to every collected variable",
+          "chapter": "microdata-documentation/concepts",
+          "time": "Two to four hours per survey",
+          "skills": "Data curator with the questionnaire"
+        },
+        {
+          "title": "6.1 Build the vocabulary",
+          "chapter": "metadata-curation-with-llms/standardize",
+          "time": "Two days for the first version",
+          "skills": "Curator; subject-matter staff"
+        },
+        {
+          "title": "2.2 Run the migration and review the report",
+          "chapter": "metadata-curation-with-llms/migrate",
+          "time": "Minutes to run; an hour to review",
+          "skills": "Python; curator"
+        },
+        {
+          "title": "7.1 Publish the tidy file next to the document",
+          "chapter": "data-from-documents/publish",
+          "time": "Half an hour per document",
+          "skills": "Web editor"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "Data curator",
+        "Subject-matter staff",
+        "Catalog or data manager",
+        "Methodologist"
+      ],
+      "effort_days": [
+        2,
+        2
+      ],
+      "per_period": [
+        "an hour per period to review",
+        "part of each release"
+      ],
+      "per_item": [
+        "Half a day per source",
+        "Half an hour per table",
+        "Minutes per document",
+        "Minutes per source",
+        "One to two days per code list",
+        "Two to four hours per survey"
+      ],
+      "recipes": [
+        {
+          "title": "1.2 Publish a schema.org Dataset record on every series page",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day for the template, then automatic",
+          "skills": "Web developer with access to the page template"
+        },
+        {
+          "title": "3.2 Publish code lists and crosswalks",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "One to two days per code list",
+          "skills": "Data manager; classification specialist for the crosswalk"
+        },
+        {
+          "title": "3.3 Record breaks and revisions as data",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "Half a day to set up; part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "3.2 Convert the dictionary into the DDI-based schema",
+          "chapter": "microdata-documentation/variables",
+          "time": "One hour",
+          "skills": "Python"
+        },
+        {
+          "title": "3.3 Document missing codes, universes, and derivations",
+          "chapter": "microdata-documentation/variables",
+          "time": "Two to four hours per survey",
+          "skills": "Subject-matter statistician"
+        },
+        {
+          "title": "4.2 Map variables to concepts and classifications",
+          "chapter": "microdata-documentation/concepts",
+          "time": "One day per survey the first time",
+          "skills": "Subject-matter statistician; classification specialist"
+        },
+        {
+          "title": "6.2 Map free text to the vocabulary",
+          "chapter": "metadata-curation-with-llms/standardize",
+          "time": "Minutes to run; an hour per period to review",
+          "skills": "Python; curator for the review"
+        },
+        {
+          "title": "2.1 Map the legacy columns to the schema",
+          "chapter": "metadata-curation-with-llms/migrate",
+          "time": "Half a day per source",
+          "skills": "Curator; a model for the proposal"
+        },
+        {
+          "title": "2.3 Validate the migrated records and route them into review",
+          "chapter": "metadata-curation-with-llms/migrate",
+          "time": "Minutes per source",
+          "skills": "Python; curator"
+        },
+        {
+          "title": "7.2 Describe each extracted table as a table record",
+          "chapter": "data-from-documents/publish",
+          "time": "Half an hour per table",
+          "skills": "Data curator; Python for the check"
+        },
+        {
+          "title": "7.3 Link the document record and the data in both directions",
+          "chapter": "data-from-documents/publish",
+          "time": "Minutes per document",
+          "skills": "Data curator"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer",
+        "Data curator",
+        "Methodologist"
+      ],
+      "effort_days": [
+        10,
+        15
+      ],
+      "per_period": [
+        "Ongoing"
+      ],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "1.3 Add semantic search next to keyword search",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python; a server with a few GB of memory"
+        },
+        {
+          "title": "4.3 Reuse questions and concepts across surveys",
+          "chapter": "microdata-documentation/concepts",
+          "time": "Ongoing; one week to set up",
+          "skills": "Methodologist; data curator"
+        }
+      ]
+    }
+  },
+  "2.2": {
+    "Foundational": {
+      "roles": [
+        "Developer or data engineer",
+        "Dissemination officer",
+        "Methodologist",
+        "Management",
+        "Data curator",
+        "Subject-matter staff",
+        "Catalog or data manager",
+        "Disclosure control specialist"
+      ],
+      "effort_days": [
+        3,
+        3
+      ],
+      "per_period": [
+        "An hour per release",
+        "Half a day per batch",
+        "Part of each review",
+        "minutes after that"
+      ],
+      "per_item": [
+        "About 30 minutes per indicator",
+        "seconds per record"
+      ],
+      "recipes": [
+        {
+          "title": "3.1 Write a definition and method note with a fixed template",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "About 30 minutes per indicator",
+          "skills": "Subject-matter statistician"
+        },
+        {
+          "title": "1.1 Check the records against the schema and a completeness profile",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day the first time; minutes after that",
+          "skills": "Anyone who can export the catalog and run a Python script; a metadata lead to set the profile"
+        },
+        {
+          "title": "5.1 Put source, release, and a citation on every page",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the template",
+          "skills": "Web editor"
+        },
+        {
+          "title": "8.1 Adopt a one-page AI-use policy",
+          "chapter": "ai-ready-dissemination/govern",
+          "time": "One day to draft; approval time varies",
+          "skills": "Management; legal review"
+        },
+        {
+          "title": "4.1 Score records on the four dimensions",
+          "chapter": "metadata-curation-with-llms/assess",
+          "time": "One hour to set up; seconds per record",
+          "skills": "Curator with access to a model; Python for the batch"
+        },
+        {
+          "title": "5.3 Record the decisions",
+          "chapter": "metadata-curation-with-llms/review",
+          "time": "Part of each review",
+          "skills": "Curator"
+        },
+        {
+          "title": "4.1 Explain edit failures in plain language",
+          "chapter": "language-models-in-production/editing",
+          "time": "One day to set up",
+          "skills": "Editing supervisor; developer"
+        },
+        {
+          "title": "7.3 Publish a statement of model use with each release",
+          "chapter": "language-models-in-production/assurance",
+          "time": "An hour per release",
+          "skills": "Methodologist; dissemination officer"
+        },
+        {
+          "title": "5.2 Review a sample with the page open",
+          "chapter": "data-from-documents/verify",
+          "time": "Half a day per batch",
+          "skills": "Dissemination officer"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "Data curator",
+        "Catalog or data manager",
+        "Dissemination officer",
+        "Methodologist",
+        "Subject-matter staff",
+        "Staff of the unit",
+        "Management"
+      ],
+      "effort_days": [
+        6,
+        54
+      ],
+      "per_period": [
+        "An hour per review case",
+        "Half a day per release",
+        "Minutes per batch",
+        "Minutes per change",
+        "Minutes per period",
+        "minutes per batch",
+        "part of each release"
+      ],
+      "per_item": [
+        "One day per task",
+        "One hour per component",
+        "One to three minutes per issue",
+        "One to two days per code list"
+      ],
+      "recipes": [
+        {
+          "title": "3.2 Publish code lists and crosswalks",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "One to two days per code list",
+          "skills": "Data manager; classification specialist for the crosswalk"
+        },
+        {
+          "title": "3.3 Record breaks and revisions as data",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "Half a day to set up; part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "1.2 Publish a schema.org Dataset record on every series page",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day for the template, then automatic",
+          "skills": "Web developer with access to the page template"
+        },
+        {
+          "title": "5.2 Return provenance with every API response",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "One day",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "8.2 Keep an AI component register",
+          "chapter": "ai-ready-dissemination/govern",
+          "time": "One hour per component; review twice a year",
+          "skills": "Whoever owns the policy"
+        },
+        {
+          "title": "4.2 Calibrate the scores against curators",
+          "chapter": "metadata-curation-with-llms/assess",
+          "time": "One day for 50 records",
+          "skills": "Two curators; Python"
+        },
+        {
+          "title": "4.3 Aggregate into a catalog report",
+          "chapter": "metadata-curation-with-llms/assess",
+          "time": "Minutes per period",
+          "skills": "Python"
+        },
+        {
+          "title": "5.1 Run the review pipeline",
+          "chapter": "metadata-curation-with-llms/review",
+          "time": "One day to set up; minutes per batch",
+          "skills": "Developer; curator"
+        },
+        {
+          "title": "5.2 Review in the board",
+          "chapter": "metadata-curation-with-llms/review",
+          "time": "One to three minutes per issue",
+          "skills": "Curator"
+        },
+        {
+          "title": "4.2 Propose values and check them against the rules",
+          "chapter": "language-models-in-production/editing",
+          "time": "Half a day to set up; minutes per batch",
+          "skills": "Python; editing supervisor"
+        },
+        {
+          "title": "4.3 Draft anomaly explanations with cited evidence",
+          "chapter": "language-models-in-production/editing",
+          "time": "One day to set up",
+          "skills": "Analyst; developer"
+        },
+        {
+          "title": "7.1 Define the decision points and the suite per task",
+          "chapter": "language-models-in-production/assurance",
+          "time": "One day per task",
+          "skills": "Methodologist; developer"
+        },
+        {
+          "title": "7.2 Measure the effect on the statistics",
+          "chapter": "language-models-in-production/assurance",
+          "time": "Half a day per release",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "5.1 Check values against printed labels, totals, and derived rates",
+          "chapter": "data-from-documents/verify",
+          "time": "Minutes per batch",
+          "skills": "Python"
+        },
+        {
+          "title": "7.1 Compare paired runs with intervals and a tolerance",
+          "chapter": "evaluation-suites/gates",
+          "time": "Minutes per change",
+          "skills": "Python"
+        },
+        {
+          "title": "7.3 Decide the review cases and grow the set where they occur",
+          "chapter": "evaluation-suites/gates",
+          "time": "An hour per review case",
+          "skills": "Head of the unit; dissemination staff"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer"
+      ],
+      "effort_days": [
+        8,
+        13
+      ],
+      "per_period": [
+        "repeat with each change"
+      ],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "1.3 Add semantic search next to keyword search",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python; a server with a few GB of memory"
+        },
+        {
+          "title": "5.3 Verify the numbers in a generated answer",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the basic check",
+          "skills": "Python developer"
+        },
+        {
+          "title": "8.3 Test for prompt injection",
+          "chapter": "ai-ready-dissemination/govern",
+          "time": "Half a day; repeat with each change",
+          "skills": "Developer"
+        },
+        {
+          "title": "5.3 Cross-check extracted figures against the catalog",
+          "chapter": "data-from-documents/verify",
+          "time": "One day to set up",
+          "skills": "Developer"
+        },
+        {
+          "title": "7.2 Put the gate in continuous integration",
+          "chapter": "evaluation-suites/gates",
+          "time": "One day",
+          "skills": "Developer"
+        }
+      ]
+    }
+  },
+  "2.3": {
+    "Foundational": {
+      "roles": [
+        "Developer or data engineer",
+        "Dissemination officer",
+        "Catalog or data manager",
+        "Management",
+        "Subject-matter staff",
+        "Data curator",
+        "IT operations and security"
+      ],
+      "effort_days": [
+        3,
+        32
+      ],
+      "per_period": [
+        "minutes after that"
+      ],
+      "per_item": [
+        "Half a day per survey",
+        "minutes per dataset"
+      ],
+      "recipes": [
+        {
+          "title": "1.1 Check the records against the schema and a completeness profile",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day the first time; minutes after that",
+          "skills": "Anyone who can export the catalog and run a Python script; a metadata lead to set the profile"
+        },
+        {
+          "title": "5.1 Put source, release, and a citation on every page",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the template",
+          "skills": "Web editor"
+        },
+        {
+          "title": "6.1 Build a known-item question set",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "One day for the first 30 questions",
+          "skills": "Dissemination staff; speakers of each supported language"
+        },
+        {
+          "title": "1.1 Write the study record in the World Bank microdata schema",
+          "chapter": "microdata-documentation/find",
+          "time": "Half a day per survey",
+          "skills": "Data curator; the Metadata Editor or a text editor"
+        },
+        {
+          "title": "3.1 Write the guidance resource",
+          "chapter": "serving-statistics-to-agents/context",
+          "time": "Half a day",
+          "skills": "Dissemination officer; developer"
+        },
+        {
+          "title": "3.1 Register identifiers and publish the citation format",
+          "chapter": "monitoring-data-use/citations",
+          "time": "Half a day to set up; minutes per dataset",
+          "skills": "Catalog administrator"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "Data curator",
+        "Dissemination officer",
+        "Catalog or data manager",
+        "IT operations and security",
+        "Subject-matter staff"
+      ],
+      "effort_days": [
+        5,
+        34
+      ],
+      "per_period": [
+        "Part of each report",
+        "minutes per run",
+        "with each change"
+      ],
+      "per_item": [
+        "Half a day per survey by hand",
+        "Two hours per survey once the catalog exists"
+      ],
+      "recipes": [
+        {
+          "title": "1.2 Publish a schema.org Dataset record on every series page",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day for the template, then automatic",
+          "skills": "Web developer with access to the page template"
+        },
+        {
+          "title": "5.2 Return provenance with every API response",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "One day",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "6.2 Score retrieval automatically",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "Two hours",
+          "skills": "Python"
+        },
+        {
+          "title": "1.2 Publish the record in a catalog with a persistent identifier",
+          "chapter": "microdata-documentation/find",
+          "time": "Two hours per survey once the catalog exists",
+          "skills": "Catalog administrator"
+        },
+        {
+          "title": "5.1 Group variables into themes",
+          "chapter": "microdata-documentation/navigate",
+          "time": "Half a day per survey by hand; minutes with the pipeline, plus review",
+          "skills": "Data curator; Python for the automated version"
+        },
+        {
+          "title": "5.2 Measure variable search with a known-variable question set",
+          "chapter": "microdata-documentation/navigate",
+          "time": "One day for the first 30 questions",
+          "skills": "Data curator; speakers of each supported language; Python"
+        },
+        {
+          "title": "3.2 Serve code lists, the release calendar, and notes as resources",
+          "chapter": "serving-statistics-to-agents/context",
+          "time": "One day",
+          "skills": "Developer"
+        },
+        {
+          "title": "3.3 Add prompt templates for the common question types",
+          "chapter": "serving-statistics-to-agents/context",
+          "time": "Half a day",
+          "skills": "Dissemination officer; developer"
+        },
+        {
+          "title": "3.4 Check the guidance against the manifest",
+          "chapter": "serving-statistics-to-agents/context",
+          "time": "Minutes; with each change",
+          "skills": "Python"
+        },
+        {
+          "title": "3.2 Collect citation events and merge them",
+          "chapter": "monitoring-data-use/citations",
+          "time": "One day to set up; minutes per run",
+          "skills": "Developer"
+        },
+        {
+          "title": "3.3 Report citations with the other measures",
+          "chapter": "monitoring-data-use/citations",
+          "time": "Part of each report",
+          "skills": "Dissemination officer"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer",
+        "Subject-matter staff"
+      ],
+      "effort_days": [
+        16,
+        26
+      ],
+      "per_period": [
+        "part of each release"
+      ],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "1.3 Add semantic search next to keyword search",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python; a server with a few GB of memory"
+        },
+        {
+          "title": "5.3 Verify the numbers in a generated answer",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the basic check",
+          "skills": "Python developer"
+        },
+        {
+          "title": "6.3 Add answer-level tests",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "One week to set up; part of each release",
+          "skills": "Python; subject-matter reviewers"
+        },
+        {
+          "title": "5.3 Add semantic variable search across surveys",
+          "chapter": "microdata-documentation/navigate",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python"
+        }
+      ]
+    }
+  },
+  "2.4": {
+    "Foundational": {
+      "roles": [
+        "Developer or data engineer",
+        "Dissemination officer",
+        "Management",
+        "Catalog or data manager",
+        "Methodologist",
+        "Subject-matter staff",
+        "Disclosure control specialist",
+        "IT operations and security"
+      ],
+      "effort_days": [
+        4,
+        5
+      ],
+      "per_period": [
+        "part of each release"
+      ],
+      "per_item": [
+        "About 30 minutes per indicator"
+      ],
+      "recipes": [
+        {
+          "title": "2.1 Publish tidy CSV files at stable URLs",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day to set the convention, then part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "5.1 Put source, release, and a citation on every page",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the template",
+          "skills": "Web editor"
+        },
+        {
+          "title": "3.1 Write a definition and method note with a fixed template",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "About 30 minutes per indicator",
+          "skills": "Subject-matter statistician"
+        },
+        {
+          "title": "5.1 Define the tiers, the quotas, and the terms",
+          "chapter": "serving-statistics-to-agents/access",
+          "time": "One day",
+          "skills": "Dissemination lead; legal; developer"
+        },
+        {
+          "title": "9.1 Host the server at a stable endpoint",
+          "chapter": "serving-statistics-to-agents/operate",
+          "time": "One to two days",
+          "skills": "Operations; developer"
+        },
+        {
+          "title": "8.1 Adopt the version policy",
+          "chapter": "ml-ready-datasets/version",
+          "time": "An hour",
+          "skills": "Dataset owner"
+        },
+        {
+          "title": "8.2 Build and verify the manifest",
+          "chapter": "ml-ready-datasets/version",
+          "time": "Minutes",
+          "skills": "Python"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "IT operations and security",
+        "Catalog or data manager",
+        "Dissemination officer",
+        "Subject-matter staff"
+      ],
+      "effort_days": [
+        6,
+        8
+      ],
+      "per_period": [
+        "Minutes per period",
+        "an hour per period",
+        "ongoing",
+        "part of each period",
+        "part of each release"
+      ],
+      "per_item": [
+        "One to two days per code list"
+      ],
+      "recipes": [
+        {
+          "title": "2.2 Describe the API with OpenAPI",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One to two days for an existing API",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "5.2 Return provenance with every API response",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "One day",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "3.2 Publish code lists and crosswalks",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "One to two days per code list",
+          "skills": "Data manager; classification specialist for the crosswalk"
+        },
+        {
+          "title": "3.3 Record breaks and revisions as data",
+          "chapter": "ai-ready-dissemination/understand",
+          "time": "Half a day to set up; part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "5.2 Register clients and enforce limits per tier",
+          "chapter": "serving-statistics-to-agents/access",
+          "time": "Two days",
+          "skills": "Developer; operations"
+        },
+        {
+          "title": "5.4 Audit the log against the registry",
+          "chapter": "serving-statistics-to-agents/access",
+          "time": "Minutes per period",
+          "skills": "Python; operations"
+        },
+        {
+          "title": "9.2 Version the server and announce changes",
+          "chapter": "serving-statistics-to-agents/operate",
+          "time": "Half a day; ongoing",
+          "skills": "Developer; dissemination officer"
+        },
+        {
+          "title": "9.3 Count usage, estimate cost, and maintain",
+          "chapter": "serving-statistics-to-agents/operate",
+          "time": "One day to set up; part of each period",
+          "skills": "Operations; dissemination officer"
+        },
+        {
+          "title": "8.3 Register a DOI per version and track use",
+          "chapter": "ml-ready-datasets/version",
+          "time": "Half a day to set up; an hour per period",
+          "skills": "Catalog administrator; dissemination officer"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer",
+        "Management"
+      ],
+      "effort_days": [
+        12,
+        16
+      ],
+      "per_period": [],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "2.3 Wrap the API as an MCP server",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day for a prototype; a week to harden",
+          "skills": "Python developer"
+        },
+        {
+          "title": "5.3 Verify the numbers in a generated answer",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the basic check",
+          "skills": "Python developer"
+        },
+        {
+          "title": "5.3 Add OAuth-based authorization for user-level access",
+          "chapter": "serving-statistics-to-agents/access",
+          "time": "One to two weeks",
+          "skills": "Developer with identity management experience"
+        }
+      ]
+    }
+  },
+  "2.5": {
+    "Foundational": {
+      "roles": [
+        "Developer or data engineer",
+        "Management",
+        "Methodologist",
+        "Dissemination officer",
+        "Disclosure control specialist",
+        "Catalog or data manager",
+        "IT operations and security",
+        "Data scientist",
+        "Subject-matter staff",
+        "Staff of the unit"
+      ],
+      "effort_days": [
+        11,
+        40
+      ],
+      "per_period": [
+        "Two hours a month",
+        "minutes after that",
+        "minutes per run",
+        "part of each release"
+      ],
+      "per_item": [
+        "An hour per candidate",
+        "An hour per file",
+        "An hour per model",
+        "Half a day per candidate",
+        "Half a day per dataset",
+        "Half a day per survey",
+        "Half a day per task",
+        "Minutes per configuration",
+        "Minutes per file",
+        "One to three days per dataset",
+        "Two hours per dataset"
+      ],
+      "recipes": [
+        {
+          "title": "2.1 Publish tidy CSV files at stable URLs",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day to set the convention, then part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "4.1 Review failed searches every month",
+          "chapter": "ai-ready-dissemination/ask",
+          "time": "Two hours a month",
+          "skills": "Dissemination staff"
+        },
+        {
+          "title": "5.1 Put source, release, and a citation on every page",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the template",
+          "skills": "Web editor"
+        },
+        {
+          "title": "6.1 Build a known-item question set",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "One day for the first 30 questions",
+          "skills": "Dissemination staff; speakers of each supported language"
+        },
+        {
+          "title": "1.1 Check the records against the schema and a completeness profile",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day the first time; minutes after that",
+          "skills": "Anyone who can export the catalog and run a Python script; a metadata lead to set the profile"
+        },
+        {
+          "title": "3.1 Generate the record from the dictionary",
+          "chapter": "ml-ready-datasets/describe",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "3.2 Check the record and validate it",
+          "chapter": "ml-ready-datasets/describe",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "4.1 Write the card from the template",
+          "chapter": "ml-ready-datasets/document",
+          "time": "Half a day per dataset",
+          "skills": "Dataset owner; methodologist"
+        },
+        {
+          "title": "4.2 Check the card before release",
+          "chapter": "ml-ready-datasets/document",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "7.1 Choose the licence and write the terms",
+          "chapter": "ml-ready-datasets/license",
+          "time": "Half a day",
+          "skills": "Dissemination lead; legal"
+        },
+        {
+          "title": "7.3 Review the dataset for disclosure before release",
+          "chapter": "ml-ready-datasets/license",
+          "time": "One to three days per dataset",
+          "skills": "Disclosure control unit; dataset owner"
+        },
+        {
+          "title": "1.1 Write the statement of purpose",
+          "chapter": "ml-ready-datasets/purpose",
+          "time": "Half a day",
+          "skills": "Head of dissemination; methodologist"
+        },
+        {
+          "title": "1.2 List the candidate datasets from the organization's tasks",
+          "chapter": "ml-ready-datasets/purpose",
+          "time": "One day",
+          "skills": "Methodologist; production managers"
+        },
+        {
+          "title": "5.1 Compare the composition with population benchmarks",
+          "chapter": "ml-ready-datasets/represent",
+          "time": "An hour to set up; minutes per run",
+          "skills": "Python; methodologist for the benchmarks"
+        },
+        {
+          "title": "2.1 Lay out the records and write the dictionary",
+          "chapter": "ml-ready-datasets/shape",
+          "time": "Half a day per dataset",
+          "skills": "Data manager"
+        },
+        {
+          "title": "2.2 Separate identifiers, group keys, features, labels, and weights",
+          "chapter": "ml-ready-datasets/shape",
+          "time": "Two hours per dataset",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "6.1 Split by group with a recorded seed",
+          "chapter": "ml-ready-datasets/splits",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "8.1 Adopt the version policy",
+          "chapter": "ml-ready-datasets/version",
+          "time": "An hour",
+          "skills": "Dataset owner"
+        },
+        {
+          "title": "8.2 Build and verify the manifest",
+          "chapter": "ml-ready-datasets/version",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "4.1 Log what the measures need",
+          "chapter": "evaluation-suites/answers",
+          "time": "Half a day",
+          "skills": "Developer"
+        },
+        {
+          "title": "4.1 Prompt with the context the task needs",
+          "chapter": "small-and-open-models/adaptation",
+          "time": "Half a day per task",
+          "skills": "Developer; task owner"
+        },
+        {
+          "title": "2.1 Find candidates from named sources and shortlist",
+          "chapter": "small-and-open-models/candidates",
+          "time": "Half a day",
+          "skills": "Data scientist"
+        },
+        {
+          "title": "2.2 Read and classify the licence",
+          "chapter": "small-and-open-models/candidates",
+          "time": "An hour per candidate",
+          "skills": "Legal; data scientist"
+        },
+        {
+          "title": "5.1 Run every candidate on the suite under the same conditions",
+          "chapter": "small-and-open-models/comparison",
+          "time": "Half a day per candidate",
+          "skills": "Developer"
+        },
+        {
+          "title": "7.1 Estimate the total cost over three years",
+          "chapter": "small-and-open-models/cost",
+          "time": "Half a day",
+          "skills": "Head of IT; finance"
+        },
+        {
+          "title": "6.1 Record provenance and verify digests before every load",
+          "chapter": "small-and-open-models/security",
+          "time": "An hour per model",
+          "skills": "Infrastructure; Python"
+        },
+        {
+          "title": "3.1 Estimate memory and check the fit",
+          "chapter": "small-and-open-models/serving",
+          "time": "Minutes per configuration",
+          "skills": "Infrastructure; data scientist"
+        },
+        {
+          "title": "3.2 Choose the serving stack for the use",
+          "chapter": "small-and-open-models/serving",
+          "time": "Half a day",
+          "skills": "Infrastructure"
+        },
+        {
+          "title": "1.1 Describe each task by the properties that decide",
+          "chapter": "small-and-open-models/when",
+          "time": "Two hours",
+          "skills": "Developer; task owners"
+        },
+        {
+          "title": "1.2 Apply the rule and record the first choice and the comparison",
+          "chapter": "small-and-open-models/when",
+          "time": "Minutes",
+          "skills": "Python"
+        },
+        {
+          "title": "1.3 Separate size from openness in the decision",
+          "chapter": "small-and-open-models/when",
+          "time": "One hour",
+          "skills": "Head of IT; data protection officer"
+        },
+        {
+          "title": "2.1 Choose the method by data and use",
+          "chapter": "synthetic-data-for-sharing/method",
+          "time": "Half a day",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "2.2 Run a sequential synthesis with the parameters recorded",
+          "chapter": "synthetic-data-for-sharing/method",
+          "time": "One day for the first file",
+          "skills": "Methodologist with R or Python"
+        },
+        {
+          "title": "1.1 Write the purpose statement",
+          "chapter": "synthetic-data-for-sharing/purpose",
+          "time": "Half a day",
+          "skills": "Head of the microdata unit; methodologist"
+        },
+        {
+          "title": "1.2 Decide which files to synthesize, from demand",
+          "chapter": "synthetic-data-for-sharing/purpose",
+          "time": "Two hours",
+          "skills": "Microdata unit"
+        },
+        {
+          "title": "1.3 Separate synthesis for sharing from disclosure control",
+          "chapter": "synthetic-data-for-sharing/purpose",
+          "time": "Two hours",
+          "skills": "Methodologist; disclosure control unit"
+        },
+        {
+          "title": "5.2 Check integrity and structure before anything else",
+          "chapter": "synthetic-data-for-sharing/relational",
+          "time": "Minutes per file",
+          "skills": "Python"
+        },
+        {
+          "title": "6.1 Write and check the synthesis record",
+          "chapter": "synthetic-data-for-sharing/release",
+          "time": "An hour per file",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "4.1 Run the risk report",
+          "chapter": "synthetic-data-for-sharing/risk",
+          "time": "Minutes per file",
+          "skills": "Python; disclosure control unit for the limits"
+        },
+        {
+          "title": "3.1 Run the utility report at three levels",
+          "chapter": "synthetic-data-for-sharing/utility",
+          "time": "Minutes per file",
+          "skills": "Python"
+        },
+        {
+          "title": "7.1 Offer the file where applicants and users look",
+          "chapter": "synthetic-data-for-sharing/workflow",
+          "time": "Half a day",
+          "skills": "Dissemination officer; catalog administrator"
+        },
+        {
+          "title": "7.2 Write the guidance and the switch-over script",
+          "chapter": "synthetic-data-for-sharing/workflow",
+          "time": "Half a day per survey",
+          "skills": "Methodologist; developer"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "Management",
+        "Data scientist",
+        "IT operations and security",
+        "Methodologist",
+        "Catalog or data manager",
+        "Subject-matter staff",
+        "Dissemination officer",
+        "Disclosure control specialist",
+        "Data curator"
+      ],
+      "effort_days": [
+        16,
+        24
+      ],
+      "per_period": [
+        "An hour per quarter",
+        "Minutes per run",
+        "One hour per release",
+        "Part of each update",
+        "an hour per period"
+      ],
+      "per_item": [
+        "An hour per file",
+        "Half a day per candidate",
+        "Half a day per dataset",
+        "Half a day per file",
+        "Half a day per survey",
+        "Minutes per candidate",
+        "One hour per dataset",
+        "One to two days per task",
+        "Two minutes per answer"
+      ],
+      "recipes": [
+        {
+          "title": "2.2 Describe the API with OpenAPI",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One to two days for an existing API",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "5.2 Return provenance with every API response",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "One day",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "6.2 Score retrieval automatically",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "Two hours",
+          "skills": "Python"
+        },
+        {
+          "title": "1.2 Publish a schema.org Dataset record on every series page",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day for the template, then automatic",
+          "skills": "Web developer with access to the page template"
+        },
+        {
+          "title": "3.3 Publish the record where loaders look",
+          "chapter": "ml-ready-datasets/describe",
+          "time": "Half a day",
+          "skills": "Catalog administrator; developer"
+        },
+        {
+          "title": "4.3 Review the card and keep it current",
+          "chapter": "ml-ready-datasets/document",
+          "time": "One hour per release",
+          "skills": "Subject-matter specialist; dataset owner"
+        },
+        {
+          "title": "7.2 Make the licence and the terms machine-readable",
+          "chapter": "ml-ready-datasets/license",
+          "time": "An hour",
+          "skills": "Catalog administrator; developer"
+        },
+        {
+          "title": "1.3 Record the decision to publish",
+          "chapter": "ml-ready-datasets/purpose",
+          "time": "One hour per dataset",
+          "skills": "Dataset owner"
+        },
+        {
+          "title": "5.2 Report thin groups and the coverage of the label",
+          "chapter": "ml-ready-datasets/represent",
+          "time": "Half a day per dataset",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "2.3 Choose the formats and the release layout",
+          "chapter": "ml-ready-datasets/shape",
+          "time": "Half a day",
+          "skills": "Data manager; developer"
+        },
+        {
+          "title": "6.2 Use a time-based test part where rounds exist",
+          "chapter": "ml-ready-datasets/splits",
+          "time": "An hour",
+          "skills": "Methodologist"
+        },
+        {
+          "title": "6.3 Check for leakage before release",
+          "chapter": "ml-ready-datasets/splits",
+          "time": "Half a day",
+          "skills": "Data scientist"
+        },
+        {
+          "title": "8.3 Register a DOI per version and track use",
+          "chapter": "ml-ready-datasets/version",
+          "time": "Half a day to set up; an hour per period",
+          "skills": "Catalog administrator; dissemination officer"
+        },
+        {
+          "title": "4.2 Score the four automatic measures",
+          "chapter": "evaluation-suites/answers",
+          "time": "Minutes per run",
+          "skills": "Python"
+        },
+        {
+          "title": "4.3 Apply a rubric for what only a reader can judge",
+          "chapter": "evaluation-suites/answers",
+          "time": "Two minutes per answer",
+          "skills": "Subject-matter staff"
+        },
+        {
+          "title": "4.2 Retrieve the organization's material at query time",
+          "chapter": "small-and-open-models/adaptation",
+          "time": "One to two days per task",
+          "skills": "Developer"
+        },
+        {
+          "title": "4.3 Fine-tune on the organization's labelled data",
+          "chapter": "small-and-open-models/adaptation",
+          "time": "One to two weeks for the first model",
+          "skills": "Data scientist with a GPU"
+        },
+        {
+          "title": "2.3 Require a model card that passes the check",
+          "chapter": "small-and-open-models/candidates",
+          "time": "Minutes per candidate",
+          "skills": "Python; data scientist"
+        },
+        {
+          "title": "5.2 Measure cost per query and draw the frontier",
+          "chapter": "small-and-open-models/comparison",
+          "time": "Half a day",
+          "skills": "Developer; finance"
+        },
+        {
+          "title": "7.2 Staff the roles and document the skills",
+          "chapter": "small-and-open-models/cost",
+          "time": "Half a day",
+          "skills": "Head of the unit"
+        },
+        {
+          "title": "6.2 Update models through the suite's gate",
+          "chapter": "small-and-open-models/security",
+          "time": "Part of each update",
+          "skills": "Developer"
+        },
+        {
+          "title": "6.3 Isolate the serving environment",
+          "chapter": "small-and-open-models/security",
+          "time": "One day",
+          "skills": "Infrastructure; security"
+        },
+        {
+          "title": "3.3 Measure throughput and memory on a test run",
+          "chapter": "small-and-open-models/serving",
+          "time": "Half a day per candidate",
+          "skills": "Infrastructure; data scientist"
+        },
+        {
+          "title": "2.3 Run a transformer-based or network generator with memorization checks",
+          "chapter": "synthetic-data-for-sharing/method",
+          "time": "Two to three days for the first file",
+          "skills": "Data scientist with Python and a GPU"
+        },
+        {
+          "title": "5.1 Synthesize linked tables with a relational generator",
+          "chapter": "synthetic-data-for-sharing/relational",
+          "time": "Two to three days for the first survey",
+          "skills": "Data scientist with Python"
+        },
+        {
+          "title": "6.2 Catalog the file as synthetic with its links, licence, and citation",
+          "chapter": "synthetic-data-for-sharing/release",
+          "time": "An hour per file",
+          "skills": "Data curator"
+        },
+        {
+          "title": "6.3 Take and record the release decision",
+          "chapter": "synthetic-data-for-sharing/release",
+          "time": "An hour per file",
+          "skills": "Head of the microdata unit; disclosure control unit"
+        },
+        {
+          "title": "4.2 Set the limits and record the review",
+          "chapter": "synthetic-data-for-sharing/risk",
+          "time": "Half a day per survey",
+          "skills": "Disclosure control unit; methodologist"
+        },
+        {
+          "title": "3.2 Add the target analyses of the intended uses",
+          "chapter": "synthetic-data-for-sharing/utility",
+          "time": "Half a day per file",
+          "skills": "Methodologist; subject-matter analyst"
+        },
+        {
+          "title": "3.3 Set thresholds and decide",
+          "chapter": "synthetic-data-for-sharing/utility",
+          "time": "An hour per file",
+          "skills": "Methodologist; head of the microdata unit"
+        },
+        {
+          "title": "7.3 Measure the effect and track use",
+          "chapter": "synthetic-data-for-sharing/workflow",
+          "time": "An hour per quarter",
+          "skills": "Microdata unit; analyst"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer",
+        "Data scientist",
+        "Subject-matter staff",
+        "Methodologist",
+        "Management",
+        "Disclosure control specialist"
+      ],
+      "effort_days": [
+        32,
+        42
+      ],
+      "per_period": [
+        "Half a day a month",
+        "Half a day per release",
+        "Ongoing",
+        "part of each release"
+      ],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "2.3 Wrap the API as an MCP server",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day for a prototype; a week to harden",
+          "skills": "Python developer"
+        },
+        {
+          "title": "4.2 Answer from retrieved records only",
+          "chapter": "ai-ready-dissemination/ask",
+          "time": "One week for a prototype",
+          "skills": "Developer with access to a language model and the API from chapter 2"
+        },
+        {
+          "title": "4.3 Review a sample of answers each month",
+          "chapter": "ai-ready-dissemination/ask",
+          "time": "Half a day a month",
+          "skills": "Subject-matter staff"
+        },
+        {
+          "title": "5.3 Verify the numbers in a generated answer",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the basic check",
+          "skills": "Python developer"
+        },
+        {
+          "title": "6.3 Add answer-level tests",
+          "chapter": "ai-ready-dissemination/evaluate",
+          "time": "One week to set up; part of each release",
+          "skills": "Python; subject-matter reviewers"
+        },
+        {
+          "title": "1.3 Add semantic search next to keyword search",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python; a server with a few GB of memory"
+        },
+        {
+          "title": "5.3 Publish the model's error by group with the dataset",
+          "chapter": "ml-ready-datasets/represent",
+          "time": "One day",
+          "skills": "Data scientist; methodologist"
+        },
+        {
+          "title": "5.3 Revisit the frontier on each release and route by it",
+          "chapter": "small-and-open-models/comparison",
+          "time": "Half a day per release",
+          "skills": "Developer"
+        },
+        {
+          "title": "7.3 Share infrastructure, test sets, and models",
+          "chapter": "small-and-open-models/cost",
+          "time": "Ongoing",
+          "skills": "Head of IT; head of the unit"
+        },
+        {
+          "title": "5.3 Synthesize panel data wave by wave",
+          "chapter": "synthetic-data-for-sharing/relational",
+          "time": "One week for the first panel",
+          "skills": "Methodologist; data scientist"
+        },
+        {
+          "title": "4.3 Add membership inference and formal methods where the tier requires",
+          "chapter": "synthetic-data-for-sharing/risk",
+          "time": "One to two weeks to set up",
+          "skills": "Data scientist; disclosure control unit"
+        }
+      ]
+    }
+  },
+  "2.6": {
+    "Foundational": {
+      "roles": [
+        "Management",
+        "Disclosure control specialist",
+        "Developer or data engineer",
+        "Dissemination officer",
+        "Catalog or data manager",
+        "Data curator"
+      ],
+      "effort_days": [
+        4,
+        4
+      ],
+      "per_period": [
+        "minutes after that",
+        "part of each release"
+      ],
+      "per_item": [
+        "One to three days per dataset",
+        "One to three days per file"
+      ],
+      "recipes": [
+        {
+          "title": "5.1 Put source, release, and a citation on every page",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the template",
+          "skills": "Web editor"
+        },
+        {
+          "title": "1.1 Check the records against the schema and a completeness profile",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day the first time; minutes after that",
+          "skills": "Anyone who can export the catalog and run a Python script; a metadata lead to set the profile"
+        },
+        {
+          "title": "2.1 Publish tidy CSV files at stable URLs",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day to set the convention, then part of each release",
+          "skills": "Data manager"
+        },
+        {
+          "title": "7.1 Choose the licence and write the terms",
+          "chapter": "ml-ready-datasets/license",
+          "time": "Half a day",
+          "skills": "Dissemination lead; legal"
+        },
+        {
+          "title": "7.3 Review the dataset for disclosure before release",
+          "chapter": "ml-ready-datasets/license",
+          "time": "One to three days per dataset",
+          "skills": "Disclosure control unit; dataset owner"
+        },
+        {
+          "title": "8.1 Adopt an access policy with tiers",
+          "chapter": "microdata-documentation/access",
+          "time": "One day to draft; approval time varies",
+          "skills": "Management; legal; disclosure control specialist"
+        },
+        {
+          "title": "8.2 Apply disclosure control and document it in the record",
+          "chapter": "microdata-documentation/access",
+          "time": "One to three days per file",
+          "skills": "Disclosure control specialist; data curator"
+        }
+      ]
+    },
+    "AI-ready": {
+      "roles": [
+        "Developer or data engineer",
+        "Catalog or data manager",
+        "IT operations and security",
+        "Data curator"
+      ],
+      "effort_days": [
+        3,
+        4
+      ],
+      "per_period": [],
+      "per_item": [
+        "One hour per survey"
+      ],
+      "recipes": [
+        {
+          "title": "5.2 Return provenance with every API response",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "One day",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "1.2 Publish a schema.org Dataset record on every series page",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "Half a day for the template, then automatic",
+          "skills": "Web developer with access to the page template"
+        },
+        {
+          "title": "2.2 Describe the API with OpenAPI",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One to two days for an existing API",
+          "skills": "Backend developer"
+        },
+        {
+          "title": "7.2 Make the licence and the terms machine-readable",
+          "chapter": "ml-ready-datasets/license",
+          "time": "An hour",
+          "skills": "Catalog administrator; developer"
+        },
+        {
+          "title": "8.3 State the conditions in every record",
+          "chapter": "microdata-documentation/access",
+          "time": "One hour per survey",
+          "skills": "Data curator"
+        }
+      ]
+    },
+    "AI-native": {
+      "roles": [
+        "Developer or data engineer",
+        "Catalog or data manager",
+        "IT operations and security"
+      ],
+      "effort_days": [
+        12,
+        18
+      ],
+      "per_period": [],
+      "per_item": [],
+      "recipes": [
+        {
+          "title": "5.3 Verify the numbers in a generated answer",
+          "chapter": "ai-ready-dissemination/trust",
+          "time": "Half a day for the basic check",
+          "skills": "Python developer"
+        },
+        {
+          "title": "1.3 Add semantic search next to keyword search",
+          "chapter": "ai-ready-dissemination/find",
+          "time": "One to two weeks including evaluation",
+          "skills": "Developer with Python; a server with a few GB of memory"
+        },
+        {
+          "title": "2.3 Wrap the API as an MCP server",
+          "chapter": "ai-ready-dissemination/retrieve",
+          "time": "One day for a prototype; a week to harden",
+          "skills": "Python developer"
+        },
+        {
+          "title": "8.4 Define what automated and AI clients may access",
+          "chapter": "microdata-documentation/access",
+          "time": "One day",
+          "skills": "Catalog administrator; developer"
+        }
+      ]
+    }
+  }
+}
