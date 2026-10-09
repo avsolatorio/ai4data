@@ -6,8 +6,7 @@ usage_context, as written by harmonize_mentions.py) and a documents table
 dataset: the number of documents that mention it, the number that use it
 (is_used true), and the split by year and by document type. Mentions that
 matched no canonical name are reported as other organizations' data, which
-shows what the organization's data are used together with. Standard
-library only.
+shows what the organization's data are used together with. Uses pandas.
 
 Usage:
     python use_report.py harmonized.jsonl documents.csv
@@ -21,60 +20,59 @@ coverage of chapter 2 and the recall of chapter 3 in mind.
 from __future__ import annotations
 
 import argparse
-import csv
-import json
 import sys
-from collections import defaultdict
-from pathlib import Path
+
+import pandas as pd
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("harmonized", type=Path)
-    parser.add_argument("documents", type=Path)
+    parser.add_argument("harmonized")
+    parser.add_argument("documents")
     args = parser.parse_args(argv)
+    docs = pd.read_csv(args.documents, dtype=str).fillna("")
+    mentions = pd.read_json(args.harmonized, lines=True)
+    mentions = mentions.merge(
+        docs[["document_id", "year", "type"]], on="document_id", how="left"
+    ).fillna({"year": "?", "type": "?"})
 
-    with args.documents.open(newline="", encoding="utf-8") as fh:
-        docs = {r["document_id"]: r for r in csv.DictReader(fh)}
-    with args.harmonized.open(encoding="utf-8") as fh:
-        mentions = [json.loads(line) for line in fh if line.strip()]
-
-    mentioning: dict[str, set] = defaultdict(set)
-    using: dict[str, set] = defaultdict(set)
-    by_year: dict[str, dict] = defaultdict(lambda: defaultdict(set))
-    by_type: dict[str, dict] = defaultdict(lambda: defaultdict(set))
-    external: dict[str, set] = defaultdict(set)
-    for m in mentions:
-        d = m["document_id"]
-        if not m.get("dataset_id"):
-            external[m["text"]].add(d)
-            continue
-        ds = m["dataset_id"]
-        mentioning[ds].add(d)
-        if m.get("is_used"):
-            using[ds].add(d)
-        doc = docs.get(d, {})
-        by_year[ds][doc.get("year", "?")].add(d)
-        by_type[ds][doc.get("type", "?")].add(d)
+    own = mentions[mentions["dataset_id"].notna() & (mentions["dataset_id"] != "")]
+    external = mentions[~mentions.index.isin(own.index)]
+    per_dataset = own.groupby("dataset_id").agg(
+        mentioned=("document_id", "nunique"),
+        used=(
+            "document_id",
+            lambda d: d[own.loc[d.index, "is_used"].astype(bool)].nunique(),
+        ),
+    )
+    per_dataset = per_dataset.sort_values(
+        ["used", "mentioned"], ascending=False, kind="stable"
+    )
 
     print(
-        f"{len(docs)} documents, {len(mentions)} mentions, {len(mentioning)} datasets of the organization mentioned\n"
+        f"{len(docs)} documents, {len(mentions)} mentions, {len(per_dataset)} datasets of the organization mentioned\n"
     )
     print(f"{'dataset':<22} {'mentioned in':>12} {'used in':>8}  by year / by type")
-    for ds in sorted(
-        mentioning, key=lambda k: (-len(using[k]), -len(mentioning[k]), k)
-    ):
-        years = ", ".join(f"{y}: {len(v)}" for y, v in sorted(by_year[ds].items()))
-        types = ", ".join(f"{t}: {len(v)}" for t, v in sorted(by_type[ds].items()))
-        print(
-            f"{ds:<22} {len(mentioning[ds]):>12} {len(using[ds]):>8}  {years} / {types}"
+    for ds, r in per_dataset.iterrows():
+        g = own[own["dataset_id"] == ds]
+        years = ", ".join(
+            f"{y}: {n}" for y, n in g.groupby("year")["document_id"].nunique().items()
         )
-    if external:
+        types = ", ".join(
+            f"{t}: {n}" for t, n in g.groupby("type")["document_id"].nunique().items()
+        )
+        print(f"{ds:<22} {r.mentioned:>12} {r.used:>8}  {years} / {types}")
+    if not external.empty:
         print("\nother organizations' data mentioned alongside (co-use):")
-        for name, ds in sorted(external.items(), key=lambda kv: -len(kv[1])):
-            print(f"  {name!r}: {len(ds)} document(s)")
+        for name, n in (
+            external.groupby("text")["document_id"]
+            .nunique()
+            .sort_values(ascending=False, kind="stable")
+            .items()
+        ):
+            print(f"  {name!r}: {n} document(s)")
     print(
         "\nCounts cover the collected documents only; read them with the coverage of the sources and the recall of the extractor."
     )

@@ -12,7 +12,7 @@ ip_hash, user_agent, status) and applies three rules before counting:
 Counts, per dataset and month, the regular requests (browsers), the
 machine requests (API clients and scripted tools, reported separately as
 the Code requires), and the unique investigations (distinct clients that
-touched the dataset). Standard library only.
+touched the dataset). Uses pandas.
 
 Usage:
     python count_access.py access_log.csv
@@ -27,11 +27,9 @@ users or uses; the use report presents them beside the mention counts.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import defaultdict
-from datetime import datetime, timedelta
-from pathlib import Path
+
+import pandas as pd
 
 ROBOTS = (
     "googlebot",
@@ -52,7 +50,7 @@ MACHINE = (
     "go-http-client",
     "agent/",
 )
-DOUBLE_CLICK = timedelta(seconds=30)
+DOUBLE_CLICK = pd.Timedelta(seconds=30)
 
 
 def kind(user_agent: str, action: str) -> str:
@@ -68,47 +66,32 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("log", type=Path)
+    parser.add_argument("log")
     args = parser.parse_args(argv)
-    with args.log.open(newline="", encoding="utf-8") as fh:
-        rows = sorted(csv.DictReader(fh), key=lambda r: r["timestamp"])
+    log = pd.read_csv(args.log, dtype=str)
+    log["when"] = pd.to_datetime(log["timestamp"], utc=True)
+    log = log.sort_values("when", kind="stable")
 
-    excluded = {"robot": 0, "double-click": 0, "status": 0}
-    last_seen: dict[tuple[str, str, str], datetime] = {}
-    counts: dict[tuple[str, str], dict[str, int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    clients: dict[tuple[str, str], set[str]] = defaultdict(set)
-    for r in rows:
-        if not r["status"].startswith("2"):
-            excluded["status"] += 1
-            continue
-        k = kind(r["user_agent"], r["action"])
-        if k == "robot":
-            excluded["robot"] += 1
-            continue
-        when = datetime.fromisoformat(r["timestamp"].replace("Z", "+00:00"))  # noqa: FURB162 (Python 3.10)
-        key = (r["ip_hash"], r["dataset_id"], r["action"])
-        if key in last_seen and when - last_seen[key] <= DOUBLE_CLICK:
-            excluded["double-click"] += 1
-            last_seen[key] = when
-            continue
-        last_seen[key] = when
-        month = r["timestamp"][:7]
-        counts[(r["dataset_id"], month)][f"{k}_{r['action']}"] += 1
-        counts[(r["dataset_id"], month)][k] += 1
-        clients[(r["dataset_id"], month)].add(r["ip_hash"])
+    ok = log["status"].str.startswith("2")
+    log["kind"] = [kind(ua, a) for ua, a in zip(log["user_agent"], log["action"])]
+    kept = log[ok & (log["kind"] != "robot")].copy()
+    # a repeat of the same request from the same client within 30 seconds is a double-click
+    gap = kept.groupby(["ip_hash", "dataset_id", "action"])["when"].diff()
+    double = gap.notna() & (gap <= DOUBLE_CLICK)
+    counted = kept[~double].copy()
+    counted["month"] = counted["timestamp"].str[:7]
 
     print(
-        f"{len(rows)} log rows; excluded: robots {excluded['robot']}, double-clicks {excluded['double-click']}, failed requests {excluded['status']}\n"
+        f"{len(log)} log rows; excluded: robots {(log['kind'] == 'robot').sum()}, double-clicks {double.sum()}, failed requests {(~ok).sum()}\n"
     )
     print(
         f"{'dataset':<22} {'month':<8} {'regular':>8} {'views':>6} {'downl.':>6} {'machine':>8} {'api':>4} {'clients':>8}"
     )
-    for (dataset, month), c in sorted(counts.items()):
+    for (dataset, month), g in counted.groupby(["dataset_id", "month"]):
+        regular, machine = g[g["kind"] == "regular"], g[g["kind"] == "machine"]
         print(
-            f"{dataset:<22} {month:<8} {c['regular']:>8} {c['regular_view']:>6} {c['regular_download']:>6} "
-            f"{c['machine']:>8} {c['machine_api']:>4} {len(clients[(dataset, month)]):>8}"
+            f"{dataset:<22} {month:<8} {len(regular):>8} {(regular['action'] == 'view').sum():>6} {(regular['action'] == 'download').sum():>6} "
+            f"{len(machine):>8} {(machine['action'] == 'api').sum():>4} {g['ip_hash'].nunique():>8}"
         )
     print(
         "\nRegular and machine requests are reported separately; neither counts users or uses."

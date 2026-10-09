@@ -13,7 +13,7 @@ overlapping span and type), and the counts of each error kind:
 
 The taxonomy says what to fix: boundary errors point to the model's span
 rules, wrong types to the label definitions, spurious predictions to the
-threshold, misses to coverage. Standard library only.
+threshold, misses to coverage. Uses pandas and rapidfuzz (partial-ratio overlap).
 
 Usage:
     python extraction_scores.py extraction_gold_pred.csv
@@ -28,20 +28,44 @@ types and languages.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import Counter
-from pathlib import Path
+
+import pandas as pd
+from rapidfuzz import fuzz
+
+OVERLAP = (
+    80  # partial-ratio score (0 to 100) above which two spans count as overlapping
+)
+
+# What each kind of row contributes under the exact rule and the lenient rule.
+OUTCOMES = {
+    "correct": {"exact": "tp", "lenient": "tp"},
+    "boundary": {"exact": "fp+fn", "lenient": "tp"},
+    "wrong type": {"exact": "fp+fn", "lenient": "fp+fn"},
+    "wrong span": {"exact": "fp+fn", "lenient": "fp+fn"},
+    "missed": {"exact": "fn", "lenient": "fn"},
+    "spurious": {"exact": "fp", "lenient": "fp"},
+}
 
 
-def overlap(a: str, b: str) -> bool:
-    a, b = a.lower().strip(), b.lower().strip()
-    return bool(a and b) and (
-        a in b or b in a or len(set(a.split()) & set(b.split())) >= 2
-    )
+def classify(r: pd.Series) -> str:
+    """Name the kind of row: correct, boundary, wrong type, wrong span, missed, or spurious."""
+    g, p = r["gold_span"].strip(), r["pred_span"].strip()
+    if g and not p:
+        return "missed"
+    if p and not g:
+        return "spurious"
+    if r["gold_type"] != r["pred_type"]:
+        return "wrong type"
+    if g.lower() == p.lower():
+        return "correct"
+    if fuzz.partial_ratio(g.lower(), p.lower()) >= OVERLAP:
+        return "boundary"
+    return "wrong span"
 
 
-def prf(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
+def prf(counts: pd.Series) -> tuple[float, float, float]:
+    tp, fp, fn = counts.get("tp", 0), counts.get("fp", 0), counts.get("fn", 0)
     p = tp / (tp + fp) if tp + fp else 0.0
     r = tp / (tp + fn) if tp + fn else 0.0
     f = 2 * p * r / (p + r) if p + r else 0.0
@@ -52,56 +76,29 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("aligned", type=Path)
+    parser.add_argument("aligned")
     args = parser.parse_args(argv)
-    with args.aligned.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    df = pd.read_csv(args.aligned, dtype=str).fillna("")
+    df["kind"] = df.apply(classify, axis=1)
+    kinds = df["kind"].value_counts()
 
-    kinds = Counter()
-    exact = Counter()
-    lenient = Counter()
-    for r in rows:
-        g, p = r["gold_span"].strip(), r["pred_span"].strip()
-        if g and not p:
-            kinds["missed"] += 1
-            exact["fn"] += 1
-            lenient["fn"] += 1
-        elif p and not g:
-            kinds["spurious"] += 1
-            exact["fp"] += 1
-            lenient["fp"] += 1
-        elif r["gold_type"] != r["pred_type"]:
-            kinds["wrong type"] += 1
-            exact["fp"] += 1
-            exact["fn"] += 1
-            lenient["fp"] += 1
-            lenient["fn"] += 1
-        elif g.lower() == p.lower():
-            kinds["correct"] += 1
-            exact["tp"] += 1
-            lenient["tp"] += 1
-        elif overlap(g, p):
-            kinds["boundary"] += 1
-            exact["fp"] += 1
-            exact["fn"] += 1
-            lenient["tp"] += 1
-        else:
-            kinds["wrong span"] += 1
-            exact["fp"] += 1
-            exact["fn"] += 1
-            lenient["fp"] += 1
-            lenient["fn"] += 1
-
-    print(f"{len(rows)} aligned rows\n")
-    for name, c in (
-        ("exact span and type", exact),
-        ("overlapping span, same type", lenient),
+    print(f"{len(df)} aligned rows\n")
+    for rule, name in (
+        ("exact", "exact span and type"),
+        ("lenient", "overlapping span, same type"),
     ):
-        p, r, f = prf(c["tp"], c["fp"], c["fn"])
-        print(
-            f"{name:<30} precision {p:.2f}  recall {r:.2f}  F1 {f:.2f}  (tp {c['tp']}, fp {c['fp']}, fn {c['fn']})"
+        outcomes = (
+            df["kind"]
+            .map(lambda k, rule=rule: OUTCOMES[k][rule])
+            .str.split("+")
+            .explode()
+            .value_counts()
         )
-    print("\nerror taxonomy: " + ", ".join(f"{k} {v}" for k, v in kinds.most_common()))
+        p, r, f = prf(outcomes)
+        print(
+            f"{name:<30} precision {p:.2f}  recall {r:.2f}  F1 {f:.2f}  (tp {outcomes.get('tp', 0)}, fp {outcomes.get('fp', 0)}, fn {outcomes.get('fn', 0)})"
+        )
+    print("\nerror taxonomy: " + ", ".join(f"{k} {v}" for k, v in kinds.items()))
     print(
         "boundary -> span rules; wrong type -> label definitions; spurious -> threshold; missed -> coverage"
     )

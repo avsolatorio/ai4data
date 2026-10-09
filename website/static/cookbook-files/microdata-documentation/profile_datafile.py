@@ -7,7 +7,7 @@ distinct codes of a categorical column written as ``code=`` with the label
 left for the curator, the candidate missing codes (negative integers), and
 the range of a numeric column. Labels, universes, questions, and concepts
 are left empty: they come from the questionnaire and the curator, and the
-draft shows exactly which ones are needed. Standard library only.
+draft shows exactly which ones are needed. Uses pandas.
 
 Usage:
     python profile_datafile.py lfs_2025q2_sample.csv draft_dictionary.csv
@@ -25,30 +25,46 @@ value labels, which this script cannot read; use it where only a CSV exists.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 CATEGORICAL_MAX = 12
+OUT_FIELDS = [
+    "name",
+    "label",
+    "type",
+    "universe",
+    "question",
+    "values",
+    "missing",
+    "concept",
+    "n",
+    "n_missing",
+    "range",
+]
 
 
-def is_number(value: str) -> bool:
-    try:
-        float(value)
-    except ValueError:
-        return False
-    return True
-
-
-def profile(column: list[str]) -> dict[str, str]:
-    present = [v for v in column if v.strip() != ""]
-    numeric = all(is_number(v) for v in present) and present
-    missing_codes = sorted(
-        {v for v in present if numeric and float(v) < 0 and float(v).is_integer()},
-        key=float,
+def profile(column: pd.Series) -> dict[str, str]:
+    """Infer a column's type, codes, candidate missing codes, and range from its values."""
+    present = column[column.str.strip() != ""]
+    as_number = pd.to_numeric(present, errors="coerce")
+    numeric = bool(len(present)) and as_number.notna().all()
+    missing_codes = (
+        sorted(
+            {
+                v
+                for v, x in zip(present, as_number)
+                if numeric and x < 0 and float(x).is_integer()
+            },
+            key=float,
+        )
+        if numeric
+        else []
     )
-    valid = [v for v in present if v not in missing_codes]
-    distinct = sorted(set(valid), key=lambda v: (float(v) if numeric else 0, v))
+    valid = present[~present.isin(missing_codes)]
+    distinct = sorted(valid.unique(), key=lambda v: (float(v) if numeric else 0, v))
     if (
         numeric
         and len(distinct) <= CATEGORICAL_MAX
@@ -61,19 +77,16 @@ def profile(column: list[str]) -> dict[str, str]:
         kind = "categorical"
     else:
         kind = "string"
-    values = ";".join(f"{v}=" for v in distinct) if kind == "categorical" else ""
-    rng = (
-        f"{min(map(float, valid)):g} to {max(map(float, valid)):g}"
-        if kind == "numeric" and valid
-        else ""
-    )
+    numbers = pd.to_numeric(valid) if numeric else pd.Series(dtype=float)
     return {
         "type": kind,
         "n": str(len(column)),
         "n_missing": str(len(column) - len(valid)),
-        "values": values,
+        "values": ";".join(f"{v}=" for v in distinct) if kind == "categorical" else "",
         "missing": ";".join(missing_codes),
-        "range": rng,
+        "range": f"{numbers.min():g} to {numbers.max():g}"
+        if kind == "numeric" and len(numbers)
+        else "",
     }
 
 
@@ -84,53 +97,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("datafile", type=Path)
     parser.add_argument("draft", type=Path, help="where to write the draft dictionary")
     args = parser.parse_args(argv)
-    with args.datafile.open(newline="", encoding="utf-8") as fh:
-        reader = csv.DictReader(fh)
-        rows = list(reader)
-        names = reader.fieldnames or []
-    out_fields = [
-        "name",
-        "label",
-        "type",
-        "universe",
-        "question",
-        "values",
-        "missing",
-        "concept",
-        "n",
-        "n_missing",
-        "range",
-    ]
-    drafts = []
-    for name in names:
-        p = profile([r[name] for r in rows])
-        drafts.append(
+    data = pd.read_csv(args.datafile, dtype=str, keep_default_na=False)
+
+    drafts = pd.DataFrame(
+        [
             {
                 "name": name,
                 "label": "",
                 "universe": "",
                 "question": "",
                 "concept": "",
-                **p,
+                **profile(data[name]),
             }
+            for name in data.columns
+        ]
+    )[OUT_FIELDS]
+    drafts.to_csv(args.draft, index=False)
+
+    by_type = drafts["type"].value_counts()
+    codes = int(drafts["values"].str.count("=").sum())
+    with_missing = drafts.loc[drafts["missing"] != "", "name"].tolist()
+    print(
+        f"{len(data)} records, {len(data.columns)} columns: "
+        + ", ".join(
+            f"{by_type.get(k, 0)} {k}" for k in ("categorical", "numeric", "string")
         )
-    with args.draft.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=out_fields)
-        writer.writeheader()
-        writer.writerows(drafts)
-    by_type = {
-        k: sum(1 for d in drafts if d["type"] == k)
-        for k in ("categorical", "numeric", "string")
-    }
-    codes = sum(d["values"].count("=") for d in drafts)
-    print(
-        f"{len(rows)} records, {len(names)} columns: "
-        + ", ".join(f"{v} {k}" for k, v in by_type.items())
     )
     print(
-        f"to fill by the curator: {len(names)} labels, {len(names)} universes, {codes} value labels; questions and concepts where they apply"
+        f"to fill by the curator: {len(data.columns)} labels, {len(data.columns)} universes, {codes} value labels; questions and concepts where they apply"
     )
-    with_missing = [d["name"] for d in drafts if d["missing"]]
     print(
         f"candidate missing codes found in {len(with_missing)} columns: {', '.join(with_missing)}"
     )

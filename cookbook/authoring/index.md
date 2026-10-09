@@ -141,7 +141,7 @@ assessment framework does, and name the specific kind on first use
 ## Code and files
 
 - Files for download live in `website/static/cookbook-files/<cookbook-id>/`. The page embeds them by code import and links to them with `pathname:///cookbook-files/<cookbook-id>/<file>`.
-- Scripts use the Python standard library unless a dependency is stated in the docstring and on the files table. Each script has a module docstring with purpose, usage, exit status, and a "what this does not check" statement.
+- Scripts use established libraries for what libraries already do (pandas for tables, scikit-learn and scipy for metrics and statistics, rapidfuzz for fuzzy matching, jsonschema for schema validation, the reference implementation of a standard where one exists) and keep their own code for the logic that is specific to the recipe. The libraries are listed once in `website/static/cookbook-files/requirements.txt`, and a script names any dependency beyond that list in its docstring. Each script has a module docstring with purpose, usage, exit status, and a "what this does not check" statement.
 - Scripts pass `ruff check` under the repository configuration and `ruff format`.
 - Each cookbook with scripts has a test file `tests/test_cookbook_<id>.py` that runs them on the example files. Fixtures that would otherwise need the network are pinned under `tests/fixtures/`.
 - The example data are fictional and say so. Real data are used only where the source is cited and the licence allows it.

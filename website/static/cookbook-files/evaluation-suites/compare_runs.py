@@ -10,6 +10,8 @@ beyond the tolerance on too few questions for the interval to decide
 sends the change to a person (exit 2). Standard library only; the
 bootstrap uses a fixed seed so that the result is reproducible.
 
+Uses pandas and scipy (percentile bootstrap).
+
 Usage:
     python compare_runs.py run_scores_v1.csv run_scores_v2.csv --tolerance 0.05
 
@@ -23,31 +25,35 @@ grows.
 from __future__ import annotations
 
 import argparse
-import csv
-import random
 import sys
-from collections import defaultdict
-from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from scipy.stats import bootstrap
 
 
-def load(path: Path) -> dict[str, dict[str, str]]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        return {r["question_id"]: r for r in csv.DictReader(fh)}
-
-
-def interval(diffs: list[int], reps: int = 2000, seed: int = 7) -> tuple[float, float]:
-    rng = random.Random(seed)
-    n = len(diffs)
-    means = sorted(sum(rng.choice(diffs) for _ in range(n)) / n for _ in range(reps))
-    return means[int(0.025 * reps)], means[int(0.975 * reps) - 1]
+def interval(diffs: pd.Series, seed: int = 7) -> tuple[float, float]:
+    """95% percentile bootstrap interval for the mean difference."""
+    if (
+        diffs.nunique() == 1
+    ):  # bootstrap needs variation; a constant difference has none
+        return float(diffs.iloc[0]), float(diffs.iloc[0])
+    res = bootstrap(
+        (diffs.to_numpy(),),
+        np.mean,
+        confidence_level=0.95,
+        method="percentile",
+        random_state=seed,
+    )
+    return float(res.confidence_interval.low), float(res.confidence_interval.high)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("before", type=Path)
-    parser.add_argument("after", type=Path)
+    parser.add_argument("before")
+    parser.add_argument("after")
     parser.add_argument(
         "--tolerance",
         type=float,
@@ -55,38 +61,39 @@ def main(argv: list[str] | None = None) -> int:
         help="regression tolerated on any slice",
     )
     args = parser.parse_args(argv)
-    a, b = load(args.before), load(args.after)
-    ids = sorted(set(a) & set(b))
-    groups: dict[str, list[str]] = defaultdict(list)
-    for q in ids:
-        groups["all"].append(q)
-        groups[f"language={a[q]['language']}"].append(q)
-        groups[f"slice={a[q]['slice']}"].append(q)
+    a = pd.read_csv(args.before, dtype={"question_id": str})
+    b = pd.read_csv(args.after, dtype={"question_id": str})
+    paired = a.merge(
+        b[["question_id", "pass"]], on="question_id", suffixes=("_before", "_after")
+    )
+    paired["diff"] = paired["pass_after"] - paired["pass_before"]
+    groups = pd.concat(
+        [
+            paired.assign(group="all"),
+            paired.assign(group="language=" + paired["language"]),
+            paired.assign(group="slice=" + paired["slice"]),
+        ]
+    )
 
-    print(f"{len(ids)} paired questions; tolerance {args.tolerance:.2f}\n")
+    print(f"{len(paired)} paired questions; tolerance {args.tolerance:.2f}\n")
     print(
         f"{'group':<18} {'n':>3} {'before':>7} {'after':>6} {'diff':>6} {'95% interval':>16}  verdict"
     )
     blocking: list[str] = []
     review: list[str] = []
-    for name, qs in groups.items():
-        before = sum(int(a[q]["pass"]) for q in qs) / len(qs)
-        after = sum(int(b[q]["pass"]) for q in qs) / len(qs)
-        diffs = [int(b[q]["pass"]) - int(a[q]["pass"]) for q in qs]
-        lo, hi = interval(diffs)
-        verdict = ""
+    for name, g in groups.groupby("group", sort=False):
+        before, after = g["pass_before"].mean(), g["pass_after"].mean()
+        lo, hi = interval(g["diff"])
         if hi < -args.tolerance:
             verdict = "REGRESSION"
             blocking.append(name)
         elif after - before < -args.tolerance:
             verdict = "possible regression, too few to decide"
             review.append(name)
-        elif len(qs) < 30:
-            verdict = "ok (small)"
         else:
-            verdict = "ok"
+            verdict = "ok (small)" if len(g) < 30 else "ok"
         print(
-            f"{name:<18} {len(qs):>3} {before:>7.2f} {after:>6.2f} {after - before:>+6.2f} {f'[{lo:+.2f}, {hi:+.2f}]':>16}  {verdict}"
+            f"{name:<18} {len(g):>3} {before:>7.2f} {after:>6.2f} {after - before:>+6.2f} {f'[{lo:+.2f}, {hi:+.2f}]':>16}  {verdict}"
         )
     print()
     if blocking:

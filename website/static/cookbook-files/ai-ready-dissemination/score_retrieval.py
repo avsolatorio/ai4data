@@ -9,6 +9,8 @@ The built-in search is a plain keyword overlap over the catalog's `name` and
 that the script runs without any dependencies and gives a baseline. Replace
 `search()` with a call to your own search API to score it.
 
+Uses pandas and scikit-learn (TF-IDF for the baseline search).
+
 Usage:
     python score_retrieval.py eval_questions.csv example_catalog.csv
 """
@@ -16,11 +18,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import csv
 import re
 import sys
-from collections import defaultdict
-from pathlib import Path
+
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 TOKEN = re.compile(r"\w+")  # Unicode-aware: words in any script
 ID_FIELD = "idno"
@@ -32,63 +35,79 @@ def tokens(text: str) -> set[str]:
     return set(TOKEN.findall(text.lower()))
 
 
-def load_csv(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+class KeywordSearch:
+    """A TF-IDF keyword search over the catalog records: the baseline to replace with the real search."""
+
+    def __init__(self, catalog: pd.DataFrame) -> None:
+        self.ids = catalog[ID_FIELD].tolist()
+        texts = catalog[list(TEXT_FIELDS)].fillna("").agg(" ".join, axis=1)
+        self.vectorizer = TfidfVectorizer(token_pattern=TOKEN.pattern, lowercase=True)
+        self.matrix = self.vectorizer.fit_transform(texts)
+
+    def __call__(self, question: str, k: int = 10) -> list[str]:
+        """Return up to k catalog ids ranked by similarity; records that share no word are left out."""
+        scores = cosine_similarity(self.vectorizer.transform([question]), self.matrix)[
+            0
+        ]
+        ranked = sorted(
+            (i for i in range(len(self.ids)) if scores[i] > 0),
+            key=lambda i: (-scores[i], i),
+        )
+        return [self.ids[i] for i in ranked[:k]]
 
 
 def search(question: str, catalog: list[dict[str, str]], k: int = 10) -> list[str]:
-    """Return up to k catalog ids ranked by keyword overlap.
+    """Rank the catalog for one question; kept as a function so that a real search can replace it."""
+    return KeywordSearch(pd.DataFrame(catalog))(question, k)
 
-    Replace this function with a call to your search system. It must return
-    a ranked list of ids.
-    """
-    query = tokens(question)
-    scored = []
-    for record in catalog:
-        text = tokens(" ".join(record.get(f, "") for f in TEXT_FIELDS))
-        overlap = len(query & text)
-        if overlap:
-            scored.append((overlap, record[ID_FIELD]))
-    scored.sort(reverse=True)
-    return [rid for _, rid in scored[:k]]
+
+def rank_in(ranked: list[str], expected: str) -> float:
+    return ranked.index(expected) + 1 if expected in ranked else float("nan")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("questions", type=Path)
-    parser.add_argument("catalog", type=Path)
+    parser.add_argument("questions")
+    parser.add_argument("catalog")
     args = parser.parse_args(argv)
-
-    catalog = load_csv(args.catalog)
-    questions = [q for q in load_csv(args.questions) if q["expected_id"] != "NONE"]
-
-    hits: dict[int, dict[str, int]] = {k: defaultdict(int) for k in K_VALUES}
-    reciprocal_rank: dict[str, float] = defaultdict(float)
-    count: dict[str, int] = defaultdict(int)
+    catalog = pd.read_csv(args.catalog, dtype=str)
+    questions = pd.read_csv(args.questions, dtype=str)
+    questions = questions[questions["expected_id"] != "NONE"].copy()
+    find = KeywordSearch(catalog)
 
     print(f"{'id':<5} {'lang':<5} {'rank':>4}  question")
-    for q in questions:
-        ranked = search(q["question"], catalog, k=max(K_VALUES))
-        rank = ranked.index(q["expected_id"]) + 1 if q["expected_id"] in ranked else None
-        for group in ("all", q["language"]):
-            count[group] += 1
-            if rank is not None:
-                reciprocal_rank[group] += 1 / rank
-                for k in K_VALUES:
-                    if rank <= k:
-                        hits[k][group] += 1
-        print(f"{q['question_id']:<5} {q['language']:<5} {rank or '-':>4}  {q['question']}")
+    ranks = []
+    for q in questions.itertuples():
+        rank = rank_in(find(q.question, k=max(K_VALUES)), q.expected_id)
+        ranks.append(rank)
+        print(
+            f"{q.question_id:<5} {q.language:<5} {'-' if pd.isna(rank) else int(rank):>4}  {q.question}"
+        )
+    questions["rank"] = ranks
+    for k in K_VALUES:
+        questions[f"R@{k}"] = (questions["rank"] <= k).astype(float)
+    questions["MRR"] = (1 / questions["rank"]).fillna(0.0)
 
+    groups = pd.concat(
+        [questions.assign(group="all"), questions.assign(group=questions["language"])]
+    )
+    table = groups.groupby("group", sort=False)[
+        [f"R@{k}" for k in K_VALUES] + ["MRR"]
+    ].agg(["mean", "size"])
     print()
-    header = " ".join(f"{'R@' + str(k):>6}" for k in K_VALUES)
-    print(f"{'group':<6} {'n':>3} {header} {'MRR':>6}")
-    for group in sorted(count, key=lambda g: (g != "all", g)):
-        n = count[group]
-        recalls = " ".join(f"{hits[k][group] / n:>6.2f}" for k in K_VALUES)
-        print(f"{group:<6} {n:>3} {recalls} {reciprocal_rank[group] / n:>6.2f}")
+    print(
+        f"{'group':<6} {'n':>3} "
+        + " ".join(f"{'R@' + str(k):>6}" for k in K_VALUES)
+        + f" {'MRR':>6}"
+    )
+    for group in ["all"] + sorted(g for g in table.index if g != "all"):
+        r = table.loc[group]
+        recalls = " ".join(f"{r[(f'R@{k}', 'mean')]:>6.2f}" for k in K_VALUES)
+        print(
+            f"{group:<6} {int(r[('MRR', 'size')]):>3} {recalls} {r[('MRR', 'mean')]:>6.2f}"
+        )
     return 0
 
 

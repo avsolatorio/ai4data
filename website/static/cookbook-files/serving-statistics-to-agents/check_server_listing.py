@@ -6,7 +6,7 @@ version), the fields a client needs to connect (a remote with transport
 streamable-http or sse and an https URL, or a package with a registry type
 and a transport), and the fields a person needs to trust the listing
 (title, description, website, repository). Exit status 1 when a required
-or connection field is missing. Standard library only.
+or connection field is missing. Uses jsonschema for the listing's shape.
 
 Usage:
     python check_server_listing.py server_listing.json
@@ -22,13 +22,72 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
-NAME = re.compile(r"^[a-z0-9][a-z0-9.-]*\.[a-z0-9.-]+/[A-Za-z0-9._-]+$")
-SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
-TRANSPORTS = {"streamable-http", "sse"}
+from jsonschema import Draft202012Validator
+
+# The parts of the registry's server.json format that a listing needs; the
+# registry's own dated schema (named in $schema) is the full definition.
+SCHEMA = {
+    "type": "object",
+    "required": ["name", "version"],
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9.-]*\\.[a-z0-9.-]+/[A-Za-z0-9._-]+$",
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$",
+        },
+        "remotes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["type", "url"],
+                "properties": {
+                    "type": {"enum": ["streamable-http", "sse"]},
+                    "url": {"type": "string", "pattern": "^https://"},
+                },
+            },
+        },
+        "packages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["registryType", "identifier", "version", "transport"],
+            },
+        },
+    },
+    "anyOf": [
+        {"required": ["remotes"], "properties": {"remotes": {"minItems": 1}}},
+        {"required": ["packages"], "properties": {"packages": {"minItems": 1}}},
+    ],
+}
+MESSAGES = {
+    (
+        "name",
+        "pattern",
+    ): "name must be reverse-DNS namespace plus server name, for example org.example.stats/statistics-example",
+    ("version", "pattern"): "version must be a semantic version such as 1.0.0",
+}
+
+
+def describe(error) -> str:
+    path = list(error.absolute_path)
+    key = (path[0] if path else "", error.validator)
+    if key in MESSAGES:
+        return MESSAGES[key]
+    if error.validator == "anyOf":
+        return "a listing needs at least one remote (hosted endpoint) or one package (installable server)"
+    if path[:1] == ["remotes"] and error.validator == "enum":
+        return f"remotes[{path[1]}].type must be one of ['sse', 'streamable-http']"
+    if path[:1] == ["remotes"] and error.validator == "pattern":
+        return f"remotes[{path[1]}].url must be an https URL"
+    if path[:1] == ["packages"] and error.validator == "required":
+        return f"packages[{path[1]}] lacks {error.message.split()[0].strip(chr(39))}"
+    return ".".join(map(str, path)) + ": " + error.message
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,35 +96,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("listing", type=Path)
     args = parser.parse_args(argv)
-    with args.listing.open(encoding="utf-8") as fh:
-        s = json.load(fh)
-    errors: list[str] = []
-    warnings: list[str] = []
+    s = json.loads(args.listing.read_text(encoding="utf-8"))
 
-    if not NAME.match(s.get("name", "")):
-        errors.append(
-            "name must be reverse-DNS namespace plus server name, for example org.example.stats/statistics-example"
+    errors = [
+        describe(e)
+        for e in sorted(
+            Draft202012Validator(SCHEMA).iter_errors(s),
+            key=lambda e: list(e.absolute_path),
         )
-    if not SEMVER.match(str(s.get("version", ""))):
-        errors.append("version must be a semantic version such as 1.0.0")
-    remotes = s.get("remotes", [])
-    packages = s.get("packages", [])
-    if not remotes and not packages:
-        errors.append(
-            "a listing needs at least one remote (hosted endpoint) or one package (installable server)"
-        )
-    for i, r in enumerate(remotes):
-        if r.get("type") not in TRANSPORTS:
-            errors.append(f"remotes[{i}].type must be one of {sorted(TRANSPORTS)}")
-        if not str(r.get("url", "")).startswith("https://"):
-            errors.append(f"remotes[{i}].url must be an https URL")
-    for i, p in enumerate(packages):
-        for key in ("registryType", "identifier", "version", "transport"):
-            if key not in p:
-                errors.append(f"packages[{i}] lacks {key}")
-    for key in ("title", "description", "websiteUrl"):
-        if not s.get(key):
-            warnings.append(f"{key} missing; clients show it to users")
+    ]
+    warnings = [
+        f"{key} missing; clients show it to users"
+        for key in ("title", "description", "websiteUrl")
+        if not s.get(key)
+    ]
     if not (s.get("repository") or {}).get("url"):
         warnings.append(
             "repository.url missing; readers cannot inspect the server's code"
@@ -74,10 +118,12 @@ def main(argv: list[str] | None = None) -> int:
         warnings.append(
             "$schema missing; the registry validates against a dated schema"
         )
-    desc = s.get("description", "")
-    if desc and len(desc) > 300:
-        warnings.append(f"description is {len(desc)} characters; keep it under 300")
+    if len(s.get("description", "")) > 300:
+        warnings.append(
+            f"description is {len(s['description'])} characters; keep it under 300"
+        )
 
+    remotes, packages = s.get("remotes", []), s.get("packages", [])
     print(
         f"{args.listing.name}: {s.get('name')} {s.get('version')}; {len(remotes)} remote(s), {len(packages)} package(s)"
     )

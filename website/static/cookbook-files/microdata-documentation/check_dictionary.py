@@ -18,7 +18,7 @@ warnings
 
 Columns expected: file_id, name, label, type (numeric | categorical |
 string), universe, question, values ("code=label;code=label"), missing
-("code;code"), concept. Other columns are ignored. Standard library only.
+("code;code"), concept. Other columns are ignored. Uses pandas.
 
 What this does not check: whether the labels are correct, whether the
 value labels match the data, or whether the universe statements agree with
@@ -31,74 +31,60 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import Counter
-from pathlib import Path
 
-ID_LIKE = ("id",)
+import pandas as pd
+
+FIELDS = ("label", "universe", "question", "values", "missing", "concept")
 
 
 def is_identifier(name: str) -> bool:
-    return name.lower().endswith(ID_LIKE)
+    return name.lower().endswith("id")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("dictionary", type=Path, help="CSV with one row per variable")
+    parser.add_argument("dictionary", help="CSV with one row per variable")
     args = parser.parse_args(argv)
-
-    with args.dictionary.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    if not rows:
+    df = pd.read_csv(args.dictionary, dtype=str).fillna("")
+    if df.empty:
         sys.exit("no variables found")
+    for col in FIELDS:
+        if col not in df:
+            df[col] = ""
+    df = df.apply(lambda s: s.str.strip())
+    df["type"] = df["type"].str.lower()
+    df["ref"] = df["file_id"] + "/" + df["name"]
+    df["is_id"] = df["name"].map(is_identifier)
 
     errors: list[str] = []
     warnings: list[str] = []
-    names = Counter((r["file_id"], r["name"]) for r in rows)
-    for (file_id, name), n in names.items():
-        if n > 1:
-            errors.append(f"{file_id}/{name}: name appears {n} times")
-
-    for r in rows:
-        name = r["name"].strip()
-        label = (r.get("label") or "").strip()
-        vtype = (r.get("type") or "").strip().lower()
-        ref = f"{r['file_id']}/{name}"
-        if not label:
-            errors.append(f"{ref}: no label")
-        elif label.lower() == name.lower():
-            errors.append(f"{ref}: label repeats the name ({label!r})")
-        if vtype == "categorical" and not (r.get("values") or "").strip():
-            errors.append(f"{ref}: categorical variable without value labels")
-        if (
-            vtype == "numeric"
-            and not (r.get("missing") or "").strip()
-            and not is_identifier(name)
-        ):
+    dup = df.groupby("ref").size()
+    errors += [f"{ref}: name appears {n} times" for ref, n in dup[dup > 1].items()]
+    for r in df.drop_duplicates("ref").itertuples():
+        if not r.label:
+            errors.append(f"{r.ref}: no label")
+        elif r.label.lower() == r.name.lower():
+            errors.append(f"{r.ref}: label repeats the name ({r.label!r})")
+        if r.type == "categorical" and not r.values:
+            errors.append(f"{r.ref}: categorical variable without value labels")
+        if r.type == "numeric" and not r.missing and not r.is_id:
             warnings.append(
-                f"{ref}: numeric variable without a missing-value statement"
+                f"{r.ref}: numeric variable without a missing-value statement"
             )
-        if not (r.get("universe") or "").strip():
-            warnings.append(f"{ref}: no universe")
-        if not (r.get("question") or "").strip() and not is_identifier(name):
-            warnings.append(f"{ref}: no question or derivation text")
-        if (
-            vtype == "categorical"
-            and not (r.get("concept") or "").strip()
-            and not is_identifier(name)
-        ):
-            warnings.append(f"{ref}: no concept or classification named")
+        if not r.universe:
+            warnings.append(f"{r.ref}: no universe")
+        if not r.question and not r.is_id:
+            warnings.append(f"{r.ref}: no question or derivation text")
+        if r.type == "categorical" and not r.concept and not r.is_id:
+            warnings.append(f"{r.ref}: no concept or classification named")
 
-    print(f"{len(rows)} variables in {len({r['file_id'] for r in rows})} file(s)")
-    filled = {
-        col: sum(1 for r in rows if (r.get(col) or "").strip())
-        for col in ("label", "universe", "question", "values", "missing", "concept")
-    }
+    print(f"{len(df)} variables in {df['file_id'].nunique()} file(s)")
+    filled = (df[list(FIELDS)] != "").sum()
     for col, n in filled.items():
-        print(f"  {col:<10} {n:>4} of {len(rows)}  {n / len(rows):>4.0%}")
+        print(f"  {col:<10} {n:>4} of {len(df)}  {n / len(df):>4.0%}")
     print()
     for w in warnings:
         print(f"warning  {w}")

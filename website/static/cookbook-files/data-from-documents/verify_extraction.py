@@ -12,7 +12,7 @@ files) and runs the checks that the document makes possible:
           matches the computed value within a tolerance
 
 Every value gets a status: verified, flagged, or estimated. Exit status is
-0 when nothing is flagged, 1 otherwise. Standard library only.
+0 when nothing is flagged, 1 otherwise. Uses pandas.
 
 What this does not check: whether the extraction picked the right table or
 chart, whether the row and column labels are correct, or whether a value
@@ -28,105 +28,97 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
+import pandas as pd
+
+Result = tuple[str, str, str]  # (location, status, detail)
+
 
 def close(a: float, b: float, abs_tol: float, rel_tol: float) -> bool:
-    return abs(a - b) <= max(abs_tol, rel_tol * abs(b))
+    return math.isclose(a, b, rel_tol=rel_tol, abs_tol=abs_tol)
 
 
-def verify_chart(x: dict) -> list[tuple[str, str, str]]:
-    """Return (location, status, detail) per value."""
-    results = []
+def verify_chart(x: dict) -> list[Result]:
+    """Check each chart value against the labels printed on the chart, where there are any."""
+    cells = [
+        (f"{s['name']}/{cat}", v)
+        for s in x["series"]
+        for cat, v in zip(x["categories"], s["values"])
+    ]
     if not x.get("value_labels_printed"):
-        for s in x["series"]:
-            for cat, v in zip(x["categories"], s["values"]):
-                results.append(
-                    (
-                        f"{s['name']}/{cat}",
-                        "estimated",
-                        f"{v}: no printed label; read from the axis",
-                    )
-                )
-        return results
+        return [
+            (where, "estimated", f"{v}: no printed label; read from the axis")
+            for where, v in cells
+        ]
     remaining = list(x.get("printed_values", []))
-    for s in x["series"]:
-        for cat, v in zip(x["categories"], s["values"]):
-            if v in remaining:
-                remaining.remove(v)
-                results.append(
-                    (f"{s['name']}/{cat}", "verified", f"{v} matches a printed label")
-                )
-            else:
-                results.append(
-                    (
-                        f"{s['name']}/{cat}",
-                        "flagged",
-                        f"{v} is not among the printed labels",
-                    )
-                )
-    for leftover in remaining:
-        results.append(
-            (
-                "printed label",
-                "flagged",
-                f"{leftover} printed on the chart but not extracted",
-            )
-        )
+    results: list[Result] = []
+    for where, v in cells:
+        if v in remaining:
+            remaining.remove(v)
+            results.append((where, "verified", f"{v} matches a printed label"))
+        else:
+            results.append((where, "flagged", f"{v} is not among the printed labels"))
+    results += [
+        ("printed label", "flagged", f"{left} printed on the chart but not extracted")
+        for left in remaining
+    ]
     return results
 
 
-def verify_table(x: dict, abs_tol: float, rel_tol: float) -> list[tuple[str, str, str]]:
-    results = []
-    cols = x["columns"]
-    rows = x["rows"]
+def verify_table(x: dict, abs_tol: float, rel_tol: float) -> list[Result]:
+    """Check derived columns by recomputing them and other columns against the total row."""
+    table = pd.DataFrame(x["rows"], columns=x["columns"]).set_index(x["columns"][0])
     total_label = x.get("total_row")
-    total = next((r for r in rows if r[0] == total_label), None)
-    body = [r for r in rows if r[0] != total_label]
-    derived = x.get("derived", {})
-    for j, col in enumerate(cols[1:], start=1):
-        values = [r[j] for r in rows if isinstance(r[j], (int, float))]
-        if len(values) != len(rows):
+    body = table.drop(index=total_label) if total_label in table.index else table
+    results: list[Result] = []
+    for col in table.columns:
+        if not pd.api.types.is_numeric_dtype(table[col]):
             continue
-        if col in derived:
-            spec = derived[col]
-            ni, di = cols.index(spec["numerator"]), cols.index(spec["denominator"])
-            for r in rows:
-                computed = r[ni] / r[di] * spec.get("scale", 1)
-                status = (
-                    "verified" if close(r[j], computed, abs_tol, rel_tol) else "flagged"
-                )
+        if col in x.get("derived", {}):
+            spec = x["derived"][col]
+            computed = (
+                table[spec["numerator"]]
+                / table[spec["denominator"]]
+                * spec.get("scale", 1)
+            )
+            for label, v, c in zip(table.index, table[col], computed):
                 results.append(
-                    (f"{r[0]}/{col}", status, f"{r[j]} vs computed {computed:.2f}")
+                    (
+                        f"{label}/{col}",
+                        "verified" if close(v, c, abs_tol, rel_tol) else "flagged",
+                        f"{v} vs computed {c:.2f}",
+                    )
                 )
-        elif total is not None:
-            s = sum(r[j] for r in body)
-            status = "verified" if close(total[j], s, abs_tol, rel_tol) else "flagged"
+        elif total_label in table.index:
+            total, s = table.at[total_label, col], body[col].sum()
+            ok = close(total, s, abs_tol, rel_tol)
             results.append(
                 (
                     f"{total_label}/{col}",
-                    status,
-                    f"total {total[j]} vs sum of rows {s:g}",
+                    "verified" if ok else "flagged",
+                    f"total {total} vs sum of rows {s:g}",
                 )
             )
-            for r in body:
-                results.append(
-                    (
-                        f"{r[0]}/{col}",
-                        "verified" if status == "verified" else "estimated",
-                        f"{r[j]} (covered by the total check)",
-                    )
+            results += [
+                (
+                    f"{label}/{col}",
+                    "verified" if ok else "estimated",
+                    f"{v} (covered by the total check)",
                 )
+                for label, v in body[col].items()
+            ]
         else:
-            for r in rows:
-                results.append(
-                    (
-                        f"{r[0]}/{col}",
-                        "estimated",
-                        f"{r[j]}: no total or derivation to check against",
-                    )
+            results += [
+                (
+                    f"{label}/{col}",
+                    "estimated",
+                    f"{v}: no total or derivation to check against",
                 )
+                for label, v in table[col].items()
+            ]
     return results
 
 
@@ -139,8 +131,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--rel-tolerance", type=float, default=0.02)
     args = parser.parse_args(argv)
 
-    with args.extraction.open(encoding="utf-8") as fh:
-        x = json.load(fh)
+    x = json.loads(args.extraction.read_text(encoding="utf-8"))
     kind = x.get("class", "").lower()
     if kind == "figure":
         results = verify_chart(x)
@@ -152,17 +143,14 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{x['document_id']} page {x['page']}: {x.get('title', '')} ({kind})")
     for where, status, detail in results:
         print(f"  {status:<9} {where:<32} {detail}")
-    counts = {
-        s: sum(1 for _, st, _ in results if st == s)
-        for s in ("verified", "flagged", "estimated")
-    }
+    counts = pd.Series([s for _, s, _ in results]).value_counts()
     print(
-        f"\n{counts['verified']} verified, {counts['flagged']} flagged, {counts['estimated']} estimated"
+        f"\n{counts.get('verified', 0)} verified, {counts.get('flagged', 0)} flagged, {counts.get('estimated', 0)} estimated"
     )
     print(
         "Not checked here: whether the right table or chart was extracted, or whether labels are correct."
     )
-    return 1 if counts["flagged"] else 0
+    return 1 if counts.get("flagged", 0) else 0
 
 
 if __name__ == "__main__":

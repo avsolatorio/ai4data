@@ -6,7 +6,7 @@ client_id, tool, status) and reports, per client, the requests in the
 period, the busiest minute against the per-minute limit, the share of
 requests the server rejected (status 429 or 401), and two policy checks:
 clients in the log that the registry does not know, and registered
-clients that have not accepted the terms. Standard library only.
+clients that have not accepted the terms. Uses pandas.
 
 Usage:
     python quota_audit.py client_registry.csv agent_requests.csv
@@ -24,56 +24,56 @@ attribution, and both are stated to clients at registration.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import Counter, defaultdict
-from pathlib import Path
+
+import pandas as pd
+
+REJECTED = {"429", "401", "403"}
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("registry", type=Path)
-    parser.add_argument("log", type=Path)
+    parser.add_argument("registry")
+    parser.add_argument("log")
     args = parser.parse_args(argv)
-    with args.registry.open(newline="", encoding="utf-8") as fh:
-        registry = {r["client_id"]: r for r in csv.DictReader(fh)}
-    with args.log.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    registry = pd.read_csv(args.registry, dtype=str).fillna("").set_index("client_id")
+    log = pd.read_csv(args.log, dtype=str)
+    log["minute"] = log["timestamp"].str[:16]
 
-    per_client: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for r in rows:
-        per_client[r["client_id"]].append(r)
+    per_client = log.groupby("client_id").agg(
+        requests=("tool", "size"),
+        busiest=("minute", lambda m: m.value_counts().max()),
+        rejected=("status", lambda s: s.isin(REJECTED).sum()),
+    )
+    per_client = per_client.join(registry, how="left").sort_values(
+        "requests", ascending=False, kind="stable"
+    )
 
     print(
-        f"{len(rows)} requests from {len(per_client)} clients; registry lists {len(registry)}\n"
+        f"{len(log)} requests from {len(per_client)} clients; registry lists {len(registry)}\n"
     )
     print(
         f"{'client':<10} {'tier':<11} {'requests':>8} {'busiest min':>11} {'limit/min':>9} {'rejected':>8}  note"
     )
-    unknown: list[str] = []
-    no_terms: list[str] = []
-    for client, reqs in sorted(per_client.items(), key=lambda kv: -len(kv[1])):
-        reg = registry.get(client)
-        minutes = Counter(r["timestamp"][:16] for r in reqs)
-        busiest = max(minutes.values())
-        rejected = sum(1 for r in reqs if r["status"] in ("429", "401", "403"))
-        if reg is None:
+    unknown, no_terms = [], []
+    for client, r in per_client.iterrows():
+        if pd.isna(r["tier"]):
             unknown.append(client)
             print(
-                f"{client:<10} {'unknown':<11} {len(reqs):>8} {busiest:>11} {'-':>9} {rejected:>8}  not in the registry"
+                f"{client:<10} {'unknown':<11} {r.requests:>8} {r.busiest:>11} {'-':>9} {r.rejected:>8}  not in the registry"
             )
             continue
-        limit = int(reg["requests_per_minute"])
+        limit = int(r["requests_per_minute"])
         notes = []
-        if busiest > limit:
-            notes.append(f"busiest minute exceeds limit ({busiest} > {limit})")
-        if reg["tier"] != "public" and not reg["terms_accepted"]:
+        if r.busiest > limit:
+            notes.append(f"busiest minute exceeds limit ({r.busiest} > {limit})")
+        if r["tier"] != "public" and not r["terms_accepted"]:
             no_terms.append(client)
             notes.append("terms not accepted")
         print(
-            f"{client:<10} {reg['tier']:<11} {len(reqs):>8} {busiest:>11} {limit:>9} {rejected:>8}  {'; '.join(notes)}"
+            f"{client:<10} {r['tier']:<11} {r.requests:>8} {r.busiest:>11} {limit:>9} {r.rejected:>8}  {'; '.join(notes)}"
         )
 
     print()
@@ -85,8 +85,8 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"registered without accepted terms: {', '.join(no_terms)} (suspend until the terms are accepted)"
         )
-    tools = Counter(r["tool"] for r in rows if r["status"] == "200")
-    print("tool calls served: " + ", ".join(f"{t} {n}" for t, n in tools.most_common()))
+    served = log.loc[log["status"] == "200", "tool"].value_counts()
+    print("tool calls served: " + ", ".join(f"{t} {n}" for t, n in served.items()))
     return 1 if unknown or no_terms else 0
 
 

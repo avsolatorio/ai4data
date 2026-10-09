@@ -6,6 +6,8 @@ bootstrap interval and the number of questions, in a form that can be
 pasted into a release note or compared across organizations that use the
 same question set format. Standard library only; fixed seed.
 
+Uses pandas and scipy (percentile bootstrap).
+
 Usage:
     python report_card.py run_scores_v2.csv --run-name "search v2, 2026-10-01"
 
@@ -18,41 +20,50 @@ reporting chapter states what to publish with the numbers.
 from __future__ import annotations
 
 import argparse
-import csv
-import random
 import sys
-from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+from scipy.stats import bootstrap
 
-def interval(vals: list[int], reps: int = 2000, seed: int = 7) -> tuple[float, float]:
-    rng = random.Random(seed)
-    n = len(vals)
-    means = sorted(sum(rng.choice(vals) for _ in range(n)) / n for _ in range(reps))
-    return means[int(0.025 * reps)], means[int(0.975 * reps) - 1]
+
+def interval(passes: pd.Series, seed: int = 7) -> tuple[float, float]:
+    """95% percentile bootstrap interval for a pass rate."""
+    if passes.nunique() == 1:
+        return float(passes.iloc[0]), float(passes.iloc[0])
+    res = bootstrap(
+        (passes.to_numpy(),),
+        np.mean,
+        confidence_level=0.95,
+        method="percentile",
+        random_state=seed,
+    )
+    return float(res.confidence_interval.low), float(res.confidence_interval.high)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("run", type=Path)
+    parser.add_argument("run")
     parser.add_argument("--run-name", default="")
     args = parser.parse_args(argv)
-    with args.run.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    groups: dict[str, list[int]] = defaultdict(list)
-    for r in rows:
-        groups["all"].append(int(r["pass"]))
-        groups[f"language={r['language']}"].append(int(r["pass"]))
-        groups[f"slice={r['slice']}"].append(int(r["pass"]))
-    title = args.run_name or args.run.name
-    print(f"Report card: {title}\n")
+    df = pd.read_csv(args.run)
+    groups = pd.concat(
+        [
+            df.assign(group="all"),
+            df.assign(group="language=" + df["language"]),
+            df.assign(group="slice=" + df["slice"]),
+        ]
+    )
+
+    print(f"Report card: {args.run_name or Path(args.run).name}\n")
     print(f"{'group':<18} {'n':>3} {'pass rate':>9} {'95% interval':>14}")
-    for name, vals in groups.items():
-        lo, hi = interval(vals)
+    for name, g in groups.groupby("group", sort=False):
+        lo, hi = interval(g["pass"])
         print(
-            f"{name:<18} {len(vals):>3} {sum(vals) / len(vals):>9.2f} {f'[{lo:.2f}, {hi:.2f}]':>14}"
+            f"{name:<18} {len(g):>3} {g['pass'].mean():>9.2f} {f'[{lo:.2f}, {hi:.2f}]':>14}"
         )
     print(
         "\nPublish with: the question set version, the measure definitions, the model and index versions, and the date."

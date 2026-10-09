@@ -169,13 +169,15 @@ Output for the running example:
 
 ```text
 27 requests from 6 clients; registry lists 5
+
 client     tier        requests busiest min limit/min rejected  note
 pub-anon   public            10           8        30        2  
 k-4d0f     partner            5           5       600        0  
-k-7f3a     registered         4           4       120        0  
 k-2b8e     registered         4           4        60        0  terms not accepted
-k-9c1d     registered         2           2       120        0  
+k-7f3a     registered         4           4       120        0  
 k-0000     unknown            2           2         -        2  not in the registry
+k-9c1d     registered         2           2       120        0  
+
 unknown clients: k-0000 (rejected by the server; check for a leaked or revoked key)
 registered without accepted terms: k-2b8e (suspend until the terms are accepted)
 tool calls served: get_observations 18, search_series 3, get_series_metadata 1, list_code_values 1

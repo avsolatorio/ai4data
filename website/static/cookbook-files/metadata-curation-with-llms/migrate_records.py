@@ -15,8 +15,7 @@ what the migration would do before confirming. Columns mapped to no
 field are reported as unplaced, with their values, and values the
 transform cannot handle (an unknown code, an unparseable date) are left
 as they are and reported. Writes one JSON record per row in the shape of
-the World Bank indicator schema and prints a report. Standard library
-only.
+the World Bank indicator schema and prints a report. Uses pandas.
 
 Usage:
     python migrate_records.py legacy_catalog.csv field_mapping.csv -o migrated_records.json
@@ -31,15 +30,16 @@ review of this cookbook before publication.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import sys
 from collections import Counter
-from datetime import datetime
 from pathlib import Path
+
+import pandas as pd
 
 
 def apply(transform: str, value: str, problems: list[str], where: str):
+    """Apply one transform ('codes:A=annual;Q=quarterly', 'split:;', 'date:%d/%m/%Y') to one value."""
     if not transform or value == "":
         return value
     kind, _, spec = transform.partition(":")
@@ -52,11 +52,11 @@ def apply(transform: str, value: str, problems: list[str], where: str):
     if kind == "split":
         return [part.strip() for part in value.split(spec) if part.strip()]
     if kind == "date":
-        try:
-            return datetime.strptime(value, spec).date().isoformat()  # noqa: DTZ007 (dates, no time zone)
-        except ValueError:
+        parsed = pd.to_datetime(value, format=spec, errors="coerce")
+        if pd.isna(parsed):
             problems.append(f"{where}: date {value!r} does not match {spec}")
             return value
+        return parsed.date().isoformat()
     problems.append(f"{where}: unknown transform {transform!r}")
     return value
 
@@ -65,58 +65,53 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("legacy", type=Path)
-    parser.add_argument("mapping", type=Path)
+    parser.add_argument("legacy")
+    parser.add_argument("mapping")
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args(argv)
-    with args.legacy.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    with args.mapping.open(newline="", encoding="utf-8") as fh:
-        mapping = list(csv.DictReader(fh))
+    legacy = pd.read_csv(args.legacy, dtype=str).fillna("")
+    mapping = pd.read_csv(args.mapping, dtype=str).fillna("")
+    placed = mapping[mapping["schema_field"] != ""]
+    unplaced = mapping[mapping["schema_field"] == ""]
 
     problems: list[str] = []
-    unplaced = [m for m in mapping if not m["schema_field"]]
+    empty: Counter = Counter()
     records = []
-    empty = Counter()
-    for r in rows:
-        rec: dict = {}
-        key = r.get("Code") or r.get(mapping[0]["legacy_column"], "?")
-        for m in mapping:
-            if not m["schema_field"]:
-                continue
+    for _, row in legacy.iterrows():
+        key = row.get("Code") or row.get(mapping["legacy_column"].iloc[0], "?")
+        rec = {}
+        for m in placed.itertuples():
             value = apply(
-                m["transform"],
-                r.get(m["legacy_column"], ""),
+                m.transform,
+                row.get(m.legacy_column, ""),
                 problems,
-                f"{key}/{m['legacy_column']}",
+                f"{key}/{m.legacy_column}",
             )
-            if value == "" or value == []:
-                empty[m["schema_field"]] += 1
-                continue
-            rec[m["schema_field"]] = value
+            if value in ("", []):
+                empty[m.schema_field] += 1
+            else:
+                rec[m.schema_field] = value
         records.append(rec)
-
     if args.output:
         args.output.write_text(
             json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-    proposed = [m for m in mapping if m["status"] == "proposed" and m["schema_field"]]
+
+    proposed = placed[placed["status"] == "proposed"]
     print(
-        f"{len(rows)} legacy rows -> {len(records)} records; {len(mapping)} mapping rows: {sum(1 for m in mapping if m['status'] == 'confirmed')} confirmed, {len(proposed) + len(unplaced)} proposed"
+        f"{len(legacy)} legacy rows -> {len(records)} records; {len(mapping)} mapping rows: {(mapping['status'] == 'confirmed').sum()} confirmed, {len(proposed) + len(unplaced)} proposed"
     )
-    if proposed:
+    if not proposed.empty:
         print("\nproposed mappings applied, to confirm or change:")
-        for m in proposed:
+        for m in proposed.itertuples():
             print(
-                f"  {m['legacy_column']!r} -> {m['schema_field']} (confidence {m['confidence']}): {m['note']}"
+                f"  {m.legacy_column!r} -> {m.schema_field} (confidence {m.confidence}): {m.note}"
             )
-    if unplaced:
+    if not unplaced.empty:
         print("\nunplaced columns (values not migrated):")
-        for m in unplaced:
-            values = [r[m["legacy_column"]] for r in rows if r.get(m["legacy_column"])]
-            print(
-                f"  {m['legacy_column']!r}: {len(values)} non-empty value(s); {m['note']}"
-            )
+        for m in unplaced.itertuples():
+            values = [v for v in legacy.get(m.legacy_column, pd.Series(dtype=str)) if v]
+            print(f"  {m.legacy_column!r}: {len(values)} non-empty value(s); {m.note}")
             for v in values:
                 print(f"      - {v}")
     if empty:

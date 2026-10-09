@@ -13,6 +13,7 @@ import io
 import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
@@ -61,7 +62,9 @@ EXAMPLES = [
 
 
 @pytest.mark.parametrize(("records", "profile", "n", "complete"), EXAMPLES)
-def test_examples_validate_and_score_at_foundational(check, capsys, records, profile, n, complete):
+def test_examples_validate_and_score_at_foundational(
+    check, capsys, records, profile, n, complete
+):
     pytest.importorskip("jsonschema")
     code, out = run_check(check, capsys, str(SCRIPTS / records), str(SCRIPTS / profile))
     assert f"{n} of {n} records are valid instances of the schema" in out
@@ -71,14 +74,22 @@ def test_examples_validate_and_score_at_foundational(check, capsys, records, pro
 
 
 def test_indicator_example_names_the_one_gap_with_its_reason(check, capsys):
-    _, out = run_check(check, capsys, str(SCRIPTS / "example_catalog.csv"), str(SCRIPTS / "profile_indicator.json"))
+    _, out = run_check(
+        check,
+        capsys,
+        str(SCRIPTS / "example_catalog.csv"),
+        str(SCRIPTS / "profile_indicator.json"),
+    )
     assert "LF_UNEMP_PCT: series_description.definition_long" in out
     assert "why: Search by meaning" in out
 
 
 def test_ai_ready_level_is_cumulative_and_lists_more_fields(check, capsys):
     _, foundational = run_check(
-        check, capsys, str(SCRIPTS / "example_catalog.csv"), str(SCRIPTS / "profile_indicator.json")
+        check,
+        capsys,
+        str(SCRIPTS / "example_catalog.csv"),
+        str(SCRIPTS / "profile_indicator.json"),
     )
     _, ai_ready = run_check(
         check,
@@ -102,7 +113,9 @@ def test_bad_record_trips_every_validity_rule(check, capsys, tmp_path):
     row = "BAD ID,Unemployment rate,Unemployment rate,n/a,yearly,2025,2015,national,LFS,20/08/2025,stats.example/def"
     bad = tmp_path / "bad.csv"
     bad.write_text(f"{header}\n{row}\n", encoding="utf-8")
-    code, out = run_check(check, capsys, str(bad), str(SCRIPTS / "profile_indicator.json"))
+    code, out = run_check(
+        check, capsys, str(bad), str(SCRIPTS / "profile_indicator.json")
+    )
     assert code == 1
     assert "Validity: 8 issue(s)" in out
     for expected in (
@@ -135,22 +148,34 @@ def test_csv_rows_become_nested_schema_records(check):
     with (SCRIPTS / "profile_indicator.json").open(encoding="utf-8") as fh:
         profile = json.load(fh)
     store = check.SchemaStore(SCHEMAS)
-    records = check.load_records(SCRIPTS / "example_catalog.csv", profile, store, "timeseries-schema.json")
+    records = check.load_records(
+        SCRIPTS / "example_catalog.csv", profile, store, "timeseries-schema.json"
+    )
     sd = records[0]["series_description"]
     assert sd["idno"] == "FS_UNDERNOURISH_PCT"
     assert sd["time_periods"] == [{"start": "2010", "end": "2024"}]
     assert sd["geographic_units"] == [{"name": "national"}, {"name": "region"}]
-    assert sd["definition_references"] == [{"uri": "https://stats.example/def/FS_UNDERNOURISH_PCT"}]
-    assert "definition_long" not in records[3]["series_description"]  # empty cell is absent, not ""
+    assert sd["definition_references"] == [
+        {"uri": "https://stats.example/def/FS_UNDERNOURISH_PCT"}
+    ]
+    assert (
+        "definition_long" not in records[3]["series_description"]
+    )  # empty cell is absent, not ""
 
 
 def test_schema_store_resolves_references_across_files(check):
     store = check.SchemaStore(SCHEMAS)
     # microdata -> allOf ddi-schema.json -> study_desc -> study_info -> coll_dates (array)
     assert store.is_array("microdata-schema.json", "study_desc.study_info.coll_dates")
-    assert store.item_key("microdata-schema.json", "study_desc.study_info.coll_dates") == "start"
+    assert (
+        store.item_key("microdata-schema.json", "study_desc.study_info.coll_dates")
+        == "start"
+    )
     assert store.item_key("timeseries-schema.json", "series_description.name") is None
-    assert store.node_at("timeseries-schema.json", "series_description.no_such_field") is None
+    assert (
+        store.node_at("timeseries-schema.json", "series_description.no_such_field")
+        is None
+    )
 
 
 def test_path_helpers_flatten_through_lists(check):
@@ -168,9 +193,19 @@ def test_unknown_type_or_level_exit_with_code_2(check, capsys, tmp_path):
     import json
 
     profile = tmp_path / "p.json"
-    profile.write_text(json.dumps({"type": "spreadsheet", "levels": {"foundational": []}}), encoding="utf-8")
+    profile.write_text(
+        json.dumps({"type": "spreadsheet", "levels": {"foundational": []}}),
+        encoding="utf-8",
+    )
     assert check.main([str(SCRIPTS / "example_document.json"), str(profile)]) == 2
-    code = check.main([str(SCRIPTS / "example_document.json"), str(SCRIPTS / "profile_document.json"), "--level", "x"])
+    code = check.main(
+        [
+            str(SCRIPTS / "example_document.json"),
+            str(SCRIPTS / "profile_document.json"),
+            "--level",
+            "x",
+        ]
+    )
     assert code == 2
     assert "unknown" in capsys.readouterr().err
 
@@ -178,7 +213,9 @@ def test_unknown_type_or_level_exit_with_code_2(check, capsys, tmp_path):
 def test_structure_layer_is_skipped_without_jsonschema(check, monkeypatch):
     monkeypatch.setitem(sys.modules, "jsonschema", None)
     store = check.SchemaStore(SCHEMAS)
-    result = check.layer_structure([{}], store, "timeseries-schema.json", "series_description.idno")
+    result = check.layer_structure(
+        [{}], store, "timeseries-schema.json", "series_description.idno"
+    )
     assert result.valid is None
     assert "layer 1 skipped" in result.problems[0]
 
@@ -187,7 +224,12 @@ def test_structure_layer_is_skipped_without_jsonschema(check, monkeypatch):
 
 
 def test_keyword_baseline_scores_match_the_cookbook_text(score, capsys):
-    assert score.main([str(SCRIPTS / "eval_questions.csv"), str(SCRIPTS / "example_catalog.csv")]) == 0
+    assert (
+        score.main(
+            [str(SCRIPTS / "eval_questions.csv"), str(SCRIPTS / "example_catalog.csv")]
+        )
+        == 0
+    )
     out = capsys.readouterr().out
     assert "en      10   0.80   0.80   0.80" in out
     assert "fr       2   0.00   0.00   0.00" in out
@@ -195,7 +237,7 @@ def test_keyword_baseline_scores_match_the_cookbook_text(score, capsys):
 
 
 def test_search_ranks_exact_title_first_and_is_unicode_aware(score):
-    catalog = score.load_csv(SCRIPTS / "example_catalog.csv")
+    catalog = pd.read_csv(SCRIPTS / "example_catalog.csv", dtype=str).to_dict("records")
     assert score.search("unemployment rate", catalog)[0] == "LF_UNEMP_PCT"
     assert score.tokens("Taux de chômage élevé") == {"taux", "de", "chômage", "élevé"}
 
@@ -223,7 +265,9 @@ def test_tolerance_is_the_larger_of_absolute_and_relative(verify):
         ("Undernourishment fell from 8.4% in 2022 to 7.2% in 2024.", 1, 1),
     ],
 )
-def test_verify_main_reads_stdin_and_sets_exit_code(verify, capsys, monkeypatch, answer, code, unverified):
+def test_verify_main_reads_stdin_and_sets_exit_code(
+    verify, capsys, monkeypatch, answer, code, unverified
+):
     monkeypatch.setattr(sys, "stdin", io.StringIO(answer))
     assert verify.main(["-", str(SCRIPTS / "example_values.csv")]) == code
     out = capsys.readouterr().out

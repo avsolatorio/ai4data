@@ -51,7 +51,14 @@ def search_series(query: str, limit: int = 5) -> list[dict]:
         if score:
             hits.append((score, rec))
     hits.sort(key=lambda h: h[0], reverse=True)
-    keys = ("idno", "name", "measurement_unit", "periodicity", "time_period_start", "time_period_end")
+    keys = (
+        "idno",
+        "name",
+        "measurement_unit",
+        "periodicity",
+        "time_period_start",
+        "time_period_end",
+    )
     return [{k: rec[k] for k in keys} for _, rec in hits[:limit]]
 
 

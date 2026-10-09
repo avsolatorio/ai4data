@@ -15,7 +15,7 @@ dataset_id with a match type and a score:
               or is a new variant to review
 
 Writes the mentions with the match fields added (JSON lines) and prints a
-summary. Standard library only.
+summary. Uses pandas and rapidfuzz (fuzzy matching).
 
 What this does not do: it matches strings. The program's harmonization
 step adds semantic matching with sentence embeddings and a review of
@@ -29,12 +29,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import csv
-import difflib
 import json
 import re
 import sys
 from pathlib import Path
+
+import pandas as pd
+from rapidfuzz import fuzz, process
 
 WORD = re.compile(r"[a-z0-9]+")
 
@@ -44,45 +45,49 @@ def norm(text: str) -> str:
 
 
 def load_canonical(path: Path) -> list[dict]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    """The names table with normalized names and acronym per dataset."""
+    rows = pd.read_csv(path, dtype=str).fillna("").to_dict("records")
     for r in rows:
-        names = [r["canonical_name"]] + [
-            v for v in (r.get("variants") or "").split(";") if v.strip()
-        ]
+        names = [r["canonical_name"], *r["variants"].split(";")]
         r["_names"] = [norm(n) for n in names if n.strip()]
-        r["_acronym"] = norm(r["acronym"]) if r.get("acronym") else ""
+        r["_acronym"] = norm(r["acronym"])
     return rows
 
 
 def match(
     mention: str, canonical: list[dict], threshold: float
 ) -> tuple[str | None, str, float]:
+    """Return (dataset_id, match type, score): exact, contains, fuzzy, or none."""
     m = norm(mention)
-    # exact
-    for r in canonical:
+    for r in canonical:  # exact: the mention is a known name, variant, or acronym
         if m in r["_names"] or (r["_acronym"] and m == r["_acronym"]):
             return r["dataset_id"], "exact", 1.0
-    # contains: a variant, or the acronym as a whole word, inside the mention
     best: tuple[str | None, str, float] = (None, "none", 0.0)
-    for r in canonical:
+    for r in (
+        canonical
+    ):  # contains: a long name, or the acronym as a whole word, inside the mention
         for name in r["_names"]:
-            if len(name) >= 8 and f" {name} " in f" {m} ":
-                score = len(name) / len(m)
-                if score > best[2]:
-                    best = (r["dataset_id"], "contains", round(score, 2))
+            if (
+                len(name) >= 8
+                and f" {name} " in f" {m} "
+                and len(name) / len(m) > best[2]
+            ):
+                best = (r["dataset_id"], "contains", round(len(name) / len(m), 2))
         if r["_acronym"] and re.search(rf"\b{re.escape(r['_acronym'])}\b", m):
-            score = len(r["_acronym"]) / len(m) + 0.3
+            score = min(len(r["_acronym"]) / len(m) + 0.3, 0.99)
             if score > best[2]:
-                best = (r["dataset_id"], "contains", round(min(score, 0.99), 2))
+                best = (r["dataset_id"], "contains", round(score, 2))
     if best[0]:
         return best
-    # fuzzy
-    for r in canonical:
-        for name in r["_names"]:
-            ratio = difflib.SequenceMatcher(None, m, name).ratio()
-            if ratio >= threshold and ratio > best[2]:
-                best = (r["dataset_id"], "fuzzy", round(ratio, 2))
+    choices = {
+        name: r["dataset_id"] for r in canonical for name in r["_names"]
+    }  # fuzzy: closest name by edit similarity
+    hit = process.extractOne(
+        m, list(choices), scorer=fuzz.ratio, score_cutoff=threshold * 100
+    )
+    if hit:
+        name, score, _ = hit
+        return choices[name], "fuzzy", round(score / 100, 2)
     return best
 
 
@@ -99,12 +104,10 @@ def main(argv: list[str] | None = None) -> int:
         "--threshold", type=float, default=0.8, help="fuzzy match ratio (default 0.8)"
     )
     args = parser.parse_args(argv)
-
     canonical = load_canonical(args.canonical)
-    with args.mentions.open(encoding="utf-8") as fh:
-        mentions = [json.loads(line) for line in fh if line.strip()]
+    mentions = pd.read_json(args.mentions, lines=True).to_dict("records")
 
-    counts: dict[str, int] = {"exact": 0, "contains": 0, "fuzzy": 0, "none": 0}
+    counts = dict.fromkeys(("exact", "contains", "fuzzy", "none"), 0)
     unmatched: list[str] = []
     for mention in mentions:
         dataset_id, kind, score = match(mention["text"], canonical, args.threshold)
@@ -126,11 +129,11 @@ def main(argv: list[str] | None = None) -> int:
         print("unmatched (other organizations' data, or variants to add to the table):")
         for u in unmatched:
             print(f"  {u}")
-
     if args.output:
-        with args.output.open("w", encoding="utf-8") as fh:
-            for mention in mentions:
-                fh.write(json.dumps(mention, ensure_ascii=False) + "\n")
+        args.output.write_text(
+            "".join(json.dumps(m, ensure_ascii=False) + "\n" for m in mentions),
+            encoding="utf-8",
+        )
         print(f"wrote {args.output}")
     return 0
 

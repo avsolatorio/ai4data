@@ -5,8 +5,7 @@ and a vocabulary (CSV: preferred_label, uri, alternates separated by ";")
 and assigns each keyword a preferred label by exact match on the preferred
 label or an alternate, or by similarity above a threshold (difflib ratio),
 or marks it unmapped. Prints the mapping and the unmapped keywords, which
-are the candidates for new alternates or new concepts. Standard library
-only.
+are the candidates for new alternates or new concepts. Uses pandas and rapidfuzz (fuzzy matching).
 
 The vocabulary format is the minimum of a SKOS concept scheme: a preferred
 label, a URI, and alternate labels. A full scheme adds definitions,
@@ -25,11 +24,11 @@ confirm.
 from __future__ import annotations
 
 import argparse
-import csv
-import difflib
 import re
 import sys
-from pathlib import Path
+
+import pandas as pd
+from rapidfuzz import fuzz, process
 
 WORD = re.compile(r"[a-z0-9]+")
 
@@ -38,51 +37,47 @@ def norm(text: str) -> str:
     return " ".join(WORD.findall(text.lower()))
 
 
+def build_index(vocabulary: pd.DataFrame) -> dict[str, str]:
+    """Every normalized preferred label and alternate, mapped to its preferred label."""
+    index = {}
+    for c in vocabulary.itertuples():
+        index[norm(c.preferred_label)] = c.preferred_label
+        for alt in c.alternates.split(";"):
+            if alt.strip():
+                index[norm(alt)] = c.preferred_label
+    return index
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("keywords", type=Path)
-    parser.add_argument("vocabulary", type=Path)
+    parser.add_argument("keywords")
+    parser.add_argument("vocabulary")
     parser.add_argument("--threshold", type=float, default=0.85)
     args = parser.parse_args(argv)
+    index = build_index(pd.read_csv(args.vocabulary, dtype=str).fillna(""))
+    keywords = pd.read_csv(args.keywords, dtype=str).fillna("")
 
-    with args.vocabulary.open(newline="", encoding="utf-8") as fh:
-        concepts = list(csv.DictReader(fh))
-    index: dict[str, str] = {}
-    for c in concepts:
-        index[norm(c["preferred_label"])] = c["preferred_label"]
-        for alt in (c.get("alternates") or "").split(";"):
-            if alt.strip():
-                index[norm(alt)] = c["preferred_label"]
-    with args.keywords.open(newline="", encoding="utf-8") as fh:
-        keywords = list(csv.DictReader(fh))
-
-    counts = {"exact": 0, "fuzzy": 0, "none": 0}
+    counts = dict.fromkeys(("exact", "fuzzy", "none"), 0)
     unmapped: list[str] = []
     print(
         f"{'match':<6} {'score':>5}  {'record':<22} {'keyword':<34} -> preferred label"
     )
-    for k in keywords:
-        text = norm(k["keyword"])
+    for k in keywords.itertuples():
+        text = norm(k.keyword)
         if text in index:
             kind, score, label = "exact", 1.0, index[text]
+        elif hit := process.extractOne(
+            text, list(index), scorer=fuzz.ratio, score_cutoff=args.threshold * 100
+        ):
+            kind, score, label = "fuzzy", hit[1] / 100, index[hit[0]]
         else:
-            best = max(
-                (
-                    (difflib.SequenceMatcher(None, text, form).ratio(), label)
-                    for form, label in index.items()
-                ),
-                default=(0.0, ""),
-            )
-            if best[0] >= args.threshold:
-                kind, score, label = "fuzzy", best[0], best[1]
-            else:
-                kind, score, label = "none", 0.0, "-"
-                unmapped.append(f"{k['record_id']}: {k['keyword']!r}")
+            kind, score, label = "none", 0.0, "-"
+            unmapped.append(f"{k.record_id}: {k.keyword!r}")
         counts[kind] += 1
         print(
-            f"{kind:<6} {score:>5.2f}  {k['record_id']:<22} {k['keyword']!r:<34} -> {label}"
+            f"{kind:<6} {score:>5.2f}  {k.record_id:<22} {k.keyword!r:<34} -> {label}"
         )
     print(
         f"\n{len(keywords)} keywords: "

@@ -86,13 +86,13 @@ Output for the running example:
 group                n  before  after   diff     95% interval  verdict
 all                 30    0.70   0.73  +0.03   [-0.17, +0.23]  ok
 language=en         18    0.83   0.83  +0.00   [-0.22, +0.22]  ok (small)
+language=fr          6    0.33   0.83  +0.50   [+0.17, +0.83]  ok (small)
+language=es          6    0.67   0.33  -0.33   [-0.67, +0.00]  possible regression, too few to decide
 slice=official       8    0.75   0.75  +0.00   [-0.50, +0.50]  ok (small)
 slice=paraphrase    17    0.65   0.76  +0.12   [-0.12, +0.35]  ok (small)
 slice=none           5    0.80   0.60  -0.20   [-0.60, +0.00]  possible regression, too few to decide
-language=fr          6    0.33   0.83  +0.50   [+0.17, +0.83]  ok (small)
-language=es          6    0.67   0.33  -0.33   [-0.67, +0.00]  possible regression, too few to decide
 
-gate: REVIEW (slice=none, language=es dropped beyond the tolerance on too few questions to decide; a person decides, and the set grows there)
+gate: REVIEW (language=es, slice=none dropped beyond the tolerance on too few questions to decide; a person decides, and the set grows there)
 ```
 
 1. Score both versions on the same version of the question set. The

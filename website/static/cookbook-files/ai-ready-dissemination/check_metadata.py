@@ -182,10 +182,14 @@ class Column:
 
     path: str
     item_key: str | None  # None: scalar; "": list of strings; "x": list of {x: value}
-    array_prefixes: set[str] = field(default_factory=set)  # path prefixes that are arrays
+    array_prefixes: set[str] = field(
+        default_factory=set
+    )  # path prefixes that are arrays
 
 
-def plan_columns(header: list[str], profile: dict, store: SchemaStore, root: str) -> list[Column]:
+def plan_columns(
+    header: list[str], profile: dict, store: SchemaStore, root: str
+) -> list[Column]:
     """Resolve each CSV column against the profile and the schema, once."""
     csv_root = profile.get("csv_root", "")
     renames = profile.get("csv_columns", {})
@@ -231,7 +235,9 @@ def csv_value(column: Column, raw: str) -> Any:
     return [{column.item_key: v} for v in items]
 
 
-def load_records(path: Path, profile: dict, store: SchemaStore, root: str) -> list[Record]:
+def load_records(
+    path: Path, profile: dict, store: SchemaStore, root: str
+) -> list[Record]:
     if path.suffix.lower() == ".json":
         with path.open(encoding="utf-8") as fh:
             data = json.load(fh)
@@ -280,7 +286,11 @@ def first(record: Record, path: str) -> Any:
 
 
 def strings_at(record: Record, path: str) -> list[str]:
-    return [v for v in values_at(record, path.split(".")) if isinstance(v, str) and v.strip()]
+    return [
+        v
+        for v in values_at(record, path.split("."))
+        if isinstance(v, str) and v.strip()
+    ]
 
 
 def record_id(record: Record, id_path: str, index: int) -> str:
@@ -303,14 +313,18 @@ class CompletenessResult:
     missing_count: Counter
 
 
-def layer_structure(records: list[Record], store: SchemaStore, root: str, id_path: str) -> StructureResult:
+def layer_structure(
+    records: list[Record], store: SchemaStore, root: str, id_path: str
+) -> StructureResult:
     try:
         import jsonschema
         from referencing import Registry, Resource
         from referencing.exceptions import NoSuchResource, Unresolvable
         from referencing.jsonschema import DRAFT202012
     except ImportError:
-        return StructureResult(None, ["jsonschema 4.18+ not installed; layer 1 skipped"])
+        return StructureResult(
+            None, ["jsonschema 4.18+ not installed; layer 1 skipped"]
+        )
     root_schema = store.get(root)
     if root_schema is None:
         return StructureResult(None, ["schema not available; layer 1 skipped"])
@@ -323,9 +337,13 @@ def layer_structure(records: list[Record], store: SchemaStore, root: str, id_pat
         contents = store.get(uri.rsplit("/", 1)[-1])
         if contents is None:
             raise NoSuchResource(ref=uri)
-        return Resource.from_contents(strip(contents), default_specification=DRAFT202012)
+        return Resource.from_contents(
+            strip(contents), default_specification=DRAFT202012
+        )
 
-    validator = jsonschema.Draft202012Validator(strip(root_schema), registry=Registry(retrieve=retrieve))
+    validator = jsonschema.Draft202012Validator(
+        strip(root_schema), registry=Registry(retrieve=retrieve)
+    )
     problems: list[str] = []
     invalid: set[str] = set()
     for i, record in enumerate(records):
@@ -341,7 +359,9 @@ def layer_structure(records: list[Record], store: SchemaStore, root: str, id_pat
     return StructureResult(len(records) - len(invalid), problems)
 
 
-def layer_completeness(records: list[Record], profile: dict, level: str, id_path: str) -> CompletenessResult:
+def layer_completeness(
+    records: list[Record], profile: dict, level: str, id_path: str
+) -> CompletenessResult:
     levels = profile["levels"]
     order = list(levels)
     wanted = [path for lvl in order[: order.index(level) + 1] for path in levels[lvl]]
@@ -379,13 +399,20 @@ def layer_validity(records: list[Record], profile: dict, id_path: str) -> list[s
         for start_path, end_path in rules.get("period_order", []):
             start, end = first(record, start_path), first(record, end_path)
             ordered_pair = (
-                isinstance(start, str) and isinstance(end, str) and PERIOD.match(start) and PERIOD.match(end)
+                isinstance(start, str)
+                and isinstance(end, str)
+                and PERIOD.match(start)
+                and PERIOD.match(end)
             )
             if ordered_pair and end < start:
-                issues.append(f"{rid}: {end_path} ({end}) is before {start_path} ({start})")
+                issues.append(
+                    f"{rid}: {end_path} ({end}) is before {start_path} ({start})"
+                )
         for path in rules.get("urls", []):
             issues += [
-                f"{rid}: {path} {v!r} is not a URL" for v in strings_at(record, path) if not URL.match(v)
+                f"{rid}: {path} {v!r} is not a URL"
+                for v in strings_at(record, path)
+                if not URL.match(v)
             ]
         for path, allowed in rules.get("vocabularies", {}).items():
             issues += [
@@ -401,7 +428,11 @@ def layer_validity(records: list[Record], profile: dict, id_path: str) -> list[s
             ]
         for a, b in rules.get("not_equal", []):
             va, vb = first(record, a), first(record, b)
-            if isinstance(va, str) and isinstance(vb, str) and va.strip().lower() == vb.strip().lower():
+            if (
+                isinstance(va, str)
+                and isinstance(vb, str)
+                and va.strip().lower() == vb.strip().lower()
+            ):
                 issues.append(f"{rid}: {b} repeats {a}")
         for path in rules.get("placeholders", []):
             issues += [
@@ -409,7 +440,9 @@ def layer_validity(records: list[Record], profile: dict, id_path: str) -> list[s
                 for v in strings_at(record, path)
                 if v.strip().lower() in PLACEHOLDERS
             ]
-    issues += [f"{rid}: identifier appears {n} times" for rid, n in seen.items() if n > 1]
+    issues += [
+        f"{rid}: identifier appears {n} times" for rid, n in seen.items() if n > 1
+    ]
     return issues
 
 
@@ -431,7 +464,9 @@ def report(
     if structure.valid is None:
         print(f"         {structure.problems[0]}")
     else:
-        print(f"         {structure.valid} of {n} records are valid instances of the schema")
+        print(
+            f"         {structure.valid} of {n} records are valid instances of the schema"
+        )
         for problem in structure.problems[:20]:
             print(f"         {problem}")
     print(
@@ -457,8 +492,12 @@ def report(
     for issue in issues:
         print(f"         {issue}")
     print()
-    print("Not checked here: whether the text is correct, whether title and abstract agree, whether a unit")
-    print("matches the values, or whether the text is specific. Those need review or a semantic check")
+    print(
+        "Not checked here: whether the text is correct, whether title and abstract agree, whether a unit"
+    )
+    print(
+        "matches the values, or whether the text is specific. Those need review or a semantic check"
+    )
     print("(see Generative AI for Metadata Quality).")
 
 
@@ -469,10 +508,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("records", type=Path, help="JSON records (nested) or CSV (flat)")
-    parser.add_argument("profile", type=Path, help="completeness profile JSON for the data type")
-    parser.add_argument("--type", choices=sorted(TYPES), help='data type; default: the profile\'s "type"')
-    parser.add_argument("--level", help="profile level to check up to; default: the first level")
+    parser.add_argument(
+        "records", type=Path, help="JSON records (nested) or CSV (flat)"
+    )
+    parser.add_argument(
+        "profile", type=Path, help="completeness profile JSON for the data type"
+    )
+    parser.add_argument(
+        "--type",
+        choices=sorted(TYPES),
+        help='data type; default: the profile\'s "type"',
+    )
+    parser.add_argument(
+        "--level", help="profile level to check up to; default: the first level"
+    )
     parser.add_argument(
         "--schema-dir",
         type=Path,

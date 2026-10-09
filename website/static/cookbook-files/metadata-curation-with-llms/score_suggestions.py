@@ -13,8 +13,7 @@ reason, reviewer, date), and reports per field and per source:
     rejected   with the curators' reasons listed
 
 The acceptance rate (accepted plus edited over decided) per field and per
-source is the measure that chapter 6 tracks over time. Standard library
-only.
+source is the measure that chapter 6 tracks over time. Uses pandas and rapidfuzz (text similarity).
 
 Usage:
     python score_suggestions.py suggestions_example.jsonl decisions_example.csv
@@ -28,79 +27,63 @@ right.
 from __future__ import annotations
 
 import argparse
-import csv
-import difflib
-import json
 import sys
-from collections import defaultdict
-from pathlib import Path
+
+import pandas as pd
+from rapidfuzz import fuzz
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("suggestions", type=Path)
-    parser.add_argument("decisions", type=Path)
+    parser.add_argument("suggestions")
+    parser.add_argument("decisions")
     args = parser.parse_args(argv)
+    suggestions = pd.read_json(args.suggestions, lines=True)
+    decisions = pd.read_csv(args.decisions, dtype=str).fillna("")
+    decisions["decision"] = decisions["decision"].str.strip().str.lower()
+    joined = suggestions.merge(
+        decisions, on=["record_id", "field"], how="left", suffixes=("", "_decision")
+    )
+    decided = joined[joined["decision"].notna()].copy()
+    decided["source"] = decided.get(
+        "source", pd.Series("?", index=decided.index)
+    ).fillna("?")
 
-    with args.suggestions.open(encoding="utf-8") as fh:
-        suggestions = {
-            (s["record_id"], s["field"]): s
-            for s in (json.loads(line) for line in fh if line.strip())
-        }
-    with args.decisions.open(newline="", encoding="utf-8") as fh:
-        decisions = list(csv.DictReader(fh))
-
-    groups = {
-        "field": defaultdict(lambda: defaultdict(int)),
-        "source": defaultdict(lambda: defaultdict(int)),
-    }
-    similarities: list[float] = []
-    rejections: list[str] = []
-    undecided = set(suggestions)
-    for d in decisions:
-        key = (d["record_id"], d["field"])
-        s = suggestions.get(key)
-        if s is None:
-            continue
-        undecided.discard(key)
-        verdict = d["decision"].strip().lower()
-        for by, label in (("field", s["field"]), ("source", s.get("source", "?"))):
-            groups[by][label]["n"] += 1
-            groups[by][label][verdict] += 1
-        if verdict == "edit":
-            similarities.append(
-                difflib.SequenceMatcher(
-                    None, s["suggested"], d.get("final_text", "")
-                ).ratio()
-            )
-        if verdict == "reject":
-            rejections.append(
-                f"{d['record_id']}/{d['field']} ({s.get('source', '?')}): {d.get('reason', '')}"
-            )
-
-    decided = sum(g["n"] for g in groups["field"].values())
     print(
-        f"{len(suggestions)} suggestions, {decided} decided, {len(undecided)} undecided"
+        f"{len(suggestions)} suggestions, {len(decided)} decided, {len(joined) - len(decided)} undecided"
     )
     for by in ("field", "source"):
+        table = pd.crosstab(decided[by], decided["decision"]).reindex(
+            columns=["accept", "edit", "reject"], fill_value=0
+        )
+        table["n"] = table.sum(axis=1)
+        table = table.astype({"accept": int, "edit": int, "reject": int, "n": int})
+        table["rate"] = (table["accept"] + table["edit"]) / table["n"]
         print(
             f"\n{'by ' + by:<28} {'n':>3} {'accept':>7} {'edit':>5} {'reject':>7} {'rate':>6}"
         )
-        for label, g in sorted(groups[by].items(), key=lambda kv: -kv[1]["n"]):
-            rate = (g["accept"] + g["edit"]) / g["n"] if g["n"] else 0.0
+        for label, g in table.sort_values(
+            "n", ascending=False, kind="stable"
+        ).iterrows():
             print(
-                f"{label:<28} {g['n']:>3} {g['accept']:>7} {g['edit']:>5} {g['reject']:>7} {rate:>6.2f}"
+                f"{label:<28} {g['n']:>3} {g['accept']:>7} {g['edit']:>5} {g['reject']:>7} {g['rate']:>6.2f}"
             )
-    if similarities:
+    edited = decided[decided["decision"] == "edit"]
+    if not edited.empty:
+        similarity = [
+            fuzz.ratio(s, f) / 100
+            for s, f in zip(edited["suggested"], edited["final_text"])
+        ]
         print(
-            f"\nedited suggestions: mean similarity to final text {sum(similarities) / len(similarities):.2f}"
+            f"\nedited suggestions: mean similarity to final text {sum(similarity) / len(similarity):.2f}"
         )
-    if rejections:
+    rejected = decided[decided["decision"] == "reject"]
+    if not rejected.empty:
         print("\nrejected, with reasons:")
-        for r in rejections:
-            print(f"  {r}")
+        for r in rejected.itertuples():
+            print(f"  {r.record_id}/{r.field} ({r.source}): {r.reason}")
     print("\nThe acceptance rate counts curator decisions; it does not judge them.")
     return 0
 

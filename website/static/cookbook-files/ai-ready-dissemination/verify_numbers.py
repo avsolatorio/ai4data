@@ -4,7 +4,7 @@ Takes an answer text and a CSV of the values that were retrieved for it,
 with SDMX cross-domain concept names as columns (SERIES, REF_AREA,
 TIME_PERIOD, OBS_VALUE, UNIT_MEASURE). Every number in the answer is matched
 to a retrieved value within a tolerance and marked verified or unverified.
-Standard library only.
+Uses pandas.
 
 The tolerance is the larger of an absolute and a relative allowance, so that
 7.6 reported as 7.60 passes and 12,500 reported as 12,480 passes at 0.2
@@ -25,11 +25,13 @@ Exit status is 0 when every number is verified, 1 otherwise.
 from __future__ import annotations
 
 import argparse
-import csv
+import math
 import re
 import sys
 from collections.abc import Iterator
 from pathlib import Path
+
+import pandas as pd
 
 NUMBER = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
 YEAR = re.compile(r"^(19|20)\d\d$")
@@ -48,7 +50,8 @@ def parse(raw: str) -> float:
 
 
 def matches(number: float, value: float, abs_tol: float, rel_tol: float) -> bool:
-    return abs(value - number) <= max(abs_tol, rel_tol * abs(value))
+    """True when the number is within the larger of the absolute and the relative tolerance of the value."""
+    return math.isclose(number, value, rel_tol=rel_tol, abs_tol=abs_tol)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,15 +60,27 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("answer", help="text file, or - for stdin")
     parser.add_argument("values", type=Path, help="CSV of retrieved values")
-    parser.add_argument("--abs-tolerance", type=float, default=0.05, help="absolute allowance (default 0.05)")
     parser.add_argument(
-        "--rel-tolerance", type=float, default=0.002, help="relative allowance (default 0.2%%)"
+        "--abs-tolerance",
+        type=float,
+        default=0.05,
+        help="absolute allowance (default 0.05)",
+    )
+    parser.add_argument(
+        "--rel-tolerance",
+        type=float,
+        default=0.002,
+        help="relative allowance (default 0.2%%)",
     )
     args = parser.parse_args(argv)
 
-    text = sys.stdin.read() if args.answer == "-" else Path(args.answer).read_text(encoding="utf-8")
-    with args.values.open(newline="", encoding="utf-8") as fh:
-        values = list(csv.DictReader(fh))
+    text = (
+        sys.stdin.read()
+        if args.answer == "-"
+        else Path(args.answer).read_text(encoding="utf-8")
+    )
+    values = pd.read_csv(args.values, dtype=str)
+    values["OBS_VALUE"] = values["OBS_VALUE"].astype(float)
 
     unverified = 0
     found = list(find_numbers(text))
@@ -75,22 +90,21 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{raw:>8}  {'period':<10}")
             continue
         number = parse(raw)
-        match = next(
-            (
-                v
-                for v in values
-                if matches(number, float(v["OBS_VALUE"]), args.abs_tolerance, args.rel_tolerance)
-            ),
-            None,
-        )
-        if match:
-            print(
-                f"{raw:>8}  {'verified':<10} {match['SERIES']} {match['REF_AREA']} "
-                f"{match['TIME_PERIOD']} = {match['OBS_VALUE']} {match['UNIT_MEASURE']}"
+        hits = values[
+            values["OBS_VALUE"].apply(
+                lambda v, n=number: matches(
+                    n, v, args.abs_tolerance, args.rel_tolerance
+                )
             )
-        else:
+        ]
+        if hits.empty:
             unverified += 1
             print(f"{raw:>8}  {'UNVERIFIED':<10} no retrieved value within tolerance")
+        else:
+            m = hits.iloc[0]
+            print(
+                f"{raw:>8}  {'verified':<10} {m.SERIES} {m.REF_AREA} {m.TIME_PERIOD} = {m.OBS_VALUE:g} {m.UNIT_MEASURE}"
+            )
 
     print(f"\n{len(found)} numbers, {unverified} unverified")
     return 1 if unverified else 0

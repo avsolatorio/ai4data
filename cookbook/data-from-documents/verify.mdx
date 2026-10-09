@@ -78,7 +78,9 @@ WB-PRWP-4771 page 12: Type of guarantee systems (figure)
   verified  HIGH/PUBLIC                      7 matches a printed label
   verified  LOW_MIDDLE/MUTUAL                7 matches a printed label
   verified  LOW_MIDDLE/PUBLIC                17 matches a printed label
+
 4 verified, 0 flagged, 0 estimated
+Not checked here: whether the right table or chart was extracted, or whether labels are correct.
 ```
 
 Run on the table of [chapter 4](./extract.mdx):
@@ -90,11 +92,23 @@ python verify_extraction.py example_table.json
 ```text
 EX-REP-2025-03 page 24: Table 3.1 Undernourishment by district, 2024 (table)
   verified  National/Population (thousands)  total 5640 vs sum of rows 5640
-  ...
+  verified  Northern Region/Population (thousands) 1240 (covered by the total check)
+  verified  Central Region/Population (thousands) 2110 (covered by the total check)
+  verified  Eastern Region/Population (thousands) 860 (covered by the total check)
+  verified  Western Region/Population (thousands) 1430 (covered by the total check)
+  verified  National/Undernourished (thousands) total 434 vs sum of rows 434
+  verified  Northern Region/Undernourished (thousands) 118 (covered by the total check)
+  verified  Central Region/Undernourished (thousands) 141 (covered by the total check)
+  verified  Eastern Region/Undernourished (thousands) 79 (covered by the total check)
+  verified  Western Region/Undernourished (thousands) 96 (covered by the total check)
+  verified  Northern Region/Prevalence (%)   9.5 vs computed 9.52
   verified  Central Region/Prevalence (%)    6.7 vs computed 6.68
   flagged   Eastern Region/Prevalence (%)    8.2 vs computed 9.19
-  ...
+  verified  Western Region/Prevalence (%)    6.7 vs computed 6.71
+  verified  National/Prevalence (%)          7.7 vs computed 7.70
+
 14 verified, 1 flagged, 0 estimated
+Not checked here: whether the right table or chart was extracted, or whether labels are correct.
 ```
 
 1. Run the check on every record.

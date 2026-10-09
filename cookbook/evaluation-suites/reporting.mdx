@@ -73,16 +73,16 @@ python report_card.py run_scores_v2.csv --run-name "search v2, 2026-10-01"
 Output for the running example:
 
 ```text
-Report card: search-v2-2026-10-01
+Report card: search v2, 2026-10-01
 
 group                n pass rate   95% interval
-all                 30      0.73   [0.57, 0.90]
+all                 30      0.73   [0.57, 0.87]
 language=en         18      0.83   [0.67, 1.00]
+language=fr          6      0.83   [0.50, 1.00]
+language=es          6      0.33   [0.00, 0.67]
 slice=official       8      0.75   [0.38, 1.00]
 slice=paraphrase    17      0.76   [0.53, 0.94]
 slice=none           5      0.60   [0.20, 1.00]
-language=fr          6      0.83   [0.50, 1.00]
-language=es          6      0.33   [0.00, 0.67]
 
 Publish with: the question set version, the measure definitions, the model and index versions, and the date.
 ```

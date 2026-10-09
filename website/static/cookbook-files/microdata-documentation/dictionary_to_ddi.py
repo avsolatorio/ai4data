@@ -13,7 +13,7 @@ Mapping from the CSV columns to DDI fields:
     type      -> var_format.type question  -> var_qstn_qstnlit
     universe  -> var_universe    concept   -> var_concept [{title}]
 
-Standard library only.
+Uses pandas.
 
 What this does not do: it does not compute summary statistics (var_sumstat)
 or category frequencies, which need the data file, and it does not validate
@@ -28,57 +28,68 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import sys
 from pathlib import Path
+
+import pandas as pd
 
 FORMAT = {"numeric": "numeric", "categorical": "numeric", "string": "character"}
 
 
 def parse_values(text: str) -> list[dict[str, str]]:
-    out = []
-    for item in (text or "").split(";"):
-        if "=" in item:
-            value, label = item.split("=", 1)
-            out.append({"value": value.strip(), "label": label.strip()})
-    return out
+    """'1=Yes;2=No' -> [{value: '1', label: 'Yes'}, ...]."""
+    pairs = (item.split("=", 1) for item in text.split(";") if "=" in item)
+    return [{"value": v.strip(), "label": label.strip()} for v, label in pairs]
+
+
+def variable(i: int, r: pd.Series) -> dict:
+    """One DDI variable from one dictionary row."""
+    var: dict = {
+        "vid": f"V{i}",
+        "file_id": r["file_id"],
+        "name": r["name"],
+        "labl": r["label"],
+        "var_format": {"type": FORMAT.get(r["type"].lower(), "character")},
+    }
+    if r["universe"]:
+        var["var_universe"] = r["universe"]
+    if r["question"]:
+        var["var_qstn_qstnlit"] = r["question"]
+    missing = [m.strip() for m in r["missing"].split(";") if m.strip()]
+    categories = parse_values(r["values"]) + [
+        {"value": code, "label": "Missing"} for code in missing
+    ]
+    if categories:
+        var["var_catgry"] = categories
+    if missing:
+        var["var_notes"] = "Missing-value codes: " + ", ".join(missing)
+    if r["concept"]:
+        var["var_concept"] = [{"title": r["concept"]}]
+    return var
 
 
 def convert(rows: list[dict[str, str]]) -> tuple[list[dict], list[dict]]:
-    files: dict[str, dict] = {}
-    variables: list[dict] = []
-    for i, r in enumerate(rows, 1):
-        file_id = r["file_id"].strip()
-        files.setdefault(
-            file_id, {"file_id": file_id, "file_name": f"{file_id}.csv", "var_count": 0}
-        )
-        files[file_id]["var_count"] += 1
-        var: dict = {
-            "vid": f"V{i}",
-            "file_id": file_id,
-            "name": r["name"].strip(),
-            "labl": (r.get("label") or "").strip(),
-            "var_format": {
-                "type": FORMAT.get((r.get("type") or "").strip().lower(), "character")
-            },
-        }
-        if (r.get("universe") or "").strip():
-            var["var_universe"] = r["universe"].strip()
-        if (r.get("question") or "").strip():
-            var["var_qstn_qstnlit"] = r["question"].strip()
-        categories = parse_values(r.get("values") or "")
-        missing = [m.strip() for m in (r.get("missing") or "").split(";") if m.strip()]
-        for code in missing:
-            categories.append({"value": code, "label": "Missing"})
-        if categories:
-            var["var_catgry"] = categories
-        if missing:
-            var["var_notes"] = "Missing-value codes: " + ", ".join(missing)
-        if (r.get("concept") or "").strip():
-            var["var_concept"] = [{"title": r["concept"].strip()}]
-        variables.append(var)
-    return list(files.values()), variables
+    df = pd.DataFrame(rows).fillna("")
+    for col in (
+        "label",
+        "type",
+        "universe",
+        "question",
+        "values",
+        "missing",
+        "concept",
+    ):
+        if col not in df:
+            df[col] = ""
+    df = df.apply(lambda s: s.astype(str).str.strip())
+    counts = df["file_id"].value_counts(sort=False)
+    files = [
+        {"file_id": f, "file_name": f"{f}.csv", "var_count": int(n)}
+        for f, n in counts.items()
+    ]
+    variables = [variable(i, r) for i, (_, r) in enumerate(df.iterrows(), 1)]
+    return files, variables
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -94,17 +105,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    with args.dictionary.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    rows = pd.read_csv(args.dictionary, dtype=str).fillna("").to_dict("records")
     files, variables = convert(rows)
-
-    if args.study:
-        with args.study.open(encoding="utf-8") as fh:
-            record = json.load(fh)
-        record["data_files"] = files
-        record["variables"] = variables
-    else:
-        record = {"data_files": files, "variables": variables}
+    record = json.loads(args.study.read_text(encoding="utf-8")) if args.study else {}
+    record.update({"data_files": files, "variables": variables})
 
     text = json.dumps(record, indent=2, ensure_ascii=False)
     if args.output:

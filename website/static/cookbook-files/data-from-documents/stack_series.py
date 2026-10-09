@@ -15,7 +15,7 @@ status:
 
 Documents are ordered by their year in the mapping's document identifier
 order of appearance, earliest first. Prints the counts and the revisions.
-Standard library only.
+Uses pandas.
 
 Usage:
     python stack_series.py series_mapping.csv tidy_fs2024.csv tidy_fs2025.csv -o series_fs.csv
@@ -30,15 +30,80 @@ notes say which, and the series record carries the break.
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import Counter
 from pathlib import Path
 
+import pandas as pd
 
-def load_mapping(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+OUT = [
+    "series_id",
+    "area",
+    "period",
+    "value",
+    "unit",
+    "source_document",
+    "source_page",
+    "status",
+    "previous_value",
+    "previous_document",
+]
+
+
+def map_rows(tidy: pd.DataFrame, mapping: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """Attach series, area, and period to each tidy row through the mapping; count rows no mapping covers."""
+    mapped = []
+    unmatched = 0
+    for r in tidy.itertuples():
+        m = mapping[
+            (mapping["document_id"] == r.document_id)
+            & mapping["title_prefix"].map(r.title.startswith)
+        ]
+        if m.empty:
+            unmatched += 1
+            continue
+        m = m.iloc[0]
+        aliases = {a.strip().lower() for a in m["unit_aliases"].split(";")}
+        if r.unit.strip().lower() not in aliases:
+            unmatched += 1
+            continue
+        area, period = (
+            (r.row, r.column) if m["row_role"] == "area" else (r.column, r.row)
+        )
+        mapped.append(
+            {
+                "series_id": m["series_id"],
+                "area": area,
+                "period": period,
+                "value": r.value,
+                "unit": m["unit_label"],
+                "source_document": r.document_id,
+                "source_page": r.page,
+            }
+        )
+    return pd.DataFrame(mapped), unmatched
+
+
+def resolve(mapped: pd.DataFrame) -> pd.DataFrame:
+    """Keep the latest value per series, area, and period; mark it confirmed or revised when an earlier document reported it."""
+    out = []
+    for _, g in mapped.groupby(["series_id", "area", "period"], sort=True):
+        first, last = g.iloc[0], g.iloc[-1]
+        row = last.to_dict() | {
+            "status": "single",
+            "previous_value": "",
+            "previous_document": "",
+        }
+        if len(g) > 1:
+            if first["value"] == last["value"]:
+                row["status"] = "confirmed"
+            else:
+                row |= {
+                    "status": "revised",
+                    "previous_value": first["value"],
+                    "previous_document": first["source_document"],
+                }
+        out.append(row)
+    return pd.DataFrame(out, columns=OUT)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -49,90 +114,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("tidy", nargs="+", type=Path)
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args(argv)
-    mapping = load_mapping(args.mapping)
-    order = {m["document_id"]: i for i, m in enumerate(mapping)}
-
-    rows: list[dict[str, str]] = []
-    for path in args.tidy:
-        with path.open(newline="", encoding="utf-8") as fh:
-            rows.extend(csv.DictReader(fh))
-    rows.sort(key=lambda r: order.get(r["document_id"], len(order)))
-
-    series: dict[tuple[str, str, str], dict[str, str]] = {}
-    unmatched = 0
-    for r in rows:
-        m = next(
-            (
-                m
-                for m in mapping
-                if m["document_id"] == r["document_id"]
-                and r["title"].startswith(m["title_prefix"])
-            ),
-            None,
-        )
-        if m is None:
-            unmatched += 1
-            continue
-        aliases = {a.strip().lower() for a in m["unit_aliases"].split(";")}
-        if r["unit"].strip().lower() not in aliases:
-            unmatched += 1
-            continue
-        area, period = (
-            (r["row"], r["column"])
-            if m["row_role"] == "area"
-            else (r["column"], r["row"])
-        )
-        key = (m["series_id"], area, period)
-        new = {
-            "series_id": m["series_id"],
-            "area": area,
-            "period": period,
-            "value": r["value"],
-            "unit": m["unit_label"],
-            "source_document": r["document_id"],
-            "source_page": r["page"],
-            "status": "single",
-            "previous_value": "",
-            "previous_document": "",
-        }
-        old = series.get(key)
-        if old is None:
-            series[key] = new
-        elif old["value"] == new["value"]:
-            old["status"] = "confirmed"
-        else:
-            new["status"] = "revised"
-            new["previous_value"] = old["value"]
-            new["previous_document"] = old["source_document"]
-            series[key] = new
-
-    out_rows = [series[k] for k in sorted(series)]
-    fields = list(out_rows[0]) if out_rows else []
-    out = (
-        args.output.open("w", newline="", encoding="utf-8")
-        if args.output
-        else sys.stdout
+    mapping = pd.read_csv(args.mapping, dtype=str).fillna("")
+    order = {
+        d: i for i, d in enumerate(mapping["document_id"].unique())
+    }  # documents in the mapping's order, earliest first
+    tidy = pd.concat(
+        [pd.read_csv(p, dtype=str).fillna("") for p in args.tidy], ignore_index=True
     )
-    writer = csv.DictWriter(out, fieldnames=fields)
-    writer.writeheader()
-    writer.writerows(out_rows)
-    if args.output:
-        out.close()
-    counts = Counter(r["status"] for r in out_rows)
+    tidy = tidy.sort_values("document_id", key=lambda s: s.map(order), kind="stable")
+
+    mapped, unmatched = map_rows(tidy, mapping)
+    series = resolve(mapped)
+    series.to_csv(args.output or sys.stdout, index=False)
+
+    counts = series["status"].value_counts()
     print(
-        f"{len(rows)} tidy rows from {len(args.tidy)} documents -> {len(out_rows)} series values; {unmatched} rows unmatched",
+        f"{len(tidy)} tidy rows from {len(args.tidy)} documents -> {len(series)} series values; {unmatched} rows unmatched",
         file=sys.stderr,
     )
     print(
-        ", ".join(f"{k} {counts[k]}" for k in ("single", "confirmed", "revised")),
+        ", ".join(
+            f"{k} {counts.get(k, 0)}" for k in ("single", "confirmed", "revised")
+        ),
         file=sys.stderr,
     )
-    for r in out_rows:
-        if r["status"] == "revised":
-            print(
-                f"revised: {r['area']} {r['period']}: {r['previous_value']} ({r['previous_document']}) -> {r['value']} ({r['source_document']})",
-                file=sys.stderr,
-            )
+    for r in series[series["status"] == "revised"].itertuples():
+        print(
+            f"revised: {r.area} {r.period}: {r.previous_value} ({r.previous_document}) -> {r.value} ({r.source_document})",
+            file=sys.stderr,
+        )
     return 0
 
 

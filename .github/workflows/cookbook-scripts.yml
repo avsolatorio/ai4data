@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install test dependencies
-        run: pip install pytest "jsonschema>=4.18" "mcp[cli]" ruff
+        run: pip install pytest ruff -r website/static/cookbook-files/requirements.txt
       - name: Lint
         run: ruff check website/static/cookbook-files scripts/docs/new_cookbook.py scripts/docs/check_cookbooks.py
       - name: Check cookbook structure and writing rules

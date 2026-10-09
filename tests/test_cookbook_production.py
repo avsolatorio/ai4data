@@ -9,7 +9,9 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-SCRIPTS = REPO / "website" / "static" / "cookbook-files" / "language-models-in-production"
+SCRIPTS = (
+    REPO / "website" / "static" / "cookbook-files" / "language-models-in-production"
+)
 
 
 def load_script(name: str):
@@ -22,7 +24,17 @@ def load_script(name: str):
 
 @pytest.fixture(scope="module")
 def scripts():
-    return {n: load_script(n) for n in ["map_components", "coding_eval", "check_suggestions", "commentary_check", "batch_cost", "check_statement"]}
+    return {
+        n: load_script(n)
+        for n in [
+            "map_components",
+            "coding_eval",
+            "check_suggestions",
+            "commentary_check",
+            "batch_cost",
+            "check_statement",
+        ]
+    }
 
 
 def test_map_flags_unreviewed_answers(scripts, capsys):
@@ -42,7 +54,12 @@ def test_coding_eval_levels_and_thresholds(scripts, capsys):
 
 
 def test_suggestions_checked_against_rules(scripts, capsys):
-    assert scripts["check_suggestions"].main([str(SCRIPTS / "edit_rules.csv"), str(SCRIPTS / "suggested_values.csv")]) == 0
+    assert (
+        scripts["check_suggestions"].main(
+            [str(SCRIPTS / "edit_rules.csv"), str(SCRIPTS / "suggested_values.csv")]
+        )
+        == 0
+    )
     out = capsys.readouterr().out
     assert "H0009-2   hours             45 -> 45     still fails: E04" in out
     assert "H0011-1   hours_main        50 -> 50     still fails: E05" in out
@@ -50,24 +67,64 @@ def test_suggestions_checked_against_rules(scripts, capsys):
 
 
 def test_commentary_check_flags_unverified_numbers_and_claims(scripts, capsys):
-    assert scripts["commentary_check"].main([str(SCRIPTS / "release_table.csv"), str(SCRIPTS / "commentary_draft.md")]) == 1
+    assert (
+        scripts["commentary_check"].main(
+            [str(SCRIPTS / "release_table.csv"), str(SCRIPTS / "commentary_draft.md")]
+        )
+        == 1
+    )
     out = capsys.readouterr().out
     assert "verified       4.31  LF_EMPLOYED value in millions" in out
     assert "verified     44,000  LF_EMPLOYED change in units" in out
     assert "UNVERIFIED   38,000" in out
-    assert "6 verified, 1 unverified, 1 claim(s) needing a source; provisional values are stated as provisional" in out
+    assert (
+        "6 verified, 1 unverified, 1 claim(s) needing a source; provisional values are stated as provisional"
+        in out
+    )
 
 
 def test_batch_cost(scripts, capsys):
-    assert scripts["batch_cost"].main(["--records", "250000", "--tokens-in", "180", "--tokens-out", "12", "--hosted-in", "0.5", "--hosted-out", "2.0", "--batch-discount", "0.5", "--local-tokens-per-second", "900", "--local-hourly-cost", "1.2"]) == 0
+    assert (
+        scripts["batch_cost"].main(
+            [
+                "--records",
+                "250000",
+                "--tokens-in",
+                "180",
+                "--tokens-out",
+                "12",
+                "--hosted-in",
+                "0.5",
+                "--hosted-out",
+                "2.0",
+                "--batch-discount",
+                "0.5",
+                "--local-tokens-per-second",
+                "900",
+                "--local-hourly-cost",
+                "1.2",
+            ]
+        )
+        == 0
+    )
     out = capsys.readouterr().out
-    assert "hosted (batch discount 0.50): cost 14.25" in out and "local (900 tokens/s): 14.8 hours" in out
+    assert (
+        "hosted (batch discount 0.50): cost 14.25" in out
+        and "local (900 tokens/s): 14.8 hours" in out
+    )
 
 
 def test_statement_check(scripts, tmp_path, capsys):
-    assert scripts["check_statement"].main([str(SCRIPTS / "model_use_statement.md")]) == 0
+    assert (
+        scripts["check_statement"].main([str(SCRIPTS / "model_use_statement.md")]) == 0
+    )
     assert "result: PASS" in capsys.readouterr().out
     broken = tmp_path / "s.md"
-    broken.write_text((SCRIPTS / "model_use_statement.md").read_text(encoding="utf-8").replace("## Human oversight", "## Oversight"), encoding="utf-8")
+    broken.write_text(
+        (SCRIPTS / "model_use_statement.md")
+        .read_text(encoding="utf-8")
+        .replace("## Human oversight", "## Oversight"),
+        encoding="utf-8",
+    )
     assert scripts["check_statement"].main([str(broken)]) == 1
     assert "MISSING Human oversight" in capsys.readouterr().out

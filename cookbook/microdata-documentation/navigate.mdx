@@ -135,10 +135,10 @@ fr       2   0.00   0.00
    that are ambiguous between variables (hours in all jobs or in the
    main job), and questions with no answer.
 2. Run the scorer.
-3. Read the misses. Here "age of household member" fails because the
-   label and question say "completed years" and "last birthday", and
-   "employed or unemployed" fails because the label says "Labour force
-   status". Each miss is a documentation fix (add a keyword or a
+3. Read the misses. Here "employed or unemployed" fails because the
+   label says "Labour force status" and neither word appears in the
+   documentation, and both French questions fail because the dictionary
+   is in English. Each miss is a documentation fix (add a keyword or a
    concept) or a search improvement (recipe 5.3), and the next run
    shows which worked.
 4. Extend the set across surveys, so that it measures cross-survey

@@ -5,7 +5,7 @@ document_id, sentence, mention_text, with mention_text empty when the
 sentence contains no dataset mention) and reports precision, recall, and
 F1 at the level of (document, mention text), with the false positives and
 false negatives listed. Mentions are compared after normalization (lower
-case, punctuation removed). Standard library only.
+case, punctuation removed). Uses pandas.
 
 Usage:
     python score_mentions.py mentions_example.jsonl labelled_sample.csv
@@ -20,11 +20,10 @@ out.
 from __future__ import annotations
 
 import argparse
-import csv
-import json
 import re
 import sys
-from pathlib import Path
+
+import pandas as pd
 
 WORD = re.compile(r"[a-z0-9]+")
 
@@ -37,26 +36,19 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("mentions", type=Path)
-    parser.add_argument("labelled", type=Path)
+    parser.add_argument("mentions")
+    parser.add_argument("labelled")
     args = parser.parse_args(argv)
+    mentions = pd.read_json(args.mentions, lines=True)
+    labelled = pd.read_csv(args.labelled, dtype=str).fillna("")
 
-    with args.mentions.open(encoding="utf-8") as fh:
-        found = {
-            (m["document_id"], norm(m["text"]))
-            for m in (json.loads(line) for line in fh if line.strip())
-        }
-    with args.labelled.open(newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
+    found = set(zip(mentions["document_id"], mentions["text"].map(norm)))
     expected = {
-        (r["document_id"], norm(r["mention_text"]))
-        for r in rows
-        if (r.get("mention_text") or "").strip()
+        (d, norm(t))
+        for d, t in zip(labelled["document_id"], labelled["mention_text"])
+        if t.strip()
     }
-
-    tp = found & expected
-    fp = found - expected
-    fn = expected - found
+    tp, fp, fn = found & expected, found - expected, expected - found
     precision = len(tp) / len(found) if found else 0.0
     recall = len(tp) / len(expected) if expected else 0.0
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
@@ -65,14 +57,14 @@ def main(argv: list[str] | None = None) -> int:
         f"labelled mentions {len(expected)}, extracted {len(found)}, correct {len(tp)}"
     )
     print(f"precision {precision:.2f}  recall {recall:.2f}  F1 {f1:.2f}")
-    if fp:
-        print("false positives (extracted, not labelled as a mention):")
-        for d, t in sorted(fp):
-            print(f"  {d}: {t!r}")
-    if fn:
-        print("false negatives (labelled, not extracted):")
-        for d, t in sorted(fn):
-            print(f"  {d}: {t!r}")
+    for title, pairs in (
+        ("false positives (extracted, not labelled as a mention):", fp),
+        ("false negatives (labelled, not extracted):", fn),
+    ):
+        if pairs:
+            print(title)
+            for d, t in sorted(pairs):
+                print(f"  {d}: {t!r}")
     return 0
 
 

@@ -10,7 +10,9 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-SCRIPTS = REPO / "website" / "static" / "cookbook-files" / "serving-statistics-to-agents"
+SCRIPTS = (
+    REPO / "website" / "static" / "cookbook-files" / "serving-statistics-to-agents"
+)
 
 
 def load_script(name: str):
@@ -62,17 +64,30 @@ def test_manifest_rules_catch_design_faults(manifest_check, tmp_path, capsys):
 
 
 def test_agent_eval_scores_the_example_traces(agent_eval, capsys):
-    assert agent_eval.main([str(SCRIPTS / "agent_questions.csv"), str(SCRIPTS / "agent_traces.jsonl")]) == 1
+    assert (
+        agent_eval.main(
+            [str(SCRIPTS / "agent_questions.csv"), str(SCRIPTS / "agent_traces.jsonl")]
+        )
+        == 1
+    )
     out = capsys.readouterr().out
     assert "tools   7/8" in out
     assert "value   4/5" in out
     assert "behave  7/8" in out
-    assert "a05: value failed" in out  # the French answer gives 6.3 for a quarter whose value is 6.1
-    assert "a07: tools failed" in out and "a07: behave failed" in out  # answered a regional figure the series does not have
+    assert (
+        "a05: value failed" in out
+    )  # the French answer gives 6.3 for a quarter whose value is 6.1
+    assert (
+        "a07: tools failed" in out and "a07: behave failed" in out
+    )  # answered a regional figure the series does not have
 
 
 def test_number_parsing_handles_french_decimals_and_thousands(agent_eval):
-    assert agent_eval.numbers_in("6,3 % et 12,500 ménages en 2025") == [6.3, 12500.0, 2025.0]
+    assert agent_eval.numbers_in("6,3 % et 12,500 ménages en 2025") == [
+        6.3,
+        12500.0,
+        2025.0,
+    ]
     assert agent_eval.numbers_in("7.6% in 2024") == [7.6, 2024.0]
 
 
@@ -92,21 +107,44 @@ def listing():
 
 
 def test_guidance_passes_and_names_every_tool(guidance, tmp_path, capsys):
-    assert guidance.main([str(SCRIPTS / "guidance_resource.md"), str(SCRIPTS / "tool_manifest.json")]) == 0
+    assert (
+        guidance.main(
+            [str(SCRIPTS / "guidance_resource.md"), str(SCRIPTS / "tool_manifest.json")]
+        )
+        == 0
+    )
     out = capsys.readouterr().out
     assert "tools named: 4/4" in out and "result: PASS" in out
     broken = tmp_path / "guidance.md"
-    broken.write_text((SCRIPTS / "guidance_resource.md").read_text(encoding="utf-8").replace("## Limitations", "## Notes").replace("`get_observations`", "`fetch_values`"), encoding="utf-8")
+    broken.write_text(
+        (SCRIPTS / "guidance_resource.md")
+        .read_text(encoding="utf-8")
+        .replace("## Limitations", "## Notes")
+        .replace("`get_observations`", "`fetch_values`"),
+        encoding="utf-8",
+    )
     assert guidance.main([str(broken), str(SCRIPTS / "tool_manifest.json")]) == 1
     out = capsys.readouterr().out
-    assert "MISSING Limitations" in out and "not named: get_observations" in out and "unknown tool names in guidance: fetch_values" in out
+    assert (
+        "MISSING Limitations" in out
+        and "not named: get_observations" in out
+        and "unknown tool names in guidance: fetch_values" in out
+    )
 
 
 def test_quota_audit_reports_unknown_clients_and_missing_terms(quota, capsys):
-    assert quota.main([str(SCRIPTS / "client_registry.csv"), str(SCRIPTS / "agent_requests.csv")]) == 1
+    assert (
+        quota.main(
+            [str(SCRIPTS / "client_registry.csv"), str(SCRIPTS / "agent_requests.csv")]
+        )
+        == 1
+    )
     out = capsys.readouterr().out
     assert "27 requests from 6 clients; registry lists 5" in out
-    assert "unknown clients: k-0000" in out and "registered without accepted terms: k-2b8e" in out
+    assert (
+        "unknown clients: k-0000" in out
+        and "registered without accepted terms: k-2b8e" in out
+    )
     anon = next(line for line in out.splitlines() if line.startswith("pub-anon"))
     assert anon.split()[2:6] == ["10", "8", "30", "2"]
 
@@ -122,4 +160,8 @@ def test_server_listing_check(listing, tmp_path, capsys):
     path.write_text(json.dumps(bad), encoding="utf-8")
     assert listing.main([str(path)]) == 1
     out = capsys.readouterr().out
-    assert "name must be reverse-DNS" in out and "remotes[0].url must be an https URL" in out and "title missing" in out
+    assert (
+        "name must be reverse-DNS" in out
+        and "remotes[0].url must be an https URL" in out
+        and "title missing" in out
+    )

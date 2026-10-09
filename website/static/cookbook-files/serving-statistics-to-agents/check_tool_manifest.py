@@ -22,7 +22,7 @@ warnings
 
 The manifest is a design document; it is not the server. The checks apply
 to whatever the server's tool list reports as well, when exported in the
-same form. Standard library only.
+same form. Uses jsonschema for the manifest's shape.
 
 Usage:
     python check_tool_manifest.py tool_manifest.json
@@ -32,14 +32,76 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
-NAME = re.compile(r"^[a-z][a-z0-9]*(_[a-z0-9]+)+$")
+from jsonschema import Draft202012Validator
+
 PROVENANCE = ["SERIES", "UNIT_MEASURE", "RELEASE", "SOURCE_URL", "license", "citation"]
 MAX_TOOLS = 10
 MIN_WORDS = 20
+
+# The shape every manifest has to have; the rules below cover what a schema cannot say.
+SCHEMA = {
+    "type": "object",
+    "required": ["server", "version", "tools"],
+    "properties": {
+        "server": {"type": "string"},
+        "version": {"type": "string"},
+        "tools": {
+            "type": "array",
+            "maxItems": MAX_TOOLS,
+            "items": {
+                "type": "object",
+                "required": ["name", "description", "readOnlyHint", "example"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)+$",
+                    },
+                    "description": {"type": "string"},
+                    "readOnlyHint": {"const": True},
+                    "inputs": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "required": ["type", "description"],
+                        },
+                    },
+                    "outputs": {"type": "array", "items": {"type": "string"}},
+                    "example": {
+                        "anyOf": [
+                            {"type": "string", "minLength": 1},
+                            {"type": "object", "minProperties": 1},
+                        ]
+                    },
+                },
+            },
+        },
+        "resources": {"type": "array", "items": {"type": "object"}},
+    },
+}
+
+
+def describe(error, manifest: dict) -> str:
+    """One line per schema violation, named by the tool it concerns."""
+    path = list(error.absolute_path)
+    where = ""
+    if path[:1] == ["tools"] and len(path) >= 2:
+        where = f"{manifest['tools'][path[1]].get('name', '?')}: "
+    if error.validator == "pattern":
+        return f"{where}name must be a snake_case verb phrase (search_series, get_observations)"
+    if error.validator == "const":
+        return f"{where}not marked read-only (readOnlyHint true)"
+    if error.validator == "maxItems":
+        return f"{len(error.instance)} tools; more than {MAX_TOOLS} makes the interface hard for a model to use"
+    if (
+        error.validator == "required"
+        and path[-1:] == ["inputs"]
+        or (len(path) >= 4 and path[2] == "inputs")
+    ):
+        return f"{where}input {path[3]!r} needs a type and a description"
+    return f"{where}{error.message}"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -48,54 +110,42 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("manifest", type=Path)
     args = parser.parse_args(argv)
-    with args.manifest.open(encoding="utf-8") as fh:
-        m = json.load(fh)
+    m = json.loads(args.manifest.read_text(encoding="utf-8"))
 
-    errors: list[str] = []
-    warnings: list[str] = []
-    tools = m.get("tools", [])
-    if len(tools) > MAX_TOOLS:
-        errors.append(
-            f"{len(tools)} tools; more than {MAX_TOOLS} makes the interface hard for a model to use"
+    errors = [
+        describe(e)
+        for e in sorted(
+            Draft202012Validator(SCHEMA).iter_errors(m),
+            key=lambda e: list(e.absolute_path),
         )
-    for t in tools:
+    ]
+    warnings: list[str] = []
+    for t in m.get("tools", []):
         name = t.get("name", "?")
-        if not NAME.match(name):
-            errors.append(
-                f"{name}: name must be a snake_case verb phrase (search_series, get_observations)"
-            )
         words = len((t.get("description") or "").split())
         if words < MIN_WORDS:
             errors.append(
                 f"{name}: description has {words} words; the model needs at least {MIN_WORDS}"
             )
-        if t.get("readOnlyHint") is not True:
-            errors.append(f"{name}: not marked read-only (readOnlyHint true)")
-        for arg, spec in (t.get("inputs") or {}).items():
-            if not spec.get("type") or not spec.get("description"):
-                errors.append(f"{name}: input {arg!r} needs a type and a description")
         outputs = t.get("outputs") or []
         if "observations" in outputs:
             missing = [f for f in PROVENANCE if f not in outputs]
             if missing:
                 errors.append(f"{name}: data tool lacks provenance fields {missing}")
-        if not t.get("example"):
-            errors.append(f"{name}: no example call")
         if name.startswith("search") and "limit" not in (t.get("inputs") or {}):
             warnings.append(
                 f"{name}: a search tool without a limit input returns unbounded lists"
             )
-    guidance = any(
+    if not any(
         "how to use" in (r.get("description") or "").lower()
         for r in m.get("resources", [])
-    )
-    if not guidance:
+    ):
         warnings.append(
             "no guidance resource; a resource that tells the model how to use the tools reduces misuse"
         )
 
     print(
-        f"{m.get('server', '?')} {m.get('version', '')}: {len(tools)} tool(s), {len(m.get('resources', []))} resource(s)"
+        f"{m.get('server', '?')} {m.get('version', '')}: {len(m.get('tools', []))} tool(s), {len(m.get('resources', []))} resource(s)"
     )
     for w in warnings:
         print(f"warning  {w}")

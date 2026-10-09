@@ -117,16 +117,21 @@ Output for the running example:
 
 ```text
 5 legacy rows -> 5 records; 11 mapping rows: 8 confirmed, 3 proposed
+
 proposed mappings applied, to confirm or change:
   'Source agency' -> sources (confidence 0.85): model proposed; check whether the field is a list of sources
   'Tags' -> keywords (confidence 0.80): model proposed; free text to be mapped to the vocabulary later
+
 unplaced columns (values not migrated):
   'Notes': 2 non-empty value(s); model could not place it; candidates: series_break, notes, limitation
       - Break in 2018 (registration coverage)
       - Survey years only
+
 empty after migration: definition_long (1)
+
 values left as they were:
   PV_HEADCOUNT_NPL_PCT/Frequency: unknown code 'Other' (known: A, Q, M)
+
 records written to migrated_records.json; run the completeness check next
 ```
 

@@ -6,7 +6,7 @@ column, value, unit, status. The status column records the verification
 result when a verification report from verify_extraction.py is given;
 otherwise every value is "extracted".
 
-Standard library only.
+Uses pandas.
 
 Usage:
     python snapshot_to_tidy.py example_table.json -o T3.1.csv
@@ -21,66 +21,75 @@ edit, with the page open.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import re
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 REPORT_LINE = re.compile(r"^\s+(verified|flagged|estimated)\s+(\S.*?)\s{2,}")
+FIELDS = [
+    "document_id",
+    "page",
+    "bbox",
+    "class",
+    "title",
+    "row",
+    "column",
+    "value",
+    "unit",
+    "status",
+]
 
 
 def read_statuses(report: Path | None) -> dict[str, str]:
+    """Map 'row/column' to its status from the output of verify_extraction.py."""
     if report is None:
         return {}
-    statuses = {}
-    for line in report.read_text(encoding="utf-8").splitlines():
-        m = REPORT_LINE.match(line)
-        if m:
-            statuses[m.group(2).strip()] = m.group(1)
-    return statuses
+    matches = (
+        REPORT_LINE.match(line)
+        for line in report.read_text(encoding="utf-8").splitlines()
+    )
+    return {m.group(2).strip(): m.group(1) for m in matches if m}
 
 
 def rows_for(x: dict, statuses: dict[str, str]) -> list[dict]:
+    """One row per value of a chart or a table record, with its provenance."""
     base = {
         "document_id": x["document_id"],
         "page": x["page"],
-        "bbox": " ".join(str(b) for b in x["bbox"]),
+        "bbox": " ".join(map(str, x["bbox"])),
         "class": x["class"],
         "title": x.get("title", ""),
     }
-    out = []
     if x["class"].lower() == "figure":
-        for s in x["series"]:
-            for cat, v in zip(x["categories"], s["values"]):
-                key = f"{s['name']}/{cat}"
-                out.append(
-                    {
-                        **base,
-                        "row": cat,
-                        "column": s["name"],
-                        "value": v,
-                        "unit": x.get("unit", ""),
-                        "status": statuses.get(key, "extracted"),
-                    }
-                )
+        cells = [
+            (cat, s["name"], v, x.get("unit", ""))
+            for s in x["series"]
+            for cat, v in zip(x["categories"], s["values"])
+        ]
     else:
-        cols = x["columns"]
         units = x.get("units", {})
-        for r in x["rows"]:
-            for j, col in enumerate(cols[1:], start=1):
-                key = f"{r[0]}/{col}"
-                out.append(
-                    {
-                        **base,
-                        "row": r[0],
-                        "column": col,
-                        "value": r[j],
-                        "unit": units.get(col, ""),
-                        "status": statuses.get(key, "extracted"),
-                    }
-                )
-    return out
+        cells = [
+            (r[0], col, r[j], units.get(col, ""))
+            for r in x["rows"]
+            for j, col in enumerate(x["columns"][1:], start=1)
+        ]
+    return [
+        {
+            **base,
+            "row": row,
+            "column": col,
+            "value": v,
+            "unit": unit,
+            "status": statuses.get(
+                f"{row}/{col}" if x["class"].lower() != "figure" else f"{col}/{row}",
+                "extracted",
+            ),
+        }
+        for row, col, v, unit in cells
+    ]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -94,32 +103,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args(argv)
 
-    with args.extraction.open(encoding="utf-8") as fh:
-        x = json.load(fh)
-    rows = rows_for(x, read_statuses(args.verification))
-    fields = [
-        "document_id",
-        "page",
-        "bbox",
-        "class",
-        "title",
-        "row",
-        "column",
-        "value",
-        "unit",
-        "status",
-    ]
-    out = (
-        args.output.open("w", newline="", encoding="utf-8")
-        if args.output
-        else sys.stdout
-    )
-    writer = csv.DictWriter(out, fieldnames=fields)
-    writer.writeheader()
-    writer.writerows(rows)
+    x = json.loads(args.extraction.read_text(encoding="utf-8"))
+    tidy = pd.DataFrame(rows_for(x, read_statuses(args.verification)), columns=FIELDS)
+    tidy.to_csv(args.output or sys.stdout, index=False)
     if args.output:
-        out.close()
-        print(f"wrote {args.output}: {len(rows)} values")
+        print(f"wrote {args.output}: {len(tidy)} values")
     return 0
 
 
