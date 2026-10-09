@@ -3,7 +3,6 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
-import ThemedImage from "@theme/ThemedImage";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import Challenge from "@site/src/components/Challenge";
 import Program from "@site/src/components/Program";
@@ -18,19 +17,30 @@ const DDG_URL = "https://www.worldbank.org/en/about/unit/unit-dec/dev";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
-  const logoLight = useBaseUrl("/img/ddg-logo.png");
-  const logoDark = useBaseUrl("/img/ddg-logo-dark.png");
+  const ddgLogo = useBaseUrl("/img/ddg-logo.png");
+  const programLogo = useBaseUrl("/img/program-logo.png");
   return (
     <header className={styles.heroBanner}>
       <div className="container">
         <div className={styles.heroGrid}>
           <div className={styles.heroInner}>
-            <Link className={styles.heroLogo} to={DDG_URL}>
-              <ThemedImage
-                alt="World Bank Group, Development Data Group"
-                sources={{ light: logoLight, dark: logoDark }}
-              />
-            </Link>
+            <div className={styles.logoLockup}>
+              <Link className={styles.lockupItem} to={DDG_URL}>
+                <img
+                  src={ddgLogo}
+                  alt="World Bank Group, Development Data Group"
+                  className={styles.lockupDdg}
+                />
+              </Link>
+              <span className={styles.lockupDivider} aria-hidden="true" />
+              <span className={styles.lockupItem}>
+                <img
+                  src={programLogo}
+                  alt="AI for Data, Data for AI"
+                  className={styles.lockupProgram}
+                />
+              </span>
+            </div>
             <Link className={clsx("eyebrow", styles.eyebrowLink)} to={DDG_URL}>
               Office of the WBG Chief Statistician &amp; Development Data Group
             </Link>

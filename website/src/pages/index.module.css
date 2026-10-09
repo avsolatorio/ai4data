@@ -143,19 +143,73 @@
 }
 
 /* Development Data Group logo above the hero eyebrow. */
-.heroLogo {
-  display: inline-block;
-  margin-bottom: 1.4rem;
+.logoLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 1rem 1.75rem;
+  margin-bottom: 1.6rem;
+  background: #fff;
+  border: 1px solid rgba(15, 35, 70, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(10, 30, 70, 0.1);
+  max-width: 100%;
 }
 
-.heroLogo img {
+[data-theme="dark"] .logoLockup {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+.lockupItem {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.lockupDivider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(15, 35, 70, 0.18);
+}
+
+.lockupDdg {
   display: block;
-  height: 56px;
+  height: 48px;
   width: auto;
+  max-width: 100%;
+}
+
+.lockupProgram {
+  display: block;
+  height: 64px;
+  width: auto;
+  max-width: 100%;
 }
 
 @media screen and (max-width: 996px) {
-  .heroLogo img {
-    height: 44px;
+  .logoLockup {
+    gap: 1.1rem;
+    padding: 0.8rem 1.1rem;
+  }
+
+  .lockupDdg {
+    height: 36px;
+  }
+
+  .lockupProgram {
+    height: 50px;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .logoLockup {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.75rem;
+  }
+
+  .lockupDivider {
+    display: none;
   }
 }
