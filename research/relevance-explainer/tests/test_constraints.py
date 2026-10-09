@@ -113,3 +113,13 @@ def test_excluded_place_not_repeated_as_term():
 def test_level_2_unchanged():
     p = U.parse("$3 a day poverty excluding Nigeria before the 2008 crisis", {})
     assert "thresholds" not in p and not any(x.get("excluded") for x in p["places"])
+
+
+def test_level_4_says_absent_exclusions_are_met():
+    q = "stunting in Kenya excluding private schools"
+    v3 = [c for c in check(STUNT, U.parse(q, {}, level=3), U) if c.startswith("excluded term")]
+    v4 = [c for c in check(STUNT, U.parse(q, {}, level=4), U) if c.startswith("excluded term")]
+    assert v3 == ["excluded term private schools: not mentioned in the metadata"]
+    assert v4 == ["excluded term private schools: not in the metadata (exclusion met)"]
+    p = U.parse("poverty in Africa excluding Ethiopia", {}, level=4)
+    assert any(c == "excluded place Ethiopia: record does not include it (exclusion met)" for c in check(POV, p, U))

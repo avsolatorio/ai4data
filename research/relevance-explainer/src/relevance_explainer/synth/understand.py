@@ -450,7 +450,8 @@ class Understander:
 
     def parse(self, query: str, facets: dict | None = None, level: int = 2) -> dict:
         """level 3 (render version 3) adds thresholds, exclusions and named periods (synth/constraints.py); level 2 is the
-        understanding that rows narrated before render version 3 were written against."""
+        understanding that rows narrated before render version 3 were written against. Level 4 parses as level 3 and
+        changes only the Checks wording for excluded parts the metadata does not contain (check())."""
         p = self._parse2(query, facets)
         if level >= 3:
             from . import constraints as C
@@ -470,6 +471,7 @@ class Understander:
                 if not hit:
                     terms.append(t)
             p["excluded_terms"] = terms
+            p["level"] = level
             for pl in p["places"]:
                 if pl["source"] != "facet" and C.excluded(n, norm(pl.get("span") or pl["name"])):
                     pl["excluded"] = True
@@ -615,12 +617,15 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
     text = _record_text(rec)
     ntext = norm(text)
     doc_region = rec.get("kind") == "document" and rec.get("countries") and not iso3s
+    # an excluded part the metadata does not mention: version 4 says the exclusion is met (version 3 rows keep the
+    # wording their narratives saw, which models read as an unmet constraint)
+    absent = "not in the metadata (exclusion met)" if p.get("level", 2) >= 4 else "not mentioned in the metadata"
     for pl in p["places"]:
         if pl.get("excluded"):  # the search excludes this place: say whether the record includes it
             inside = (pl["kind"] == "country" and pl["iso3"] in iso3s) or (pl["kind"] == "group" and set(u.groups[pl["code"]]["members"]) & iso3s) \
                 or norm(pl["name"]) in ntext
             st = "record includes it (results for it would need to be removed)" if inside else \
-                ("coverage not stated" if not rec.get("countries") else "record does not include it")
+                ("coverage not stated" if not rec.get("countries") else "record does not include it" + (" (exclusion met)" if p.get("level", 2) >= 4 else ""))
             out.append(f"excluded place {pl['name']}: {st}")
             continue
         if pl["kind"] == "country":
@@ -696,7 +701,7 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
         if not ok and ml and ml != "English":  # metadata in another language: that language's group words
             ok = any(re.search(rf"(?<!\w){re.escape(norm(w))}", ntext) for w in u.lex.get(ml, {}).get("group", {}).get(g["value"], []))
         if g.get("excluded"):
-            out.append(f"excluded group {g['value']}: {'mentioned in the metadata (a breakdown may allow removing it)' if ok else 'not mentioned in the metadata'}")
+            out.append(f"excluded group {g['value']}: {'mentioned in the metadata (a breakdown may allow removing it)' if ok else absent}")
         else:
             out.append(f"group {g['value']}: {'mentioned in the metadata' if ok else 'not mentioned in the metadata'}")
     if p.get("thresholds"):
@@ -709,7 +714,7 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
         out.append(check_unit(p["unit"], rec))
     for t in p.get("excluded_terms") or []:
         stem = norm(t)[:max(4, len(norm(t)) - 2)]
-        out.append(f"excluded term {t}: {'mentioned in the metadata (the item may include it)' if stem in ntext else 'not mentioned in the metadata'}")
+        out.append(f"excluded term {t}: {'mentioned in the metadata (the item may include it)' if stem in ntext else absent}")
     if p.get("datatype"):
         want = DATATYPE_KIND[p["datatype"]["value"]]
         out.append(f"type {p['datatype']['value']}: " + ("matches" if want == rec.get("kind") else f"item is {KIND_LABEL.get(rec.get('kind'), rec.get('kind'))}"))

@@ -559,6 +559,28 @@ CONCEPT_RULE = (
     "answer it when it covers other places or groups as well; say whether the excluded part can be left out.\n"
     "- Numbers: copy every number exactly as it appears in the input (years, counts, thresholds, percentages) and write it "
     "in digits; do not state a number that is not in the input and do not compute new ones.")
+# Verdict rules (render version 4 on; notebook 2026-10-09): on the challenge suite the teacher and Gemma 4 disagreed on
+# 21-38% of the exclusion, proxy, group and time-phrase cases, mostly the teacher calling partly_relevant an item that
+# covers more than asked or does not mention an excluded part. These rules fix one reading of each case.
+POLICY_RULE = (
+    "- Verdict rules:\n"
+    "  - Coverage beyond the request does not lower the verdict: more years, countries, variables or breakdowns than asked "
+    "still answer the search when what was asked is included.\n"
+    "  - A period stated loosely (\"before the 2008 crisis\", \"since COVID\", \"in the 1990s\") is answered by data from "
+    "inside that period; the item need not span the whole period unless the search asks for a trend or a change over time.\n"
+    "  - Exclusions: when the item does not include the excluded place, group or category, the exclusion is met and does not "
+    "lower the verdict, also when the metadata simply does not mention it. When the item includes the excluded part "
+    "alongside others and it can be left out (a country in a list, a category in a breakdown, a variable in microdata), the "
+    "item still answers the search; say that the part must be left out. Use partly_relevant only when the excluded part "
+    "cannot be separated, and irrelevant when the item is mainly about it.\n"
+    "  - Groups: a breakdown by age, sex, location or income covers the groups along it (an age breakdown covers older "
+    "people) unless its bands clearly cannot. A related but different group (female-headed households for women, youth "
+    "15-24 for teenagers) is partly_relevant: state both.\n"
+    "  - Aspects and proxies: an item measuring one aspect or an indirect sign of a broad concept is partly_relevant (bribes "
+    "for licences for corruption, inspection reports for safety standards); an item whose main subject is the concept is "
+    "relevant.\n"
+    "  - Shared words are not a match: an item that shares words with the search but is about something else (banking for "
+    "river-bank erosion, capital formation for capital-city growth) is irrelevant.")
 NARRATE_V2 = G.NARRATE_SYSTEM.replace(
     "- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
     ORDER_RULE + "\n" + CONCEPT_RULE + "\n- For partly_relevant, say exactly which part of the query is satisfied and which is not.",
@@ -567,6 +589,7 @@ NARRATE_V2 = G.NARRATE_SYSTEM.replace(
     "- The \"Understood\" line lists the place, time, group and data-type constraints found in the search and the facets; the \"Checks\" line gives each one's status against the record. Trust the checks: do not contradict them. Refer to constraints as the user expressed them (\"your search mentions 2015\"), not as filters, unless they came from a facet.\n- If the search contains a constraint that the Understood line missed, judge it from the metadata yourself.",
 ).replace('Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "..."}',
           'Return only a JSON object: {"verdict": "relevant" | "partly_relevant" | "irrelevant", "narrative": "...", "missed": ["place, time, population-group or data-type constraints in the search that the Understood line missed; not topic words; empty if none"]}')
+NARRATE_V3 = NARRATE_V2.replace(CONCEPT_RULE, CONCEPT_RULE + "\n" + POLICY_RULE)
 
 
 def cmd_narrate(a) -> None:

@@ -20,7 +20,7 @@ from pathlib import Path
 
 from . import generate as G
 from . import llm
-from .realistic import NARRATE_V2, RENDER_VERSION, item_first, language_ok, render_v2, renderer, writer
+from .realistic import NARRATE_V2, NARRATE_V3, RENDER_VERSION, item_first, language_ok, render_v2, renderer, writer
 from .understand import Understander
 
 GEMMA = ("gemma-4-31b", ["http://localhost:8002/v1"])
@@ -129,32 +129,34 @@ def cmd_write(a) -> None:
 def cmd_label(a) -> None:
     from .signals import item_text, similarities
     rows = [json.loads(l) for l in (Path(a.out) / "searches.jsonl").read_text().splitlines()]
+    prompt, version = {"v2": NARRATE_V2, "v3": NARRATE_V3}[a.prompt], a.render_version or RENDER_VERSION
     sims = similarities([r["query"] for r in rows], [item_text(r["record"]) for r in rows])
     u = Understander()
     for r, s in zip(rows, sims):
-        p = {"query": r["query"], "language": r["language"], "record": r["record"], "facet_values": {}, "render_version": RENDER_VERSION}
+        p = {"query": r["query"], "language": r["language"], "record": r["record"], "facet_values": {}, "render_version": version}
         r["similarity"] = float(s)
-        r["render_version"] = RENDER_VERSION
-        r["input_v2"] = render_v2(p, u, u.parse(r["query"], {}, level=RENDER_VERSION), float(s))
+        r["render_version"] = version
+        r["prompt"] = a.prompt
+        r["input_v2"] = render_v2(p, u, u.parse(r["query"], {}, level=version), float(s))
 
     def one(r):
-        t = llm.parse_json(llm.chat(TEACHER[0], NARRATE_V2, r["input_v2"], temperature=0.4, max_tokens=450, base_urls=TEACHER[1])[0])
+        t = llm.parse_json(llm.chat(TEACHER[0], prompt, r["input_v2"], temperature=0.4, max_tokens=450, base_urls=TEACHER[1])[0])
         if t.get("verdict") not in ("relevant", "partly_relevant", "irrelevant"):
             return []
         try:
-            g = llm.parse_json(llm.chat(GEMMA[0], NARRATE_V2, r["input_v2"], temperature=0.0, max_tokens=450, base_urls=GEMMA[1])[0]).get("verdict")
+            g = llm.parse_json(llm.chat(GEMMA[0], prompt, r["input_v2"], temperature=0.0, max_tokens=450, base_urls=GEMMA[1])[0]).get("verdict")
         except Exception:
             g = None
         return [{**r, "verdict": t["verdict"], "narrative": str(t["narrative"]).strip(), "gemma4": g}]
 
     with ThreadPoolExecutor(a.workers) as ex:
         out = [x for xs in ex.map(lambda r: G._safe(one, r), rows) for x in xs]
-    (Path(a.out) / "labeled.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in out))
+    (Path(a.out) / a.labeled).write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in out))
     print("labeled:", len(out), "| Gemma 4 agrees with the teacher:", round(sum(r["gemma4"] == r["verdict"] for r in out) / max(1, len(out)), 3))
 
 
 def cmd_build(a) -> None:
-    rows = [json.loads(l) for l in (Path(a.out) / "labeled.jsonl").read_text().splitlines()]
+    rows = [json.loads(l) for l in (Path(a.out) / a.labeled).read_text().splitlines()]
     for name, strip in (("itemfirst", False), ("itemfirst_nosim", True)):
         d = Path(a.eval) / name
         d.mkdir(parents=True, exist_ok=True)
@@ -182,7 +184,7 @@ def cmd_build(a) -> None:
 def cmd_examples(a) -> None:
     """Training rows in the realistic example schema (for assemble_v2), only where the teacher and Gemma 4 agree."""
     from .understand import Understander
-    rows = [json.loads(l) for l in (Path(a.out) / "labeled.jsonl").read_text().splitlines()]
+    rows = [json.loads(l) for l in (Path(a.out) / a.labeled).read_text().splitlines()]
     u = Understander()
     out = []
     for r in rows:
@@ -194,7 +196,7 @@ def cmd_examples(a) -> None:
                     "verdict": r["verdict"], "narrative": r["narrative"], "topic": f"phen-{r['phenomenon']}-{r['record']['id']}",
                     "mode": "anchored", "relation": r["phenomenon"], "wording": r["phenomenon"], "style": None,
                     "writer": "mixed"})
-    (Path(a.out) / "examples.jsonl").write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in out))
+    (Path(a.out) / a.examples).write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in out))
     print(f"training rows: {len(out)} of {len(rows)} (teacher and Gemma 4 agree)", dict(Counter(x["relation"] for x in out)))
 
 
@@ -207,6 +209,10 @@ def main() -> None:
     ap.add_argument("--per-phenomenon", default=None, help='JSON {"synonym": 1500, ...} overriding --per')
     ap.add_argument("--exclude", default=None, help="searches.jsonl whose records are not used (the held-out suite)")
     ap.add_argument("--mix-writers", action="store_true", help="the training writers (data/real/writers.json) instead of Gemma 4 only")
+    ap.add_argument("--prompt", choices=["v2", "v3"], default="v2", help="teacher prompt: NARRATE_V2, or NARRATE_V3 with the verdict rules")
+    ap.add_argument("--render-version", type=int, default=None, help="render version of the inputs (default RENDER_VERSION)")
+    ap.add_argument("--labeled", default="labeled.jsonl", help="labelled file name inside --out")
+    ap.add_argument("--examples", default="examples.jsonl", help="training rows file name inside --out")
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--workers", type=int, default=16)
     a = ap.parse_args()
