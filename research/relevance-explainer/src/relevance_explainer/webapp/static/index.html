@@ -96,6 +96,7 @@ dl.meta{display:grid;grid-template-columns:128px 1fr;gap:6px 14px;margin:0;font-
 dl.meta dt{color:var(--mute)}
 dl.meta dd{margin:0;color:var(--fg2);max-height:6.6em;overflow:auto;overflow-wrap:anywhere}
 .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:11px;font-weight:700;font-size:15px}
+.lowconf{margin-top:8px;font-size:13px;color:var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;display:inline-block;margin-left:8px}
 .badge.sm{font-size:12px;padding:3px 9px;border-radius:8px}
 .v-relevant{background:var(--okbg);color:var(--ok)}.v-partly_relevant{background:var(--warnbg);color:var(--warn)}
 .v-irrelevant{background:var(--badbg);color:var(--bad)}.v-pending,.v-invalid{background:var(--soft);color:var(--mute)}
@@ -224,6 +225,10 @@ textarea.editor{width:100%;min-height:440px;border-radius:12px;border:1px solid 
 
 <script>
 const NICE={relevant:"Relevant",partly_relevant:"Partly relevant",irrelevant:"Irrelevant",invalid:"No verdict",pending:"Writing…"};
+// Verdicts below this probability are about 55% accurate on the realistic test (above it, about 93%; notebook 2026-10-09): show them as uncertain
+const LOW_CONF=0.7;
+function lowConf(s){const p=s.probs&&s.probs[s.verdict];if(s.running||p==null||p>=LOW_CONF)return"";
+  return `<div class="lowconf">Low confidence (${Math.round(p*100)}%): the model is unsure of this verdict; check the record.</div>`;}
 const VERD=["relevant","partly_relevant","irrelevant"];
 const BAR={relevant:"var(--okbar)",partly_relevant:"var(--warnbar)",irrelevant:"var(--badbar)"};
 const SRC={indicator:["📈","Indicator"],study:["🗂️","Survey"],dataset:["🆘","HDX"],document:["📄","Paper"]};
@@ -355,7 +360,7 @@ function renderOutput(s){
     ["first token",s.stats.first_token_ms+" ms"],["total",s.stats.total_s+" s"],["per token",s.stats.per_token_ms+" ms"],["model file",s.stats.model_mb+" MB"]]
     .map(([k,v])=>`<div class="stat"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>`:"";
   p.innerHTML=`<div class="h">Model output · ${esc(s.model)}</div>
-    <span class="badge v-${s.verdict}">${s.verdict==="pending"?"◌":"●"} ${NICE[s.verdict]||esc(s.verdict)}</span>
+    <span class="badge v-${s.verdict}">${s.verdict==="pending"?"◌":"●"} ${NICE[s.verdict]||esc(s.verdict)}</span>${lowConf(s)}
     <div class="narr"${dirOf(lang)}>${esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>
     ${bars}${st}${s.error?`<div class="err">${esc(s.error)}</div>`:""}`;
 }
