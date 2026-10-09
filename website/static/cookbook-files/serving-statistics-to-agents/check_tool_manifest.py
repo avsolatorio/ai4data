@@ -113,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
     m = json.loads(args.manifest.read_text(encoding="utf-8"))
 
     errors = [
-        describe(e)
+        describe(e, m)
         for e in sorted(
             Draft202012Validator(SCHEMA).iter_errors(m),
             key=lambda e: list(e.absolute_path),
