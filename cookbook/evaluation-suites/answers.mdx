@@ -3,7 +3,7 @@ id: answers
 title: "4. Measurement of generated answers"
 sidebar_label: "4. Answers"
 sidebar_position: 5
-description: Four measures for an assistant's answers (numeric accuracy, citation validity, refusal accuracy, unsupported numbers), scored automatically from logged answers and retrieved records, plus a rubric for what only a reader can judge.
+description: How an assistant's answers are measured, with four scores that a script computes from the logged answers and the records they were built on, which are numeric accuracy, citation validity, refusal accuracy, and unsupported numbers, and a rubric for what only a reader can judge.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -41,9 +41,9 @@ and one rubric cover an assistant well enough to gate changes to it.
 :::info[Running example]
 Eight logged answers, six to questions with a value and two that should
 have been declined. The scores find one wrong number (35 where the
-source says 38), one answer that should have been a refusal (a district
+source says 41), one answer that should have been a refusal (a district
 value the series does not have), and one cited identifier that was never
-retrieved; the French answers pass every check.
+retrieved. The French answers pass every check.
 :::
 
 ## Recipes
@@ -69,6 +69,15 @@ values that were retrieved for it.
    with the assistant's version and the set's version in the file name
    or in a header line.
 
+**Worked example.** One line of the example run reads, in short: question
+`a01` in English, expected behaviour "answer", retrieved identifier
+`FS_UNDERNOURISH_PCT`, retrieved values 7.6, 7.9, and 8.4, the answer
+"About 7.6% of the population was undernourished in 2024, down from 7.9%
+in 2023 (FS_UNDERNOURISH_PCT)", the cited identifier
+`FS_UNDERNOURISH_PCT`, and `declined` false. The expected value of 7.6
+is in the question set; the line does not carry it. The file is named
+`answers_run_assistant-1.3_set-1.2.jsonl`.
+
 **What this does not do.** The log records what the assistant saw and
 said. It does not record what the user did with the answer. The
 production review of [chapter 8](./production.mdx) uses user ratings
@@ -78,7 +87,7 @@ where the interface collects them.
 
 <Recipe title="4.2 Score the four automatic measures" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** four scores for the run, overall and per language, and a
+**Result:** the run has four scores, overall and per language, and a
 list of every answer that failed, with the reason.
 
 Four things about an answer can be checked by a script without reading
@@ -118,6 +127,11 @@ findings:
   a07: cited EDU_STATS_2024, which was not retrieved
 ```
 
+The table has one row per slice, with each measure as a rate and the
+number of answers it was computed on. "Answer rate when expected" is
+the share of questions that should have been answered and were. The
+findings name each failure with its question.
+
 1. Run the script on the run file. Read the findings first: each one is
    a concrete failure with the question it belongs to.
 2. Read the scores per language. A language with few questions shows a
@@ -129,6 +143,19 @@ findings:
 4. Record the four scores with the versions of the assistant and the
    set.
 
+**Worked example.** The reviewer reads the five findings. For `a03` the
+assistant stated an under-five mortality rate of 35 where the retrieved
+value was 41, and the number appears in no retrieved value, so it is
+both a numeric failure and an unsupported number. For `a06` the
+assistant answered a question about a district with a figure of 31
+percent, where the series exists at the national level only and the
+expected behaviour was to decline; the 31 is unsupported as well. For
+`a07` the assistant cited `EDU_STATS_2024`, a report that was never
+retrieved, beside the right series. Two causes are found: the assistant
+was rounding and extrapolating when asked for a level the data do not
+have, and it was citing from memory. The guidance text gains two rules,
+and the three questions stay in the set.
+
 **What this does not do.** A number that matches a retrieved value can
 still be the wrong value for the question (the right series, the wrong
 year), and a correct number can lack the caveat the user needed. The
@@ -138,10 +165,10 @@ rubric of recipe 4.3 covers those; the script does not.
 
 <Recipe title="4.3 Apply a rubric for what only a reader can judge" level="AI-ready" skills="Subject-matter staff" time="Two minutes per answer">
 
-**Result:** for a sample of answers, a yes-or-no judgement on each of a
-few written questions (right series, right period, unit stated, caveat
-stated), made by a reader, with the rubric written down so that every
-reader applies the same one.
+**Result:** a sample of answers has a yes-or-no judgement on each of a
+few written questions, made by a reader. The questions ask whether the
+series, the period, the unit, and the caveat are right, and the rubric
+is written down so that every reader applies the same one.
 
 1. Write the rubric as yes-or-no questions: Is this the right series
    for the question? The right period? Is the unit stated? Where the
@@ -156,6 +183,17 @@ reader applies the same one.
    re-read a share of its judgements on every run.
 4. Add every answer that failed to the question set with its expected
    answer ([chapter 2](./questions.mdx)).
+
+**Worked example.** The reader takes the eight answers of the example
+run and applies the five rubric questions to each. The answer to `a01`
+passes all five. The answer to `a04`, which gives the unemployment rate
+for the second quarter of 2025 in French, has the right series, period,
+and unit, but it does not say that the value is provisional, and the
+metadata carries that caveat, so it fails the fourth question. The
+reader records "no" with the note "provisional status omitted", and the
+question goes back into the set with the expected caveat added to its
+expected answer. Five of the eight answers pass every rubric question,
+which is recorded beside the four automatic scores.
 
 **What this does not do.** A rubric judges what it names. A failure
 nobody wrote into it (an answer that is correct and misleading through
@@ -193,9 +231,9 @@ the rubric.
 
 ## Verification
 
-- **Log:** every answer has the fields; a run can be re-scored against a revised set.
-- **Measures:** four measures per run and per language with the findings listed.
-- **Rubric:** written; applied to a sample each run; failures entered into the set.
+- **Log.** Every answer has the fields, and a run can be re-scored against a revised set.
+- **Measures.** The four measures are reported per run and per language, with the findings listed.
+- **Rubric.** The rubric is written, it is applied to a sample each run, and the failures are entered into the set.
 
 ## Checklist
 

@@ -30,12 +30,16 @@ component. This guide is about the suites themselves: how they are built,
 labelled, measured, validated, used as gates, kept alive in production,
 and reported.
 
-This guide is organized around nine questions: what should be evaluated
-and in what order, where test questions and labels come from, how search
-and retrieval are measured, how generated answers are measured, how
-extraction and classification are measured, how automatic graders are
-validated, how the suite gates changes, how a deployed component is
-evaluated over time, and how results are reported and compared.
+This guide is organized around nine questions. The first two are about
+what goes into a suite: what should be evaluated and in what order, and
+where test questions and labels come from. The next four are about
+measurement: how search and retrieval are measured, how generated
+answers are measured, how extraction and classification are measured,
+and how automatic graders are validated. The last three are about using
+the suite: how it gates changes, how a deployed component is evaluated
+over time, and how results are reported and compared. Each chapter
+answers one question with recipes, maturity levels, worked examples,
+and a checklist.
 
 The recipes build on the evaluation practice of the program's workstreams
 ([Data Discoverability](/docs/data-discoverability/) and the
@@ -64,10 +68,10 @@ The recipes assume the following are in place or can be arranged:
 
 For a team with limited time, this sequence gives the most useful result first:
 
-1. List the components and set the required score for the most important one ([chapter 1](./inventory.mdx)) (half a day).
-2. Build a set of fifty questions from real queries, including ten with no answer, and version it ([chapter 2](./questions.mdx)) (one day).
-3. Score the component with the chapter that fits it ([chapters 3](./retrieval.mdx), [4](./answers.mdx), or [5](./extraction.mdx)) and keep the scores with the versions (half a day).
-4. Run the suite before and after the next change and compare the runs ([chapter 7](./gates.mdx)).
+1. List the components and set the required score for the most important one, following [chapter 1](./inventory.mdx). This takes half a day.
+2. Build a set of fifty questions from real queries, including ten with no answer, and version it, following [chapter 2](./questions.mdx). This takes a day.
+3. Score the component with the chapter that fits it, which is [chapter 3](./retrieval.mdx) for search, [4](./answers.mdx) for answers, or [5](./extraction.mdx) for extraction, and keep the scores with the versions. This takes half a day.
+4. Run the suite before and after the next change and compare the runs, as [chapter 7](./gates.mdx) describes.
 
 Graders ([chapter 6](./judges.mdx)), production sampling ([chapter 8](./production.mdx)), and report cards ([chapter 9](./reporting.mdx)) come once the suite gates at least one change.
 

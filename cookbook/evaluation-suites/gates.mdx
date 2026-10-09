@@ -3,7 +3,7 @@ id: gates
 title: "7. Gates on changes"
 sidebar_label: "7. Gates"
 sidebar_position: 8
-description: A paired comparison of the suite before and after a change, intervals on the difference per slice, a tolerance for regression, a review rule for slices too small to decide, and the gate run in continuous integration.
+description: How the suite decides whether a change may ship, through a paired comparison of the runs before and after, an interval on the difference per slice, a tolerance for regression, a rule for slices too small to decide, and the gate run automatically on every change.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -55,10 +55,10 @@ drop on the no-answer questions send the change to a person.
 
 <Recipe title="7.1 Compare paired runs with intervals and a tolerance" level="AI-ready" skills="Python" time="Minutes per change">
 
-**Result:** for a change to the system, a comparison of the test
+**Result:** every change to the system has a comparison of the test
 results before and after, slice by slice, with a statement of how sure
-the comparison is and a verdict: the change may ship, must not ship, or
-needs a person to decide.
+the comparison is and a verdict. The verdict says that the change may
+ship, must not ship, or needs a person to decide.
 
 The comparison is paired: the same questions are run through the
 version before the change and the version after, so that any difference
@@ -96,6 +96,11 @@ slice=none           5    0.80   0.60  -0.20   [-0.60, +0.00]  possible regressi
 gate: REVIEW (language=es, slice=none dropped beyond the tolerance on too few questions to decide; a person decides, and the set grows there)
 ```
 
+The table has one row per slice, with the pass rate before and after,
+the difference, a 95 percent interval around the difference from a
+paired bootstrap, and a verdict for the slice. The last line is the
+verdict for the change as a whole, with the slices that caused it.
+
 1. Score both versions on the same version of the question set. The
    scripts of [chapters 3](./retrieval.mdx) to [5](./extraction.mdx)
    write the per-question pass files. Run the comparison on the two.
@@ -108,6 +113,19 @@ gate: REVIEW (language=es, slice=none dropped beyond the tolerance on too few qu
    assistant tolerates less than a search.
 4. Record the verdict, the person who decided a review case, and the
    reason, together with the change.
+
+**Worked example.** The change compared above replaced the embedding
+model behind the search. Overall the pass rate rose by three points,
+and the interval from minus 17 to plus 23 says that thirty questions
+cannot tell whether the change helped at all. French rose from two of
+six to five of six, and even that interval excludes zero only just.
+Spanish fell from four of six to two of six, and the no-answer slice
+fell from four of five to three of five. Both drops exceed the tolerance
+of five points, and both slices are too small for the interval to
+decide, so the verdict is REVIEW. The dissemination lead reads the four
+Spanish questions that failed, finds that the new model handles accented
+characters differently, and holds the change until the Spanish slice has
+twenty questions and the model's tokenizer has been checked.
 
 **What this does not do.** Thirty questions decide very little, and
 the script says so: the intervals are the honest statement of it. The
@@ -138,6 +156,17 @@ it. The comparison of recipe 7.1 becomes one of those tests.
 4. Store the run files and the decision with the change, so that a
    problem found later can be traced to the change that let it through.
 
+**Worked example.** The search's repository holds the question set, the
+scoring script, the comparison script, and a file with the required
+scores and the tolerance. A job in the repository's continuous
+integration runs on every proposed change. It scores the new version on
+set version 1.2, compares the result with the stored run of the current
+version, and prints the table. A BLOCKED verdict fails the job, and the
+change cannot be merged. A REVIEW verdict marks the job as waiting and
+posts the table where the dissemination lead sees it. The held-out ten
+questions are scored in a separate row of the output, and the run file
+is stored with the change's identifier.
+
 **What this does not do.** The gate protects what the question set
 covers. A change that breaks a kind of question the set lacks passes
 the gate, which is why the production review of
@@ -147,9 +176,8 @@ the gate, which is why the production review of
 
 <Recipe title="7.3 Decide the review cases and grow the set where they occur" level="AI-ready" skills="Head of the unit; dissemination staff" time="An hour per review case">
 
-**Result:** a recorded decision for every change the comparison sent
-to a person, and more questions in the slice that was too small to
-decide.
+**Result:** every change the comparison sent to a person has a recorded
+decision, and the slice that was too small to decide has more questions.
 
 1. For a REVIEW verdict, read the questions in that slice that failed
    after the change, with the answers before and after. A change that
@@ -161,6 +189,18 @@ decide.
    native speakers, so that the next change can be decided there.
 4. Review the tolerance and the required scores each period in the
    light of the decisions taken.
+
+**Worked example.** The REVIEW verdict of recipe 7.1 is recorded as
+"held: Spanish regression traced to tokenization of accented
+characters; fix the preprocessing and re-run; Spanish slice to grow to
+twenty questions first". The Spanish-speaking statistician writes
+fourteen questions from the Spanish search log over the following week,
+and the slice reaches twenty. The fix is applied, the comparison runs
+again, and Spanish shows 0.70 before and 0.85 after on twenty questions,
+with an interval that excludes zero. The change ships, and the
+decision log carries both entries. At the quarterly review of the
+tolerance, the lead keeps five points for the search and sets two for
+the assistant.
 
 **What this does not do.** A review case is a judgement. The record of
 past judgements is what keeps the next one consistent, and the growth
@@ -197,9 +237,9 @@ of the set is the only thing that makes review cases rarer.
 
 ## Verification
 
-- **Pairing:** every comparison is on the same set version with per-question pairing.
-- **Verdicts:** per slice with intervals; BLOCKED and REVIEW produce the stated actions.
-- **Integration:** the gate runs on every change; decisions and run files are stored with the change.
+- **Pairing.** Every comparison is on the same set version, with per-question pairing.
+- **Verdicts.** Verdicts are given per slice with intervals, and BLOCKED and REVIEW produce the stated actions.
+- **Integration.** The gate runs on every change, and the decisions and run files are stored with the change.
 
 ## Checklist
 

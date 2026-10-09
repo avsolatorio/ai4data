@@ -3,7 +3,7 @@ id: retrieval
 title: "3. Measurement of search and retrieval"
 sidebar_label: "3. Retrieval"
 sidebar_position: 4
-description: Recall@k, MRR, and nDCG for search over a catalog, scored by slice (language, paraphrase, question type) so that a change's effect on each is visible, with no-answer questions scored by refusal.
+description: How search and retrieval over a catalog are measured with Recall@k, MRR, and nDCG, scored by language, phrasing, and question type so that a change's effect on each group is visible, with no-answer questions scored by whether the search declines.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -51,7 +51,7 @@ evidence.
 
 <Recipe title="3.1 Score known-item retrieval by slice" level="AI-ready" skills="Python" time="Minutes per run">
 
-**Result:** for each version of the search, three scores overall and for
+**Result:** each version of the search has three scores overall and for
 each slice, with the number of questions behind each score.
 
 Three measures cover search over a catalog. Recall@1 is the share of
@@ -95,6 +95,12 @@ paraphrase=yes   v2     5   1.00   1.00   1.00
 A slice with fewer than thirty queries shows direction; the gate script puts an interval around the difference.
 ```
 
+The table has one row per slice and version. The `n` column is the
+number of questions in the slice. R@1 and R@3 are the shares of
+questions whose expected series came first and within the first three,
+and MRR is the mean reciprocal rank. The last line is a reminder about
+small slices.
+
 1. For each version of the search, record the ranked list of series it
    returns for every question in the set, in the file format above.
 2. Run the script. Read every slice with its number of questions (the
@@ -107,6 +113,16 @@ A slice with fewer than thirty queries shows direction; the gate script puts an 
 4. Record the scores with the question set version and the search
    version.
 
+**Worked example.** In the run above, version 2 of the search is the
+keyword search with the semantic ranking of the dissemination cookbook
+added. Overall, Recall@1 rises from 0.60 to 0.90. The paraphrase slice
+explains most of it: the five paraphrased questions go from three
+first-place results to five, because "jobless rate" and "how many people
+go hungry" now find their series. The French slice goes from zero to
+two of two, which the developer records as a direction to confirm with
+more French questions. The official-title slice gains one question. The
+scores are filed with set version 1.2 and search version 2.0.
+
 **What this does not do.** These measures assume that each question has
 exactly one expected series. A question that several series could
 answer needs either a graded label (recipe 3.2) or a rule in the
@@ -116,9 +132,9 @@ labelling guide that picks one.
 
 <Recipe title="3.2 Use graded relevance where several results are acceptable" level="AI-ready" skills="Dissemination staff; Python" time="One day to grade fifty questions">
 
-**Result:** for questions that several series could answer, a grade for
-each candidate series, and a score that rewards putting the best ones
-first.
+**Result:** each question that several series could answer has a grade
+for each candidate series, and the score rewards a search that puts the
+best ones first.
 
 Some questions have more than one acceptable answer: a question about
 poverty may be answered by two series that use different poverty lines,
@@ -135,6 +151,18 @@ search that puts the best-graded series highest. It runs from 0 to 1.
 3. Keep graded and single-answer questions in the same file, with the
    grade column empty where it does not apply, and report both measures.
 
+**Worked example.** The question "how many people are poor" has two
+candidate series in the example catalog: the poverty headcount at the
+national poverty line and, in a later release, the headcount at the
+international line. The guide grades the national line 2, because it is
+the figure the organization publishes as its headline, and the
+international line 1. A search that returns the national line first and
+the international line second gets an nDCG of 1.0 for the question. A
+search that returns them in the other order gets 0.92, and a search that
+returns the youth unemployment rate first gets 0.63. The question keeps
+its grades in the file, and the other nine questions keep their single
+expected series.
+
 **What this does not do.** Grading several candidates per question
 multiplies the labelling work. Use it for the question types where it
 matters, such as broad topics, and keep single expected answers for the
@@ -144,8 +172,8 @@ rest.
 
 <Recipe title="3.3 Score questions with no answer" level="AI-ready" skills="Dissemination staff; Python" time="An hour">
 
-**Result:** a score for how the search behaves when the organization
-publishes nothing that answers the question.
+**Result:** the organization has a score for how the search behaves
+when it publishes nothing that answers the question.
 
 A search that is tuned only to find something will find something for
 every question, including the ones that have no answer. The questions
@@ -159,6 +187,16 @@ marked `NONE` in the set exist to catch that.
    decided, and a fail when it returned an unrelated series as if it
    were the answer.
 3. Report the `NONE` pass rate beside Recall@k, every time.
+
+**Worked example.** The example organization decides that for a `NONE`
+question the search returns the nearest published series with the
+message "No series matches this question; the closest published series
+is shown". The question "inflation rate" has no answer in the catalog.
+Version 1 of the search returns the unemployment rate with no message,
+which is a fail. Version 2 returns the consumer expenditure series from
+the household budget survey with the message, which is a pass, because
+the search did what was decided. The set has five `NONE` questions, and
+the report shows "NONE pass rate 0.60 (n=5)" beside the Recall@3 of 1.00.
 
 **What this does not do.** The search's behaviour on these questions is
 visible only if the set contains them. [Chapter 2](./questions.mdx)
@@ -195,9 +233,9 @@ puts them in.
 
 ## Verification
 
-- **Slices:** every run reports per language and paraphrase slice with sizes.
-- **`NONE`:** the pass rate on no-answer questions is reported beside Recall@k.
-- **Records:** scores are kept per run with both versions.
+- **Slices.** Every run reports per language and paraphrase slice, with sizes.
+- **`NONE`.** The pass rate on no-answer questions is reported beside Recall@k.
+- **Records.** Scores are kept per run with both versions.
 
 ## Checklist
 

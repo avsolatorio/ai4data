@@ -3,7 +3,7 @@ id: reporting
 title: "9. Reporting and comparison"
 sidebar_label: "9. Reporting"
 sidebar_position: 10
-description: A report card per release with pass rates and intervals per slice, the set and component versions, and the measure definitions; what to publish about an AI component; and the shared formats that let organizations compare.
+description: How results are reported so that they can be read across releases and compared between organizations, with a report card per release that gives pass rates and intervals per slice with the versions behind them, a public statement about each AI component, and shared formats for question sets.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -50,9 +50,9 @@ published with the numbers for them to be read.
 
 <Recipe title="9.1 Produce the report card" level="AI-ready" skills="Python" time="Minutes per release">
 
-**Result:** a short, fixed-format summary of a run that gives the pass
-rate for each slice with an interval around it, and the facts a reader
-needs to interpret the rates.
+**Result:** every run has a short summary in a fixed format that gives
+the pass rate for each slice with an interval around it, and the facts
+a reader needs in order to interpret the rates.
 
 A score alone ("Recall@5 is 0.86") cannot be compared with anything:
 the set may have changed since last quarter, and another organization's
@@ -87,6 +87,10 @@ slice=none           5      0.60   [0.20, 1.00]
 Publish with: the question set version, the measure definitions, the model and index versions, and the date.
 ```
 
+The table has one row per slice, with the number of questions, the pass
+rate, and a 95 percent interval from a bootstrap over the questions. The
+last line lists what has to accompany the numbers.
+
 1. Run the script on the release's run file. Add the question set's
    version and size, the definitions of the measures (or a link to
    them), the versions of the system (model, search index, prompt), and
@@ -99,6 +103,17 @@ Publish with: the question set version, the measure definitions, the model and i
 4. Keep the cards with the releases. The series of cards is the
    system's history.
 
+**Worked example.** The card for search version 2 opens with the table
+above. Below it, the developer adds: "Question set 1.2, 30 questions
+(18 English, 6 French, 6 Spanish; 17 paraphrases, 5 with no answer).
+Pass is Recall@3 for questions with an expected series and the decided
+behaviour for the rest. Search: keyword plus multilingual-e5-small
+embeddings, index built 2026-09-28. Required score 0.85 per language:
+met for English, direction only for French and Spanish at six questions
+each. Gate decision: REVIEW, held for the Spanish slice; see decision
+log 2026-10-01. Production review for September: 9 of 10 stratified
+answers passed." The card is filed beside the release.
+
 **What this does not do.** The card reports a run. It does not improve
 the system, and a card with wide intervals is a reminder that the set
 is small, which is [chapter 2](./questions.mdx).
@@ -107,9 +122,9 @@ is small, which is [chapter 2](./questions.mdx).
 
 <Recipe title="9.2 Publish what is measured about each public component" level="AI-ready" skills="Dissemination lead" time="Half a day per component">
 
-**Result:** a public statement, in the organization's method
-documentation, of what each public AI component does, how it is tested,
-and its latest results.
+**Result:** the organization's method documentation carries a public
+statement of what each public AI component does, how it is tested, and
+what its latest results were.
 
 1. For each public component (the search, the assistant, the agent
    interface), publish four things:
@@ -126,6 +141,20 @@ and its latest results.
    formats for describing a model and a dataset), so that readers who
    know them find what they expect.
 
+**Worked example.** The statement for the example organization's
+assistant has four short sections. "What it does" says that it answers
+questions about the organization's published series with values from
+the API and declines questions about data the organization does not
+publish. "How it is tested" says that a set of 120 questions in English,
+French, and Spanish, drawn from real queries and including 18 with no
+answer, is run before every change and every week in production, and
+that a reader reviews 40 real answers a month. "Latest results" gives
+the numeric accuracy of 0.97 with its interval, the refusal accuracy of
+1.00 on confidential questions, and the languages in which the required
+scores are met. "Limits" says that comparisons between regions and
+questions about districts fail most often, and that Spanish coverage is
+newer than French. The page is dated and the previous version is linked.
+
 **What this does not do.** A public statement is accountability. The
 assurance behind it is the gate and the production review; the
 statement reports them.
@@ -134,8 +163,9 @@ statement reports them.
 
 <Recipe title="9.3 Use a shared set format and exchange results" level="AI-native" skills="Developer; dissemination lead" time="One day to adopt the format">
 
-**Result:** question sets in a documented, shared format that other
-organizations can run, and results that can be compared with theirs.
+**Result:** the organization's question sets are in a documented,
+shared format that other organizations can run, and its results can be
+compared with theirs.
 
 1. Keep sets in the file formats of this guide and the other cookbooks,
    with the slice fields and the source of each question. Describe each
@@ -151,6 +181,17 @@ organizations can run, and results that can be compared with theirs.
    scores.
 4. Send new questions and newly found kinds of failure back through the
    program.
+
+**Worked example.** The example organization publishes its catalog
+question set, 120 questions with expected identifiers and no
+confidential content, under a CC BY 4.0 licence, with a datasheet that
+states its sources, its composition by language and kind, the labelling
+guide, the labellers' agreement of 0.88, and the date. A neighbouring
+organization with a similar catalog runs the set against its own search
+and reports a Recall@3 of 0.71 on a separate card, with the note that 30
+of the questions refer to series it does not publish. The two
+organizations swap their `NONE` questions, and each gains twenty cases
+it had not thought of.
 
 **What this does not do.** Comparison across organizations is rough,
 because catalogs, languages, and users differ. A shared format makes
@@ -187,9 +228,9 @@ the differences visible; it does not remove them.
 
 ## Verification
 
-- **Card:** every release has one with intervals, versions, definitions, required scores, production scores, and the gate decision.
-- **Publication:** each public component has a current statement with the latest headline rates and limits.
-- **Formats:** sets are in the shared formats with datasheets; public sets carry a licence.
+- **Card.** Every release has a card with intervals, versions, definitions, required scores, production scores, and the gate decision.
+- **Publication.** Each public component has a current statement with the latest headline rates and limits.
+- **Formats.** The sets are in the shared formats with datasheets, and the public sets carry a licence.
 
 ## Checklist
 

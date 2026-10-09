@@ -3,7 +3,7 @@ id: questions
 title: "2. Questions and labels"
 sidebar_label: "2. Questions"
 sidebar_position: 3
-description: Building question sets from real queries and failures, writing a labelling guide, labelling with two people and measuring their agreement, covering every language, and versioning the set with a held-out part.
+description: Where test questions and their labels come from, how a question set is built from real queries and failures, how two people label it and their agreement is measured, and how the set is versioned with a held-out part.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -51,8 +51,9 @@ rule and an example.
 
 <Recipe title="2.1 Build the set from real queries and failures" level="Foundational" skills="Dissemination staff; speakers of each supported language" time="One day for the first fifty">
 
-**Result:** a file of test questions with their expected answers, built
-from what users ask, kept under version control.
+**Result:** the organization has a file of test questions with their
+expected answers, built from what users ask and kept under version
+control.
 
 A test question is a question with a known correct answer: for a
 search, the series that should come first; for an assistant, the value
@@ -88,6 +89,17 @@ Each row is one question. The columns are:
    held-out part that nobody uses while developing the system. It
    shows how the system does on questions it was never tuned on.
 
+**Worked example.** The first fifty questions of the example
+organization come from four places. Twenty-two are search queries from
+the last quarter that returned nothing or whose results nobody clicked,
+such as "jobless rate" and "how many kids finish primary". Nine are
+help-desk questions, such as "Is an inflation rate published?", which
+gets the expected identifier `NONE`. Eight are failed answers from the monthly
+review, with the expected value filled in. Eleven were written by the
+French-speaking statistician for coverage. Ten of the fifty are drawn
+at random into the held-out list, and the file records each question's
+source and the initials of the person who added it.
+
 **What this does not do.** A set built from one period's logs reflects
 that period's users and events. The set grows every month and is never
 finished. A question translated by machine is a placeholder until a
@@ -97,9 +109,10 @@ native speaker has reviewed it, and the file says which ones those are.
 
 <Recipe title="2.2 Write the labelling guide and label with two people" level="AI-ready" skills="Dissemination staff; two labellers" time="One day for the guide; an hour per fifty questions per labeller">
 
-**Result:** a written guide that says how to decide the expected answer
-of a question, two sets of labels produced independently from it, and a
-measure of how often the two labellers agreed.
+**Result:** the organization has a written guide that says how to
+decide the expected answer of a question, two sets of labels produced
+independently from it, and a measure of how often the two labellers
+agreed.
 
 Deciding the expected answer of a question (its label) sounds easy and
 is not. Two people who label the same questions independently disagree
@@ -136,6 +149,11 @@ disagreements to adjudicate:
 3 of 3 disagreements involve NONE: the guide's rule on near concepts needs an example
 ```
 
+The first line gives the raw agreement and the kappa. The list names
+each question the two labellers decided differently, with both labels.
+The last line says what the disagreements have in common, which is
+where the guide needs work.
+
 1. Write the guide, with an example for each rule. It says:
    - what counts as the expected series (the one a specialist would
      point to);
@@ -152,6 +170,20 @@ disagreements to adjudicate:
    is the rule to sharpen.
 4. After the guide changes, label a fresh sample. Agreement should
    rise.
+
+**Worked example.** The three disagreements above are settled in a
+twenty-minute meeting with the health and education statisticians. For
+"infant mortality", the decision is `NONE`, because infant mortality
+and under-five mortality are different indicators and the organization
+publishes only the second. For "primary school attendance", the
+decision is the net enrolment rate, because attendance and enrolment
+are close enough that a user asking one wants the other, with a note in
+the answer. For "labour force size", the decision is `NONE`, because
+the unemployment rate does not give the size of the labour force. The
+guide gains the rule "a near concept is `NONE` when the published series
+measures a different population or event, and the nearest series when it
+measures the same thing by a different name", with the three cases as
+examples.
 
 **What this does not do.** Agreement measures whether two people are
 consistent with each other. Two consistent people can share the same
@@ -184,6 +216,16 @@ broke another.
 4. Once the held-out part has been used to decide several changes, it
    has been seen too often. Replace it with a fresh fifth drawn from the
    questions added since.
+
+**Worked example.** The set's changelog reads, for version 1.2: "added
+14 questions from the October production review; adjudicated q04, q07,
+q14; held-out list unchanged". Every question carries its language, its
+phrasing flag, its type, and whether its expected identifier is `NONE`.
+After the held-out list has decided four changes, the developer draws a
+fresh ten from the thirty questions added since version 1.0, retires the
+old list into the development part, and records the rotation in the
+changelog as version 2.0. The comparison of chapter 7 reports the new
+held-out list on its own from then on.
 
 **What this does not do.** Versioning keeps runs comparable; it does
 not keep the set representative of users. The monthly sample of real
@@ -221,9 +263,9 @@ traffic in [chapter 8](./production.mdx) does that.
 
 ## Verification
 
-- **Sources:** every question has a recorded source; real queries make up a growing share.
-- **Agreement:** measured on the latest labelling round, with the disagreements adjudicated and the guide updated.
-- **Versioning:** every run records the set version; the held-out list exists and development has not run on it.
+- **Sources.** Every question has a recorded source, and real queries make up a growing share.
+- **Agreement.** Agreement has been measured on the latest labelling round, the disagreements adjudicated, and the guide updated.
+- **Versioning.** Every run records the set version, the held-out list exists, and development has not run on it.
 
 ## Checklist
 

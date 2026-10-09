@@ -3,7 +3,7 @@ id: inventory
 title: "1. Components and decisions to evaluate"
 sidebar_label: "1. Inventory"
 sidebar_position: 2
-description: An inventory of the AI components an organization runs, the decision each makes and what an error costs, the order in which to build their suites, and the required scores set before any testing.
+description: How an organization decides what to evaluate and in what order, by listing the AI components it runs, the decision each one makes, and what an error costs, and by setting the score each one has to reach before any test is run.
 ---
 
 import Recipe from '@site/src/components/Cookbook/Recipe';
@@ -53,9 +53,9 @@ accuracy and 100 percent refusal on confidential questions.
 
 <Recipe title="1.1 List the components and the decisions they make" level="Foundational" skills="Head of the unit; developer" time="Half a day">
 
-**Result:** one table that lists every AI component the organization
-runs or plans, what each one decides, what can go wrong, and who is
-affected when it does.
+**Result:** the organization has one table that lists every AI
+component it runs or plans, what each one decides, what can go wrong,
+and who is affected when it does.
 
 Every AI component makes decisions on the organization's behalf: a
 search decides which series to show first, an assistant decides which
@@ -80,6 +80,16 @@ organization's four components:
    confidential data has one more decision to evaluate: whether it
    refuses when it should.
 
+**Worked example.** The table above is the example organization's
+inventory. Its assistant gets two further rows when the head of the unit
+reads step 3, because the assistant makes three decisions: which series
+to retrieve, which number to state, and whether to answer at all. The
+third row reads: decision "Whether to answer or decline", error "An
+answer about a confidential series or about an individual", affected
+"The respondent, and the organization's legal standing". The register
+of the dissemination cookbook already listed all four components with
+their owners, so the table is added to it as four new columns.
+
 **What this does not do.** The table names the decisions; it does not
 measure them. [Chapters 3](./retrieval.mdx) to [5](./extraction.mdx)
 give the measures. A component that makes several decisions (an
@@ -89,8 +99,8 @@ assistant retrieves, answers, and refuses) gets one row per decision.
 
 <Recipe title="1.2 Order the components by the cost of error" level="AI-ready" skills="Head of the unit; dissemination lead" time="Two hours">
 
-**Result:** the order in which the organization will build its test
-suites, with the reason for each component's place.
+**Result:** the organization knows the order in which it will build its
+test suites, and the reason for each component's place in that order.
 
 Few organizations can test everything at once. The component to test
 first is the one whose errors cost most, and the cost depends on two
@@ -110,6 +120,17 @@ person checking.
    the component at the top. Record the order and the reasoning in the
    register.
 
+**Worked example.** The assistant's wrong number is public harm, and
+the assistant answers about 20,000 questions a month with no person in
+between, so it comes first. The search's missed series is an
+inconvenience, but the search handles 60,000 queries a month unreviewed,
+so it comes second. The drafter's invented fact would be internal harm,
+and every draft passes a curator, so it comes third despite the band.
+The extractor's wrong use count is internal harm in a quarterly report
+that an analyst reads, so it comes last. The register records the order
+with the sentence "the assistant speaks to the public without review;
+the drafter never does".
+
 **What this does not do.** The bands are a judgement, and they do not
 need to be precise to be useful. They are revised when the production
 review of [chapter 8](./production.mdx) finds an error the bands did not
@@ -119,7 +140,7 @@ anticipate.
 
 <Recipe title="1.3 Set the required scores before testing" level="AI-ready" skills="Head of the unit; subject-matter staff" time="Two hours per component">
 
-**Result:** for each component, the measures it will be tested on and
+**Result:** each component has the measures it will be tested on and
 the score each measure has to reach, decided before any test is run,
 with the reason written down.
 
@@ -140,6 +161,19 @@ honest.
 4. Write the scores into the register with the date. A run that reaches
    them passes. A run that does not is a known gap. Neither is a reason
    to move the score.
+
+**Worked example.** For the assistant, the head of the unit and the
+chief statistician set numeric accuracy at 98 percent, because a public
+figure that is wrong one time in fifty is more than the organization's
+reputation can carry, and refusal accuracy on confidential questions at
+100 percent, because one such answer is a breach. Citation validity is
+set at 95 percent and the rate of unsupported numbers at zero. The
+French slice gets the same scores as the English one, with the note
+that it starts with fewer questions. For the search, Recall@5 is set at
+0.85 per language, because a series on the first page is what a user
+needs. The scores go into the register dated 2026-10-01, before the
+first run, which later reaches 0.83 on numeric accuracy and is recorded
+as a known gap.
 
 **What this does not do.** A required score is a decision about how
 much risk the organization accepts. Whether the score can be reached is
@@ -177,9 +211,9 @@ never a reason to lower the score.
 
 ## Verification
 
-- **Inventory:** every row of the component register has a decision, an error, a cost band, and an exposure.
-- **Order:** the first suite built is for the top component.
-- **Scores:** each component has required scores per measure and slice, dated, in the register.
+- **Inventory.** Every row of the component register has a decision, an error, a cost band, and an exposure.
+- **Order.** The first suite built is for the component at the top of the order.
+- **Scores.** Each component has required scores per measure and slice, dated, in the register.
 
 ## Checklist
 
