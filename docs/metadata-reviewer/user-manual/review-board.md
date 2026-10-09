@@ -1,6 +1,6 @@
 # AI Suggestion Review Board
 
-:::note[Companion tool, not part of the package]
+:::note[A companion tool outside the package]
 The AI Suggestion Review Board is a standalone, browser-based
 prototype (`ai_suggestion_review_board.html`). It is shipped separately
 from the Python package and is used **after** a review run, to let a

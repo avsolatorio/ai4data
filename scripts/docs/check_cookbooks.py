@@ -135,10 +135,16 @@ def is_serial_list(title: str) -> bool:
 
 def check_titles(path: Path, text: str, rep: Report) -> None:
     fm = front_matter(text)
+    no_code = re.sub(
+        r"```.*?```", "", text, flags=re.DOTALL
+    )  # a '#' comment in code is not a heading
     titles = (
-        headings(text)
+        headings(no_code)
         + [fm.get("title", "")]
-        + [m.group(2) for m in re.finditer(r'(title|label)="([^"]*)"', text)]
+        + [m.group(2) for m in re.finditer(r'(title|label)="([^"]*)"', no_code)]
+        + re.findall(
+            r"^:::[a-z]+\[([^\]]*)\]", no_code, flags=re.MULTILINE
+        )  # admonition titles
     )
     for t in titles:
         if not t:
@@ -147,6 +153,8 @@ def check_titles(path: Path, text: str, rep: Report) -> None:
             rep.error(path, f"banned construction in title: {t!r}")
         if COMMA_TAG.search(t) and not is_serial_list(t):
             rep.error(path, f"comma-and-tag title: {t!r}")
+        if ";" in t:
+            rep.error(path, f"two statements joined in a title: {t!r}")
     body = prose(text)
     for m in BANNED.finditer(body):
         line = body.count("\n", 0, m.start()) + 1
