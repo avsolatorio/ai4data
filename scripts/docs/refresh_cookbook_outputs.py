@@ -52,7 +52,7 @@ for mdx in sorted((REPO / "cookbook" / cb).glob("*.mdx")):
             return m.group(0)
         cmdline = PY + cmdline[len("python") :]
         res = subprocess.run(
-            cmdline, shell=True, cwd=work, capture_output=True, text=True
+            cmdline, shell=True, cwd=work, capture_output=True, text=True, check=False
         )
         new = (res.stdout + res.stderr).rstrip("\n")
         new = "\n".join(
