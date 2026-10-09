@@ -88,15 +88,29 @@ def load_records(n: int, seed: int) -> list[dict]:
     return out
 
 
+def record_half(rec_id: str) -> int:
+    """Stable half (0 or 1) of a record, to split one record pool between training searches and a held-out test."""
+    import hashlib
+    return hashlib.md5(rec_id.encode()).digest()[0] & 1
+
+
 def cmd_write(a) -> None:
     rng = random.Random(a.seed)
     per = json.loads(a.per_phenomenon) if a.per_phenomenon else {}
-    recs = load_records(max([a.per, *per.values()]) * 6, a.seed)
+    if a.records:  # one record file (e.g. a pool) instead of the default sources, optionally one half of it
+        recs = [json.loads(l) for l in Path(a.records).read_text().splitlines()]
+        recs = [r for r in recs if a.half is None or record_half(r["id"]) == a.half]
+        rng.shuffle(recs)
+    else:
+        recs = load_records(max([a.per, *per.values()]) * 6, a.seed)
+    only = set(a.phenomena.split(",")) if a.phenomena else None
     exclude = set()
     if a.exclude:  # records used by the held-out challenge suite
         exclude = {json.loads(l)["record"]["id"] for l in Path(a.exclude).read_text().splitlines()}
     jobs = []
     for name, (instr, filt, _) in PHENOMENA.items():
+        if only and name not in only:
+            continue
         cands = [r for r in recs if (filt is None or filt(r)) and r["id"] not in exclude]
         rng.shuffle(cands)
         for k, rec in enumerate(cands[: per.get(name, a.per)]):
@@ -209,6 +223,9 @@ def main() -> None:
     ap.add_argument("--per-phenomenon", default=None, help='JSON {"synonym": 1500, ...} overriding --per')
     ap.add_argument("--exclude", default=None, help="searches.jsonl whose records are not used (the held-out suite)")
     ap.add_argument("--mix-writers", action="store_true", help="the training writers (data/real/writers.json) instead of Gemma 4 only")
+    ap.add_argument("--records", default=None, help="JSONL of records to write searches for (default: realistic chunks and pools)")
+    ap.add_argument("--half", type=int, choices=[0, 1], default=None, help="with --records: only records in this half (record_half)")
+    ap.add_argument("--phenomena", default=None, help="comma-separated subset of PHENOMENA")
     ap.add_argument("--prompt", choices=["v2", "v3"], default="v2", help="teacher prompt: NARRATE_V2, or NARRATE_V3 with the verdict rules")
     ap.add_argument("--render-version", type=int, default=None, help="render version of the inputs (default RENDER_VERSION)")
     ap.add_argument("--labeled", default="labeled.jsonl", help="labelled file name inside --out")

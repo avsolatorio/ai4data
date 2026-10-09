@@ -3,11 +3,12 @@ shape of `relevance_explainer.schemas` (kind table, geospatial or script), searc
 
   python -m relevance_explainer.synth.pools statcan --out data/pools/table_statcan.jsonl --n 3000
   python -m relevance_explainer.synth.pools ilostat --out data/pools/table_ilostat.jsonl
+  python -m relevance_explainer.synth.pools eurostat --out data/pools/table_eurostat.jsonl --n 2500
   python -m relevance_explainer.synth.pools hdxgeo  --out data/pools/geospatial_hdx.jsonl --n 3000
   python -m relevance_explainer.synth.pools nada    --out data/pools/script_rrr.jsonl --base https://reproducibility.worldbank.org
 
 Sources: Statistics Canada Web Data Service (tables, English and French metadata), ILOSTAT table of contents (tables,
-English, French and Spanish), HDX datasets with SHP or GeoJSON resources (map layers), NADA catalogs (any schema type).
+English, French and Spanish), Eurostat table of contents and SDMX structures (tables, English), HDX datasets with SHP or GeoJSON resources (map layers), NADA catalogs (any schema type).
 """
 from __future__ import annotations
 
@@ -141,6 +142,99 @@ def build_ilostat(a) -> None:
         _write(out, a.out if lang == "en" else a.out.replace(".jsonl", f"_{lang}.jsonl"))
 
 
+# ---------- Eurostat ----------
+ESTAT = "https://ec.europa.eu/eurostat/api/dissemination"
+SDMX_NS = {"s": "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure",
+           "c": "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"}
+ESTAT_SKIP_DIMS = {"FREQ", "TIME_PERIOD", "OBS_FLAG", "CONF_STATUS", "OBS_STATUS"}
+
+
+def _estat_toc() -> list[dict]:
+    """Datasets and tables in the Eurostat table of contents, each with its folder path (the theme hierarchy)."""
+    lines = _get(f"{ESTAT}/catalogue/toc/txt?lang=en").decode("utf-8").splitlines()
+    stack, out = [], []
+    for line in lines[1:]:
+        f = [x.strip('"') for x in line.split("\t")]
+        if len(f) < 7:
+            continue
+        title = f[0]
+        depth = (len(title) - len(title.lstrip(" "))) // 4
+        stack = stack[:depth]
+        if f[2] == "folder":
+            stack.append(title.strip())
+        elif f[2] in ("dataset", "table"):
+            out.append({"title": title.strip(), "code": f[1], "updated": f[3].strip(), "start": f[5].strip(), "end": f[6].strip(),
+                        "path": [p for p in stack if p not in ("Database by themes", "Tables by themes")]})
+    return out
+
+
+def _estat_table(t: dict, geo_names: dict) -> dict | None:
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(_get(f"{ESTAT}/sdmx/2.1/dataflow/ESTAT/{t['code']}/latest?references=descendants&detail=referencepartial"))
+    lists = {}
+    for cl in root.iter(f"{{{SDMX_NS['s']}}}Codelist"):
+        name = cl.find("c:Name", SDMX_NS)
+        codes = [(c.get("id"), (c.find("c:Name", SDMX_NS).text or "").strip()) for c in cl.findall("s:Code", SDMX_NS)]
+        lists[cl.get("id")] = ((name.text or "").strip() if name is not None else cl.get("id"), codes)
+    dims = []  # (dimension id, codelist id): the dimension refers to its codelist in LocalRepresentation
+    for d in root.iter(f"{{{SDMX_NS['s']}}}Dimension"):
+        ref = d.find("s:LocalRepresentation/s:Enumeration/Ref", SDMX_NS)
+        dims.append((d.get("id").upper(), ref.get("id") if ref is not None else d.get("id").upper()))
+    cols, geo = [], []
+    for d, cl in dims:
+        if d in ESTAT_SKIP_DIMS or cl not in lists:
+            continue
+        label, codes = lists[cl]
+        if d == "GEO":
+            geo = codes
+            continue
+        shown = ", ".join(n for _, n in codes[:4]) + (", …" if len(codes) > 4 else "")
+        cols.append(f"{label} ({len(codes)}): {shown}")
+    countries = sorted({geo_names[c] for c, _ in geo if c in geo_names})
+    nuts = sorted({len(c) for c, _ in geo if c[:2].isalpha() and c[:2].isupper()})
+    gran = ", ".join(x for x in ("country" if 2 in nuts else "", "NUTS 1 regions" if 3 in nuts else "",
+                                 "NUTS 2 regions" if 4 in nuts else "", "NUTS 3 regions" if 5 in nuts else "") if x)
+    freq = [n for _, n in lists.get("FREQ", ("", []))[1]]
+    return {"kind": "table", "id": f"eurostat-{t['code']}", "name": t["title"], "table_number": t["code"], "producer": "Eurostat",
+            "date": t["updated"], "columns": _clip("; ".join(["geo", "time", *cols]), 420),
+            "rows": _clip(f"{len(geo)} geographic units x {'/'.join(freq) or 'periodic'} periods {t['start']} to {t['end']}", 140),
+            "granularity": gran or None,
+            "geography": _clip(", ".join(n for _, n in geo[:12]) + (f" and {len(geo) - 12} more" if len(geo) > 12 else ""), 260) or None,
+            "sources": None, "topics": t["path"][-3:], "tags": [], "abstract": _clip(" > ".join(t["path"]), 300),
+            "unit_of_analysis": None, "universe": None, "countries": countries, "countries_truncated": False,
+            "frequency": freq[0] if freq else None, "year_start": _year(t["start"]), "year_end": _year(t["end"]),
+            "year_label": "years", "schema": "table", "meta_language": "English"}
+
+
+def build_eurostat(a) -> None:
+    from .understand import Understander
+    u = Understander()
+    geo_names = {}  # Eurostat uses ISO 2-letter codes, with EL for Greece and UK for the United Kingdom
+    for c in u.countries.values():
+        if c.get("iso2"):
+            geo_names[c["iso2"]] = c["name"]
+    geo_names.update({"EL": geo_names.get("GR", "Greece"), "UK": geo_names.get("GB", "United Kingdom")})
+    toc = _estat_toc()
+    seen, uniq = set(), []
+    for t in toc:  # a dataset can sit in several folders
+        if t["code"] not in seen:
+            seen.add(t["code"])
+            uniq.append(t)
+    random.Random(0).shuffle(uniq)
+    out = []
+    for t in uniq[: a.n]:
+        try:
+            r = _estat_table(t, geo_names)
+        except Exception as e:
+            print("skip", t["code"], str(e)[:80])
+            continue
+        if r:
+            out.append(r)
+        time.sleep(0.3)
+    print("table of contents:", len(uniq), "datasets and tables")
+    _write(out, a.out)
+
+
 # ---------- HDX map layers ----------
 def build_hdxgeo(a) -> None:
     from .sources import HDX
@@ -195,12 +289,12 @@ def build_nada(a) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("source", choices=["statcan", "ilostat", "hdxgeo", "nada"])
+    ap.add_argument("source", choices=["statcan", "ilostat", "eurostat", "hdxgeo", "nada"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--n", type=int, default=3000)
     ap.add_argument("--base", default="https://reproducibility.worldbank.org")
     a = ap.parse_args()
-    {"statcan": build_statcan, "ilostat": build_ilostat, "hdxgeo": build_hdxgeo, "nada": build_nada}[a.source](a)
+    {"statcan": build_statcan, "ilostat": build_ilostat, "eurostat": build_eurostat, "hdxgeo": build_hdxgeo, "nada": build_nada}[a.source](a)
 
 
 if __name__ == "__main__":
