@@ -99,6 +99,7 @@ const config = {
             items: [
               {to: '/ai-readiness-assessment', label: 'Assessment framework'},
               {to: '/ai-readiness-in-practice', label: 'Operationalizing the assessment'},
+              {to: '/modern-nso', label: 'A modern statistical office'},
             ],
           },
           {
@@ -116,6 +117,7 @@ const config = {
           {label: 'Partnerships', to: '/docs/partnerships/'},
           {label: 'AI-readiness assessment', to: '/ai-readiness-assessment'},
           {label: 'Operationalizing the assessment', to: '/ai-readiness-in-practice'},
+          {label: 'A modern statistical office', to: '/modern-nso'},
           {label: 'GitHub', href: 'https://github.com/worldbank/ai4data'},
           {
             label: 'Issues',

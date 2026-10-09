@@ -48,6 +48,9 @@ function Hero({counts}) {
           <Link className={clsx('button button--md', styles.secondary)} to="/cookbook/ai-ready-dissemination/start-here">
             Cookbook self-assessment
           </Link>
+          <Link className={clsx('button button--md', styles.secondary)} to="/modern-nso">
+            A modern statistical office
+          </Link>
         </div>
         <dl className={styles.facts}>
           <div>
