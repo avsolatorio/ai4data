@@ -1180,3 +1180,28 @@ Commit: 47f04bc.
 **Result.** The 8-epoch SFT model was not judged, so this round gives no measurement of what DPO adds to faithfulness. The comparison with the chain (4.60 / 4.73 against 4.56 / 4.70) is unaffected.
 
 **Implication.** Keeping DPO rests on earlier rounds, where DPO raised judged faithfulness, and on its neutral effect on verdict accuracy here.
+
+## 2026-10-10 21:51 UTC — Correctness head: hidden-state heads do not beat a 9-parameter combination of the model's own uncertainty signals
+
+Commit: f47689d (`tiny/selfcheck.py`, `scripts/selfcheck.sh`); checks in `scripts/selfcheck_checks.py` (committed with this entry). Model: `runs/v2g-from-dapt-8ep-dpo` (deployed), INT8.
+
+**Question/Context.** The user asked whether the model can score its own output (verdict and explanation) for display, filtering or retry, using a head on its own computed states with the language model frozen.
+
+**What was done.**
+1. Outputs: for 6,000 round G validation inputs (head training) and the 1,495 realistic-test inputs (evaluation), the greedy output plus 3 explanations sampled at temperature 0.7 after the greedy verdict line; 24,000 and 5,980 outputs. Generated token ids kept.
+2. Labels: verdict correct (matches the teacher label); explanation good (teacher judge: faithful >= 4, coherent >= 4, consistent, right language, and no number absent from the input); both.
+3. Features from one pass of the frozen model over prompt + generated tokens (the states computed during generation): final hidden state at the last output token, mean over output tokens, state at the verdict position (1,344 dims), and 8 scalars: verdict probability, mean and minimum token log-probability, mean and maximum entropy, log length, end-of-text probability, invented-number flag.
+4. Heads (BCE, early stopping on 10% of inputs): linear on scalars (9 parameters); linear and MLP-64 on hidden states (1,345 and 86,145); MLP-64 on hidden states plus scalars. Baselines without training: verdict probability, mean token probability.
+
+**Result.** AUROC on the realistic test, greedy outputs (n=1,495):
+| Target (positive rate) | Verdict prob. | Mean token prob. | Scalars, linear (9) | Hidden, MLP 64 | Hidden + scalars, MLP 64 |
+|---|---|---|---|---|---|
+| Verdict correct (85.2%) | 0.853 | 0.615 | 0.849 | 0.785 | 0.792 |
+| Explanation good (85.6%) | 0.645 | 0.832 | 0.868 | 0.823 | 0.865 |
+| Both (75.7%) | 0.753 | 0.718 | 0.816 | 0.766 | 0.784 |
+
+- In distribution (80/20 split of the validation inputs) the order is the same: for both, scalars 0.799, hidden 0.745, hidden + scalars 0.764; so the gap is not distribution shift.
+- The 9-parameter head on both is calibrated (ECE 0.021): predicted 0.30 / 0.60 / 0.75 / 0.86 / 0.94 against observed 0.37 / 0.63 / 0.76 / 0.86 / 0.95 by bin. Keeping the top 80% by score raises the share fully correct from 75.7% to 84.9%; the top 50%, to 92.5%.
+- Retry (keep the highest-scoring of greedy + 3 samples): explanations judged good 85.6% -> 88.4% (faithful 4.59 -> 4.66) with the scalar head; mean token log-probability alone gives 88.6%. Retrying only the 11.8% below 0.5 gives 87.0%. Random sample 78.1%; oracle best of four 94.5%. Hidden-only heads do not improve on greedy (85.4%).
+
+**Implication.** The model's own uncertainty signals carry a usable correctness score; a learned head on its hidden states adds nothing to them at this data size (6,000 inputs) and is worse alone. The recommended score is the 9-parameter calibrated combination, which is free at inference (all inputs come from the logits computed during generation). For retry, ranking candidates by mean token log-probability needs no training and recovers about a third of the gap to the oracle at 4x decoding cost. Joint training of the head with the language model was not tried. Labels come from one LLM judge; one seed.
