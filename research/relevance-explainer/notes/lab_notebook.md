@@ -1205,3 +1205,19 @@ Commit: f47689d (`tiny/selfcheck.py`, `scripts/selfcheck.sh`); checks in `script
 - Retry (keep the highest-scoring of greedy + 3 samples): explanations judged good 85.6% -> 88.4% (faithful 4.59 -> 4.66) with the scalar head; mean token log-probability alone gives 88.6%. Retrying only the 11.8% below 0.5 gives 87.0%. Random sample 78.1%; oracle best of four 94.5%. Hidden-only heads do not improve on greedy (85.4%).
 
 **Implication.** The model's own uncertainty signals carry a usable correctness score; a learned head on its hidden states adds nothing to them at this data size (6,000 inputs) and is worse alone. The recommended score is the 9-parameter calibrated combination, which is free at inference (all inputs come from the logits computed during generation). For retry, ranking candidates by mean token log-probability needs no training and recovers about a third of the gap to the oracle at 4x decoding cost. Joint training of the head with the language model was not tried. Labels come from one LLM judge; one seed.
+
+## 2026-10-10 23:40 UTC — Answer confidence and low-confidence retry in the app
+
+Commit: a4f134c (`tiny/answer_score.py`, `viewer.stream(trace=...)`, `webapp/server.py`, both pages; head from `scripts/save_score_head.py`, stored in `runs/v2g-from-dapt-8ep-dpo/selfcheck/score_head.json`).
+
+**Question/Context.** Put the previous entry's 9-parameter score in the app, with a retry for low scores; the user also asked to see the attempts that were not kept.
+
+**What was done.** The decoder records, for each step, the log-probability of the chosen token, the entropy and the end-of-text probability of the unmasked distribution; the head's 8 inputs come from these and the first-step verdict probabilities, so scoring needs no extra forward pass. Every answer from the deployed model gets an "Answer confidence". Below 0.5 (greedy decoding only), the server writes 3 more explanations at temperature 0.7 after the same verdict line, drops any with a number absent from the record, and keeps the highest-scoring one; the page lists the attempts that were not kept, with their scores or the reason they were dropped.
+
+**Result.**
+- Agreement with the experiment's teacher-forced features (`scripts/check_answer_score.py`, 40 realistic-test inputs, CPU): mean score difference 0.007; the larger differences (up to 0.19) are on the 3 inputs where CPU greedy text differs from the GPU run. Scoring costs 0.2 ms per answer; decoding averages 0.73 s.
+- Unit test: decoding-time features equal teacher-forced features to 1e-4, with and without a forced verdict line. Exception: when decoding stops at the length limit (260 tokens in the app), no step follows the last token and the end-of-text probability of the previous step is used.
+- In the experiment, outputs with an invented number score near 0 (the label counts them as wrong). The app resamples such numbers before scoring, so its first answers score higher than the experiment's raw greedy outputs on the same input (input 1122: 0.30 in the app, 0.0004 raw).
+- A retry costs about 3 more decodings (4.9 to 6.2 s in the stream check, against 0.5 to 2.4 s without).
+
+**Implication.** The confidence shown is calibrated on the realistic test for the deployed model only; another model needs its own head. The retry's offline gain was +2.8 points of explanations judged good with best-of-4 for all inputs; with retry only below 0.5 it was +1.4 points (offline estimate, `scripts/selfcheck_checks.py`). The app retries only at temperature 0.
