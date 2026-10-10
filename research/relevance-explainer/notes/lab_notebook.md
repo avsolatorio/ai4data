@@ -1148,3 +1148,25 @@ Commit: ea4dc4e (`scripts/dapt_followup.sh`, `scripts/pick_best.py`). Compared w
 | Faithful, teacher / Gemma 4 | 4.56 / 4.70 | not judged | 4.50 / 4.64 |
 
 **Implication.** One fine-tuning stage of 4 epochs plus DPO reaches the deployed model within noise on the realistic, nine-type and challenge sets and is 1.9 points lower on paraphrases, 1.8 on tables and 0.06 on faithfulness. Validation accuracy was still rising, so the remaining gap is consistent with data exposure (3.9M row-passes against about 8.6M); 6 to 8 epochs is the next test. The single-stage recipe is reproducible from one command and is the candidate replacement for the chain if longer training closes the gap. The deployed model stays. One seed per arm.
+
+## 2026-10-10 20:43 UTC — One 8-epoch fine-tune plus DPO matches the eight-stage chain
+
+Commit: d8eb259 (`scripts/single_stage.sh 8`). Compared with `runs/v2g-nosim-dpo` (deployed, eight stages) and the 4-epoch run of the previous entry.
+
+**Question/Context.** The 4-epoch single stage trailed the chain by up to 1.9 points with validation accuracy still rising. Does 8 epochs close the gap?
+
+**What was done.** `pre-dapt` fine-tuned on round G's data for 8 epochs (lr 1e-3, standard recipe; `runs/v2g-from-dapt-8ep`), then on-policy DPO with the chain's settings (4,270 pairs, 354 with an invented number on the rejected side; `runs/v2g-from-dapt-8ep-dpo`). Evaluated on the five test sets at INT8; the DPO model judged on 800 realistic-test explanations by the teacher and Gemma 4.
+
+**Result.** Validation verdict accuracy by epoch: 76.2, 78.2, 79.4, 79.8, 82.5, 83.8, 85.0, 85.5% (chain's last stage 85.5%); best at epoch 8.
+| Test set | Chain + DPO (deployed) | Single 8 ep | Single 8 ep + DPO |
+|---|---|---|---|
+| Realistic (agreed) | 84.4% (91.4%) | 85.5% (92.3%) | 85.3% (92.2%) |
+| Paraphrase (agreed) | 82.0% (88.7%) | 80.9% (87.5%) | 80.7% (87.1%) |
+| Nine-type | 79.4% | 81.5% | 80.8% |
+| Challenge (agreed) | 73.0% (81.1%) | 73.8% (81.5%) | 73.6% (81.3%) |
+| Eurostat tables (agreed) | 71.0% (81.8%) | 71.3% (82.6%) | 71.8% (83.0%) |
+| Faithful, teacher / Gemma 4 | 4.56 / 4.70 | not judged | 4.60 / 4.73 |
+
+Challenge negation 57% (chain 60%), look-alike 51 to 55% (chain about 51%).
+
+**Implication.** One 8-epoch fine-tune plus DPO equals or exceeds the chain on four of five sets and on faithfulness, and is 1.3 points lower on paraphrases. Most differences are within one standard error (about 0.9 points on the realistic set). The single-stage recipe reproduces the chain's quality from one command and replaces it as the documented recipe. DPO added little on top of 8 epochs in verdict accuracy (−0.2 to +0.5) and is kept for faithfulness: the DPO model's judged faithfulness rose from 4.61 to 4.73 against its own SFT model on the DPO validation sample. One seed per arm.
