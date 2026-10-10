@@ -150,11 +150,13 @@ def _events(text: str, model_name: str, temperature: float, guard: bool):
             return
         ban = banned_for(masks, text) if guard else None
         yield json.dumps({"type": "start", "prompt_tokens": len(prompt), "model_mb": round(size / 1e6, 1)}) + "\n"
-        toks, t1, first = [], time.time(), None
-        for k, (tok, logits) in enumerate(V.stream(model, prompt, banned=ban, temperature=temperature, seed=int(t0 * 1000) % 2**31)):
+        toks, t1, first, probs, trace = [], time.time(), None, None, []
+        for k, (tok, logits) in enumerate(V.stream(model, prompt, banned=ban, temperature=temperature, seed=int(t0 * 1000) % 2**31,
+                                                   trace=trace)):
             if k == 0:
                 first = time.time() - t1
-                yield json.dumps({"type": "probs", "probs": V.verdict_probs(tk, logits)}) + "\n"
+                probs = V.verdict_probs(tk, logits)
+                yield json.dumps({"type": "probs", "probs": probs}) + "\n"
             if tok == V.EOS:
                 break
             toks.append(tok)
@@ -162,29 +164,72 @@ def _events(text: str, model_name: str, temperature: float, guard: bool):
                 yield json.dumps({"type": "token", "text": tk.decode(toks)}) + "\n"
         total = time.time() - t1
         out = tk.decode(toks).strip()
+        out_ids, out_trace, out_prefix = toks, trace, 0  # the generated tokens and step stats behind `out`
+        from ..tiny.numguard import repair_ranges, unsupported
         resampled = 0
         if guard:  # an explanation with a number absent from the input is resampled (tiny/numguard.py)
-            from ..tiny.numguard import repair_ranges, unsupported
             for r in range(6):
                 if not unsupported(out, text):
                     break
-                cand = []
-                for tok, _ in V.stream(model, prompt, banned=ban, temperature=0.7, seed=1000 + r):
+                cand, ctr = [], []
+                for tok, _ in V.stream(model, prompt, banned=ban, temperature=0.7, seed=1000 + r, trace=ctr):
                     if tok == V.EOS:
                         break
                     cand.append(tok)
                 c = tk.decode(cand).strip()
                 resampled += 1
                 if c.split("\n")[0].strip() == out.split("\n")[0].strip() and not unsupported(c, text):
-                    out = c
-            out = repair_ranges(out, text)
-            total = time.time() - t1
+                    out, out_ids, out_trace = c, cand, ctr
         head, _, rest = out.partition("\n")
         verdict = head.strip() if head.strip() in V.VERDICTS else "invalid"
-        yield json.dumps({"type": "done", "text": out, "verdict": verdict, "narrative": rest.strip(), "stats": {
+        # answer confidence (tiny/answer_score.py) from the step statistics recorded while decoding
+        score, first_score, retried, attempts = None, None, 0, []
+        scorer = V.score_head(model_name)
+        if scorer is not None and probs is not None:
+            from ..tiny.answer_score import features
+            nl = tk.encode("\n").ids[-1]
+            vp = probs.get(verdict, max(probs.values()))
+            score = first_score = scorer(features(out_trace, out_ids, nl, vp, bool(unsupported(out, text)), out_prefix))
+            if score < V.RETRY_BELOW and verdict != "invalid" and temperature == 0:
+                # low confidence: write more explanations after the same verdict line and keep the most confident;
+                # every attempt is reported so the page can show the ones that were not kept
+                yield json.dumps({"type": "retry", "score": round(score, 3)}) + "\n"
+                attempts.append({"text": out, "score": score})
+                vline = tk.encode(text + V.SEP + verdict + "\n").ids
+                forced = vline[len(prompt):]
+                if vline[: len(prompt)] == prompt and forced and forced[-1] == nl:
+                    for r in range(V.RETRY_SAMPLES):
+                        cand, ctr = [], []
+                        for tok, _ in V.stream(model, vline, banned=ban, temperature=0.7, seed=2000 + r, trace=ctr):
+                            if tok == V.EOS:
+                                break
+                            cand.append(tok)
+                        retried += 1
+                        ids = forced + cand
+                        c = tk.decode(ids).strip()
+                        bad = bool(unsupported(c, text))
+                        if guard and bad:  # never shown as the answer
+                            attempts.append({"text": c, "score": None, "note": "states a number absent from the record"})
+                            continue
+                        sc = scorer(features(ctr, ids, nl, vp, bad, len(forced)))
+                        attempts.append({"text": c, "score": sc})
+                        if sc > score:
+                            out, score = c, sc
+                    head, _, rest = out.partition("\n")
+        if guard:
+            out = repair_ranges(out, text)
+            head, _, rest = out.partition("\n")
+        best = max(range(len(attempts)), key=lambda j: -1 if attempts[j]["score"] is None else attempts[j]["score"], default=None)
+        attempts = [{"narrative": (repair_ranges(a["text"], text) if guard else a["text"]).partition("\n")[2].strip(),
+                     "score": None if a["score"] is None else round(a["score"], 3), "kept": j == best,
+                     **({"note": a["note"]} if "note" in a else {})} for j, a in enumerate(attempts)]
+        total = time.time() - t1
+        yield json.dumps({"type": "done", "text": out, "verdict": verdict, "narrative": rest.strip(), "attempts": attempts,
+                          "score": None if score is None else round(score, 3), "stats": {
             "prompt_tokens": len(prompt), "output_tokens": len(toks), "first_token_ms": round(first * 1000),
             "total_s": round(total, 2), "per_token_ms": round((total - first) / max(1, len(toks) - 1) * 1000, 1),
-            "model_mb": round(size / 1e6, 1), "resampled": resampled}}) + "\n"
+            "model_mb": round(size / 1e6, 1), "resampled": resampled, "retried": retried,
+            "first_score": None if first_score is None else round(first_score, 3)}}) + "\n"
     except Exception as exc:  # report to the page instead of breaking the stream
         yield json.dumps({"type": "error", "message": f"{type(exc).__name__}: {exc}"}) + "\n"
     finally:

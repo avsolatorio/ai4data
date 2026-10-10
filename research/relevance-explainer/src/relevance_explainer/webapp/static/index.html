@@ -96,6 +96,13 @@ dl.meta{display:grid;grid-template-columns:128px 1fr;gap:6px 14px;margin:0;font-
 dl.meta dt{color:var(--mute)}
 dl.meta dd{margin:0;color:var(--fg2);max-height:6.6em;overflow:auto;overflow-wrap:anywhere}
 .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:11px;font-weight:700;font-size:15px}
+.conf{display:inline-block;margin-left:8px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--okbg);color:var(--ok);cursor:help}
+.conf.low{background:var(--warnbg);color:var(--warn)}
+.retrynote{font-size:12.5px;margin-top:6px}
+.attempts{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.attempts summary{cursor:pointer;font-size:13px;color:var(--fg2)}
+.attempt{margin-top:10px;font-size:12.5px}
+.attempt .narr.sm{font-size:13.5px;margin-top:4px;opacity:.85}
 .lowconf{margin-top:8px;font-size:13px;color:var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;display:inline-block;margin-left:8px}
 .badge.sm{font-size:12px;padding:3px 9px;border-radius:8px}
 .v-relevant{background:var(--okbg);color:var(--ok)}.v-partly_relevant{background:var(--warnbg);color:var(--warn)}
@@ -227,8 +234,26 @@ textarea.editor{width:100%;min-height:440px;border-radius:12px;border:1px solid 
 const NICE={relevant:"Relevant",partly_relevant:"Partly relevant",irrelevant:"Irrelevant",invalid:"No verdict",pending:"Writing…"};
 // Verdicts below this probability are about 55% accurate on the realistic test (above it, about 93%; notebook 2026-10-09): show them as uncertain
 const LOW_CONF=0.7;
-function lowConf(s){const p=s.probs&&s.probs[s.verdict];if(s.running||p==null||p>=LOW_CONF)return"";
-  return `<div class="lowconf">Low confidence (${Math.round(p*100)}%): the model is unsure of this verdict; check the record.</div>`;}
+// Answer confidence (models with a score head): estimated chance that the verdict and the explanation are both right,
+// from the model's own uncertainty while writing. Calibrated on the realistic test (notebook 2026-10-10): below 50%
+// about a third of answers are fully right, above 90% about 95%. Low answers are rewritten by the server (retry event).
+const LOW_SCORE=0.5;
+const SCORE_TIP="Estimated chance that both the verdict and the explanation are right, from the model's own uncertainty while writing (calibrated on held-out searches).";
+function lowConf(s){
+  if(s.score==null&&s.retrying==null){const p=s.probs&&s.probs[s.verdict];if(s.running||p==null||p>=LOW_CONF)return"";
+    return `<div class="lowconf">Low confidence (${Math.round(p*100)}%): the model is unsure of this verdict; check the record.</div>`;}
+  if(s.running)return `<div class="lowconf">Low confidence (${Math.round(s.retrying*100)}%): writing alternative explanations…</div>`;
+  if(s.score==null)return"";
+  const r=s.stats&&s.stats.retried,pc=Math.round(s.score*100);
+  let h=`<span class="conf ${s.score<LOW_SCORE?"low":""}" title="${SCORE_TIP}">Answer confidence ${pc}%</span>`;
+  if(s.score<LOW_SCORE)h+=`<div class="lowconf">Low confidence: about a third of answers at this level are fully right; check the record.</div>`;
+  if(r)h+=`<div class="retrynote muted">The first answer scored ${Math.round(s.stats.first_score*100)}%; ${s.score>s.stats.first_score?`the most confident of ${r+1} explanations is shown`:`no rewrite scored higher, so it is kept`}.</div>`;
+  return h;}
+// Attempts the server wrote for a low-confidence answer and did not keep, with their scores
+function attemptsHtml(s,lang){const a=(s.attempts||[]).map((x,j)=>({...x,n:j+1})).filter(x=>!x.kept);if(s.running||!a.length)return"";
+  return `<details class="attempts"><summary>Attempts not shown (${a.length})</summary>${a.map(x=>
+    `<div class="attempt"><div class="muted">Attempt ${x.n}${x.n===1?" (first answer)":""} · ${x.score!=null?`confidence ${Math.round(x.score*100)}%`:esc(x.note||"discarded")}</div>
+    <div class="narr sm"${dirOf(lang)}>${esc(x.narrative)}</div></div>`).join("")}</details>`;}
 const VERD=["relevant","partly_relevant","irrelevant"];
 const BAR={relevant:"var(--okbar)",partly_relevant:"var(--warnbar)",irrelevant:"var(--badbar)"};
 const SRC={indicator:["📈","Indicator"],study:["🗂️","Survey"],dataset:["🆘","HDX"],document:["📄","Paper"]};
@@ -361,7 +386,7 @@ function renderOutput(s){
     .map(([k,v])=>`<div class="stat"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>`:"";
   p.innerHTML=`<div class="h">Model output · ${esc(s.model)}</div>
     <span class="badge v-${s.verdict}">${s.verdict==="pending"?"◌":"●"} ${NICE[s.verdict]||esc(s.verdict)}</span>${lowConf(s)}
-    <div class="narr"${dirOf(lang)}>${esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>
+    <div class="narr"${dirOf(lang)}>${esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>${attemptsHtml(s,lang)}
     ${bars}${st}${s.error?`<div class="err">${esc(s.error)}</div>`:""}`;
 }
 
@@ -415,9 +440,9 @@ async function generate(){
   const model=$("#model").value;let s={model,verdict:"pending",narrative:"",running:true};renderOutput(s);
   try{
     const last=await runOnce(model,ev=>{
-      if(ev.type==="probs")s.probs=ev.probs;
+      if(ev.type==="probs")s.probs=ev.probs;if(ev.type==="retry")s.retrying=ev.score;
       if(ev.type==="token")Object.assign(s,split(ev.text));
-      if(ev.type==="done"){Object.assign(s,{verdict:ev.verdict,narrative:ev.narrative,stats:ev.stats,running:false});live={model,text:ev.text};}
+      if(ev.type==="done"){Object.assign(s,{verdict:ev.verdict,narrative:ev.narrative,stats:ev.stats,running:false,score:ev.score??null,attempts:ev.attempts||[]});live={model,text:ev.text};}
       if(ev.type==="error"){s.error=ev.message;s.running=false;}
       renderOutput(s);});
     if(!last){s.running=false;s.error="The stream ended early.";renderOutput(s);}
@@ -436,7 +461,7 @@ async function compare(){
       <div class="cell muted">${r.t?r.t+" s":""}</div>`).join("")}</div>`;};
   for(const m of MODELS.filter(m=>!m.format.startsWith("itemfirst")||sel.set==="realistic")){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
     try{let probs=null;const last=await runOnce(m.name,ev=>{if(ev.type==="probs")probs=ev.probs;if(ev.type==="token"){Object.assign(r,split(ev.text));draw();}});
-      if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:probs?probs[last.verdict]:null});}
+      if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:last.score!=null?last.score:probs?probs[last.verdict]:null});}
       else r.error=last?last.message:"no result";}catch(e){r.error=e.message;}
     draw();}
   busy=false;$("#genBtn").disabled=$("#cmpBtn").disabled=false;p.scrollIntoView({behavior:"smooth",block:"nearest"});

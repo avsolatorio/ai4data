@@ -36,6 +36,22 @@ MODELS = {
     "Round 7, fine-tuned only": "runs/f6-sft/explainer-int8.pt",
     "Round 6 + DPO": "runs/f5-dpo/explainer-int8.pt",
 }
+# Answer-confidence heads (scripts/save_score_head.py) per model; answers below RETRY_BELOW are rewritten RETRY_SAMPLES
+# more times after the same verdict line and the most confident explanation is kept.
+SCORE_HEADS = {"Realistic, no retrieval score": "runs/v2g-from-dapt-8ep-dpo/selfcheck/score_head.json"}
+RETRY_BELOW, RETRY_SAMPLES = 0.5, 3
+_HEADS: dict = {}
+
+
+def score_head(name: str):
+    """The model's answer-confidence head, or None when it has none."""
+    if name not in _HEADS:
+        p = ROOT / SCORE_HEADS[name] if name in SCORE_HEADS else None
+        from .tiny.answer_score import ScoreHead
+        _HEADS[name] = ScoreHead(p) if p is not None and p.exists() else None
+    return _HEADS[name]
+
+
 RTL = {"Arabic"}
 # Input format per model: "itemfirst" models read the item-first realistic format with query understanding and checks.
 # "itemfirst_nosim" is the same format without the "Retrieval similarity" line.
@@ -120,8 +136,12 @@ def load(name: str):
 
 @torch.no_grad()
 def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | None = None, no_repeat: int = 4,
-           temperature: float = 0.0, top_k: int = 40, seed: int = 0, numguard=None, guard_state: dict | None = None):
-    """Yield (token, step_logits) one token at a time with a KV cache; same rules as TinyLM.generate_batch."""
+           temperature: float = 0.0, top_k: int = 40, seed: int = 0, numguard=None, guard_state: dict | None = None,
+           trace: list | None = None):
+    """Yield (token, step_logits) one token at a time with a KV cache; same rules as TinyLM.generate_batch.
+
+    `trace`, when given, receives tiny.answer_score.step_stats of each step's unmasked distribution (for the answer
+    confidence)."""
     g = torch.Generator().manual_seed(seed)
     ids = torch.tensor([prompt])
     caches = [{} for _ in model.order]
@@ -137,6 +157,7 @@ def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | 
     out, seen, pos = [], {}, len(prompt)
     for _ in range(max_new):
         logits = logits.float()
+        raw = logits.clone() if trace is not None else None  # no_repeat below masks in place
         if banned is not None:
             logits = logits.masked_fill(banned, float("-inf"))
         if no_repeat and len(out) >= no_repeat - 1:
@@ -150,6 +171,9 @@ def stream(model, prompt: list[int], max_new: int = 260, banned: torch.Tensor | 
             nxt = top.indices[torch.multinomial(torch.softmax(top.values / temperature, -1), 1, generator=g)].item()
         else:
             nxt = int(logits.argmax())
+        if trace is not None:
+            from .tiny.answer_score import step_stats
+            trace.append(step_stats(raw, nxt))
         yield nxt, logits
         if nxt == EOS:
             return
