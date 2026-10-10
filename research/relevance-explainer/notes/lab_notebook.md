@@ -1170,3 +1170,13 @@ Commit: d8eb259 (`scripts/single_stage.sh 8`). Compared with `runs/v2g-nosim-dpo
 Challenge negation 57% (chain 60%), look-alike 51 to 55% (chain about 51%).
 
 **Implication.** One 8-epoch fine-tune plus DPO equals or exceeds the chain on four of five sets and on faithfulness, and is 1.3 points lower on paraphrases. Most differences are within one standard error (about 0.9 points on the realistic set). The single-stage recipe reproduces the chain's quality from one command and replaces it as the documented recipe. DPO added little on top of 8 epochs in verdict accuracy (−0.2 to +0.5) and is kept for faithfulness: the DPO model's judged faithfulness rose from 4.61 to 4.73 against its own SFT model on the DPO validation sample. One seed per arm.
+
+## 2026-10-10 20:43 UTC — Correction to the previous entry: DPO effect on faithfulness not measured
+
+Commit: 47f04bc.
+
+**Context.** The previous entry says the DPO model's faithfulness rose from 4.61 to 4.73 against its own SFT model. The two numbers are the teacher (4.60) and Gemma 4 (4.73) judging the same DPO model (`dpo_run.sh` judges only the DPO output), as the separate judge run confirms (4.596 / 4.726).
+
+**Result.** The 8-epoch SFT model was not judged, so this round gives no measurement of what DPO adds to faithfulness. The comparison with the chain (4.60 / 4.73 against 4.56 / 4.70) is unaffected.
+
+**Implication.** Keeping DPO rests on earlier rounds, where DPO raised judged faithfulness, and on its neutral effect on verdict accuracy here.
