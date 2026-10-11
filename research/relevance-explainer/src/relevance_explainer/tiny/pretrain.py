@@ -131,6 +131,8 @@ def main() -> None:
     ap.add_argument("--share", default="repeat", choices=["repeat", "cycle"])
     ap.add_argument("--heads", type=int, default=6)
     ap.add_argument("--d-ff", type=int, default=1024)
+    ap.add_argument("--kv-heads", type=int, default=0, help="key/value heads (grouped-query attention); 0: one per head")
+    ap.add_argument("--attn-gate", default="", choices=["", "head", "elem"], help="sigmoid gate on the attention output")
     ap.add_argument("--dropout", type=float, default=0.0)
     ap.add_argument("--init-emb", default=None)
     ap.add_argument("--resume", default=None, help="model.pt to continue pretraining from")
@@ -176,7 +178,8 @@ def main() -> None:
         model = model.cuda()
     else:
         cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_unique=a.unique, share=a.share,
-                     n_head=a.heads, d_ff=a.d_ff, max_len=1536, dropout=a.dropout)
+                     n_head=a.heads, n_kv_head=a.kv_heads, attn_gate=a.attn_gate, d_ff=a.d_ff, max_len=1536,
+                     dropout=a.dropout)
         model = TinyLM(cfg).cuda()
         if a.init_emb:
             model.emb.weight.data.copy_(qwen_embeddings(tk, a.init_emb, a.d_model))

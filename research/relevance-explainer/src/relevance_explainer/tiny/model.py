@@ -1,6 +1,7 @@
 """A small decoder-only transformer sized for roughly 20 MB at INT8.
 
-RMSNorm, rotary position embeddings, SwiGLU feed-forward, tied input and output embeddings.
+RMSNorm, rotary position embeddings, SwiGLU feed-forward, tied input and output embeddings. Optional grouped-query
+attention (n_kv_head) and a sigmoid gate on the attention output (attn_gate).
 Default configuration: vocab 8000, d_model 384, 10 layers, 6 heads, FFN 1024 -> about 20.8M parameters.
 """
 from __future__ import annotations
@@ -21,6 +22,8 @@ class Config:
     n_unique: int = 0  # distinct blocks stored; 0 means one per application (no sharing)
     share: str = "repeat"  # "repeat": each block applied consecutively; "cycle": blocks reused in rotation
     n_head: int = 6
+    n_kv_head: int = 0  # key/value heads shared by groups of query heads (grouped-query attention); 0 means n_head
+    attn_gate: str = ""  # sigmoid gate on the attention output (Qiu et al. 2025): "head" (one per head), "elem" or ""
     d_ff: int = 1024
     max_len: int = 1280
     dropout: float = 0.1
@@ -73,8 +76,13 @@ class Block(nn.Module):
     def __init__(self, c: Config):
         super().__init__()
         self.n_head, self.dropout = c.n_head, c.dropout
+        self.n_kv, self.hd = c.n_kv_head or c.n_head, c.d_model // c.n_head
+        assert c.n_head % self.n_kv == 0, "n_head must be a multiple of n_kv_head"
         self.norm1, self.norm2 = RMSNorm(c.d_model), RMSNorm(c.d_model)
-        self.qkv = nn.Linear(c.d_model, 3 * c.d_model, bias=False)
+        self.qkv = nn.Linear(c.d_model, c.d_model + 2 * self.n_kv * self.hd, bias=False)
+        self.gate_kind = c.attn_gate
+        if c.attn_gate:
+            self.attn_gate = nn.Linear(c.d_model, c.n_head if c.attn_gate == "head" else c.d_model, bias=False)
         self.proj = nn.Linear(c.d_model, c.d_model, bias=False)
         self.gate = nn.Linear(c.d_model, c.d_ff, bias=False)
         self.up = nn.Linear(c.d_model, c.d_ff, bias=False)
@@ -82,16 +90,25 @@ class Block(nn.Module):
 
     def forward(self, x, cos, sin, mask=None, cache=None):
         B, T, C = x.shape
-        q, k, v = self.qkv(self.norm1(x)).view(B, T, 3, self.n_head, C // self.n_head).permute(2, 0, 3, 1, 4)
+        hn = self.norm1(x)
+        q, k, v = self.qkv(hn).split([C, self.n_kv * self.hd, self.n_kv * self.hd], dim=-1)
+        q = q.view(B, T, self.n_head, self.hd).transpose(1, 2)
+        k = k.view(B, T, self.n_kv, self.hd).transpose(1, 2)
+        v = v.view(B, T, self.n_kv, self.hd).transpose(1, 2)
         q, k = apply_rope(q, cos, sin), apply_rope(k, cos, sin)
         if cache is not None:  # incremental decoding: keys and values of earlier tokens are kept
             if "k" in cache:
                 k, v = torch.cat([cache["k"], k], dim=2), torch.cat([cache["v"], v], dim=2)
             cache["k"], cache["v"] = k, v
+        if self.n_kv != self.n_head:  # each key/value head serves a group of consecutive query heads
+            k, v = k.repeat_interleave(self.n_head // self.n_kv, 1), v.repeat_interleave(self.n_head // self.n_kv, 1)
         if mask is None:
             a = F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=self.dropout if self.training else 0.0)
         else:
             a = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+        if self.gate_kind:  # query-dependent sigmoid gate from the normalized input, per head or per channel
+            g = torch.sigmoid(self.attn_gate(hn)).view(B, T, self.n_head, -1).transpose(1, 2)
+            a = a * g
         x = x + F.dropout(self.proj(a.transpose(1, 2).reshape(B, T, C)), self.dropout, self.training)
         h = self.norm2(x)
         return x + F.dropout(self.down(F.silu(self.gate(h)) * self.up(h)), self.dropout, self.training)
