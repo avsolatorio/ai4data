@@ -35,10 +35,21 @@ def load_shards(root: Path) -> dict[str, np.ndarray]:
     return out
 
 
-def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: np.random.Generator, holdout: int = HOLDOUT):
-    langs = list(shards)
-    sizes = np.array([max(len(shards[l]) - holdout, 1) for l in langs], dtype=float)
-    p = sizes**alpha
+def load_all_shards(root: Path) -> dict[str, np.memmap]:
+    """Every tok/<stem>.bin as its own language (the multilingual corpus of tiny/multicorpus.py)."""
+    return {p.stem: np.memmap(p, dtype=np.uint16, mode="r") for p in sorted((root / "tok").glob("*.bin"))}
+
+
+def sampler(shards: dict[str, np.memmap], alpha: float, seq: int, bs: int, rng: np.random.Generator, holdout: int = HOLDOUT,
+            weights: dict[str, float] | None = None):
+    """Batches of random windows; a language is drawn with probability proportional to its size**alpha, or to
+    `weights` when given (the multilingual plan's budgets, which are already flattened and count repetition)."""
+    langs = [l for l in shards if len(shards[l]) > holdout + seq + 1]
+    if weights is not None:
+        p = np.array([weights.get(l, 0.0) for l in langs], dtype=float)
+    else:
+        sizes = np.array([max(len(shards[l]) - holdout, 1) for l in langs], dtype=float)
+        p = sizes**alpha
     p /= p.sum()
 
     def batch() -> torch.Tensor:
@@ -127,6 +138,9 @@ def main() -> None:
     ap.add_argument("--domain-root", default=None, help="second corpus (same layout) mixed in at --domain-share")
     ap.add_argument("--domain-share", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--all-shards", action="store_true", help="every tok/*.bin is a language, weighted by plan.json")
+    ap.add_argument("--holdout", type=int, default=HOLDOUT, help="tokens per language kept out of training")
+    ap.add_argument("--eval-seqs", type=int, default=64, help="held-out sequences per language at each evaluation")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -134,9 +148,17 @@ def main() -> None:
     torch.manual_seed(a.seed)
     root = Path(a.root)
     tk = Tokenizer.from_file(str(root / "tokenizer.json"))
-    shards = load_shards(root)
-    batch, probs = sampler(shards, a.alpha, a.seq, a.bs, np.random.default_rng(a.seed))
-    print("language sampling:", probs, flush=True)
+    weights = None
+    if a.all_shards:  # multilingual corpus: every shard is a language, sampled by the plan's budgets
+        shards = load_all_shards(root)
+        plan = json.loads((root / "plan.json").read_text())
+        weights = {k: v["chars"] for k, v in plan.items()}
+    else:
+        shards = load_shards(root)
+    holdout = a.holdout
+    batch, probs = sampler(shards, a.alpha, a.seq, a.bs, np.random.default_rng(a.seed), holdout, weights)
+    print(f"{len(probs)} languages; language sampling:", probs, flush=True)
+    eval_shards = {l: shards[l] for l in probs}
     dom = None
     if a.domain_root and a.domain_share > 0:  # each batch takes round(share * bs) sequences from the domain corpus
         dom = load_shards(Path(a.domain_root))
@@ -183,7 +205,9 @@ def main() -> None:
             print(f"step {step}/{steps} loss {loss.item():.3f} {(time.time() - t0) / 60:.1f} min "
                   f"{step * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
         if step % a.eval_every == 0 or step == steps:
-            ppl = heldout_ppl(model, shards, a.seq, tk=tk)
+            ppl = heldout_ppl(model, eval_shards, a.seq, n_seq=a.eval_seqs, tk=tk, holdout=holdout)
+            bpb = [v for k, v in ppl.items() if k.endswith("_bpb")]
+            print(f"mean held-out bits per byte over {len(bpb)} languages: {sum(bpb) / len(bpb):.4f}", flush=True)
             if dom is not None:
                 ppl.update(heldout_ppl(model, dom, a.seq, n_seq=32, tk=tk, holdout=DOMAIN_HOLDOUT, prefix="domain_"))
             log.append({"step": step, "tokens": step * a.bs * a.seq, "train_loss": loss.item(), "heldout_ppl": ppl})
