@@ -11,21 +11,34 @@ answers three questions that the automatic evaluation cannot:
 
 ## Sample
 
-The sample has 300 answers from the deployed model plus 60 answers written by the teacher, 360 items in all.
-`scripts/rating_sample.py` draws it from the realistic test set and writes one row per item.
+The sample has 300 answers from the deployed app plus 60 answers written by the teacher, 360 items in all.
+`scripts/rating_sample.py` draws it from the app's answers (`scripts/app_answers.py`) on three test sets and writes one
+row per item. The first draw is in `docs/rating_sample/study1_sheet.csv` (for raters) and `study1_key.csv` (kept by the
+study lead):
 
-- **Languages.** Choose three or four languages the raters read well. English plus two or three of French, Spanish,
-  Arabic and Russian is a practical set. The sample is split evenly across the chosen languages.
-- **Confidence bands.** Within each language, a third of the answers come from each band of the answer confidence:
-  below 0.5, 0.5 to 0.8, and 0.8 or above. This over-samples doubtful answers, so the low bands have enough items to
-  measure. Results for the whole population are reweighted to the bands' real shares.
-- **Item types.** Each language's sample is spread across indicators, studies, datasets and documents in proportion to
-  the test set.
-- **Teacher answers.** 60 items show the teacher's own answer for the same input instead of the model's. Raters are not
-  told which is which. These items measure how often the teacher is right according to people.
+```
+python scripts/rating_sample.py --languages English French Spanish Arabic --teacher 60 --out docs/rating_sample/study1 \
+  --source realistic runs/v2g-from-dapt-8ep-dpo/app_answers_realtest.jsonl data/eval_real/itemfirst_nosim_v4 45 \
+  --source challenge runs/v2g-from-dapt-8ep-dpo/app_answers_challenge.jsonl data/eval_challenge/itemfirst_nosim_v4 20 \
+  --source tables runs/v2g-from-dapt-8ep-dpo/app_answers_tables.jsonl data/eval_tables/itemfirst_nosim 10
+```
 
-With 300 model answers, the share rated correct has a 95% confidence interval of about plus or minus 5.5 points. Each
-confidence band has about 100 answers, about plus or minus 10 points.
+- **Languages.** English, French, Spanish and Arabic in the first draw; change `--languages` to match the raters.
+  Each language has 75 model answers.
+- **Sets.** Per language, 45 answers come from the realistic test, 20 from the challenge suite (hard phrasings such as
+  negation, look-alike topics and proxies) and 10 from the held-out Eurostat tables. The automatic evaluation found the
+  answer confidence overconfident on the last two sets (lab notebook, 2026-10-11 00:21 UTC), so people need to check it
+  there.
+- **Confidence bands.** Within each set and language, answers are split evenly across three bands of the answer
+  confidence: below 0.5, 0.5 to 0.8, and 0.8 or above. This over-samples doubtful answers. Realistic searches in
+  English, French and Spanish have few low-confidence answers (3 to 8 per language), so those bands give what they have
+  and the rest goes to the other bands. Each row of the key carries a weight, so results can be reweighted to each
+  set's real mix.
+- **Teacher answers.** 60 items show the teacher's own answer for a realistic-test input instead of the model's.
+  Raters are not told which is which. These items measure how often the teacher is right according to people.
+
+With 300 model answers, the share rated correct has a 95% confidence interval of about plus or minus 5.5 points. The
+three confidence bands have 75, 114 and 111 answers (low, middle, high), about plus or minus 9 to 11 points.
 
 ## Raters
 
