@@ -1221,3 +1221,27 @@ Commit: a4f134c (`tiny/answer_score.py`, `viewer.stream(trace=...)`, `webapp/ser
 - A retry costs about 3 more decodings (4.9 to 6.2 s in the stream check, against 0.5 to 2.4 s without).
 
 **Implication.** The confidence shown is calibrated on the realistic test for the deployed model only; another model needs its own head. The retry's offline gain was +2.8 points of explanations judged good with best-of-4 for all inputs; with retry only below 0.5 it was +1.4 points (offline estimate, `scripts/selfcheck_checks.py`). The app retries only at temperature 0.
+
+## 2026-10-11 00:21 UTC — Answer confidence is calibrated on realistic searches and overconfident on hard ones; the app pipeline end to end
+
+Commit: 8fa4413 (`scripts/selfcheck_ood.sh`, `scripts/calibration_report.py`, `scripts/app_answers.py`, `scripts/judge_app_answers.py`). Model `runs/v2g-from-dapt-8ep-dpo`, head `selfcheck/score_head.json` (fit on round G validation outputs).
+
+**Question/Context.** Before calling the answer confidence trustworthy: does its calibration hold beyond the realistic test, and what does the deployed pipeline (number resampling, scoring, retry below 0.5) deliver?
+
+**What was done.**
+1. Greedy outputs of the deployed model on the challenge suite (2,244), the held-out Eurostat tables (649) and the paraphrase set (2,175), judged by the teacher; scored by the saved head; "fully correct" as in the head's target.
+2. The app's own pipeline (`webapp.server._events`, CPU) on all 1,495 realistic-test inputs; final answers judged, and for retried answers the first answer too.
+
+**Result.**
+| Set | Fully correct | AUROC | ECE | Predicted / observed at 0.7-0.8 | at 0.9-1.0 |
+|---|---|---|---|---|---|
+| Realistic | 75.7% | 0.816 | 0.021 | 0.75 / 0.76 | 0.94 / 0.95 |
+| Paraphrase | 71.7% | 0.827 | 0.040 | 0.75 / 0.66 | 0.94 / 0.96 |
+| Challenge | 61.7% | 0.760 | 0.115 | 0.76 / 0.54 | 0.94 / 0.87 |
+| Eurostat tables | 53.6% | 0.793 | 0.149 | 0.75 / 0.46 | 0.94 / 0.88 |
+
+- On rows where both teachers agree, calibration is better (challenge ECE 0.063, tables 0.087), so part of the gap is label noise on contested rows.
+- Confident errors (score >= 0.8 and not fully correct) by challenge phenomenon: negation 21.5%, group definition 15.3%, time phrase 14.8%, proxy 12.7%, look-alike 12.1%; multi-ask 5.4%, question 4.7%.
+- App pipeline on the realistic test: verdict 85.2%, explanation good 87.5%, fully correct 76.7%. 265 answers (17.7%) were retried; a rewrite was kept in 157; among retried answers, explanation good rose from 55.1% to 63.4%. Calibration on the app's own outputs: 0.32/0.36, 0.60/0.64, 0.75/0.75, 0.86/0.85, 0.94/0.96 (predicted/observed by band).
+
+**Implication.** The score ranks answers well everywhere (AUROC 0.76 to 0.83), but its percentages hold only for searches like the realistic test. On unfamiliar record types and hard phrasings they overstate certainty by 10 to 30 points in the middle bands. Showing an exact percentage implies more than the evidence supports. Options: show bands (high, medium, low) with the realistic-test meaning; refit the head on a mix that includes hard cases; and target negation, group definitions, time phrases, proxies and look-alikes in the next data round. The human rating sample now draws from the challenge and table sets as well as the realistic test.
