@@ -2,7 +2,10 @@
 
   plan       per-language character budgets from FineWeb-2's sizes: share proportional to size**alpha (small languages
              get more than their share of the web), capped by what each language has, the cap's excess given to the rest
-  fetch      stream each language's budget into raw/<config>.jsonl (resumable; finished files are skipped)
+  fetch      stream each language's budget into raw/<config>.jsonl (resumable; finished files are skipped); the
+             characters and documents fetched go to raw/<config>.stats.json
+  reweight   set the training budgets from what was fetched: a language may repeat its text at most --max-epochs
+             times, and what a short language cannot use goes to the others in proportion to size**alpha
   tokenizers train byte-level BPE tokenizers of several sizes on a balanced sample and report bytes per token by language
              on held-out documents, against an existing tokenizer
   tokenize   reuse tiny.corpus tokenize with the chosen tokenizer
@@ -30,6 +33,23 @@ ENGLISH_EDU = "eng_Latn-fwedu"  # FineWeb-Edu (ODC-By), English educational web 
 MIN_DOC_CHARS, MAX_DOC_CHARS = 200, 20_000
 
 
+def water_fill(total: float, w: dict[str, float], cap: dict[str, float]) -> dict[str, float]:
+    """Shares of `total` proportional to `w`, no key above its `cap`; a capped key's excess goes to the rest."""
+    budget, free = {}, set(w)
+    while free:
+        s = sum(w[k] for k in free)
+        capped = {k for k in free if total * w[k] / s >= cap[k]}
+        if not capped:
+            for k in free:
+                budget[k] = total * w[k] / s
+            break
+        for k in capped:
+            budget[k] = cap[k]
+            total -= cap[k]
+        free -= capped
+    return budget
+
+
 def cmd_plan(a) -> None:
     d = json.loads(Path(a.sizes).read_text())
     size = defaultdict(int)
@@ -47,23 +67,15 @@ def cmd_plan(a) -> None:
     # non-Latin scripts take 2-3 bytes per character), with at most `max_epochs` passes over a small language
     avail = {k: v * a.max_epochs for k, v in size.items()}
     w = {k: v ** a.alpha for k, v in size.items()}
-    budget, free, total = {}, set(size), a.chars - (english or 0)
-    while free:  # water-filling: give capped languages their cap and share the rest among the others
-        s = sum(w[k] for k in free)
-        capped = {k for k in free if total * w[k] / s >= avail[k]}
-        if not capped:
-            for k in free:
-                budget[k] = total * w[k] / s
-            break
-        for k in capped:
-            budget[k] = avail[k]
-            total -= avail[k]
-        free -= capped
+    budget = water_fill(a.chars - (english or 0), w, avail)
     if english:
         budget[ENGLISH], budget[ENGLISH_EDU] = english / 2, english / 2
         size[ENGLISH] = size[ENGLISH_EDU] = english  # no repetition: fetch the whole budget
-    plan = {k: {"chars": int(budget[k]), "parquet_mb": round(size[k] / 1e6, 1),
-                "fetch_chars": int(min(budget[k], size[k]))} for k in sorted(budget, key=lambda k: -budget[k])}
+    # --fetch-full asks every language for its whole training budget: the size estimate undercounts text (see above),
+    # so a language may have more distinct text than the estimate, and `reweight` then uses what was fetched
+    plan = {k: {"chars": int(budget[k]), "parquet_mb": round(size[k] / 1e6, 1), "w": w.get(k, 0.0),
+                "fetch_chars": int(budget[k] if a.fetch_full else min(budget[k], size[k]))}
+            for k in sorted(budget, key=lambda k: -budget[k])}
     root = Path(a.root)
     root.mkdir(parents=True, exist_ok=True)
     (root / "plan.json").write_text(json.dumps(plan, indent=1))
@@ -114,6 +126,7 @@ def _fetch_one(args) -> tuple[str, int, int]:
             return _fetch_one((cfg, budget, root, True))
         return cfg, -2, f"{type(e).__name__}: {str(e)[:200]}"
     tmp.rename(path)
+    path.with_suffix(".stats.json").write_text(json.dumps({"docs": docs, "chars": chars, "budget": budget}))
     return cfg, docs, chars
 
 
@@ -135,6 +148,37 @@ def cmd_fetch(a) -> None:
         print(f"{failed} languages failed", flush=True)
     else:
         print("FETCH-DONE", flush=True)
+
+
+def cmd_reweight(a) -> None:
+    """Training budgets from the fetched characters. English keeps its fixed share (both sources), capped by what was
+    fetched; every other language gets a share of the rest proportional to size**alpha, at most --max-epochs passes."""
+    root = Path(a.root)
+    plan = json.loads((root / "plan.json").read_text())
+    if not (root / "plan_target.json").exists():
+        (root / "plan_target.json").write_text(json.dumps(plan, indent=1))
+    target = json.loads((root / "plan_target.json").read_text())
+    got = {}
+    for k in target:
+        st = root / "raw" / f"{k}.stats.json"
+        if st.exists():
+            got[k] = json.loads(st.read_text())["chars"]
+    eng = [k for k in (ENGLISH, ENGLISH_EDU) if k in got]
+    budget = {k: min(target[k]["chars"], a.max_epochs * got[k]) for k in eng}
+    rest = {k: target[k]["w"] for k in got if k not in eng}
+    total = sum(v["chars"] for v in target.values()) - sum(budget.values())
+    budget.update(water_fill(total, rest, {k: a.max_epochs * got[k] for k in rest}))
+    new = {k: {**target[k], "chars": int(budget[k]), "fetched_chars": got[k], "passes": round(budget[k] / got[k], 2)}
+           for k in sorted(budget, key=lambda k: -budget[k])}
+    (root / "plan.json").write_text(json.dumps(new, indent=1))
+    missing = sorted(set(target) - set(got))
+    tot = sum(v["chars"] for v in new.values())
+    print(f"{len(new)} languages, {tot / 1e9:.1f}B training characters from {sum(got.values()) / 1e9:.1f}B fetched; "
+          f"{sum(v['passes'] >= a.max_epochs - 1e-6 for v in new.values())} at {a.max_epochs:g} passes; missing: {missing}")
+    for name, cfg in [("English Wikipedia", ENGLISH), ("English FineWeb-Edu", ENGLISH_EDU), *OURS.items()]:
+        if cfg in new:
+            v = new[cfg]
+            print(f"  {name:20s} {v['chars'] / 1e9:6.2f}B chars ({v['chars'] / tot:.1%}), {v['passes']:.2f} passes")
 
 
 def _sample(path: Path, chars: int, skip_docs: int = 0):
@@ -221,9 +265,12 @@ def main() -> None:
     p.add_argument("--min-mb", type=float, default=10); p.add_argument("--max-epochs", type=float, default=4)
     p.add_argument("--english-mb", type=float, default=20000)
     p.add_argument("--english-share", type=float, default=0.0, help="fixed share of the budget for English (0: size rule)")
+    p.add_argument("--fetch-full", action="store_true", help="fetch each language's whole budget (see cmd_plan)")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("fetch")
     p.add_argument("--root", required=True); p.add_argument("--procs", type=int, default=16); p.set_defaults(fn=cmd_fetch)
+    p = sub.add_parser("reweight")
+    p.add_argument("--root", required=True); p.add_argument("--max-epochs", type=float, default=4); p.set_defaults(fn=cmd_reweight)
     p = sub.add_parser("tokenizers")
     p.add_argument("--root", required=True); p.add_argument("--vocab", type=int, nargs="+", default=[8000, 12000, 16000, 24000])
     p.add_argument("--sample-chars", type=float, default=3e9); p.add_argument("--max-lang-chars", type=float, default=60e6)
