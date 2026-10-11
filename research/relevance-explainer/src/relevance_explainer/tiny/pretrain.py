@@ -9,13 +9,19 @@ Learning-rate schedules: cosine (default) or warmup-stable-decay (--schedule wsd
 constant after warmup, then linear decay to 0.1 x lr over the last --decay-frac of the run. With --save-every, the
 stable phase writes resumable states (model, optimizer, step, data order); a decay branch from one of them is
   --resume-state runs/x/state-020000.pt --tokens <state tokens + decay tokens> --decay-start 20000 --out runs/x-d20k
+
+Several GPUs: python -m torch.distributed.run --nproc-per-node 2 -m relevance_explainer.tiny.pretrain ... (data parallel; each GPU draws
+--bs / world sequences per step from its own random stream, so --bs stays the global batch).
 """
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import math
+import os
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
 import numpy as np
@@ -155,6 +161,15 @@ def main() -> None:
     ap.add_argument("--resume-state", default=None, help="state-<step>.pt to continue the same run (or branch a decay)")
     a = ap.parse_args()
 
+    world, rank = int(os.environ.get("WORLD_SIZE", 1)), int(os.environ.get("RANK", 0))
+    if world > 1:  # started by torchrun: one process per GPU
+        import torch.distributed as dist
+        dist.init_process_group("nccl", timeout=datetime.timedelta(hours=1))  # rank 0 evaluates while the others wait
+        torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
+    main0 = rank == 0
+    if not main0:  # only the first process prints
+        import builtins
+        builtins.print = lambda *x, **k: None
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     torch.manual_seed(a.seed)
@@ -168,8 +183,9 @@ def main() -> None:
     else:
         shards = load_shards(root)
     holdout = a.holdout
-    rng = np.random.default_rng(a.seed)  # kept so a resumable state can restore the data order
-    batch, probs = sampler(shards, a.alpha, a.seq, a.bs, rng, holdout, weights)
+    rng = np.random.default_rng(a.seed + 1000 * rank)  # kept so a resumable state can restore the data order
+    assert a.bs % world == 0 and (world == 1 or not a.domain_root), "--bs must split evenly; no domain mixing with torchrun"
+    batch, probs = sampler(shards, a.alpha, a.seq, a.bs // world, rng, holdout, weights)
     print(f"{len(probs)} languages; language sampling:", probs, flush=True)
     eval_shards = {l: shards[l] for l in probs}
     dom = None
@@ -214,25 +230,32 @@ def main() -> None:
         st = torch.load(a.resume_state, map_location="cpu", weights_only=False)
         model.load_state_dict(st["state"])
         opt.load_state_dict(st["opt"])
-        rng.bit_generator.state = st["rng"]
+        rngs = st["rng"] if isinstance(st["rng"], list) else [st["rng"]]  # one data stream per GPU
+        assert len(rngs) == world, f"state written by {len(rngs)} processes, resumed with {world}"
+        rng.bit_generator.state = rngs[rank]
         log, start = st["log"], st["step"] + 1
         for g in opt.param_groups:  # the schedule of this run decides the learning rate from here on
             g["lr"] = a.lr * lr_at(st["step"])
         sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_at, last_epoch=st["step"] - 1)
         print(f"resumed {a.resume_state} at step {st['step']}", flush=True)
+    net = model
+    if world > 1:  # gradients are averaged over the GPUs; the wrapper also copies rank 0's initial weights to all
+        net = torch.nn.parallel.DistributedDataParallel(model, device_ids=[int(os.environ["LOCAL_RANK"])])
     model.train()
     for step in range(start, steps + 1):
         xb = batch().cuda(non_blocking=True)
-        for x in xb.split(a.micro):  # gradient accumulation keeps the effective batch at --bs sequences
-            with torch.autocast("cuda", dtype=torch.bfloat16):
-                _, loss = model(x, x)
-            (loss * len(x) / len(xb)).backward()
+        parts = xb.split(a.micro)
+        for i, x in enumerate(parts):  # gradient accumulation keeps the effective batch at --bs sequences
+            with net.no_sync() if world > 1 and i < len(parts) - 1 else nullcontext():  # sync on the last part
+                with torch.autocast("cuda", dtype=torch.bfloat16):
+                    _, loss = net(x, x)
+                (loss * len(x) / len(xb)).backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step(), sched.step(), opt.zero_grad(set_to_none=True)
         if step % 100 == 0:
             print(f"step {step}/{steps} loss {loss.item():.3f} lr {sched.get_last_lr()[0]:.2e} {(time.time() - t0) / 60:.1f} min "
                   f"{(step - start + 1) * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
-        if step % a.eval_every == 0 or step == steps:
+        if (step % a.eval_every == 0 or step == steps) and main0:
             ppl = heldout_ppl(model, eval_shards, a.seq, n_seq=a.eval_seqs, tk=tk, holdout=holdout)
             bpb = [v for k, v in ppl.items() if k.endswith("_bpb")]
             print(f"mean held-out bits per byte over {len(bpb)} languages: {sum(bpb) / len(bpb):.4f}", flush=True)
@@ -243,8 +266,18 @@ def main() -> None:
             torch.save({"config": cfg.to_dict(), "state": model.state_dict()}, out / "model.pt")
             (out / "log.json").write_text(json.dumps({"args": vars(a), "params_m": model.n_params() / 1e6, "log": log}, indent=1))
         if a.save_every and step % a.save_every == 0:
-            torch.save({"config": cfg.to_dict(), "state": model.state_dict(), "opt": opt.state_dict(), "step": step,
-                        "rng": rng.bit_generator.state, "log": log}, out / f"state-{step:06d}.pt")
+            rngs = [None] * world
+            if world > 1:
+                dist.all_gather_object(rngs, rng.bit_generator.state)
+            else:
+                rngs = [rng.bit_generator.state]
+            if main0:
+                torch.save({"config": cfg.to_dict(), "state": model.state_dict(), "opt": opt.state_dict(), "step": step,
+                            "rng": rngs, "log": log}, out / f"state-{step:06d}.pt")
+        if world > 1 and (step % a.eval_every == 0 or step == steps or (a.save_every and step % a.save_every == 0)):
+            dist.barrier()
+    if world > 1:
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":
