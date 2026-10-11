@@ -1272,3 +1272,26 @@ Commit: 4dc7001 (`tiny/multicorpus.py`, `scripts/multibase.sh`, `scripts/multiba
 Held-out bits per byte after 1B tokens; lower is better.
 
 **Implication.** At 20 MB, depth beats vocabulary: 12k with 7 layers is best, and the larger vocabularies that cost a layer or width are 1.4% worse. At 30 MB, keeping 7 layers at full width and raising the vocabulary helps. 32k with 7 layers is best overall and on our 11 languages (2.4% below the 20 MB best on both). 24k with 8 layers is best on the smallest third of languages and stays under 30 MB. The two are within 0.5% overall. Caveats: one seed and 1B tokens (rankings can shift with longer training); tokenizers trained on a 2B-character sample (the final tokenizer will be retrained on a larger sample with English at a fixed 10%); bits per byte is a proxy, and the explainer fine-tune is the downstream check.
+
+## 2026-10-11 17:38 UTC — Multilingual base: grouped-query attention and attention-output gate
+
+Commit: 938aca4 (`n_kv_head` and `attn_gate` in `tiny/model.py`, `--kv-heads` and `--attn-gate` in `tiny/pretrain.py`, `scripts/multibase_attention.sh`, `scripts/check_attention_variants.py`); the run script's done marker was fixed afterwards.
+
+**Question/Context.** The 30 MB shape comparison (entry 03:54) chose 32k vocabulary, width 448, 7 layers. Two attention changes could improve it at the same size: grouped-query attention (one key/value head shared by the 7 query heads), whose saved parameters pay for an eighth layer; and the sigmoid gate on the attention output from Qiu et al. 2025 (arXiv 2505.06708, Qwen; used in Qwen3-Next), which reported perplexity 6.026 to 5.792 with a per-head gate on 1.7B dense models.
+
+**What was done.** Gate: `a = SDPA(q, k, v) * sigmoid(W x)`, with x the layer's normalized input and one gate per head (448 x 7 weights per layer). With default configuration the new code gives the deployed model's logits exactly (maximum difference 0.0); KV-cached decoding equals full recomputation for every variant; 165 tests pass. Four runs with the 03:54 setup (1B tokens, lr 2e-3, batch 128 x 1,024, same held-out text), including a repeat of the baseline with seed 1 to measure run-to-run noise. Runs on GPU 1 used 32 sequences per pass (same effective batch).
+
+**Result.** Held-out bits per byte (lower is better):
+
+| Run | Params | INT8 | All 243 | Our 11 | Smallest third |
+|---|---|---|---|---|---|
+| 7 layers (baseline, seed 0) | 29.60M | 30.9 MB | 1.6060 | 1.4775 | 1.7710 |
+| 7 layers (baseline, seed 1) | 29.60M | 30.9 MB | 1.6065 | 1.4795 | 1.7725 |
+| 7 layers, per-head gate | 29.62M | 31.0 MB | **1.5950** | **1.4651** | 1.7597 |
+| 8 layers, 1 key/value head | 29.02M | 30.3 MB | 1.6062 | 1.4799 | 1.7704 |
+| 8 layers, 1 key/value head, gate | 29.05M | 30.4 MB | 1.5993 | 1.4713 | 1.7650 |
+| 24k, 8 layers (from 03:54) | 28.19M | 29.5 MB | 1.6127 | 1.5112 | **1.7493** |
+
+The two baseline seeds differ by 0.0005 overall (0.002 on our 11). The gate lowers bits per byte by 0.011 overall (0.7%), 0.012 on our 11 and 0.011 on the smallest third, about 20 times the seed difference, and the gain shows in 27 of 28 scripts (Canadian syllabics unchanged). Grouped-query attention with an eighth layer matches the baseline with 0.6M fewer parameters; adding the gate to it gains 0.007, less than the gate gains on the 7-layer model.
+
+**Implication.** Use 32k, width 448, 7 layers, 7 full key/value heads, with the per-head attention gate for the final base (31.0 MB INT8). Grouped-query attention gives no quality gain at this size; its only benefit is a smaller KV cache, which does not matter at our context length. Caveats: one seed per variant (the noise estimate comes from the baseline only) and 1B tokens. The paper also reports that the gate tolerates larger learning rates; not tested here.

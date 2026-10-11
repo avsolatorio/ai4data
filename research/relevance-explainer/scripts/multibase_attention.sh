@@ -13,12 +13,13 @@ cd "$(dirname "$0")/.."
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-0}
 PY="$HOME/venvs/relexp/bin/python"
 R=data/corpus_multi_v32k
-if [ "$1" = A ]; then
+PART=$1
+if [ "$PART" = A ]; then
   RUNS=("v32k-d448-l7-gate 7 0 head 0 64" "v32k-d448-l7-seed1 7 0 '' 1 64")
 else
   RUNS=("v32k-d448-l8-gqa1 8 1 '' 0 32" "v32k-d448-l8-gqa1-gate 8 1 head 0 32")
 fi
-echo "attention $1 start $(date -u +%H:%M) on GPU $CUDA_VISIBLE_DEVICES"
+echo "attention $PART start $(date -u +%H:%M) on GPU $CUDA_VISIBLE_DEVICES"
 for c in "${RUNS[@]}"; do
   eval set -- $c
   NAME=$1; L=$2; KV=$3; GATE=$4; SEED=$5; MICRO=$6
@@ -29,4 +30,4 @@ for c in "${RUNS[@]}"; do
       && touch "$OUT/done"; } || { echo "pretrain $NAME failed"; continue; }
   echo "$NAME: $(grep params "$OUT.log" | head -1); $(grep 'mean held-out bits per byte' "$OUT.log" | tail -1)"
 done
-echo "ATTENTION-$1-DONE $(date -u +%H:%M)"
+echo "ATTENTION-$PART-DONE $(date -u +%H:%M)"
