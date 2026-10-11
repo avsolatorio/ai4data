@@ -1295,3 +1295,36 @@ Commit: 938aca4 (`n_kv_head` and `attn_gate` in `tiny/model.py`, `--kv-heads` an
 The two baseline seeds differ by 0.0005 overall (0.002 on our 11). The gate lowers bits per byte by 0.011 overall (0.7%), 0.012 on our 11 and 0.011 on the smallest third, about 20 times the seed difference, and the gain shows in 27 of 28 scripts (Canadian syllabics unchanged). Grouped-query attention with an eighth layer matches the baseline with 0.6M fewer parameters; adding the gate to it gains 0.007, less than the gate gains on the 7-layer model.
 
 **Implication.** Use 32k, width 448, 7 layers, 7 full key/value heads, with the per-head attention gate for the final base (31.0 MB INT8). Grouped-query attention gives no quality gain at this size; its only benefit is a smaller KV cache, which does not matter at our context length. Caveats: one seed per variant (the noise estimate comes from the baseline only) and 1B tokens. The paper also reports that the gate tolerates larger learning rates; not tested here.
+
+## 2026-10-11 18:52 UTC — Multilingual base: embedding precision, 8 layers with the gate, learning rate; final corpus fetched
+
+Commits: d08f2c9 (`scripts/quant_embedding_check.py`; warmup-stable-decay schedule and resumable states in `tiny/pretrain.py`, checked by `scripts/check_wsd_resume.sh`), 790e933 (`fetch --fetch-full`, `reweight` in `tiny/multicorpus.py`; `scripts/multibase_final_data.sh`; `scripts/multibase_lr.sh`).
+
+**Question/Context.** After the gate result (entry 17:38): can the 32k embedding table, nearly half the parameters, be stored below 8 bits, so that an eighth layer fits in 30 MB? Is 8 layers with the gate better, and does the gate's reported tolerance of larger learning rates help here?
+
+**What was done.**
+1. Post-training quantization of `runs/mb-v32k-d448-l7-gate` and `runs/mb-v32k-d448-l8-gate`, scored on the same held-out sequences as the pretraining log: every matrix INT8 per row (the current export) and the embedding at 6, 5 or 4 bits (per row or per group of 32 to 128 values with fp16 scales).
+2. 1B-token runs (setup of entry 03:54): 32k, width 448, 8 layers, 7 heads, per-head gate at lr 2e-3 (GPU 0) and 4e-3 (GPU 1, 32 sequences per pass).
+3. Warmup-stable-decay schedule: a 40-step run and the same run resumed from its step-20 state end with identical training loss (8.77710) and held-out bits per byte (4.14599).
+4. Final corpus: plan for 176B training characters (about 80B tokens at 2.2 characters per token), English 10% (Wikipedia and FineWeb-Edu), the rest by size^0.3 with at most 4 passes; every language asks for its whole budget; budgets then set from the characters fetched.
+
+**Result.** Embedding precision (MB is weights only):
+
+| Model | Scheme | MB | Bits per byte |
+|---|---|---|---|
+| 7 layers + gate | float | 118.5 | 1.5950 |
+| | INT8 | 29.7 | 1.5952 |
+| | emb 6-bit per row | 26.2 | 1.5973 |
+| | emb 6-bit, groups of 64 | 26.5 | 1.5967 |
+| | emb 5-bit, groups of 64 | 24.8 | 1.6035 |
+| | emb 4-bit, groups of 32 / 64 / 128 / per row | 23.4 / 23.0 / 22.7 / 22.6 | 1.6213 / 1.6261 / 1.6309 / 1.6407 |
+| | all 4-bit, groups of 32 | 16.7 | 1.6492 |
+| 8 layers + gate | INT8 | 31.9 | 1.5838 |
+| | emb 6-bit per row | 28.4 | 1.5859 |
+| | emb 6-bit, groups of 64 | 28.7 | 1.5852 |
+
+Shapes (1B tokens, held-out bits per byte, all / our 11 / smallest third): 32k 7 layers 1.6060 / 1.4775 / 1.7710; 32k 7 layers + gate 1.5950 / 1.4651 / 1.7597; 32k 8 layers + gate 1.5835 / 1.4568 / 1.7463; 24k 8 layers 1.6127 / 1.5112 / 1.7493; 32k 8 layers + gate at lr 4e-3 1.5791 / 1.4521 / 1.7409. The 4e-3 run was behind the 2e-3 run at every intermediate evaluation (1.8002 vs 1.7930 at 2,000 steps, 1.6134 vs 1.6119 at 6,000) and ahead only after the cosine decay; no loss spikes after warmup.
+
+Corpus: 244 sources fetched in about 50 minutes with no failures, 168.0B characters (234 GB). After reweighting: 176.0B training characters, 60 languages at the 4-pass cap; English Wikipedia and FineWeb-Edu 8.8B each (1 pass); our 10 FineWeb-2 languages at 0.97 passes (Swahili 0.60B, Chinese 4.98B, Russian 5.29B).
+
+**Implication.** Final base shape: 32k vocabulary, width 448, 8 layers, 7 heads, per-head attention gate, 31.8M parameters; exported with 6-bit embeddings (28.4 MB weights, about 29.7 MB with the tokenizer) at a cost of 0.13% bits per byte. 4-bit embeddings cost 1.6% or more by rounding and would need quantization-aware training. Learning rate: 4e-3 beat 2e-3 by 0.28% at 1B tokens (about 9 times the seed difference of entry 17:38), but the gain appears only after decay, and the best learning rate tends to fall as the training horizon grows (Bjorck et al. 2024), so the long run uses 3e-3, between the two tested values. Caveat: one seed per variant.
