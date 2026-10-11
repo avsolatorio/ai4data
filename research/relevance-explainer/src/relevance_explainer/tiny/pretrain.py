@@ -4,6 +4,11 @@
 Optional: --init-emb Qwen/Qwen3-0.6B initializes embeddings from Qwen (PCA to d_model, matched by token string).
 Domain mixing: --domain-root data/corpus_domain --domain-share 0.3 draws that share of sequences from a second corpus
 with the same layout (synth/domain_corpus.py), with its own held-out tail (DOMAIN_HOLDOUT tokens per language).
+
+Learning-rate schedules: cosine (default) or warmup-stable-decay (--schedule wsd; Hu et al. 2024, Hagele et al. 2024):
+constant after warmup, then linear decay to 0.1 x lr over the last --decay-frac of the run. With --save-every, the
+stable phase writes resumable states (model, optimizer, step, data order); a decay branch from one of them is
+  --resume-state runs/x/state-020000.pt --tokens <state tokens + decay tokens> --decay-start 20000 --out runs/x-d20k
 """
 from __future__ import annotations
 
@@ -143,6 +148,11 @@ def main() -> None:
     ap.add_argument("--all-shards", action="store_true", help="every tok/*.bin is a language, weighted by plan.json")
     ap.add_argument("--holdout", type=int, default=HOLDOUT, help="tokens per language kept out of training")
     ap.add_argument("--eval-seqs", type=int, default=64, help="held-out sequences per language at each evaluation")
+    ap.add_argument("--schedule", default="cosine", choices=["cosine", "wsd"])
+    ap.add_argument("--decay-frac", type=float, default=0.2, help="wsd: share of the steps spent decaying")
+    ap.add_argument("--decay-start", type=int, default=0, help="wsd: step where the decay starts (overrides --decay-frac)")
+    ap.add_argument("--save-every", type=int, default=0, help="steps between resumable states (state-<step>.pt)")
+    ap.add_argument("--resume-state", default=None, help="state-<step>.pt to continue the same run (or branch a decay)")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -158,7 +168,8 @@ def main() -> None:
     else:
         shards = load_shards(root)
     holdout = a.holdout
-    batch, probs = sampler(shards, a.alpha, a.seq, a.bs, np.random.default_rng(a.seed), holdout, weights)
+    rng = np.random.default_rng(a.seed)  # kept so a resumable state can restore the data order
+    batch, probs = sampler(shards, a.alpha, a.seq, a.bs, rng, holdout, weights)
     print(f"{len(probs)} languages; language sampling:", probs, flush=True)
     eval_shards = {l: shards[l] for l in probs}
     dom = None
@@ -191,12 +202,26 @@ def main() -> None:
                             lr=a.lr, betas=(0.9, 0.95), fused=True)
     steps = int(a.tokens / (a.bs * a.seq))
     warm = min(300, steps // 10)
-    lr_at = lambda s: (s + 1) / warm if s < warm else 0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * (s - warm) / max(steps - warm, 1)))
+    if a.schedule == "wsd":
+        decay0 = a.decay_start or int(steps * (1 - a.decay_frac))
+        lr_at = lambda s: (s + 1) / warm if s < warm else 1.0 if s < decay0 else 1.0 - 0.9 * (s - decay0) / max(steps - decay0, 1)
+    else:
+        lr_at = lambda s: (s + 1) / warm if s < warm else 0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * (s - warm) / max(steps - warm, 1)))
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_at)
 
-    log, t0 = [], time.time()
+    log, t0, start = [], time.time(), 1
+    if a.resume_state:  # same model, optimizer moments, step and data order as when the state was written
+        st = torch.load(a.resume_state, map_location="cpu", weights_only=False)
+        model.load_state_dict(st["state"])
+        opt.load_state_dict(st["opt"])
+        rng.bit_generator.state = st["rng"]
+        log, start = st["log"], st["step"] + 1
+        for g in opt.param_groups:  # the schedule of this run decides the learning rate from here on
+            g["lr"] = a.lr * lr_at(st["step"])
+        sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_at, last_epoch=st["step"] - 1)
+        print(f"resumed {a.resume_state} at step {st['step']}", flush=True)
     model.train()
-    for step in range(1, steps + 1):
+    for step in range(start, steps + 1):
         xb = batch().cuda(non_blocking=True)
         for x in xb.split(a.micro):  # gradient accumulation keeps the effective batch at --bs sequences
             with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -205,8 +230,8 @@ def main() -> None:
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step(), sched.step(), opt.zero_grad(set_to_none=True)
         if step % 100 == 0:
-            print(f"step {step}/{steps} loss {loss.item():.3f} {(time.time() - t0) / 60:.1f} min "
-                  f"{step * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
+            print(f"step {step}/{steps} loss {loss.item():.3f} lr {sched.get_last_lr()[0]:.2e} {(time.time() - t0) / 60:.1f} min "
+                  f"{(step - start + 1) * a.bs * a.seq / (time.time() - t0) / 1e3:.0f}k tok/s", flush=True)
         if step % a.eval_every == 0 or step == steps:
             ppl = heldout_ppl(model, eval_shards, a.seq, n_seq=a.eval_seqs, tk=tk, holdout=holdout)
             bpb = [v for k, v in ppl.items() if k.endswith("_bpb")]
@@ -217,6 +242,9 @@ def main() -> None:
             print("heldout ppl:", ppl, flush=True)
             torch.save({"config": cfg.to_dict(), "state": model.state_dict()}, out / "model.pt")
             (out / "log.json").write_text(json.dumps({"args": vars(a), "params_m": model.n_params() / 1e6, "log": log}, indent=1))
+        if a.save_every and step % a.save_every == 0:
+            torch.save({"config": cfg.to_dict(), "state": model.state_dict(), "opt": opt.state_dict(), "step": step,
+                        "rng": rng.bit_generator.state, "log": log}, out / f"state-{step:06d}.pt")
 
 
 if __name__ == "__main__":

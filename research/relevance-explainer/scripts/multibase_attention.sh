@@ -7,6 +7,7 @@
 #   seed1: the baseline again with another seed, to measure run-to-run noise (the held-out text does not change)
 # Usage: GPU=0 scripts/multibase_attention.sh A   (runs gate, seed1)
 #        GPU=1 scripts/multibase_attention.sh B   (runs gqa, gqa-gate; 32 sequences per pass beside the teacher server)
+#        GPU=0 scripts/multibase_attention.sh C   (runs 8 layers with the gate)
 # Every run skips when its output exists.
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -18,6 +19,9 @@ if [ "$PART" = A ]; then
   RUNS=("v32k-d448-l7-gate 7 0 head 0 64" "v32k-d448-l7-seed1 7 0 '' 1 64")
 else
   RUNS=("v32k-d448-l8-gqa1 8 1 '' 0 32" "v32k-d448-l8-gqa1-gate 8 1 head 0 32")
+fi
+if [ "$PART" = C ]; then
+  RUNS=("v32k-d448-l8-gate 8 0 head 0 64")
 fi
 echo "attention $PART start $(date -u +%H:%M) on GPU $CUDA_VISIBLE_DEVICES"
 for c in "${RUNS[@]}"; do
