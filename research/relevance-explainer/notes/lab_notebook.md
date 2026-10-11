@@ -1245,3 +1245,30 @@ Commit: 8fa4413 (`scripts/selfcheck_ood.sh`, `scripts/calibration_report.py`, `s
 - App pipeline on the realistic test: verdict 85.2%, explanation good 87.5%, fully correct 76.7%. 265 answers (17.7%) were retried; a rewrite was kept in 157; among retried answers, explanation good rose from 55.1% to 63.4%. Calibration on the app's own outputs: 0.32/0.36, 0.60/0.64, 0.75/0.75, 0.86/0.85, 0.94/0.96 (predicted/observed by band).
 
 **Implication.** The score ranks answers well everywhere (AUROC 0.76 to 0.83), but its percentages hold only for searches like the realistic test. On unfamiliar record types and hard phrasings they overstate certainty by 10 to 30 points in the middle bands. Showing an exact percentage implies more than the evidence supports. Options: show bands (high, medium, low) with the realistic-test meaning; refit the head on a mix that includes hard cases; and target negation, group definitions, time phrases, proxies and look-alikes in the next data round. The human rating sample now draws from the challenge and table sets as well as the realistic test.
+
+## 2026-10-11 03:54 UTC — Multilingual base: tokenizer coverage and model shapes at 20 MB and 30 MB
+
+Commit: 4dc7001 (`tiny/multicorpus.py`, `scripts/multibase.sh`, `scripts/multibase_shapes.sh`, `scripts/multibase_shapes30.sh`, `scripts/multibase_rerun.sh`, `scripts/multibase_compare.py`; `--all-shards` in `tiny/pretrain.py`).
+
+**Question/Context.** The user wants a small multilingual base model covering every language with enough text, as a starting point for any fine-tune, first within the 20 MB budget and then also at 30 MB. Which vocabulary size and shape?
+
+**What was done.**
+1. Corpus: every FineWeb-2 language-script config with at least 10 MB of compressed text (242) plus English Wikipedia: 243 languages, 32 scripts, 6.7M documents, 17.7B characters (27.2 GB). Budgets proportional to size^0.3 with at most 4 passes per language (water-filling). Sizes come from the repository listing; the dataset viewer's size endpoint failed for 556 configs, Spanish and Turkish among them. 13 configs with an extra column were read from the parquet files directly. English was under-weighted (144M characters, 0.8%) because its stand-in size was in the wrong units. This does not affect the comparison below, which uses the same data for every shape; the planner now takes a fixed English share.
+2. Tokenizers: byte-level BPE of 8k, 12k, 16k, 24k and 32k on a 2B-character balanced sample (at most 40M characters per language) plus 1.2M rows of task text; bytes per token measured on held-out documents.
+3. Shapes: seven models pretrained for 1B tokens each (lr 2e-3, batch 128 x 1,024, Qwen-initialized embeddings, language weights from the plan), compared on held-out bits per byte (200k tokens per language held out, 8 sequences per language evaluated). Two runs beside the teacher server ran out of memory and were rerun with 32 sequences per pass (same effective batch).
+
+**Result.** Bytes per token (higher is better), mean over our 11 languages / the other 232: 8k 2.79 / 2.58, 12k 2.98 / 2.74, 16k 3.12 / 2.85, 24k 3.32 / 3.02, 32k 3.47 / 3.15; current 12k tokenizer 3.24 / 2.23. The current tokenizer falls back to single bytes (about 1.0 byte per token) for Georgian, Thai, Tibetan, Myanmar, Bengali, Gujarati, Punjabi and Telugu.
+
+| Shape | Params | INT8 | All 243 | Our 11 | Smallest third |
+|---|---|---|---|---|---|
+| 12k, d448, 7 layers | 20.64M | 21.6 MB | 1.645 | 1.514 | 1.823 |
+| 16k, d448, 6 layers | 20.25M | 21.2 MB | 1.670 | 1.562 | 1.854 |
+| 24k, d384, 6 layers | 19.84M | 20.7 MB | 1.668 | 1.555 | 1.813 |
+| 32k, d384, 5 layers | 21.14M | 22.1 MB | 1.668 | 1.525 | 1.842 |
+| 24k, d448, 7 layers | 26.01M | 27.2 MB | 1.625 | 1.521 | 1.765 |
+| 32k, d448, 7 layers | 29.60M | 30.9 MB | **1.606** | **1.478** | 1.771 |
+| 24k, d448, 8 layers | 28.19M | 29.5 MB | 1.613 | 1.511 | **1.749** |
+
+Held-out bits per byte after 1B tokens; lower is better.
+
+**Implication.** At 20 MB, depth beats vocabulary: 12k with 7 layers is best, and the larger vocabularies that cost a layer or width are 1.4% worse. At 30 MB, keeping 7 layers at full width and raising the vocabulary helps. 32k with 7 layers is best overall and on our 11 languages (2.4% below the 20 MB best on both). 24k with 8 layers is best on the smallest third of languages and stays under 30 MB. The two are within 0.5% overall. Caveats: one seed and 1B tokens (rankings can shift with longer training); tokenizers trained on a 2B-character sample (the final tokenizer will be retrained on a larger sample with English at a fixed 10%); bits per byte is a proxy, and the explainer fine-tune is the downstream check.
