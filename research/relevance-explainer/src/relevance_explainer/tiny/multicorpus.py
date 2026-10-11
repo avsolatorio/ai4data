@@ -26,6 +26,7 @@ OURS = {"French": "fra_Latn", "Spanish": "spa_Latn", "Portuguese": "por_Latn", "
         "Chinese": "cmn_Hani", "Russian": "rus_Cyrl", "Indonesian": "ind_Latn", "Hindi": "hin_Deva",
         "Turkish": "tur_Latn", "Swahili": "swh_Latn"}
 ENGLISH = "eng_Latn"
+ENGLISH_EDU = "eng_Latn-fwedu"  # FineWeb-Edu (ODC-By), English educational web pages
 MIN_DOC_CHARS, MAX_DOC_CHARS = 200, 20_000
 
 
@@ -37,12 +38,16 @@ def cmd_plan(a) -> None:
         if c["split"] == "train" and not c["config"].endswith("_removed") and not c["config"].startswith("und_"):
             size[c["config"]] += c["num_bytes_parquet_files"]
     size = {k: v for k, v in size.items() if v >= a.min_mb * 1e6}
-    size[ENGLISH] = a.english_mb * 1e6  # English Wikipedia stands in; its budget follows the same rule
+    english = None
+    if a.english_share > 0:  # English gets a fixed share, half Wikipedia and half FineWeb-Edu; the rest is shared out
+        english = a.english_share * a.chars
+    else:  # English Wikipedia stands in; its budget follows the same rule as the other languages
+        size[ENGLISH] = a.english_mb * 1e6
     # available characters: about one character per compressed parquet byte (UTF-8 text compresses 2-4x, and
     # non-Latin scripts take 2-3 bytes per character), with at most `max_epochs` passes over a small language
     avail = {k: v * a.max_epochs for k, v in size.items()}
     w = {k: v ** a.alpha for k, v in size.items()}
-    budget, free, total = {}, set(size), a.chars
+    budget, free, total = {}, set(size), a.chars - (english or 0)
     while free:  # water-filling: give capped languages their cap and share the rest among the others
         s = sum(w[k] for k in free)
         capped = {k for k in free if total * w[k] / s >= avail[k]}
@@ -54,6 +59,9 @@ def cmd_plan(a) -> None:
             budget[k] = avail[k]
             total -= avail[k]
         free -= capped
+    if english:
+        budget[ENGLISH], budget[ENGLISH_EDU] = english / 2, english / 2
+        size[ENGLISH] = size[ENGLISH_EDU] = english  # no repetition: fetch the whole budget
     plan = {k: {"chars": int(budget[k]), "parquet_mb": round(size[k] / 1e6, 1),
                 "fetch_chars": int(min(budget[k], size[k]))} for k in sorted(budget, key=lambda k: -budget[k])}
     root = Path(a.root)
@@ -84,6 +92,8 @@ def _fetch_one(args) -> tuple[str, int, int]:
     try:
         if cfg == ENGLISH:
             ds = load_dataset("wikimedia/wikipedia", "20231101.en", split="train", streaming=True)
+        elif cfg == ENGLISH_EDU:
+            ds = load_dataset("HuggingFaceFW/fineweb-edu", "sample-100BT", split="train", streaming=True)
         elif retry_raw:  # some configs' files have an extra column the declared features lack: read the files directly
             ds = load_dataset("parquet", data_files=f"hf://datasets/HuggingFaceFW/fineweb-2/data/{cfg}/train/*.parquet",
                               split="train", streaming=True).select_columns(["text"])
@@ -209,7 +219,9 @@ def main() -> None:
     p.add_argument("--sizes", required=True); p.add_argument("--root", required=True)
     p.add_argument("--chars", type=float, default=18e9); p.add_argument("--alpha", type=float, default=0.3)
     p.add_argument("--min-mb", type=float, default=10); p.add_argument("--max-epochs", type=float, default=4)
-    p.add_argument("--english-mb", type=float, default=20000); p.set_defaults(fn=cmd_plan)
+    p.add_argument("--english-mb", type=float, default=20000)
+    p.add_argument("--english-share", type=float, default=0.0, help="fixed share of the budget for English (0: size rule)")
+    p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("fetch")
     p.add_argument("--root", required=True); p.add_argument("--procs", type=int, default=16); p.set_defaults(fn=cmd_fetch)
     p = sub.add_parser("tokenizers")
