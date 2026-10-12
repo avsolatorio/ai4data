@@ -98,9 +98,9 @@ dl.meta dd{margin:0;color:var(--fg2);max-height:6.6em;overflow:auto;overflow-wra
 .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:11px;font-weight:700;font-size:15px}
 .conf{display:inline-block;margin-left:8px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--okbg);color:var(--ok);cursor:help}
 .conf.low{background:var(--warnbg);color:var(--warn)}
-.retrynote{font-size:12.5px;margin-top:6px}
+.retrynote{font-size:13px;margin-top:8px;padding:8px 12px;border-left:3px solid var(--warnbar);background:var(--soft);border-radius:6px;color:var(--fg)}
 .attempts{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
-.attempts summary{cursor:pointer;font-size:13px;color:var(--fg2)}
+.attempts summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--fg)}
 .attempt{margin-top:10px;font-size:12.5px}
 .attempt .narr.sm{font-size:13.5px;margin-top:4px;opacity:.85}
 .lowconf{margin-top:8px;font-size:13px;color:var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;display:inline-block;margin-left:8px}
@@ -247,11 +247,11 @@ function lowConf(s){
   const r=s.stats&&s.stats.retried,pc=Math.round(s.score*100);
   let h=`<span class="conf ${s.score<LOW_SCORE?"low":""}" title="${SCORE_TIP}">Answer confidence ${pc}%</span>`;
   if(s.score<LOW_SCORE)h+=`<div class="lowconf">Low confidence: about a third of answers at this level are fully right; check the record.</div>`;
-  if(r)h+=`<div class="retrynote muted">The first answer scored ${Math.round(s.stats.first_score*100)}%; ${s.score>s.stats.first_score?`the most confident of ${r+1} explanations is shown`:`no rewrite scored higher, so it is kept`}.</div>`;
+  if(r)h+=`<div class="retrynote">The first answer scored ${Math.round(s.stats.first_score*100)}%, so the model wrote ${r} more explanation${r>1?"s":""}. ${s.score>s.stats.first_score?`The most confident of the ${r+1} is shown.`:`None scored higher, so the first answer is shown.`} The others are listed below the explanation.</div>`;
   return h;}
 // Attempts the server wrote for a low-confidence answer and did not keep, with their scores
 function attemptsHtml(s,lang){const a=(s.attempts||[]).map((x,j)=>({...x,n:j+1})).filter(x=>!x.kept);if(s.running||!a.length)return"";
-  return `<details class="attempts"><summary>Attempts not shown (${a.length})</summary>${a.map(x=>
+  return `<details class="attempts" open><summary>${a.length} other explanation${a.length>1?"s":""}, lower confidence or discarded</summary>${a.map(x=>
     `<div class="attempt"><div class="muted">Attempt ${x.n}${x.n===1?" (first answer)":""} · ${x.score!=null?`confidence ${Math.round(x.score*100)}%`:esc(x.note||"discarded")}</div>
     <div class="narr sm"${dirOf(lang)}>${esc(x.narrative)}</div></div>`).join("")}</details>`;}
 const VERD=["relevant","partly_relevant","irrelevant"];
