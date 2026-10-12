@@ -37,9 +37,11 @@ MODELS = {
     "Round 6 + DPO": "runs/f5-dpo/explainer-int8.pt",
 }
 # Answer-confidence heads (scripts/save_score_head.py) per model; answers below RETRY_BELOW are rewritten RETRY_SAMPLES
-# more times after the same verdict line and the most confident explanation is kept.
+# more times after the same verdict line and the most confident explanation is kept. One retry round per answer at
+# most (a rewrite is never retried), and the round stops early once it has used RETRY_MAX_S seconds.
 SCORE_HEADS = {"Realistic, no retrieval score": "runs/v2g-from-dapt-8ep-dpo/selfcheck/score_head.json"}
-RETRY_BELOW, RETRY_SAMPLES = 0.5, 3
+RETRY_BELOW, RETRY_SAMPLES, RETRY_MAX_S = 0.5, 3, 20.0
+RETRY_TEMP = 0.7  # sampling temperature of the rewrites after a greedy answer (the head was fitted on samples at 0.7)
 _HEADS: dict = {}
 
 

@@ -190,17 +190,21 @@ def _events(text: str, model_name: str, temperature: float, guard: bool):
             nl = tk.encode("\n").ids[-1]
             vp = probs.get(verdict, max(probs.values()))
             score = first_score = scorer(features(out_trace, out_ids, nl, vp, bool(unsupported(out, text)), out_prefix))
-            if score < V.RETRY_BELOW and verdict != "invalid" and temperature == 0:
-                # low confidence: write more explanations after the same verdict line and keep the most confident;
-                # every attempt is reported so the page can show the ones that were not kept
+            if score < V.RETRY_BELOW and verdict != "invalid":
+                # low confidence: write at most RETRY_SAMPLES more explanations after the same verdict line, within
+                # RETRY_MAX_S seconds, and keep the most confident; rewrites use the page's temperature in sample mode.
+                # Every attempt is reported so the page can show the ones that were not kept.
                 yield json.dumps({"type": "retry", "score": round(score, 3)}) + "\n"
                 attempts.append({"text": out, "score": score})
                 vline = tk.encode(text + V.SEP + verdict + "\n").ids
                 forced = vline[len(prompt):]
+                rtemp, rseed, r0 = temperature or V.RETRY_TEMP, (2000 if temperature == 0 else int(t0 * 1000) % 2**31), time.time()
                 if vline[: len(prompt)] == prompt and forced and forced[-1] == nl:
                     for r in range(V.RETRY_SAMPLES):
+                        if r and time.time() - r0 > V.RETRY_MAX_S:
+                            break
                         cand, ctr = [], []
-                        for tok, _ in V.stream(model, vline, banned=ban, temperature=0.7, seed=2000 + r, trace=ctr):
+                        for tok, _ in V.stream(model, vline, banned=ban, temperature=rtemp, seed=rseed + r, trace=ctr):
                             if tok == V.EOS:
                                 break
                             cand.append(tok)
