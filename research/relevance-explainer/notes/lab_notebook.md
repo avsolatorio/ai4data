@@ -1328,3 +1328,32 @@ Shapes (1B tokens, held-out bits per byte, all / our 11 / smallest third): 32k 7
 Corpus: 244 sources fetched in about 50 minutes with no failures, 168.0B characters (234 GB). After reweighting: 176.0B training characters, 60 languages at the 4-pass cap; English Wikipedia and FineWeb-Edu 8.8B each (1 pass); our 10 FineWeb-2 languages at 0.97 passes (Swahili 0.60B, Chinese 4.98B, Russian 5.29B).
 
 **Implication.** Final base shape: 32k vocabulary, width 448, 8 layers, 7 heads, per-head attention gate, 31.8M parameters; exported with 6-bit embeddings (28.4 MB weights, about 29.7 MB with the tokenizer) at a cost of 0.13% bits per byte. 4-bit embeddings cost 1.6% or more by rounding and would need quantization-aware training. Learning rate: 4e-3 beat 2e-3 by 0.28% at 1B tokens (about 9 times the seed difference of entry 17:38), but the gain appears only after decay, and the best learning rate tends to fall as the training horizon grows (Bjorck et al. 2024), so the long run uses 3e-3, between the two tested values. Caveat: one seed per variant.
+
+## 2026-10-13 13:38 UTC — Multilingual base: final 80B-token run and its full evaluation
+
+Commit: 9391334 (`scripts/base_final.sh`, two-GPU `tiny/pretrain.py` from 1f0a398; `scripts/eval_base.py`, `scripts/eval_base_position.py`, `scripts/base_trajectory.py`).
+
+**Question/Context.** The final base (32k vocabulary, width 448, 8 layers, 7 heads, per-head attention gate, 31.80M parameters) was trained on the final corpus (73.3B tokens available, 244 languages) for 80B tokens: warmup-stable-decay at lr 3e-3, decay over the last 20% to 3e-4, batch 128 x 1,024, both GPUs. How good is it, and does the 4-pass cap on small languages cause memorization?
+
+**What was done.**
+1. Training: 610,351 steps from 2026-10-11 20:08 to 2026-10-13 about 04:00 UTC (697k to 714k tokens/s, 31.8 hours), states every 5B tokens. Evaluated during training on the first 8 held-out sequences per language.
+2. Full evaluation of the final model and of the 60B state (stable phase, before the decay): all 195 held-out sequences of 1,024 tokens per language (the last 200k tokens of each shard).
+3. Position check: bits per byte of the final model on the first 8 and the remaining held-out sequences, and on 32-sequence windows of training text at the start of each shard, in the middle, and just before the held-out tail.
+
+**Result.**
+During training (8 sequences per language), all / our 11 / smallest third / English: 20B 1.6404 / 1.4651 / 1.8310 / 1.4297; 50B 1.6283 / 1.4580 / 1.8173 / 1.4229; 65B (decay start) 1.6192 / 1.4503 / 1.8084 / 1.4048; 80B 1.4715 / 1.3348 / 1.6432 / 1.3066. The stable phase gained about 0.02 from 20B to 65B; the decay gained 0.148.
+
+Full evaluation (195 sequences per language):
+
+| Model | All 244 | Our 11 | Smallest third | 70 languages at 4 passes | 125 under 1 pass |
+|---|---|---|---|---|---|
+| 60B state (stable phase) | 1.6119 | 1.4298 | 1.8086 | 1.8016 | 1.4595 |
+| Final, 80B | 1.4608 | 1.3126 | 1.6423 | 1.6416 | 1.3213 |
+
+Position check, final model (all / 4 passes / under 1 pass): held-out first 8 1.4715 / 1.6470 / 1.3320; held-out rest 1.4605 / 1.6415 / 1.3209; training text at the shard start 1.5448 / 1.7096 / 1.4140; middle 1.4594 / 1.6507 / 1.3164; just before the tail 1.4534 / 1.6139 / 1.3206.
+
+- Text at the start of each shard is harder than the rest in every group (by about 0.08), so a comparison of shard-start training text with held-out text says nothing about memorization. The "training text" column printed by `eval_base.py` is confounded in this way.
+- Text the model trained on up to about 4 times scores like unseen text in the middle of the shard (1.6507 vs 1.6415 held-out). The window just before the tail scores 0.028 below held-out in the 4-pass group and equal to it under 1 pass. That is at most a small memorization effect in one window; one window, one model.
+- Correction within this session: the first full evaluation used 1,536-token windows (the model's `max_len`), and gave 1.6451 for the final model. Positions past 1,024 were never trained, so those numbers are invalid; both scripts now use 1,024. The size of that error (+0.18 bits per byte) is itself a measurement: the base does not work past its training length without further training.
+
+**Implication.** The base is finished: 1.4608 bits per byte over 244 languages on held-out text, 1.3126 on the explainer's 11 languages. The decay produced most of the measured gain over the last 60B tokens, as expected for warmup-stable-decay. The decay branches from 20B and 40B were not run, so the value of 80B over a shorter run is not measured. Its context is 1,024 tokens. Next: fine-tune the explainer from this base and compare it with the current explainer; that comparison, and not the held-out score, decides whether the base is used and published.
