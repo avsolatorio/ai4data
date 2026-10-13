@@ -144,7 +144,10 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48,
              copy_bias: float = 0.0, script_guard: bool = False, num_guard: bool = False) -> tuple[dict, list[dict]]:
     model.eval()
-    prompts = [tk.encode(e["row"]["input"] + SEP).ids for e in enc]
+    from ..claims import plain_output, sanitize_input, strip_model_tags
+    tagged = tk.token_to_id("<|exp|>") is not None  # a structured-format run: keep the tags when decoding
+    clean = sanitize_input if tagged else (lambda x: x)
+    prompts = [tk.encode(clean(e["row"]["input"]) + SEP).ids for e in enc]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
     gens = [""] * len(prompts)
     masks = token_masks(tk) if script_guard else None
@@ -154,13 +157,14 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
         with torch.autocast("cuda", dtype=torch.bfloat16):
             outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias, banned=ban)
         for i, o in zip(ch, outs):
-            gens[i] = tk.decode(o).strip()
+            gens[i] = tk.decode(o, skip_special_tokens=not tagged).strip()
             if model.c.verdict_last:
                 gens[i] = from_verdict_last(gens[i])
     if num_guard:  # resample explanations that write numbers absent from the input (tiny/numguard.py)
         from .numguard import repair_ranges, unsupported
         inputs = [e["row"]["input"] for e in enc]
-        todo = [i for i in range(len(gens)) if unsupported(gens[i], inputs[i])]
+        bad = lambda g, x: unsupported(strip_model_tags(g), x)  # noqa: E731  (tag ids and grades are not numbers in the text)
+        todo = [i for i in range(len(gens)) if bad(gens[i], inputs[i])]
         for r in range(6):
             if not todo:
                 break
@@ -171,12 +175,13 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
                 with torch.autocast("cuda", dtype=torch.bfloat16):
                     outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban, temperature=0.7)
                 for i, o in zip(ch, outs):
-                    cand = tk.decode(o).strip()
-                    if cand.split("\n")[0].strip() == gens[i].split("\n")[0].strip() and not unsupported(cand, inputs[i]):
+                    cand = tk.decode(o, skip_special_tokens=not tagged).strip()
+                    if cand.split("\n")[0].strip() == gens[i].split("\n")[0].strip() and not bad(cand, inputs[i]):
                         gens[i] = cand
-            todo = [i for i in todo if unsupported(gens[i], inputs[i])]
+            todo = [i for i in todo if bad(gens[i], inputs[i])]
         gens = [repair_ranges(g, x) for g, x in zip(gens, inputs)]
     rows = [e["row"] for e in enc]
+    raw, gens = gens, [plain_output(g) for g in gens] if tagged else gens  # metrics and the judge see words only
     pred = [parse(g) for g in gens]
     gold, pv = [r["verdict"] for r in rows], [p[0] for p in pred]
     maj = Counter(gold).most_common(1)[0]
@@ -196,8 +201,8 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
          "confusion": {f"{g}->{p}": c for (g, p), c in sorted(Counter(zip(gold, pv)).items())},
          "by_group": by, "script_match": script,
          "narrative_words_median": sorted(len(p[1].split()) for p in pred)[len(pred) // 2]}
-    return m, [{"input": r["input"], "reference": r["output"], "generated": g, "language": r["language"], "source": r["source"]}
-               for r, g in zip(rows, gens)]
+    return m, [{"input": r["input"], "reference": r["output"], "generated": g, "language": r["language"], "source": r["source"],
+                **({"raw": x} if tagged else {})} for r, g, x in zip(rows, gens, raw)]
 
 
 def main() -> None:
@@ -224,6 +229,7 @@ def main() -> None:
     ap.add_argument("--lora-alpha", type=float, default=32.0)
     ap.add_argument("--tokenizer", default=None, help="prebuilt tokenizer.json; trained on the task data when omitted")
     ap.add_argument("--init", default=None, help="pretrained model.pt (config and weights)")
+    ap.add_argument("--special-tokens", action="store_true", help="add the structured formats' tags (claims.SPECIAL_TOKENS) to the tokenizer")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--copy", action="store_true", help="add a pointer (copy) head to the initialized model")
     ap.add_argument("--prefix-lm", action="store_true", help="bidirectional attention within the input (prefix LM)")
@@ -243,6 +249,9 @@ def main() -> None:
 
     if a.tokenizer:
         tk = Tokenizer.from_file(a.tokenizer)
+        if a.special_tokens:  # the structured formats' tags (claims.py), one token each, appended after the base vocabulary
+            from ..claims import SPECIAL_TOKENS
+            tk.add_special_tokens(SPECIAL_TOKENS)
         tk.save(str(out / "tokenizer.json"))
     else:
         tk = train_tokenizer(raw["train"] + raw["val"], a.vocab, out / "tokenizer.json")
@@ -265,8 +274,16 @@ def main() -> None:
         ck = torch.load(a.init, map_location="cpu")
         cfg = Config(**{**ck["config"], "dropout": a.dropout, **({"copy": True} if a.copy else {}),
                         **({"prefix_lm": True} if a.prefix_lm else {}), **({"verdict_last": True} if a.verdict_last else {})})
+        state = ck["state"]
+        if tk.get_vocab_size() > cfg.vocab:  # new special tokens: rows at the mean embedding plus small noise
+            emb, n = state["emb.weight"], tk.get_vocab_size() - cfg.vocab
+            g = torch.Generator().manual_seed(a.seed)
+            new = emb.mean(0, keepdim=True) + 0.02 * emb.std() * torch.randn(n, emb.shape[1], generator=g)
+            state = {**state, "emb.weight": torch.cat([emb, new.to(emb.dtype)])}
+            cfg = Config(**{**cfg.to_dict(), "vocab": tk.get_vocab_size()})
+            print(f"vocabulary {cfg.vocab - n} + {n} special tokens", flush=True)
         model = TinyLM(cfg)
-        missing, unexpected = model.load_state_dict(ck["state"], strict=False)
+        missing, unexpected = model.load_state_dict(state, strict=False)
         assert not unexpected and all(k.startswith("copy_") for k in missing), (missing, unexpected)
         model = model.cuda()
         a.max_len = min(a.max_len, cfg.max_len)

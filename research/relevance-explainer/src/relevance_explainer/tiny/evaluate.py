@@ -39,6 +39,8 @@ def main() -> None:
     model.load_state_dict(ck["state"])
     model = model.cuda().eval()
     tk = Tokenizer.from_file(str(run / "tokenizer.json"))
+    if tk.token_to_id("<|exp|>") is not None:  # structured formats write claims and a tl;dr as well
+        a.max_new = max(a.max_new, 420)
 
     rows = read(Path(a.data) / f"{a.split}.jsonl")
     if a.limit and len(rows) > a.limit:

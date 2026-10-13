@@ -39,13 +39,14 @@ ap.add_argument("ckpt"); ap.add_argument("root"); ap.add_argument("out")
 ap.add_argument("--seqs", type=int, default=195, help="held-out sequences per language (200k tokens hold 195)")
 ap.add_argument("--train-seqs", type=int, default=32, help="sequences of training text per language")
 ap.add_argument("--holdout", type=int, default=200000)
+ap.add_argument("--seq", type=int, default=1024, help="sequence length (at most the length the model was trained on)")
 a = ap.parse_args()
 
 root = Path(a.root)
 ck = torch.load(a.ckpt, map_location="cpu", weights_only=False)
 model = TinyLM(Config(**ck["config"])).cuda().eval()
 model.load_state_dict(ck["state"])
-seq = 1024  # the pretraining sequence length; positions up to max_len (1536) beyond it were never trained
+seq = a.seq  # the pretraining sequence length; positions past it were never trained
 tk = Tokenizer.from_file(str(root / "tokenizer.json"))
 plan = json.loads((root / "plan.json").read_text())
 shards = load_all_shards(root)

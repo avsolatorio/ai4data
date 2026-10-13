@@ -1,5 +1,5 @@
-from relevance_explainer.claims import (CATEGORIES, annotate, from_model, parse, parse_record, record_fields,
-                                        strip_refs, to_model, verify)
+from relevance_explainer.claims import (CATEGORIES, SPECIAL_TOKENS, annotate, from_model, parse, parse_record, record_fields,
+                                        sanitize_input, strip_model_tags, strip_refs, to_model, verify)
 
 INPUT = ("Item type: indicator series (Data360)\nResult: Unemployment, total (% of labor force)\n"
          "Database: World Development Indicators; Source: World Bank\nYears: 2015-2023; Frequency: annual\n"
@@ -74,6 +74,13 @@ def test_consistency_flags():
 
 
 def test_model_form_round_trip():
-    s = annotate("relevant", "Cubre Kenia de 2015 a 2023.", INPUT, grade=8)
+    s = annotate("relevant", "Cubre Kenia de 2015 a 2023.", INPUT, grade=8, tldr="Kenia, 2015 a 2023.")
     m = to_model(s)
-    assert 'cid="' not in m and "<cid:" in m and "<g:8>" in m and from_model(m) == s
+    assert m.split("\n")[0] == "relevant" and m.split("\n")[1] == "<|g:8|>"  # the verdict stays the first line
+    assert 'cid="' not in m and "<|cid:" in m and from_model(m) == s
+    assert verify(from_model(m), INPUT).all_verified
+
+
+def test_special_tokens_are_unique_and_inputs_cannot_open_tags():
+    assert len(SPECIAL_TOKENS) == len(set(SPECIAL_TOKENS))
+    assert "<|" not in sanitize_input("a <|c|> b") and "1" not in strip_model_tags("<|cid:1|>x<|g:9|>").replace("x", "")

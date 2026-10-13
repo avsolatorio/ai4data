@@ -33,7 +33,7 @@ import random
 from dataclasses import dataclass, field
 from functools import lru_cache
 
-from .synth.understand import TOKEN, Understander, norm
+from .synth.understand import AR_PREFIX, TOKEN, Understander, _is_cjk, norm
 from .tiny.numguard import RANGE, _forms, _join_thousands, supported_numbers
 
 VERDICTS = ("relevant", "partly_relevant", "irrelevant")
@@ -86,13 +86,43 @@ _GENERIC = {"states", "countries", "small", "income", "and", "the", "of", "regio
 def _group_words(text: str) -> set[str]:
     """Distinctive words of the groupings named in `text` ("Caribbean small states" and "Caribbean" share one)."""
     u = _u()
-    return {w for p in u.places(text) if p["kind"] == "group" and _place_ok(p)
+    return {w for p in _found(text) if p["kind"] == "group" and _place_ok(p)
             for w in TOKEN.findall(norm(p["name"])) if w not in _GENERIC}
 
 
 @lru_cache(maxsize=1)
 def _u() -> Understander:
     return Understander()
+
+
+@lru_cache(maxsize=200_000)
+def _found(text: str) -> tuple[dict, ...]:
+    """Places named in written text: Understander.places without its loose matching for searches (typos, Cyrillic
+    prefixes), which _place_ok would reject anyway and which takes most of the time. Exact names, Turkish suffixes
+    after an apostrophe and Arabic clitics are kept. Cached, since record fields repeat across rows."""
+    u = _u()
+    n = norm(text)
+    toks = [(m.group(0), m.start(), m.end()) for m in TOKEN.finditer(n)]
+    found, used = [], set()
+    for size in range(min(7, len(toks)), 0, -1):  # longest match first
+        for i in range(len(toks) - size + 1):
+            if any(j in used for j in range(i, i + size)):
+                continue
+            key = tuple(t for t, _, _ in toks[i : i + size])
+            qk = tuple(re.split(r"['’]", t)[0] for t in key)
+            cands = u.names.get(key) or (u.names.get(qk) if qk != key and len("".join(qk)) >= 4 else None)
+            if not cands and size == 1:
+                w = key[0]
+                for p in AR_PREFIX:
+                    if w.startswith(p) and len(w) - len(p) >= 3 and (cands := u.names.get((w[len(p):],))):
+                        break
+            if cands:
+                found.append({"span": n[toks[i][1] : toks[i + size - 1][2]], "cands": cands})
+                used.update(range(i, i + size))
+    for name, ent in u.cjk:
+        if name in n and not any(name in f["span"] or f["span"] in name for f in found if _is_cjk(f["span"])):
+            found.append({"span": name, "cands": [ent]})
+    return tuple(u._resolve(found))
 
 
 def canon(s: str) -> str:
@@ -129,7 +159,7 @@ def record_fields(input_text: str) -> dict[str, str]:
 
 
 def _places(text: str) -> set[tuple]:
-    return {(p["kind"], p.get("iso3"), p.get("code")) for p in _u().places(text) if _place_ok(p)}
+    return {(p["kind"], p.get("iso3"), p.get("code")) for p in _found(text) if _place_ok(p)}
 
 
 def _numbers(text: str) -> list[str]:
@@ -257,10 +287,13 @@ def _outside_refs(text: str, record: str, search: str) -> list[str]:
     have = supported_numbers(record + "\n" + search)
     out = [n for n in _numbers(bare) if n not in have]
     known, groups = _places(record) | _places(search), _group_words(record + "\n" + search)
-    for p in _u().places(bare):
+    known_names = " | ".join(norm(p["name"]) for t in (record, search) for p in _found(t) if _place_ok(p))
+    for p in _found(bare):
         if not _place_ok(p) or (p["kind"], p.get("iso3"), p.get("code")) in known:
             continue
         if p["kind"] == "group" and set(TOKEN.findall(norm(p["name"]))) & groups:  # the same grouping, named differently
+            continue
+        if re.search(rf"\b{re.escape(norm(p['name']))}\b", known_names):  # part of a known name ("Macao SAR, China")
             continue
         out.append(p["span"])
     return out
@@ -348,8 +381,8 @@ def _spans(narrative: str, fields: dict[str, str]) -> list[tuple[int, int, str, 
     # places
     nn, idx = _char_map(narrative)
     porder = [k for k in GEO_FIELDS if k in fields] + [k for k in TEXT_FIELDS if k in fields]
-    field_places = {k: [q for q in _u().places(fields[k]) if _place_ok(q)] for k in porder}
-    for p in _u().places(narrative):
+    field_places = {k: [q for q in _found(fields[k]) if _place_ok(q)] for k in porder}
+    for p in _found(narrative):
         if not _place_ok(p):
             continue
         key = (p["kind"], p.get("iso3"), p.get("code"))
@@ -426,21 +459,75 @@ def annotate(verdict: str, narrative: str, input_text: str, grade: int | None = 
 
 
 # ---------- the model's compact form ----------
+# The model writes line-based text so that the verdict stays the first generated word (the verdict probabilities,
+# the trainer's verdict weight and the app all read the first line), with one special token per tag, id, field and
+# grade. Special tokens look like <|name|>; an input never contains "<|" (sanitize_input), so a record cannot inject
+# a tag. Layout (B has no claims line; the A format is the plain "verdict\nexplanation"):
+#
+#   partly_relevant
+#   <|g:7|>
+#   <|claims|><|c|><|cid:14|><|f:geography|>Kenya<|/c|>...<|/claims|>
+#   <|tldr|>Covers <|r|><|cid:14|>Kenya<|/r|> ...<|/tldr|>
+#   <|exp|>The indicator ...<|/exp|>
 
-SPECIAL_TOKENS = (["<verdict>", "</verdict>", "<claims>", "</claims>", "<c>", "</c>", "<r>", "</r>", "<tldr>", "</tldr>",
-                   "<exp>", "</exp>"] + [f"<cid:{i}>" for i in range(1, MAX_ID + 1)]
-                  + [f"<f:{c}>" for c in CATEGORIES] + [f"<g:{i}>" for i in range(11)])
+SPECIAL_TOKENS = (["<|claims|>", "<|/claims|>", "<|c|>", "<|/c|>", "<|r|>", "<|/r|>", "<|tldr|>", "<|/tldr|>", "<|exp|>",
+                   "<|/exp|>"] + [f"<|cid:{i}|>" for i in range(1, MAX_ID + 1)] + [f"<|f:{c}|>" for c in CATEGORIES]
+                  + [f"<|g:{i}|>" for i in range(11)])
+_PAIRS = [("<claims>", "<|claims|>"), ("</claims>", "<|/claims|>"), ("</c>", "<|/c|>"), ("</r>", "<|/r|>"),
+          ("<tldr>", "<|tldr|>"), ("</tldr>", "<|/tldr|>"), ("<exp>", "<|exp|>"), ("</exp>", "<|/exp|>")]
+
+
+def sanitize_input(text: str) -> str:
+    """Inputs never contain the special-token prefix, so record text cannot open a tag."""
+    return text.replace("<|", "< |")
+
+
+def strip_model_tags(text: str) -> str:
+    """Model text without any special token (for number and script checks on the words alone)."""
+    return re.sub(r"<\|[^|<>]{1,24}\|>", "", text)  # no space: Chinese has none between words
 
 
 def to_model(text: str) -> str:
-    """Attribute form to the compact form the model writes (one special token per tag, id, field and grade)."""
-    text = re.sub(r'<verdict grade="(\d+)">', r"<verdict><g:\1>", text)
-    text = re.sub(r'<c cid="(\d+)" field="([a-z]+)">', r"<c><cid:\1><f:\2>", text)
-    return re.sub(r'<r cid="(\d+)">', r"<r><cid:\1>", text)
+    """Attribute form to the model's line-based form."""
+    m = _VERDICT.search(text)
+    verdict, grade = (m.group(2), m.group(1)) if m else ("invalid", None)
+    body = text[m.end():] if m else text
+    body = re.sub(r'<c cid="(\d+)" field="([a-z]+)">', r"<|c|><|cid:\1|><|f:\2|>", body)
+    body = re.sub(r'<r cid="(\d+)">', r"<|r|><|cid:\1|>", body)
+    for a, b in _PAIRS:
+        body = body.replace(a, b)
+    lines = [verdict] + ([f"<|g:{grade}|>"] if grade is not None else []) + [x for x in body.strip().split("\n") if x]
+    return "\n".join(lines)
 
 
 def from_model(text: str) -> str:
-    """The model's compact form back to the attribute form."""
-    text = re.sub(r"<verdict><g:(\d+)>", r'<verdict grade="\1">', text)
-    text = re.sub(r"<c><cid:(\d+)><f:([a-z]+)>", r'<c cid="\1" field="\2">', text)
-    return re.sub(r"<r><cid:(\d+)>", r'<r cid="\1">', text)
+    """The model's line-based form back to the attribute form (for verify and the app)."""
+    first, _, body = text.partition("\n")
+    g = re.match(r"\s*<\|g:(\d+)\|>\n?", body)
+    grade = f' grade="{g.group(1)}"' if g else ""
+    body = body[g.end():] if g else body
+    body = re.sub(r"<\|c\|><\|cid:(\d+)\|><\|f:([a-z]+)\|>", r'<c cid="\1" field="\2">', body)
+    body = re.sub(r"<\|r\|><\|cid:(\d+)\|>", r'<r cid="\1">', body)
+    for a, b in _PAIRS:
+        body = body.replace(b, a)
+    return f"<verdict{grade}>{first.strip()}</verdict>\n{body.strip()}"
+
+
+def plain_output(text: str) -> str:
+    """"verdict\nexplanation" in words only, from any format: the explanation section without tags when the text has
+    one, else everything after the first line. Used for the judge and the text metrics, so all formats are compared
+    on the same words."""
+    first, _, rest = text.partition("\n")
+    m = re.search(r"<\|exp\|>(.*?)(?:<\|/exp\|>|$)", rest, re.S)
+    body = m.group(1) if m else rest
+    body = re.sub(r"<\|r\|><\|cid:\d+\|>(.*?)<\|/r\|>", r"\1", body, flags=re.S)
+    return f"{first.strip()}\n{re.sub(r' {2,}', ' ', strip_model_tags(body)).strip()}"
+
+
+def tldr_of(text: str) -> str | None:
+    """The tl;dr in words only, or None when the text has none."""
+    m = re.search(r"<\|tldr\|>(.*?)(?:<\|/tldr\|>|$)", text, re.S)
+    if not m:
+        return None
+    body = re.sub(r"<\|r\|><\|cid:\d+\|>(.*?)<\|/r\|>", r"\1", m.group(1), flags=re.S)
+    return re.sub(r" {2,}", " ", strip_model_tags(body)).strip()
