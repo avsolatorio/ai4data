@@ -64,10 +64,11 @@ if __name__ == "__main__":
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
         raise SystemExit(0)
     tg = {}
-    for line in open(a.teacher):
-        d = json.loads(line)
-        if "tldr" in d:
-            tg[d["key"]] = d
+    for path in a.teacher.split(","):  # several teacher files, comma-separated
+        for line in open(path):
+            d = json.loads(line)
+            if "tldr" in d:
+                tg[d["key"]] = d
     for arm in "ABC":
         (out / arm).mkdir(parents=True, exist_ok=True)
     stats = Counter()

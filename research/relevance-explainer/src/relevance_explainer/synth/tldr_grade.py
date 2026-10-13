@@ -116,6 +116,7 @@ def main() -> None:
     ap.add_argument("--sample", type=int, default=0, help="a random sample of this many unique rows (pilot)")
     ap.add_argument("--workers", type=int, default=96)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--skip", nargs="*", default=[], help="output files whose rows count as done")
     a = ap.parse_args()
     rows, seen = [], set()
     for f in a.files:
@@ -129,6 +130,8 @@ def main() -> None:
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     done = {json.loads(line)["key"] for line in open(out)} if out.exists() else set()
+    for f in a.skip:  # rows answered in another output file (for example a sample written first)
+        done |= {json.loads(line)["key"] for line in open(f)}
     todo = [r for r in rows if key(r) not in done]
     print(f"{len(rows)} unique rows, {len(done)} done before, {len(todo)} to do", flush=True)
     lock, n, failed = threading.Lock(), 0, 0

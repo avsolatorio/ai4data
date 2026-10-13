@@ -11,11 +11,12 @@ up() { curl -s -o /dev/null --max-time 5 -w "%{http_code}" "localhost:$1/$2" | g
 running() { pgrep -u "$(id -u)" -f "$1" > /dev/null; }
 # While $LOGD/pause_gpu0 exists, the GPU 0 servers (teacher on 8000, Gemma on 8002) are left stopped so GPU 0 can
 # train; delete the file to have them started again within a minute. $LOGD/pause_gpu1 does the same for the GPU 1
-# teacher (port 8001).
+# teacher (port 8001). $LOGD/pause_gemma leaves only Gemma (port 8002) stopped, so GPU 0 has room for training next to
+# its teacher.
 while true; do
   [ -f "$LOGD/pause_gpu0" ] || running "vllm serve.*--port 8000" || up 8000 v1/models || { echo "$(date -u +%T) start teacher GPU 0"; GPU=0 MEM=0.43 setsid nohup scripts/serve_vllm.sh >> "$LOGD/vllm0.log" 2>&1 < /dev/null & sleep 240; }
   [ -f "$LOGD/pause_gpu1" ] || running "vllm serve.*--port 8001" || up 8001 v1/models || { echo "$(date -u +%T) start teacher GPU 1"; GPU=1 MEM=0.55 PORT=8001 setsid nohup scripts/serve_vllm.sh >> "$LOGD/vllm1.log" 2>&1 < /dev/null & sleep 60; }
-  if [ ! -f "$LOGD/pause_gpu0" ] && up 8000 v1/models && ! running "vllm serve.*--port 8002" && ! up 8002 v1/models; then
+  if [ ! -f "$LOGD/pause_gpu0" ] && [ ! -f "$LOGD/pause_gemma" ] && up 8000 v1/models && ! running "vllm serve.*--port 8002" && ! up 8002 v1/models; then
     echo "$(date -u +%T) start Gemma 4"
     REPO=RedHatAI/gemma-4-31B-it-FP8-dynamic NAME=gemma-4-31b PORT=8002 GPU=0 MEM=0.5 MAXLEN=3072 SEQS=64 \
       setsid nohup scripts/serve_vllm.sh >> "$LOGD/gemma.log" 2>&1 < /dev/null &
