@@ -132,6 +132,7 @@ def main() -> None:
     ap.add_argument("--out", required=True)
     ap.add_argument("--tokens", type=float, default=3e8)
     ap.add_argument("--seq", type=int, default=1024)
+    ap.add_argument("--max-len", type=int, default=1536, help="rotary position table size; at least --seq (positions past --seq are not trained)")
     ap.add_argument("--bs", type=int, default=128)
     ap.add_argument("--micro", type=int, default=32, help="sequences per forward pass")
     ap.add_argument("--lr", type=float, default=2e-3)
@@ -205,7 +206,7 @@ def main() -> None:
         model = model.cuda()
     else:
         cfg = Config(vocab=tk.get_vocab_size(), d_model=a.d_model, n_layer=a.layers, n_unique=a.unique, share=a.share,
-                     n_head=a.heads, n_kv_head=a.kv_heads, attn_gate=a.attn_gate, d_ff=a.d_ff, max_len=1536,
+                     n_head=a.heads, n_kv_head=a.kv_heads, attn_gate=a.attn_gate, d_ff=a.d_ff, max_len=a.max_len,
                      dropout=a.dropout)
         model = TinyLM(cfg).cuda()
         if a.init_emb:
