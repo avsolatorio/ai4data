@@ -5,14 +5,19 @@ states in a reference to a claim. Verification happens here, outside the model, 
 only when its value occurs in the named field of the input, and a reference only when its words match its claim under
 the policy below. Anything else is shown as unverified.
 
-Output format (tags are plain text here; at training time they become special tokens):
+Output format, as the app and API see it:
 
     <verdict grade="7">partly_relevant</verdict>
-    <claims><c1>Coverage: Kenya</c1><c2>Years: 2015-2023</c2></claims>
-    <tldr>Covers <r1>Kenya</r1> for <r2>2015 to 2023</r2> ...</tldr>
-    <exp>The indicator ... <r1>Kenya</r1> ...</exp>
+    <claims><c cid="14" field="geography">Kenya</c><c cid="3" field="time">2015-2023</c></claims>
+    <tldr>Covers <r cid="14">Kenya</r> for <r cid="3">2015 to 2023</r> ...</tldr>
+    <exp>The indicator ... <r cid="14">Kenya</r> ...</exp>
 
-`grade` (0 to 10) and the tldr are optional. Reference policy, in order: the same words after normalization (case,
+`field` is a category shared by all catalogs (CATEGORY maps each record key to one), so "Coverage", "Country or
+region" and "Geographic scope" are all geography; a claim verifies when its value occurs in any record field of its
+category. Claim ids are drawn at random and the claims listed in random order, so an id says nothing about the field
+or about where the text mentions it: the model must match a reference's words to a claim's value to choose the id.
+The model itself writes a compact form with special tokens (to_model / from_model): <c><cid:14><f:geography>Kenya</c>
+and <r><cid:14>Kenya</r>. `grade` (0 to 10) and the tldr are optional. Reference policy, in order: the same words after normalization (case,
 Latin accents, dashes, spaces); the same numbers (year ranges in any language's wording); the same places (the
 query-understanding gazetteer with each language's names and inflected forms). Words outside references are scanned
 as well: a number absent from the input, or a place in neither the record nor the search, is reported as unverified.
@@ -23,6 +28,8 @@ the existing teacher data can be converted without new generation.
 from __future__ import annotations
 
 import re
+import hashlib
+import random
 from dataclasses import dataclass, field
 from functools import lru_cache
 
@@ -32,6 +39,22 @@ from .tiny.numguard import RANGE, _forms, _join_thousands, supported_numbers
 VERDICTS = ("relevant", "partly_relevant", "irrelevant")
 QUERY_FIELDS = ("Respond in", "Search", "Facets", "Understood")  # describe the search, not the record
 MAX_CLAIMS = 12
+MAX_ID = 20  # ids are drawn from 1..MAX_ID
+CATEGORY = {
+    "Coverage": "geography", "Country or region": "geography", "Geographic scope": "geography",
+    "Years": "time", "Survey years": "time", "Published": "time",
+    "Frequency": "frequency", "Update frequency": "frequency",
+    "Result": "title",
+    "Source": "source", "Producer": "source", "Organization": "source", "Database": "source",
+    "Item type": "type", "Document type": "type", "Type": "type", "Collection mode": "type",
+    "Unit of analysis": "type", "Formats": "type",
+    "Unit": "unit",
+    "Tags": "topic", "Topics": "topic", "Concept": "topic", "Definition": "topic",
+    "Universe": "population", "Variables": "variables",
+    "Abstract": "text", "Description": "text", "Retrieved passage": "text", "Limitations": "text",
+    "Checks": "check",
+}
+CATEGORIES = sorted(set(CATEGORY.values()) | {"other"})
 _KEY = re.compile(r"(?:^|; )([A-Z][A-Za-z ()/]{1,30}): ")
 _NUM = re.compile(r"\d+(?:[.,]\d+)*")
 _GRADE = {"relevant": (6, 10), "partly_relevant": (3, 8), "irrelevant": (0, 4)}  # grades consistent with a verdict
@@ -158,8 +181,8 @@ class Checked:
 
 
 _VERDICT = re.compile(r"<verdict(?: grade=\"(\d+)\")?>([a-z_]+)</verdict>")
-_CLAIM = re.compile(r"<c(\d+)>(.*?)</c\1>", re.S)
-_REF = re.compile(r"<r(\d+)>(.*?)</r\1>", re.S)
+_CLAIM = re.compile(r"<c cid=\"(\d+)\" field=\"([a-z]+)\">(.*?)</c>", re.S)
+_REF = re.compile(r"<r cid=\"(\d+)\">(.*?)</r>", re.S)
 _SECTION = {"tldr": re.compile(r"<tldr>(.*?)</tldr>", re.S), "exp": re.compile(r"<exp>(.*?)</exp>", re.S)}
 
 
@@ -177,10 +200,9 @@ def parse(output: str) -> Checked:
     cm = re.search(r"<claims>(.*?)</claims>", output, re.S)
     claims: dict[int, Claim] = {}
     for c in _CLAIM.finditer(cm.group(1) if cm else ""):
-        f, sep, v = c.group(2).partition(": ")
         if int(c.group(1)) in claims:
-            errors.append(f"claim c{c.group(1)} declared twice")
-        claims[int(c.group(1))] = Claim(int(c.group(1)), f.strip(), v.strip() if sep else "")
+            errors.append(f"claim {c.group(1)} declared twice")
+        claims[int(c.group(1))] = Claim(int(c.group(1)), c.group(2), c.group(3).strip())
     refs, sections = [], {}
     for name, rx in _SECTION.items():
         s = rx.search(output)
@@ -195,15 +217,20 @@ def parse(output: str) -> Checked:
 
 # ---------- verification ----------
 
+def category(key: str) -> str:
+    return CATEGORY.get(key, "other")
+
+
 def _claim_ok(c: Claim, fields: dict[str, str]) -> tuple[bool, str]:
-    if c.field not in fields:
-        return False, f"no field {c.field!r} in the record"
+    same = [v for k, v in fields.items() if category(k) == c.field]
+    if not same:
+        return False, f"no {c.field} field in the record"
     if not c.value:
         return False, "empty value"
-    fv = fields[c.field]
-    if canon(c.value) in canon(fv) or canon(_join_thousands(c.value)) in canon(_join_thousands(fv)):
-        return True, ""
-    return False, f"value not in field {c.field!r}"
+    for fv in same:
+        if canon(c.value) in canon(fv) or canon(_join_thousands(c.value)) in canon(_join_thousands(fv)):
+            return True, ""
+    return False, f"value not in any {c.field} field"
 
 
 def _ref_ok(text: str, c: Claim) -> tuple[bool, str]:
@@ -247,9 +274,9 @@ def verify(output: str, input_text: str) -> Checked:
     for r in ck.refs:
         c = ck.claims.get(r.claim)
         if c is None:
-            r.ok, r.reason = False, f"no claim c{r.claim}"
+            r.ok, r.reason = False, f"no claim {r.claim}"
         elif not c.ok:
-            r.ok, r.reason = False, f"claim c{r.claim} not verified"
+            r.ok, r.reason = False, f"claim {r.claim} not verified"
         else:
             r.ok, r.reason = _ref_ok(r.text, c)
             r.reason = "" if r.ok else r.reason
@@ -356,30 +383,64 @@ def _spans(narrative: str, fields: dict[str, str]) -> list[tuple[int, int, str, 
     return sorted(kept)
 
 
-def annotate(verdict: str, narrative: str, input_text: str, grade: int | None = None, tldr: str | None = None) -> str:
+def annotate(verdict: str, narrative: str, input_text: str, grade: int | None = None, tldr: str | None = None,
+             seed: int | None = None) -> str:
     """The structured output for an existing verdict and explanation (and optional tldr): claims for the record
-    values the text states, and references around them. Removing the tags gives back the original texts."""
+    values the text states, and references around them. Removing the tags gives back the original texts. Claim ids
+    are drawn at random from 1..MAX_ID and the claims listed in random order; the default seed is derived from the
+    texts, so a conversion is reproducible, and another seed gives another permutation of the same example."""
     fields = record_fields(input_text)
-    ids: dict[tuple[str, str], int] = {}
+    if seed is None:
+        seed = int(hashlib.sha256((input_text + "\0" + narrative).encode()).hexdigest()[:12], 16)
+    rng = random.Random(seed)
+    spans = {name: _spans(text, fields) for name, text in (("tldr", tldr or ""), ("exp", narrative))}
+    keys: list[tuple[str, str]] = []
+    for name in ("tldr", "exp"):
+        for _, _, k, v in spans[name]:
+            key = (category(k), v)
+            if key not in keys and len(keys) < MAX_CLAIMS:
+                keys.append(key)
+    ids = dict(zip(keys, rng.sample(range(1, MAX_ID + 1), len(keys))))
 
-    def tag(text: str) -> str:
+    def tag(name: str, text: str) -> str:
         out, pos = [], 0
-        for s, e, k, v in _spans(text, fields):
-            key = (k, v)
-            if key not in ids:
-                if len(ids) >= MAX_CLAIMS:
-                    continue
-                ids[key] = len(ids) + 1
-            out += [text[pos:s], f"<r{ids[key]}>{text[s:e]}</r{ids[key]}>"]
+        for s, e, k, v in spans[name]:
+            i = ids.get((category(k), v))
+            if i is None:
+                continue
+            out += [text[pos:s], f'<r cid="{i}">{text[s:e]}</r>']
             pos = e
         return "".join(out) + text[pos:]
 
-    t = tag(tldr) if tldr else None
-    x = tag(narrative)
+    t = tag("tldr", tldr) if tldr else None
+    x = tag("exp", narrative)
     g = f' grade="{grade}"' if grade is not None else ""
-    claims = "".join(f"<c{i}>{k}: {v}</c{i}>" for (k, v), i in ids.items())
+    order = list(ids.items())
+    rng.shuffle(order)
+    claims = "".join(f'<c cid="{i}" field="{f}">{v}</c>' for (f, v), i in order)
     parts = [f"<verdict{g}>{verdict}</verdict>", f"<claims>{claims}</claims>"]
     if t is not None:
         parts.append(f"<tldr>{t}</tldr>")
     parts.append(f"<exp>{x}</exp>")
     return "\n".join(parts)
+
+
+# ---------- the model's compact form ----------
+
+SPECIAL_TOKENS = (["<verdict>", "</verdict>", "<claims>", "</claims>", "<c>", "</c>", "<r>", "</r>", "<tldr>", "</tldr>",
+                   "<exp>", "</exp>"] + [f"<cid:{i}>" for i in range(1, MAX_ID + 1)]
+                  + [f"<f:{c}>" for c in CATEGORIES] + [f"<g:{i}>" for i in range(11)])
+
+
+def to_model(text: str) -> str:
+    """Attribute form to the compact form the model writes (one special token per tag, id, field and grade)."""
+    text = re.sub(r'<verdict grade="(\d+)">', r"<verdict><g:\1>", text)
+    text = re.sub(r'<c cid="(\d+)" field="([a-z]+)">', r"<c><cid:\1><f:\2>", text)
+    return re.sub(r'<r cid="(\d+)">', r"<r><cid:\1>", text)
+
+
+def from_model(text: str) -> str:
+    """The model's compact form back to the attribute form."""
+    text = re.sub(r"<verdict><g:(\d+)>", r'<verdict grade="\1">', text)
+    text = re.sub(r"<c><cid:(\d+)><f:([a-z]+)>", r'<c cid="\1" field="\2">', text)
+    return re.sub(r"<r><cid:(\d+)>", r'<r cid="\1">', text)

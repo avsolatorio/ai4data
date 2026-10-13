@@ -1,10 +1,20 @@
-from relevance_explainer.claims import annotate, parse_record, record_fields, strip_refs, verify
+from relevance_explainer.claims import (CATEGORIES, annotate, from_model, parse, parse_record, record_fields,
+                                        strip_refs, to_model, verify)
 
 INPUT = ("Item type: indicator series (Data360)\nResult: Unemployment, total (% of labor force)\n"
          "Database: World Development Indicators; Source: World Bank\nYears: 2015-2023; Frequency: annual\n"
          "Coverage: Kenya, Uganda\nRespond in: Spanish\nSearch: desempleo en Kenia 2018\nFacets: none\n"
          "Understood: place=Kenya (country) [query]; time=2018 [query]\n"
          "Checks: place Kenya: covered | time 2018: covered (2015-2023)")
+
+
+def c(cid, field, value):
+    return f'<c cid="{cid}" field="{field}">{value}</c>'
+
+
+def out(claims, exp, verdict="relevant", grade=None):
+    g = f' grade="{grade}"' if grade is not None else ""
+    return f"<verdict{g}>{verdict}</verdict>\n<claims>{''.join(claims)}</claims>\n<exp>{exp}</exp>"
 
 
 def test_parse_record_splits_pairs_and_skips_search_fields():
@@ -20,39 +30,50 @@ def test_annotate_round_trip_and_verify():
     ck = verify(s, INPUT)
     assert ck.sections["exp"] == text and "<r" not in strip_refs(s)
     assert ck.refs and ck.all_verified, (s, ck)
+    assert all(cl.field in CATEGORIES for cl in ck.claims.values())
+
+
+def test_ids_are_random_but_reproducible():
+    text = "Cubre Kenia y Uganda de 2015 a 2023."
+    assert annotate("relevant", text, INPUT) == annotate("relevant", text, INPUT)
+    seen = {tuple(sorted(parse(annotate("relevant", text, INPUT, seed=s)).claims)) for s in range(20)}
+    assert len(seen) > 5  # different seeds give different ids
+    for s in range(5):
+        assert verify(annotate("relevant", text, INPUT, seed=s), INPUT).all_verified
 
 
 def test_wrong_reference_is_not_verified():
-    s = ("<verdict>relevant</verdict>\n<claims><c1>Coverage: Kenya</c1></claims>\n"
-         "<exp>Cubre <r1>Tanzania</r1>.</exp>")
-    ck = verify(s, INPUT)
-    assert ck.claims[1].ok and not ck.refs[0].ok
+    ck = verify(out([c(7, "geography", "Kenya")], 'Cubre <r cid="7">Tanzania</r>.'), INPUT)
+    assert ck.claims[7].ok and not ck.refs[0].ok
 
 
-def test_claim_absent_from_its_field_fails_closed():
-    s = ("<verdict>relevant</verdict>\n<claims><c1>Years: 1990-2000</c1><c2>Coverage: 2015</c2></claims>\n"
-         "<exp>De <r1>1990 a 2000</r1>; <r3>Kenia</r3>.</exp>")
-    ck = verify(s, INPUT)
-    assert not ck.claims[1].ok and not ck.claims[2].ok
-    assert [r.ok for r in ck.refs] == [False, False] and ck.refs[1].reason == "no claim c3"
+def test_claim_absent_from_its_category_fails_closed():
+    ck = verify(out([c(4, "time", "1990-2000"), c(9, "geography", "2015")],
+                    'De <r cid="4">1990 a 2000</r>; <r cid="11">Kenia</r>.'), INPUT)
+    assert not ck.claims[4].ok and not ck.claims[9].ok
+    assert [r.ok for r in ck.refs] == [False, False] and ck.refs[1].reason == "no claim 11"
+
+
+def test_category_accepts_any_field_of_its_kind():
+    assert verify(out([c(2, "source", "World Bank")], 'Del <r cid="2">World Bank</r>.'), INPUT).all_verified
 
 
 def test_numbers_and_places_outside_references_are_reported():
-    s = ("<verdict>relevant</verdict>\n<claims><c1>Coverage: Kenya</c1></claims>\n"
-         "<exp>Cubre <r1>Kenia</r1> desde 1980 y también Tanzania.</exp>")
-    ck = verify(s, INPUT)
+    ck = verify(out([c(1, "geography", "Kenya")], 'Cubre <r cid="1">Kenia</r> desde 1980 y también Tanzania.'), INPUT)
     assert ck.refs[0].ok and "1980" in ck.unverified and any("tanzania" in u.lower() for u in ck.unverified)
 
 
 def test_year_range_in_another_language_matches_claim():
-    s = ("<verdict>relevant</verdict>\n<claims><c1>Years: 2015-2023</c1></claims>\n"
-         "<exp>Datos de <r1>2015 a 2023</r1>.</exp>")
-    assert verify(s, INPUT).all_verified
+    assert verify(out([c(5, "time", "2015-2023")], 'Datos de <r cid="5">2015 a 2023</r>.'), INPUT).all_verified
 
 
 def test_consistency_flags():
-    bad_grade = "<verdict grade=\"1\">relevant</verdict>\n<claims></claims>\n<exp>Sí.</exp>"
-    assert any("grade" in f for f in verify(bad_grade, INPUT).flags)
+    assert any("grade" in f for f in verify(out([], "Sí.", grade=1), INPUT).flags)
     failed = INPUT.replace("place Kenya: covered", "place Kenya: not covered")
-    ok = "<verdict>relevant</verdict>\n<claims></claims>\n<exp>Sí.</exp>"
-    assert any("check failed" in f for f in verify(ok, failed).flags)
+    assert any("check failed" in f for f in verify(out([], "Sí."), failed).flags)
+
+
+def test_model_form_round_trip():
+    s = annotate("relevant", "Cubre Kenia de 2015 a 2023.", INPUT, grade=8)
+    m = to_model(s)
+    assert 'cid="' not in m and "<cid:" in m and "<g:8>" in m and from_model(m) == s

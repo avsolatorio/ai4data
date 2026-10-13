@@ -33,6 +33,11 @@ for r in rows:
     st["refs_ok"] += all(x.ok for x in ck.refs)
     st["unverified"] += bool(ck.unverified)
     st["flagged"] += bool(ck.flags)
+    first = list(dict.fromkeys(x.claim for x in ck.refs))  # ids in order of first mention
+    if len(first) >= 2:  # with random ids, mention order should say nothing about id order
+        st["multi"] += 1
+        st["ids_ascending"] += first == sorted(first)
+        st["listed_in_mention_order"] += first == list(ck.claims)[: len(first)]
     fields.update(c.field for c in ck.claims.values())
     reasons.update(x.reason for x in ck.refs if not x.ok)
     reasons.update(c.reason for c in ck.claims.values() if not c.ok)
@@ -45,6 +50,9 @@ print(f"{n} examples: claims {st['claims'] / n:.2f} and references {st['refs'] /
       f"with a reference {st['with_ref'] / n:.1%}; text recovered {st['round_trip'] / n:.1%}; "
       f"all claims verified {st['claims_ok'] / n:.1%}; all references verified {st['refs_ok'] / n:.1%}; "
       f"unverified numbers or places outside references {st['unverified'] / n:.1%}; consistency flag {st['flagged'] / n:.1%}")
+m = max(st["multi"], 1)
+print(f"examples with 2+ claims {st['multi']}: ids ascending in mention order {st['ids_ascending'] / m:.1%}; "
+      f"claims listed in mention order {st['listed_in_mention_order'] / m:.1%}")
 print("claim fields:", dict(fields.most_common(12)))
 print("failure reasons:", dict(reasons.most_common(8)))
 for s, bad, unv in examples:
