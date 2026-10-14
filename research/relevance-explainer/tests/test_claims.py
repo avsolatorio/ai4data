@@ -1,5 +1,7 @@
+import re
+
 from relevance_explainer.claims import (CATEGORIES, SPECIAL_TOKENS, annotate, from_model, parse, parse_record, record_fields,
-                                        sanitize_input, strip_model_tags, strip_refs, to_model, verify)
+                                        plain_output, sanitize_input, strip_model_tags, strip_refs, to_model, verify)
 
 INPUT = ("Item type: indicator series (Data360)\nResult: Unemployment, total (% of labor force)\n"
          "Database: World Development Indicators; Source: World Bank\nYears: 2015-2023; Frequency: annual\n"
@@ -84,3 +86,24 @@ def test_model_form_round_trip():
 def test_special_tokens_are_unique_and_inputs_cannot_open_tags():
     assert len(SPECIAL_TOKENS) == len(set(SPECIAL_TOKENS))
     assert "<|" not in sanitize_input("a <|c|> b") and "1" not in strip_model_tags("<|cid:1|>x<|g:9|>").replace("x", "")
+
+
+def test_words_after_tags_keep_their_leading_space():
+    s = annotate("relevant", "Cubre Kenia de 2015 a 2023.", INPUT, grade=8)
+    m = to_model(s)
+    assert " <|r|>" not in m and "|> Kenia" in m  # the space before a reference sits inside the tag
+    assert all(v.startswith(" ") for v in re.findall(r"<\|f:[a-z]+\|>([^<]*)", m))
+    assert from_model(m) == s and plain_output(m) == "relevant\nCubre Kenia de 2015 a 2023."
+    old = m.replace("Cubre<|r|>", "Cubre <|r|>").replace("|> Kenia", "|>Kenia")  # the earlier form still reads
+    assert verify(from_model(old), INPUT).all_verified
+
+
+def test_values_in_scripts_without_spaces_get_none():
+    m = to_model('<verdict>relevant</verdict>\n<claims><c cid="2" field="geography">肯尼亚</c></claims>\n<exp>覆盖<r cid="2">肯尼亚</r>。</exp>')
+    assert "<|f:geography|>肯尼亚" in m and "覆盖<|r|><|cid:2|>肯尼亚" in m
+
+
+def test_number_claim_takes_the_closest_written_form():
+    inp = INPUT.replace("Coverage: Kenya, Uganda", "Coverage: Kenya, Uganda; Retrieved passage: 29 roads, density 2.9 km")
+    s = annotate("relevant", "La densidad es 2,9 km.", inp)
+    assert 'field="text">2.9</c>' in s and verify(s, inp).all_verified  # not "29", whatever the set order

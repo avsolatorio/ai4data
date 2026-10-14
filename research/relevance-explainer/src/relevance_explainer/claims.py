@@ -374,7 +374,7 @@ def _spans(narrative: str, fields: dict[str, str]) -> list[tuple[int, int, str, 
             continue
         for k in order:
             fv = _join_thousands(fields[k])
-            hit = next((f for f in _forms(tok) if re.search(rf"(?<![\d.,]){re.escape(f)}(?![\d])", fv)), None)
+            hit = next((f for f in sorted(_forms(tok), key=lambda f: (f != tok, len(f) != len(tok), f)) if re.search(rf"(?<![\d.,]){re.escape(f)}(?![\d])", fv)), None)
             if hit:
                 cands.append((m.start(), m.start() + len(tok), k, hit))
                 break
@@ -404,7 +404,7 @@ def _spans(narrative: str, fields: dict[str, str]) -> list[tuple[int, int, str, 
     for k in order:
         if k in ("Description", "Checks"):
             continue
-        for item in {x.strip() for x in re.split(r"[;,]\s*|\n", fields[k]) if len(x.strip()) >= 4}:
+        for item in sorted({x.strip() for x in re.split(r"[;,]\s*|\n", fields[k]) if len(x.strip()) >= 4}):
             for m in re.finditer(rf"(?<!\w){re.escape(item)}(?!\w)", narrative, re.I):
                 cands.append((m.start(), m.end(), k, item))
     # longest first, no overlaps
@@ -466,13 +466,19 @@ def annotate(verdict: str, narrative: str, input_text: str, grade: int | None = 
 #
 #   partly_relevant
 #   <|g:7|>
-#   <|claims|><|c|><|cid:14|><|f:geography|>Kenya<|/c|>...<|/claims|>
-#   <|tldr|>Covers <|r|><|cid:14|>Kenya<|/r|> ...<|/tldr|>
+#   <|claims|><|c|><|cid:14|><|f:geography|> Kenya<|/c|>...<|/claims|>
+#   <|tldr|>Covers<|r|><|cid:14|> Kenya<|/r|> ...<|/tldr|>
 #   <|exp|>The indicator ...<|/exp|>
+#
+# The space before a reference moves inside the tag, and a claim value starts with a space (except in scripts written
+# without spaces), so a word after a tag keeps its usual space-prefixed tokens. Without this, " India" (one token in
+# running text) became "Ind"+"ia" after a tag, the space before the tag became a token of its own, and a model trained
+# on that form (runs/fmt-s-C) misspelt referenced words and garbled the text around them. from_model reads both forms.
 
 SPECIAL_TOKENS = (["<|claims|>", "<|/claims|>", "<|c|>", "<|/c|>", "<|r|>", "<|/r|>", "<|tldr|>", "<|/tldr|>", "<|exp|>",
                    "<|/exp|>"] + [f"<|cid:{i}|>" for i in range(1, MAX_ID + 1)] + [f"<|f:{c}|>" for c in CATEGORIES]
                   + [f"<|g:{i}|>" for i in range(11)])
+_NO_SPACE = re.compile(r"[　-鿿가-힯豈-﫿＀-￯]")  # CJK, kana, Hangul, full-width
 _PAIRS = [("<claims>", "<|claims|>"), ("</claims>", "<|/claims|>"), ("</c>", "<|/c|>"), ("</r>", "<|/r|>"),
           ("<tldr>", "<|tldr|>"), ("</tldr>", "<|/tldr|>"), ("<exp>", "<|exp|>"), ("</exp>", "<|/exp|>")]
 
@@ -492,8 +498,9 @@ def to_model(text: str) -> str:
     m = _VERDICT.search(text)
     verdict, grade = (m.group(2), m.group(1)) if m else ("invalid", None)
     body = text[m.end():] if m else text
-    body = re.sub(r'<c cid="(\d+)" field="([a-z]+)">', r"<|c|><|cid:\1|><|f:\2|>", body)
-    body = re.sub(r'<r cid="(\d+)">', r"<|r|><|cid:\1|>", body)
+    body = re.sub(r'<c cid="(\d+)" field="([a-z]+)">(?=(.))',
+                  lambda m: f"<|c|><|cid:{m[1]}|><|f:{m[2]}|>" + ("" if _NO_SPACE.match(m[3]) else " "), body)
+    body = re.sub(r'( ?)<r cid="(\d+)">', r"<|r|><|cid:\2|>\1", body)
     for a, b in _PAIRS:
         body = body.replace(a, b)
     lines = [verdict] + ([f"<|g:{grade}|>"] if grade is not None else []) + [x for x in body.strip().split("\n") if x]
@@ -506,8 +513,8 @@ def from_model(text: str) -> str:
     g = re.match(r"\s*<\|g:(\d+)\|>\n?", body)
     grade = f' grade="{g.group(1)}"' if g else ""
     body = body[g.end():] if g else body
-    body = re.sub(r"<\|c\|><\|cid:(\d+)\|><\|f:([a-z]+)\|>", r'<c cid="\1" field="\2">', body)
-    body = re.sub(r"<\|r\|><\|cid:(\d+)\|>", r'<r cid="\1">', body)
+    body = re.sub(r"<\|c\|><\|cid:(\d+)\|><\|f:([a-z]+)\|> ?", r'<c cid="\1" field="\2">', body)
+    body = re.sub(r"<\|r\|><\|cid:(\d+)\|>( ?)", r'\2<r cid="\1">', body)
     for a, b in _PAIRS:
         body = body.replace(b, a)
     return f"<verdict{grade}>{first.strip()}</verdict>\n{body.strip()}"
