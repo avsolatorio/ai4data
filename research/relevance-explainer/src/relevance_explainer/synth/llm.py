@@ -5,16 +5,30 @@ import itertools
 import json
 import os
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 
 # Any OpenAI-compatible endpoint works. Set LLM_BASE_URL=http://localhost:11434/v1 for a local Ollama server.
-# Several comma-separated URLs are used in rotation, so two vLLM servers on two GPUs share the load.
+# Several comma-separated URLs share the load: each request goes to the server with the fewest requests in flight from
+# this process (ties in rotation). Plain rotation piles requests onto a slower server (for example one that shares its
+# GPU with training) while a faster one sits idle.
 BASE_URLS = [u.strip() for u in os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1").split(",") if u.strip()]
 BASE_URL = BASE_URLS[0]
 _counter = itertools.count()
+_inflight: dict[str, int] = {}
+_lock = threading.Lock()
+
+
+def _pick(urls: list[str]) -> str:
+    with _lock:
+        start = next(_counter)
+        order = [urls[(start + i) % len(urls)] for i in range(len(urls))]
+        url = min(order, key=lambda u: _inflight.get(u, 0))
+        _inflight[url] = _inflight.get(url, 0) + 1
+        return url
 
 
 def load_key() -> str:
@@ -49,11 +63,14 @@ def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            urls = base_urls or BASE_URLS
-            url = urls[next(_counter) % len(urls)].rstrip("/") + "/chat/completions"
-            req = urllib.request.Request(url, body, headers)
-            with urllib.request.urlopen(req, timeout=120) as r:
-                data = json.load(r)
+            base = _pick(base_urls or BASE_URLS)
+            try:
+                req = urllib.request.Request(base.rstrip("/") + "/chat/completions", body, headers)
+                with urllib.request.urlopen(req, timeout=120) as r:
+                    data = json.load(r)
+            finally:
+                with _lock:
+                    _inflight[base] -= 1
             choice = data["choices"][0]
             if choice.get("finish_reason") == "length":
                 raise RuntimeError("generation hit max_tokens")

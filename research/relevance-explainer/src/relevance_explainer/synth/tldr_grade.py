@@ -29,7 +29,7 @@ from pathlib import Path
 
 from . import llm
 from .realistic import language_ok
-from ..claims import _GRADE, _outside_refs, parse_record, QUERY_FIELDS, record_fields
+from ..claims import _GRADE, _outside_refs, _u, parse_record, QUERY_FIELDS, record_fields
 
 TEACHER = ("qwen3.8-27b", ["http://localhost:8000/v1", "http://localhost:8001/v1"])
 SYSTEM = "You summarize search-result explanations for a data catalog and grade how well each result answers its search."
@@ -109,6 +109,24 @@ def one(r: dict) -> dict:
     return {"key": key(r), "failed": attempts}
 
 
+def _keys(path: Path) -> set[str]:
+    """Keys of an output file. A last line cut off by a killed run is removed, so appending continues cleanly."""
+    lines = path.read_text(encoding="utf-8", errors="replace").split("\n")  # a cut-off line may end mid-character
+    keys, good = set(), []
+    for i, line in enumerate(lines):
+        if not line:
+            continue
+        try:
+            keys.add(json.loads(line)["key"])
+            good.append(line)
+        except (json.JSONDecodeError, KeyError):
+            if i < len(lines) - 1:
+                raise ValueError(f"{path}: line {i + 1} is not valid JSON")
+    if len(good) < sum(1 for x in lines if x):
+        path.write_text("".join(x + "\n" for x in good), encoding="utf-8")
+    return keys
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="+")
@@ -129,13 +147,14 @@ def main() -> None:
         rows = random.Random(a.seed).sample(rows, min(a.sample, len(rows)))
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    done = {json.loads(line)["key"] for line in open(out)} if out.exists() else set()
+    done = _keys(out) if out.exists() else set()
     for f in a.skip:  # rows answered in another output file (for example a sample written first)
-        done |= {json.loads(line)["key"] for line in open(f)}
+        done |= _keys(Path(f))
     todo = [r for r in rows if key(r) not in done]
     print(f"{len(rows)} unique rows, {len(done)} done before, {len(todo)} to do", flush=True)
+    _u(), language_ok("A short sentence.", "English")  # load the gazetteer and fastText once, before the worker threads
     lock, n, failed = threading.Lock(), 0, 0
-    with open(out, "a") as fo, ThreadPoolExecutor(a.workers) as ex:
+    with open(out, "a", buffering=1) as fo, ThreadPoolExecutor(a.workers) as ex:  # line-buffered: a kill loses no answer
         for fut in as_completed(ex.submit(one, r) for r in todo):
             res = fut.result()
             with lock:

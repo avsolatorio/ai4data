@@ -1,4 +1,5 @@
-from relevance_explainer.synth.tldr_grade import check
+from relevance_explainer.synth import llm
+from relevance_explainer.synth.tldr_grade import _keys, check
 
 ROW = {"input": ("Item type: indicator series (Data360)\nResult: Unemployment rate\nYears: 2015-2023\nCoverage: Kenya\n"
                  "Respond in: English\nSearch: unemployment Kenya 2018\nFacets: none\n"
@@ -25,3 +26,19 @@ def test_two_sentences_and_wrong_language_fail():
     assert any("one sentence" in b for b in check({"tldr": "It covers Kenya. It includes 2018.", "grade": 8}, ROW))
     assert any("not in English" in b for b in check(
         {"tldr": "La serie cubre la tasa de desempleo de Kenia entre 2015 y 2023.", "grade": 8}, ROW))
+
+
+def test_resume_drops_a_cut_off_last_line(tmp_path):
+    p = tmp_path / "out.jsonl"
+    p.write_text('{"key": "a", "grade": 1}\n{"key": "b", "grade": 2}\n{"key": "c", "tl')
+    assert _keys(p) == {"a", "b"}
+    assert p.read_text() == '{"key": "a", "grade": 1}\n{"key": "b", "grade": 2}\n'
+
+
+def test_requests_go_to_the_server_with_fewest_in_flight():
+    urls = ["http://x/v1", "http://y/v1"]
+    llm._inflight.update({"http://x/v1": 5, "http://y/v1": 1})
+    assert [llm._pick(urls) for _ in range(4)] == ["http://y/v1"] * 4  # y reaches 5 only after the fourth
+    llm._pick(urls)  # a tie: either server
+    assert sorted(llm._inflight.values()) == [5, 6]
+    llm._inflight.clear()

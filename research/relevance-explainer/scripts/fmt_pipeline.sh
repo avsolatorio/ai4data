@@ -26,8 +26,13 @@ BASE=runs/base-2k/model.pt
 COMMON="--tokenizer data/corpus_multi_final/tokenizer.json --init $BASE --lr 1e-3 --epochs 4 --bs 32 --dropout 0.1 \
   --verdict-weight 5 --select val_verdict_acc --max-len 2048 --max-new 420 --test-limit 3000"
 up() { curl -s -o /dev/null --max-time 5 -w "%{http_code}" "localhost:$1/v1/models" | grep -q 200; }
-train() {  # data dir, run dir, GPU, extra flags
-  [ -f "$2/model_fp32.pt" ] || CUDA_VISIBLE_DEVICES=$3 $PY -m relevance_explainer.tiny.train --data "$1" --out "$2" $COMMON $4 > "$2.train.log" 2>&1
+training() { pgrep -u "$(id -u)" -f "tiny.train .*--out $1 " > /dev/null; }
+train() {  # data dir, run dir, GPU, extra flags; nothing when the run is finished or still running (after a restart)
+  [ -f "$2/model_fp32.pt" ] || training "$2" || CUDA_VISIBLE_DEVICES=$3 $PY -m relevance_explainer.tiny.train --data "$1" --out "$2" $COMMON $4 > "$2.train.log" 2>&1
+}
+finish() {  # wait for a run started by this or an earlier pipeline process
+  while training "$1"; do sleep 60; done
+  [ -f "$1/model_fp32.pt" ] || echo "WARNING $1 stopped without a model (see $1.train.log)"
 }
 echo "fmt start $(date -u +%H:%M)"
 
@@ -46,7 +51,7 @@ until up 8000 && up 8001; do sleep 60; done
 echo "teachers up $(date -u +%H:%M)"
 
 # 3. A on the full data, in the background
-train "$SRC" runs/fmt-A-full 1 "" & PFULL=$!
+train "$SRC" runs/fmt-A-full 1 "" &
 echo "A full-data started $(date -u +%H:%M)"
 
 # 4. sample, pilot, gate
@@ -59,20 +64,20 @@ mkdir -p "$F" "$S/src"
   --seed 7 --workers 96 > "$S/pilot.log" 2>&1 || exit 1
 tail -1 "$S/pilot.log"
 $PY scripts/tldr_pilot_report.py "$S/pilot.jsonl" "$S/src/train.jsonl" | tee "$S/pilot_report.txt"
-if ! grep -q "GATE PASSED" "$S/pilot_report.txt"; then echo "FMT-STOPPED pilot gate $(date -u +%H:%M)"; wait $PFULL; exit 1; fi
+if ! grep -q "GATE PASSED" "$S/pilot_report.txt"; then echo "FMT-STOPPED pilot gate $(date -u +%H:%M)"; finish runs/fmt-A-full; exit 1; fi
 
 # 5. teacher: the sample first (the pilot's answers are reused), then the rest in the background
 [ -f "$S/teacher.jsonl" ] || cp "$S/pilot.jsonl" "$S/teacher.jsonl"
 if [ ! -f "$S/teacher.done" ]; then
   $PY -m relevance_explainer.synth.tldr_grade --out "$S/teacher.jsonl" "$S/src/train.jsonl" "$S/src/val.jsonl" "$S/src/test.jsonl" \
-    data/eval_real/itemfirst_nosim_v4/test.jsonl --workers 128 >> "$S/teacher.log" 2>&1 || exit 1
+    data/eval_real/itemfirst_nosim_v4/test.jsonl --workers 192 >> "$S/teacher.log" 2>&1 || exit 1
   touch "$S/teacher.done"
 fi
 tail -1 "$S/teacher.log"
 echo "teacher sample done $(date -u +%H:%M)"
 if [ ! -f "$F/teacher_rest.done" ]; then
   ( $PY -m relevance_explainer.synth.tldr_grade --out "$F/teacher_rest.jsonl" "$SRC/train.jsonl" --skip "$S/teacher.jsonl" \
-      --workers 128 >> "$F/teacher_rest.log" 2>&1 && touch "$F/teacher_rest.done" ) &
+      --workers 192 >> "$F/teacher_rest.log" 2>&1 && touch "$F/teacher_rest.done" ) &
 fi
 
 # 6. the sample's arms
@@ -83,7 +88,7 @@ train "$S/B" runs/fmt-s-B 0 "--special-tokens" & PB=$!
 train "$S/C" runs/fmt-s-C 1 "--special-tokens" & PC=$!
 wait $PA $PB $PC
 echo "sample arms trained $(date -u +%H:%M)"
-wait $PFULL
+finish runs/fmt-A-full
 echo "A full-data trained $(date -u +%H:%M)"
 
 # 7. evaluate (GPU 1)
