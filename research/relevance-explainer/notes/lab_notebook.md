@@ -1374,3 +1374,28 @@ Commit: a093255 (`claims.py`, `scripts/claims_annotate.py`, `scripts/claims_vs_j
 - Deployed model's answers vs the judge: with an unverified span (n 23) mean faithfulness 3.70 and 47.8% rated 3 or lower; without (n 1,472) 4.63 and 10.1%. With a consistency flag (n 6) 4.00 and 50.0%.
 
 **Implication.** Existing teacher data converts mechanically and verifies, so arm C of the format test needs no new teacher generation except for the tl;dr and the grade. The outside-reference scan is a precise but narrow error signal: when it fires, half the answers are unfaithful, but it fires on 1.5% of answers and most unfaithful answers (about 10%) are wrong in their reasoning, which no string check sees. The deployed pipeline already resamples unsupported numbers, so this undercounts what the scan would catch on raw outputs. The judge stays necessary; the verifier adds an exact signal for the entities it covers and makes those spans visibly checkable in the app.
+
+## 2026-10-14 00:22 UTC — 2,048-token base, tl;dr and grade pilot, teacher throughput fix
+
+**Context.** The 2,048-token base (`runs/base-2k`) resumed from the 60B-token state of the final base and ran the same decay (60B to 80B tokens) at sequence length 2,048 with 64 sequences per step (131,072 tokens per step, as before). Question: does the longer context cost anything at 1,024 tokens. The format test (`scripts/fmt_pipeline.sh`) then needs the teacher's tl;dr and grade for a 250k-pair sample. Commits: eedac05 (run), 6d85a81 (pipeline), 4295c8e (fixes below).
+
+**What was done.**
+1. Full held-out evaluation of `runs/base-2k` with `scripts/eval_base.py` (195 sequences per language) at 1,024 and 2,048 tokens.
+2. Pilot of 400 unique rows of the sample through `synth/tldr_grade.py`, with the gate in `scripts/tldr_pilot_report.py` (pass rate at least 0.9; no grade above 70% of a verdict's rows).
+3. Measured the teacher on the sample and fixed two throughput problems.
+
+**Result.**
+- Base, bits per byte on held-out text:
+
+  | Model | Window | All 244 | Our 11 | Smallest third |
+  |---|---|---|---|---|
+  | Final base (trained at 1,024) | 1,024 | 1.4608 | 1.3126 | 1.6423 |
+  | 2,048 base | 1,024 | 1.4693 | 1.3158 | 1.6547 |
+  | 2,048 base | 2,048 | 1.4413 | 1.2944 | 1.6176 |
+
+  At 1,024 tokens the 2,048 base is worse by 0.0085 (0.6%) overall and 0.0032 on our 11 languages, for the same token budget. With the full 2,048 window it is better than the final base at 1,024 by 0.0195, from the longer context. The run took 8.2 hours at 673k tokens per second.
+- Pilot: 391 of 400 passed (97.8%); 377 on the first attempt. The 9 failures were tl;dr longer than 25 words (24 attempts) and wrong language in Portuguese (3). Grades: irrelevant {0: 119, 1: 80, 2: 27, 3: 9}; partly_relevant {3: 5, 4: 62, 5: 39, 6: 1}; relevant {7: 3, 8: 3, 9: 34, 10: 9}. Gate passed, but relevant rows are at 69% on grade 9, just under the 70% bound: within a verdict the grade varies little, so the grade may add little ranking signal beyond the verdict.
+- Teacher throughput: with plain rotation across the two servers, requests piled up on the GPU 1 server (about 105 running, KV cache 98%; that GPU also trains the full-data arm A) while the GPU 0 server ran 2 to 6. Rate 312 rows per minute, which would have taken about 14 hours for the sample. Routing each request to the server with fewest requests in flight raised it to 561 rows per minute (measured over 4 minutes). A second problem appeared on restart: the gazetteer and fastText load lazily, and 192 threads each started loading them, so no request was sent for about 2 minutes; they now load once before the threads start. Output is now line-buffered, and a cut-off last line is removed on resume.
+- Process error: closing the pipeline's tmux window to restart it also stopped the full-data arm A training, which had run 55 minutes. The restarted pipeline started it again from the beginning (00:07 UTC). The pipeline now detects a running training and does not start a second copy, and later restarts use a new window.
+
+**Implication.** The longer context costs little at 1,024 tokens, so `runs/base-2k` is the base for the format test and later fine-tuning. The sample teacher run now ends around 07:50 UTC, later than planned; the format arms follow from there. Whether the grade is worth keeping is a question for the format test (does it rank better than the verdict probabilities).
