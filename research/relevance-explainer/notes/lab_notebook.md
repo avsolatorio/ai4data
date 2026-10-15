@@ -1428,3 +1428,21 @@ Commit: a093255 (`claims.py`, `scripts/claims_annotate.py`, `scripts/claims_vs_j
 - Process error: B first ran out of GPU memory (teacher, A and B on GPU 0); retrained afterwards.
 
 **Implication.** The claim format is viable at this size once the repeat ban is off for tagged formats: 97.5% of references verify on greedy decoding and 99.6% with verifier-selected resampling, with no cost in verdict accuracy. The checks are stricter for C than the post-hoc annotation of A and B, because C's references are the model's own claims and a wrong pairing fails. Explanation quality across arms still needs the judge. The app and evaluation must drop the 4-gram ban for tagged formats (or apply it to words only). All earlier C and B numbers decoded with the ban are affected; verdict accuracy is not, since the verdict is the first token.
+
+## 2026-10-15 03:40 UTC — Format C: CPU cost, calibration, conformal verdict sets, and what the grade adds
+
+**Context.** Before the final model: what C costs on CPU, whether its verdict probabilities are calibrated, whether conformal sets are a usable uncertainty display, and whether the grade carries information beyond the verdict probabilities. Run `runs/fmt-s-C`, realistic test (1,495 rows, teacher verdicts as labels). Commits b5cf818 (CPU timing), 59a41cf (grade vs probabilities), this entry's commit (`scripts/uncertainty_check.py`).
+
+**What was done.**
+1. CPU time (int8, 4 threads, 40 realistic inputs) for A, B, C: one greedy answer, and greedy plus 3 samples as one batch.
+2. Verdict probabilities at the first step; calibration error (10 bins) raw and after a temperature fitted on a random half; split conformal sets (score 1 - P(true verdict)) at 90% and 95%, averaged over 50 halvings.
+3. Ranking by pairwise concordance for the written grade, the expected grade E[g] = sum_v P(v) E[g | v] from the 11 grade-token probabilities, and the expected relevance from the verdict probabilities (P(relevant) + 0.5 P(partly)), against the verdict as a 3-level label and against the teacher's own 0-10 grade for the same rows (1,471 rows).
+
+**Result.**
+- CPU, median: A 1.15 s (71 new tokens), B 1.64 s (111), C 2.15 s (140); with 3 samples in the same batch A 1.35 s, B 1.80 s, C 2.40 s.
+- Calibration: accuracy 81.7, mean confidence 83.7, ECE 2.5, NLL 0.410; with temperature 1.12: mean confidence 82.2, ECE 1.8, NLL 0.408.
+- Conformal: at 90%, coverage 90.6, mean set size 1.20, 79.6% single-verdict sets with 89.6% accuracy; at 95%, coverage 94.9, size 1.37, 64.9% single with 93.6% accuracy.
+- Ranking against the 3-level verdict: written grade 0.906 overall (0.58 to 0.68 within a predicted verdict), E[g] 0.936 (0.75 to 0.85), verdict probabilities 0.941 (0.77 to 0.86).
+- Ranking against the teacher's 0-10 grade: written grade 0.857, E[g] 0.889, verdict probabilities 0.874; within a teacher verdict E[g] is higher in all three (relevant 0.833 vs 0.804, partly 0.721 vs 0.698, irrelevant 0.795 vs 0.729). No interval computed yet.
+
+**Implication.** C doubles CPU time per answer (about 2 s), and a retry round in one batch adds 0.25 s. The verdict probabilities are nearly calibrated, and conformal sets give a stated coverage with one verdict for 4 results in 5, which suits a display for statistical offices. The written grade (the argmax grade token) is the weakest score in every comparison, so the earlier conclusion that "the grade adds nothing" holds only for it. The expected grade orders results within a verdict better than the verdict probabilities do, when the label is the teacher's finer grade. That label is also what the student was trained to imitate, so this shows the student learned the teacher's finer ordering, without showing the ordering is valid. Next: the teacher's grade reliability (repeat and second-judge agreement) and an interval on the concordance differences. Keep the grade line in format C; use E[g] and not the written grade.
