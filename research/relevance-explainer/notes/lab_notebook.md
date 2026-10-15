@@ -1446,3 +1446,19 @@ Commit: a093255 (`claims.py`, `scripts/claims_annotate.py`, `scripts/claims_vs_j
 - Ranking against the teacher's 0-10 grade: written grade 0.857, E[g] 0.889, verdict probabilities 0.874; within a teacher verdict E[g] is higher in all three (relevant 0.833 vs 0.804, partly 0.721 vs 0.698, irrelevant 0.795 vs 0.729). No interval computed yet.
 
 **Implication.** C doubles CPU time per answer (about 2 s), and a retry round in one batch adds 0.25 s. The verdict probabilities are nearly calibrated, and conformal sets give a stated coverage with one verdict for 4 results in 5, which suits a display for statistical offices. The written grade (the argmax grade token) is the weakest score in every comparison, so the earlier conclusion that "the grade adds nothing" holds only for it. The expected grade orders results within a verdict better than the verdict probabilities do, when the label is the teacher's finer grade. That label is also what the student was trained to imitate, so this shows the student learned the teacher's finer ordering, without showing the ordering is valid. Next: the teacher's grade reliability (repeat and second-judge agreement) and an interval on the concordance differences. Keep the grade line in format C; use E[g] and not the written grade.
+
+## 2026-10-15 13:43 UTC — Full-data formats B and C, teacher grade repeat, judge of the format arms
+
+Code: commit 233a0e7 (final pipeline from 59a41cf). Runs `runs/final-B` and `runs/final-C` on `data/final/{B,C}` (959,446 training rows, 2,048-token base `runs/base-2k`); full-data A is `runs/fmt-A-full`.
+
+**Question.** Do the grade, tl;dr and claim lines cost verdict accuracy at full scale, and does C's explanation quality recover with more data? How reliable are the teacher's 0-10 grades that E[g] is fitted to?
+
+**What was done.** Trained B and C on the full data. Ran the version-4 test sets, the decoding test (repeat ban on and off, verifier-selected retries) and the teacher judge on 800 realistic-test answers (greedy, no ban, explanation in words only). final-C's realistic, paraphrase and schemas evaluations failed three times on GPU 1 while final-B was training there, and were re-run after both runs finished. The teacher re-graded 594 realistic-test rows with the same prompt.
+
+**Result.**
+- Verdict accuracy, int8 (A / B / C): realistic 86.6 / 86.6 / 86.8; challenge 74.6 / 74.3 / 74.2; paraphrase 81.2 / 80.9 / 80.7; schemas 82.0 / 81.7 / 80.5; tables 71.6 / 71.0 / 72.6; held-out 85.4 / 85.0 / 85.7. No paired tests yet; schemas has 482 rows.
+- final-C decoding test (realistic): fully verified answers 61.9% greedy with the ban, 95.9% greedy without it, 98.7% with 3 retries, 99.3% with 6; references verified 80.9%, 98.5%, 99.5%, 99.8%.
+- Judge, final-C against fmt-s-C on the same 800 examples: faithful 4.549 against 4.184, difference +0.365 (95% +0.275 to +0.453); faithful 4 or 5 only for fmt-s-C 46, only for final-C 148, McNemar p < 0.001. final-B has not been judged yet.
+- Teacher grade repeat: same grade 81.1%, within 1 point 99.3%, mean absolute difference 0.20, concordance 0.964 overall and 0.885 / 0.885 / 0.878 within relevant / partly relevant / irrelevant.
+
+**Implication.** The extra lines cost no measurable verdict accuracy at full scale. The faithfulness deficit of C seen on the 250k sample (C below B by 0.17) shrinks or reverses with full data: final-C is above the sample-trained B (4.353). The B against C comparison at full data needs final-B's judge, which is next. The teacher's within-verdict ordering repeats well, so E[g] is fitted to a stable target; validity against a second judge is still untested. Next: the DPO round for C (scripts/dpo_c.sh), with the teacher servers started only for scoring and judging (scripts/teachers.sh).
