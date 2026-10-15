@@ -13,11 +13,12 @@ import numpy as np
 ap = argparse.ArgumentParser()
 ap.add_argument("a"); ap.add_argument("b")
 ap.add_argument("--tag", default="realnb")
+ap.add_argument("--suffix", default="", help="judge file suffix, e.g. _gemma4 for the Gemma 4 judge")
 a = ap.parse_args()
 
 
 def items(run):
-    d = json.loads((Path(run) / f"judge_{a.tag}_int8.json").read_text())
+    d = json.loads((Path(run) / f"judge_{a.tag}_int8{a.suffix}.json").read_text())
     return {x["k"]: x["score"] for x in d["items"] if x["who"] == "student" and x["score"]}
 
 

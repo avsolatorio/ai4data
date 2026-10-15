@@ -2,8 +2,11 @@
 # Start the teacher servers only for the steps that need them, through the keepalive's pause files.
 #   scripts/teachers.sh up      remove pause_gpu0 and pause_gpu1, wait until ports 8000 and 8001 answer (keepalive starts them)
 #   scripts/teachers.sh down    create both pause files, stop this user's vLLM servers on ports 8000 and 8001
+#   scripts/teachers.sh gemma-up    remove pause_gpu0 and pause_gemma, wait until ports 8000 and 8002 answer (the keepalive
+#                                   starts Gemma 4 on GPU 0 once the GPU 0 teacher is up)
+#   scripts/teachers.sh gemma-down  create pause_gpu0 and pause_gemma, stop this user's servers on ports 8000 and 8002
 #   scripts/teachers.sh status
-# pause_gemma is left as it is. Up waits at most 30 minutes and exits 1 if a server has not answered by then.
+# up and down leave pause_gemma as it is. Up waits at most 30 minutes and exits 1 if a server has not answered by then.
 set -uo pipefail
 LOGD=/data/wb536061/ai4data-relevance-explainer
 up() { curl -s -o /dev/null --max-time 5 -w "%{http_code}" "localhost:$1/v1/models" | grep -q 200; }
@@ -25,7 +28,24 @@ case "${1:?up, down or status}" in
       sleep 5
     done
     echo "$(date -u +%T) teachers still running after 150 s" >&2; exit 1 ;;
+  gemma-up)
+    rm -f "$LOGD/pause_gpu0" "$LOGD/pause_gemma"
+    for _ in $(seq 1 270); do
+      up 8000 && up 8002 && { echo "$(date -u +%T) teacher GPU 0 and Gemma up"; exit 0; }
+      sleep 10
+    done
+    echo "$(date -u +%T) Gemma not up after 45 minutes" >&2; exit 1 ;;
+  gemma-down)
+    touch "$LOGD/pause_gpu0" "$LOGD/pause_gemma"
+    for port in 8000 8002; do
+      pkill -u "$(id -u)" -f "vllm serve.*--port $port( |$)"
+    done
+    for _ in $(seq 1 30); do
+      pgrep -u "$(id -u)" -f "vllm serve.*--port 800[02]( |$)" > /dev/null || { echo "$(date -u +%T) teacher GPU 0 and Gemma down"; exit 0; }
+      sleep 5
+    done
+    echo "$(date -u +%T) servers still running after 150 s" >&2; exit 1 ;;
   status)
-    for port in 8000 8001; do up "$port" && echo "$port up" || echo "$port down"; done
+    for port in 8000 8001 8002; do up "$port" && echo "$port up" || echo "$port down"; done
     ls "$LOGD" | grep pause ;;
 esac

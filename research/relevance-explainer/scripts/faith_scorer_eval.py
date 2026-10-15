@@ -4,7 +4,7 @@ the greedy answers of the decoding test (scripts/judge_prep_decode.py) with the 
 outside training, unlike the fitting labels. Reports AUROC with a bootstrap interval, Brier score, ECE and the judge's
 rate above and below thresholds.
 
-  CUDA_VISIBLE_DEVICES=1 python scripts/faith_scorer_eval.py runs/final-C [--scorer runs/final-C] [--tag realnb]
+  CUDA_VISIBLE_DEVICES=1 python scripts/faith_scorer_eval.py runs/final-C [--scorer runs/final-C] [--tag realnb] [--suffix _gemma4]
 """
 import argparse
 import json
@@ -22,10 +22,11 @@ from relevance_explainer.tiny.model import Config, TinyLM
 
 ap = argparse.ArgumentParser()
 ap.add_argument("run"); ap.add_argument("--scorer", default=None); ap.add_argument("--tag", default="realnb")
+ap.add_argument("--suffix", default="", help="judge file suffix, e.g. _gemma4 for the Gemma 4 judge")
 a = ap.parse_args()
 run = Path(a.run)
 rows = [json.loads(l) for l in (run / f"{a.tag}_generations_int8.jsonl").read_text().splitlines()]
-judge = json.loads((run / f"judge_{a.tag}_int8.json").read_text())
+judge = json.loads((run / f"judge_{a.tag}_int8{a.suffix}.json").read_text())
 n = max(x["k"] for x in judge["items"]) + 1
 rows = random.Random(0).sample(rows, n)  # the judge's sample (tiny/judge.py)
 lab = {x["k"]: x["score"]["faithful"] for x in judge["items"] if x["who"] == "student" and x["score"]}
