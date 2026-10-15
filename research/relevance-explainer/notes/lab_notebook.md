@@ -1462,3 +1462,24 @@ Code: commit 233a0e7 (final pipeline from 59a41cf). Runs `runs/final-B` and `run
 - Teacher grade repeat: same grade 81.1%, within 1 point 99.3%, mean absolute difference 0.20, concordance 0.964 overall and 0.885 / 0.885 / 0.878 within relevant / partly relevant / irrelevant.
 
 **Implication.** The extra lines cost no measurable verdict accuracy at full scale. The faithfulness deficit of C seen on the 250k sample (C below B by 0.17) shrinks or reverses with full data: final-C is above the sample-trained B (4.353). The B against C comparison at full data needs final-B's judge, which is next. The teacher's within-verdict ordering repeats well, so E[g] is fitted to a stable target; validity against a second judge is still untested. Next: the DPO round for C (scripts/dpo_c.sh), with the teacher servers started only for scoring and judging (scripts/teachers.sh).
+
+## 2026-10-15 16:02 UTC — Full-data B against C on the judge; DPO round for C; live faithfulness scorer
+
+Code: commits c372b27 (DPO for C, scripts/teachers.sh) and 2ff5408 (scorer); scripts/paired_verified.py added in the commit that carries this entry. Runs: `runs/final-B`, `runs/final-C`, `runs/final-C-dpo`.
+
+**Question.** (1) With full data, is C's explanation as faithful as B's? (2) Does one on-policy DPO round raise C's verification and faithfulness without costing verdict accuracy? (3) Can a classifier predict the judge's faithfulness rating at inference, without a teacher?
+
+**What was done.**
+- Judged final-B's greedy realistic-test answers (same 800 examples as final-C) and compared them paired.
+- DPO round (scripts/dpo_round_c.sh): 15,000 training inputs, 8 samples each at temperature 0.8 with the teacher's verdict forced; verifier on all 120,000; teacher judge on the 2 best and the worst sample per input by the verifier (45,000 calls, 0 failures, 70 minutes); pairs with the verdict fixed; DPO beta 0.3, lr 2e-5, 2 epochs, batch 16, SFT weight 0.5. Teacher servers ran only for scoring and judging (14:19 to 15:33 and 15:52 to 15:56).
+- Faithfulness scorer (scripts/faith_scorer.py): logistic regressions on verifier features, the generator's token log-probabilities and entropy, and its final hidden states (mean and last over the answer), fitted to "judge faithful 4 or 5" on the 45,000 judged samples with an 80/20 split by input. Coverage and length against the teacher answer were left out because they are unavailable at inference. Evaluated again on final-C's 800 judged realistic-test answers (scripts/faith_scorer_eval.py).
+
+**Result.**
+- B against C, full data: faithful 4.539 against 4.549, difference +0.010 (95% -0.061 to +0.079), McNemar on faithful 4-5 p = 0.93. Coherent 4.673 against 4.704. tl;dr faithful 4-5: B 98.4%, C 96.3%; tl;dr reason 4-5: B 94.1%, C 91.6% (not tested paired).
+- DPO pairs: 10,146 (chosen from a student sample 7,248, from the teacher 2,898; no pair 4,854). Training preference accuracy 76.1% after epoch 1 and 99.2% after epoch 2 (margin 4.1 to 14.9), a sign of fitting the pairs closely.
+- DPO verdict accuracy (int8): realistic 86.8 (86.8 before), challenge 74.7 (74.2), paraphrase 80.9 (80.7), schemas 81.3 (80.5). Tables and held-out were not run.
+- DPO verification, greedy without ban: all verified 97.3% against 95.9% (only before 17, only after 37, McNemar p = 0.009); references verified 99.3% against 98.5%. Best of 6 retries: 99.6% against 99.3% (p = 0.27).
+- DPO judge, paired with final-C: faithful 4.610 against 4.549, +0.061 (95% -0.001 to +0.126), faithful 4-5 88.4% against 86.3% (McNemar p = 0.135). tl;dr faithful 4-5 97.8% against 96.3%.
+- Scorer AUROC on held-out inputs of the DPO samples: verifier 0.624, generator log-probabilities 0.813, hidden-state probe 0.810, verifier and generator 0.821, combined 0.847 (0.837 to 0.857). On final-C's 800 realistic-test answers: AUROC 0.820 (0.775 to 0.860), Brier 0.096, ECE 0.035; at score 0.8 or more (74% of answers) the judge rates 93.8% faithful 4-5, below it 64.4%.
+
+**Implication.** Full-data C matches B on explanation faithfulness, so C's claims and references cost nothing measurable there; its tl;dr is about 2 points lower on the judge. The DPO round improved first-try verification significantly and moved faithfulness up by a margin that is not significant at 800 examples; nothing got worse. The scorer works on unselected answers with good calibration, mostly from the generator's own uncertainty; the verifier contributes little to predicting the judge. All faithfulness labels come from the same teacher (Qwen) that wrote the training answers, so the gains and the scorer measure agreement with that judge. A held-out judge (Gemma) is needed before claiming faithfulness gains. The scorer is fitted to final-C; it has to be refitted on the DPO model's samples before serving that model.
