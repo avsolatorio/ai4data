@@ -1399,3 +1399,32 @@ Commit: a093255 (`claims.py`, `scripts/claims_annotate.py`, `scripts/claims_vs_j
 - Process error: closing the pipeline's tmux window to restart it also stopped the full-data arm A training, which had run 55 minutes. The restarted pipeline started it again from the beginning (00:07 UTC). The pipeline now detects a running training and does not start a second copy, and later restarts use a new window.
 
 **Implication.** The longer context costs little at 1,024 tokens, so `runs/base-2k` is the base for the format test and later fine-tuning. The sample teacher run now ends around 07:50 UTC, later than planned; the format arms follow from there. Whether the grade is worth keeping is a question for the format test (does it rank better than the verdict probabilities).
+
+## 2026-10-15 00:05 UTC — Format test: base comparison, arms A, B, C, and the repeat ban as the cause of C's errors
+
+**Context.** Full-data arm A on the 2,048 base against `runs/v2g-from-dapt-4ep` (same data and recipe, old base). Arms A (verdict, explanation), B (+ grade, tl;dr) and C (+ claims and references) on the same 268,601 training rows of the 250k-pair sample, 4 epochs each, same recipe. Commits 4295c8e (pipeline fixes), 23589c3 (C2 form and the converter fix), this entry's commit (decoding test).
+
+**What was done.**
+1. Evaluated all runs on the version-4 test sets, the Eurostat tables and the held-out test (int8); paired McNemar tests (`scripts/paired_verdicts.py`).
+2. Structure and verification of the tagged outputs (`scripts/fmt_structure_report.py`).
+3. After C's first results, a second C (C2) with the space before a reference moved inside the tag and claim values starting with a space; rebuilt with a deterministic converter and filtered to exactly the rows of A and B (`scripts/align_arm.py`).
+4. Decoding test on the realistic test (`scripts/fmt_decode_test.py`): greedy with and without the 4-gram repeat ban used by evaluation and the app, then up to 6 samples (temperature 0.7) with the verifier as the selector, keeping the greedy verdict.
+
+**Result.**
+- Base: full-data A scores 86.6% on the realistic test against 83.5% (paired: 99 rows only the new base gets right, 54 only the old; p = 0.0003); challenge 74.6 vs 73.2, paraphrase 81.2 vs 80.6, schemas 82.0 vs 80.4, tables 71.6 vs 70.0, held-out 85.4 vs 84.3.
+- Verdict accuracy of the sample arms is the same within noise (realistic: A 82.6, B 81.9, C 81.8, C2 81.9; A vs B p = 0.45, A vs C p = 0.36; validation 83.1, 83.2, 83.4, 83.2).
+- With the evaluation's decoding (4-gram repeat ban), C's references failed often: on the held-out test 78.5% of references verified and 41.6% of answers had a failed reference (C2: 82.8% and 34.7%), with misspelt referenced words and numbers ("Inia", "19989", "1975-195"). I first attributed this to tokenization after a tag. That was only part of it. The ban forbids any 4-token sequence from repeating, and C repeats a reference by design (the same `<|r|><|cid:N|> word<|/r|>` written twice), so the second copy was forced off its last token.
+- Decoding test, realistic test (1,495 rows); fully verified = no failed reference and no unverified mention; for A and B the check runs on the converter's annotation of the plain explanation:
+
+  | Arm | Greedy, ban | Greedy, no ban | Best of greedy + 3 samples | + 6 samples | References verified (no ban, + 6) |
+  |---|---|---|---|---|---|
+  | A | 98.1 | 98.1 | 99.5 | 99.9 | - |
+  | B | 95.1 | 97.2 | 98.9 | 99.3 | - |
+  | C | 56.2 | 94.9 | 98.5 | 99.1 | 97.5, 99.6 |
+  | C2 | 63.1 | 93.6 | 97.7 | 98.6 | 97.6, 99.5 |
+
+  Without the ban, answers with a failed reference fall from 42.7% to 4.1% (C) and from 35.7% to 4.7% (C2), and to 0.7% and 1.0% after 6 samples. The ban made no difference to A and hurt B (95.1 to 97.2 without it). C and C2 are equal without the ban, so the spacing change has no measured effect.
+- Converter bug found during the rebuild: number forms were tried in set order, so a record containing both "29" and "2.9" gave either claim depending on the process's hash seed; the verifier rejected the wrong pair, so no wrong row was trained on, but the dropped rows varied between builds (38 against 23 of 268k). Fixed with a fixed order and a regression test.
+- Process error: B first ran out of GPU memory (teacher, A and B on GPU 0); retrained afterwards.
+
+**Implication.** The claim format is viable at this size once the repeat ban is off for tagged formats: 97.5% of references verify on greedy decoding and 99.6% with verifier-selected resampling, with no cost in verdict accuracy. The checks are stricter for C than the post-hoc annotation of A and B, because C's references are the model's own claims and a wrong pairing fails. Explanation quality across arms still needs the judge. The app and evaluation must drop the 4-gram ban for tagged formats (or apply it to words only). All earlier C and B numbers decoded with the ban are affected; verdict accuracy is not, since the verdict is the first token.
