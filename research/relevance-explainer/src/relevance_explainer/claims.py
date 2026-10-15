@@ -466,19 +466,18 @@ def annotate(verdict: str, narrative: str, input_text: str, grade: int | None = 
 #
 #   partly_relevant
 #   <|g:7|>
-#   <|claims|><|c|><|cid:14|><|f:geography|> Kenya<|/c|>...<|/claims|>
-#   <|tldr|>Covers<|r|><|cid:14|> Kenya<|/r|> ...<|/tldr|>
+#   <|claims|><|c|><|cid:14|><|f:geography|>Kenya<|/c|>...<|/claims|>
+#   <|tldr|>Covers <|r|><|cid:14|>Kenya<|/r|> ...<|/tldr|>
 #   <|exp|>The indicator ...<|/exp|>
 #
-# The space before a reference moves inside the tag, and a claim value starts with a space (except in scripts written
-# without spaces), so a word after a tag keeps its usual space-prefixed tokens. Without this, " India" (one token in
-# running text) became "Ind"+"ia" after a tag, the space before the tag became a token of its own, and a model trained
-# on that form (runs/fmt-s-C) misspelt referenced words and garbled the text around them. from_model reads both forms.
+# A variant with the space before a reference moved inside the tag (" Kenya" keeps its space-prefixed token) was
+# trained as runs/fmt-s-C2 and did not do better (notebook, 2026-10-15); from_model reads both forms. Decode tagged
+# outputs without the n-gram repeat ban: a reference repeated by design is a repeated n-gram (NO_REPEAT_TAGGED).
 
 SPECIAL_TOKENS = (["<|claims|>", "<|/claims|>", "<|c|>", "<|/c|>", "<|r|>", "<|/r|>", "<|tldr|>", "<|/tldr|>", "<|exp|>",
                    "<|/exp|>"] + [f"<|cid:{i}|>" for i in range(1, MAX_ID + 1)] + [f"<|f:{c}|>" for c in CATEGORIES]
                   + [f"<|g:{i}|>" for i in range(11)])
-_NO_SPACE = re.compile(r"[　-鿿가-힯豈-﫿＀-￯]")  # CJK, kana, Hangul, full-width
+NO_REPEAT_TAGGED = 0  # n-gram repeat ban for tagged outputs (none; see the note above)
 _PAIRS = [("<claims>", "<|claims|>"), ("</claims>", "<|/claims|>"), ("</c>", "<|/c|>"), ("</r>", "<|/r|>"),
           ("<tldr>", "<|tldr|>"), ("</tldr>", "<|/tldr|>"), ("<exp>", "<|exp|>"), ("</exp>", "<|/exp|>")]
 
@@ -498,9 +497,8 @@ def to_model(text: str) -> str:
     m = _VERDICT.search(text)
     verdict, grade = (m.group(2), m.group(1)) if m else ("invalid", None)
     body = text[m.end():] if m else text
-    body = re.sub(r'<c cid="(\d+)" field="([a-z]+)">(?=(.))',
-                  lambda m: f"<|c|><|cid:{m[1]}|><|f:{m[2]}|>" + ("" if _NO_SPACE.match(m[3]) else " "), body)
-    body = re.sub(r'( ?)<r cid="(\d+)">', r"<|r|><|cid:\2|>\1", body)
+    body = re.sub(r'<c cid="(\d+)" field="([a-z]+)">', r"<|c|><|cid:\1|><|f:\2|>", body)
+    body = re.sub(r'<r cid="(\d+)">', r"<|r|><|cid:\1|>", body)
     for a, b in _PAIRS:
         body = body.replace(a, b)
     lines = [verdict] + ([f"<|g:{grade}|>"] if grade is not None else []) + [x for x in body.strip().split("\n") if x]

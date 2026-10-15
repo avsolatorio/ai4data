@@ -144,8 +144,9 @@ def quantize(model: TinyLM, bits: int) -> tuple[TinyLM, int]:
 def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch: int = 48,
              copy_bias: float = 0.0, script_guard: bool = False, num_guard: bool = False) -> tuple[dict, list[dict]]:
     model.eval()
-    from ..claims import plain_output, sanitize_input, strip_model_tags
+    from ..claims import NO_REPEAT_TAGGED, plain_output, sanitize_input, strip_model_tags
     tagged = tk.token_to_id("<|exp|>") is not None  # a structured-format run: keep the tags when decoding
+    no_rep = NO_REPEAT_TAGGED if tagged else 4  # references repeat by design; plain text keeps the 4-gram ban
     clean = sanitize_input if tagged else (lambda x: x)
     prompts = [tk.encode(clean(e["row"]["input"]) + SEP).ids for e in enc]
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))  # similar lengths per batch limits padding
@@ -155,7 +156,7 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
         ch = order[s : s + batch]
         ban = torch.stack([banned_for(masks, enc[i]["row"]["input"]) for i in ch]) if masks else None
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias, banned=ban)
+            outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, copy_bias=copy_bias, banned=ban, no_repeat=no_rep)
         for i, o in zip(ch, outs):
             gens[i] = tk.decode(o, skip_special_tokens=not tagged).strip()
             if model.c.verdict_last:
@@ -173,7 +174,7 @@ def evaluate(model: TinyLM, tk: Tokenizer, enc: list[dict], max_new: int, batch:
                 ch = todo[s : s + batch]
                 ban = torch.stack([banned_for(masks, inputs[i]) for i in ch]) if masks else None
                 with torch.autocast("cuda", dtype=torch.bfloat16):
-                    outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban, temperature=0.7)
+                    outs = model.generate_batch([prompts[i] for i in ch], EOS, max_new, banned=ban, temperature=0.7, no_repeat=no_rep)
                 for i, o in zip(ch, outs):
                     cand = tk.decode(o, skip_special_tokens=not tagged).strip()
                     if cand.split("\n")[0].strip() == gens[i].split("\n")[0].strip() and not bad(cand, inputs[i]):

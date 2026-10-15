@@ -88,19 +88,14 @@ def test_special_tokens_are_unique_and_inputs_cannot_open_tags():
     assert "<|" not in sanitize_input("a <|c|> b") and "1" not in strip_model_tags("<|cid:1|>x<|g:9|>").replace("x", "")
 
 
-def test_words_after_tags_keep_their_leading_space():
+def test_both_spacing_forms_read_back():
     s = annotate("relevant", "Cubre Kenia de 2015 a 2023.", INPUT, grade=8)
     m = to_model(s)
-    assert " <|r|>" not in m and "|> Kenia" in m  # the space before a reference sits inside the tag
-    assert all(v.startswith(" ") for v in re.findall(r"<\|f:[a-z]+\|>([^<]*)", m))
+    assert "Cubre <|r|>" in m and "|>Kenia" in m  # the form the final model is trained on
     assert from_model(m) == s and plain_output(m) == "relevant\nCubre Kenia de 2015 a 2023."
-    old = m.replace("Cubre<|r|>", "Cubre <|r|>").replace("|> Kenia", "|>Kenia")  # the earlier form still reads
-    assert verify(from_model(old), INPUT).all_verified
-
-
-def test_values_in_scripts_without_spaces_get_none():
-    m = to_model('<verdict>relevant</verdict>\n<claims><c cid="2" field="geography">肯尼亚</c></claims>\n<exp>覆盖<r cid="2">肯尼亚</r>。</exp>')
-    assert "<|f:geography|>肯尼亚" in m and "覆盖<|r|><|cid:2|>肯尼亚" in m
+    c2 = m.replace("Cubre <|r|>", "Cubre<|r|>").replace("|>Kenia", "|> Kenia")  # the runs/fmt-s-C2 form
+    assert from_model(c2) == s and plain_output(c2) == plain_output(m)
+    assert not re.search(r"<\|f:[a-z]+\|> ", m)
 
 
 def test_number_claim_takes_the_closest_written_form():
