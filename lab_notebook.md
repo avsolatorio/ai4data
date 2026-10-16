@@ -1610,3 +1610,64 @@ Code: commit b2a4f7c (deployed to the app on port 3410 at about 16:12 UTC).
   - refusing searches outside the 11 languages.
 - Catalog adapters need their own tests: year and frequency fields were wrong in two of the twenty CKAN records.
 - Accuracy on unseen catalogs is about 13 points below the realistic test. A pilot on a new catalog needs a labelled sample from that catalog before deployment.
+
+## 2026-10-16 22:03 UTC — Render version 5: false places, language guard, opendata type; effect on the evaluation sets
+
+**Question.** Do the fixes found on the unseen-catalog test (entry 18:52 above) help, and do they break the published results? Code at commit e2eb8d2.
+
+**What was done.**
+- **Parser, level 5.**
+  - Short everyday words that are also place abbreviations count only in capitals: `SHORT_WORDS`, among them za, na, mi, can, as, eau, man, car, sea, anda.
+  - Latin alternate names of cities and provinces match only when one word of 7 or more letters, or several words of 3 or more letters each.
+  - The subnational check also reads plurals ("provinces and territories", "counties", "states and territories").
+- **Gating.** Everything is gated on level 5. Version 4 re-renders all 6,396 evaluation inputs byte for byte.
+- **Serving.** The app, the live search and inference.py serve render version 5.
+- **Language guard** (`language.py`):
+  - script ranges for kana with Chinese characters, and for other scripts making up 30% or more of the letters;
+  - then fastText on the lowercased search, for Latin-script searches of 3 or more words, at p ≥ 0.9.
+- **New item type.** `schemas.OpenData` ("dataset (open data portal)") with `ckan_record`.
+- **Committed test set.** evalsets/unseen_catalogs, with the records re-fetched through `ckan_record`.
+
+**Result.**
+- **False places in the training data.**
+  - In the version-4 training inputs, "za" put South Africa in the Understood line of 14,786 Swahili searches, and "na" put North America in 17,014 Swahili and Portuguese searches.
+  - On 36,396 searches (the evaluation sets and 30,000 training searches), level 5 removed 2,171 places.
+  - Reading the 150 most frequent removals, about 35 were real places. They were short foreign-language names (lisboa, kioto, beyrut, vienne, la havane), and "Bombay" no longer gives Mumbai. The rest were false (za, na, mi, orani, kuna, yili, a la, wapi, mana, solo).
+- **Which inputs changed.** 293 of 6,396 evaluation inputs changed, only in the Understood and Checks lines: realistic 79, paraphrase 114, challenge 70, item types 30.
+- **Accuracy against the stored labels** (version 4 → version 5): realistic 86.82 → 86.56, challenge 74.69 → 74.47, paraphrase 80.87 → 80.32, item types 81.33 → 81.33.
+  - On the changed rows, version 5 was better on 5 and worse on 20 (p = 0.004).
+  - Batch noise is excluded: on unchanged inputs, verdicts flip on 0.1-0.2% of rows.
+- **Why the stored labels penalise version 5.** In the 20 losses the stored label was written against the false place. For example, a Swahili "social protection and poverty" search was judged partly relevant because the document "does not cover North America as requested".
+- **Relabel of the 293 rows** (teacher NARRATE_V3 and Gemma 4, temperature 0, each version's input):
+
+| Reference labels | Model on v4 inputs | Model on v5 inputs | v5 better / worse | McNemar p |
+|---|---|---|---|---|
+| stored | 80.9% | 75.8% | 5 / 20 | 0.004 |
+| teacher on v4 inputs | 84.6% | 78.5% | 4 / 22 | 0.001 |
+| teacher on v5 inputs | 80.5% | 84.6% | 18 / 6 | 0.023 |
+| Gemma 4 on v4 inputs | 75.4% | 74.4% | 11 / 14 | 0.690 |
+| Gemma 4 on v5 inputs | 71.0% | 75.4% | 19 / 6 | 0.015 |
+
+  - Each judge follows the input it is shown. Removing the false place changes the teacher's label on 37 of 293 rows and Gemma's on 28.
+  - The v5 inputs describe the search as typed, so the labels on them are the reference: version 5 is better by both judges.
+  - Correction to this run: the first teacher pass ran with thinking on and returned verdicts for only 14 and 55 of 293 rows (max_tokens). It was rerun with thinking off, as in the project's label scripts. The Gemma labels come from the first pass.
+- **Language guard.**
+  - False refusals: 2 of 6,396 evaluation searches and 12 of 50,000 training searches. Causes: Albanian place names such as Gjirokastër, and short Indonesian or Portuguese keyword searches read as Italian.
+  - Before two adjustments the rates were 7 of 6,396 and 97 of 50,000. The adjustments: Chinese text without kana is never refused, and fastText reads the lowercased search.
+  - Short German and Tagalog keyword searches still pass.
+- **Unseen-catalog set** (45 supported searches; 4 arms of render version × item-type label):
+  - Verdict agreement is 33 of 45 in every arm.
+  - Version 5 removes the false places from the Checks lines and from the explanations (Oran, Spokane, Arrah, North America).
+  - With the opendata label, 32 answers are "checked", against 28 for version 4 with the HDX label. Wrong verdicts shown as "checked": 7 against 6.
+  - The five province searches stay partly_relevant: the check now reads "subnational breakdown mentioned, this place not named", which in training went with partly_relevant.
+  - The 4 unsupported-language searches are withheld.
+- **Adapter.** `ckan_record` reads the data.gov.au harvest timestamp (2025-03-06 09:24:59, on a 2017 dataset) and the Unix epoch placeholder (1970-01-01) as not stated. The Ontario housing-starts record now reads "from 1990, monthly".
+- **Tests and deployment.**
+  - 463 tests pass. On a clean export of the commit, 457 pass and 6 skip for files that are not committed.
+  - In the browser on a test port: the edited Swahili search showed no South Africa; the German search showed "No answer" with the language reason; no page errors.
+  - The live app on 3410 was restarted with the commit.
+
+**Implication.**
+- The published evaluation numbers (version 4) stand as measured. Their labels carry the false-place artifact on 293 rows (4.6%).
+- Version 5 is the served format. A future training round should render its data at version 5 and relabel the affected rows; 1,609 of 30,000 sampled training searches (5.4%) change their places.
+- The province searches need a check status that says the record's breakdown level covers the place. That status would be new to the model, so it needs training data.
