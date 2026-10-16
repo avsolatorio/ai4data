@@ -48,6 +48,14 @@ def test_referenced_scripts_exist():
     assert not missing, "\n".join(sorted(missing))
 
 
+def test_every_script_is_in_the_index():
+    index = (ROOT / "scripts" / "README.md").read_text()
+    listed = set(re.findall(r"^\| `([^`]+)` \|", index, re.M))
+    present = {p.name for p in (ROOT / "scripts").iterdir() if p.suffix in (".sh", ".py")} | {"local.env.example"}
+    assert present - listed == set(), f"not in scripts/README.md: {sorted(present - listed)}"
+    assert listed - present == set(), f"listed but missing: {sorted(listed - present)}"
+
+
 def test_no_machine_specific_paths():
     hits = []
     for f in [*SCRIPTS, *PYFILES]:

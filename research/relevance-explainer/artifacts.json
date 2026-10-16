@@ -1,0 +1,163 @@
+{
+ "note": "SHA-256, size and JSONL rows of the files behind runs/final-C-dpo; see REPRODUCE.md",
+ "artifacts": {
+  "corpus": {
+   "data/corpus_multi_final/tokenizer.json": {
+    "sha256": "11a78a0e62c8c03ac2cd5b5a0a7d24abd688a1640a456f323e7ed60ef6283328",
+    "bytes": 2321568
+   },
+   "data/corpus_multi_final/plan_target.json": {
+    "sha256": "129ae85fd8f96e974f3d722e8bf71f125a56738ebcc9e725badd6218e21b9fca",
+    "bytes": 28640
+   }
+  },
+  "base": {
+   "runs/base-final/state-457764.pt": {
+    "sha256": "c6865cf42650638ec328b48ebeaaa9ae688a8c9eeaa907e55571c35b4fe532f3",
+    "bytes": 381966110
+   },
+   "runs/base-2k/model.pt": {
+    "sha256": "36cbe280252e24322d4392ff81a5a6f82e4f5356485f92cb141ce1dde0d8be51",
+    "bytes": 127224580
+   }
+  },
+  "task data (round G, no similarity line)": {
+   "data/v2_g_itemfirst_nosim/train.jsonl": {
+    "sha256": "d56a3eff480fdb5d154e818f0f461afded3c696b0b21cfecf878cbe1ee341c3d",
+    "bytes": 1786049932,
+    "rows": 977538
+   },
+   "data/v2_g_itemfirst_nosim/val.jsonl": {
+    "sha256": "c924d47953e5ab46f959a146105d8599ada5ba9560cd820b2bdbdb960dec0844",
+    "bytes": 218182233,
+    "rows": 119837
+   },
+   "data/v2_g_itemfirst_nosim/test.jsonl": {
+    "sha256": "a4d52f606d621d9bb43b705ec0fa09d92bc57f4213cd3d39c506126795e17686",
+    "bytes": 201746639,
+    "rows": 110566
+   }
+  },
+  "teacher tl;dr and grade": {
+   "data/fmt_s/teacher.jsonl": {
+    "sha256": "6b72796e32e8f5ce3aeaad71fb5f0406423b10dad8e4534eecdb650bca7aaa0d",
+    "bytes": 57390853,
+    "rows": 274495
+   },
+   "data/fmt/teacher_rest.jsonl": {
+    "sha256": "0cdb9b6bfebe3a17b1b7eb8550ed7ccf539a6b755afb4a4251a482ddd68450a0",
+    "bytes": 134553789,
+    "rows": 643202
+   }
+  },
+  "format C data": {
+   "data/final/C/train.jsonl": {
+    "sha256": "ceda7ed529e295ce0ab02644ea543b283800a9ec5850ce5d45c1356047e3f4bd",
+    "bytes": 2092928621,
+    "rows": 959446
+   },
+   "data/final/C/val.jsonl": {
+    "sha256": "ee24c555d602268f6dc3a4f06be06cbf5e5d470f31b828d3f38b6da0b91dc50d",
+    "bytes": 42793207,
+    "rows": 19634
+   },
+   "data/final/C/test.jsonl": {
+    "sha256": "2e1a18a311161e97f6f25d5c582480f5135fd116a9cda4e306b96962a572cbc5",
+    "bytes": 6404081,
+    "rows": 2934
+   }
+  },
+  "fine-tuned model": {
+   "runs/final-C/model_fp32.pt": {
+    "sha256": "b2ad170c3e51eda15d947810de3c39c807ac9c32d258a0098eeaf1bb0e972722",
+    "bytes": 127325922
+   },
+   "runs/final-C/tokenizer.json": {
+    "sha256": "9fdf20ce43148d163baf274b7b443184d18201630d7fc45d263c33d2cdb0be52",
+    "bytes": 2331573
+   }
+  },
+  "DPO round": {
+   "data/final/C/onpolicy_c_final-C_samples.jsonl": {
+    "sha256": "dc1e0bdc300bc94133d38898051eb94b2b87bf2553f0616d933177b1372906a3",
+    "bytes": 78930070,
+    "rows": 15000
+   },
+   "data/final/C/onpolicy_c_final-C_scored.jsonl": {
+    "sha256": "2ff628270611fe47d46d1e664f707a74d9d86f20262b54df93b89476ececcecf",
+    "bytes": 95942809,
+    "rows": 15000
+   },
+   "data/final/C/dpo_c_pairs_final-C.jsonl": {
+    "sha256": "3a835d6d3341a84faf2ab80c200d2dd23fbee3868f00d46a2ecfe5c2874a064d",
+    "bytes": 14176988,
+    "rows": 10146
+   },
+   "runs/final-C-dpo/model_fp32.pt": {
+    "sha256": "f12b0421b9943ebacfc7cfde68f67279c84299b669b95ea31538e45b2dce7fa9",
+    "bytes": 127325922
+   },
+   "runs/final-C-dpo/dpo_log.json": {
+    "sha256": "65d7e7bbfa9df0460871bf95aba2981a3cf72f112520f9b8e3dc3272d2db6059",
+    "bytes": 609
+   }
+  },
+  "serving files": {
+   "runs/final-C-dpo/explainer-int8.pt": {
+    "sha256": "db4731c654de14742adbfb75061869d7a21bef8f4f343407cb55b5e2b4ff154b",
+    "bytes": 34332173
+   },
+   "runs/final-C-dpo/calibration.json": {
+    "sha256": "03ead6930713335b50713d8b0fb36ed680933126268256e45701227f1fa58df6",
+    "bytes": 766
+   },
+   "runs/final-C-dpo/faith_scorer.json": {
+    "sha256": "853cdd6bb50dd2b49047127878548cd2853788d2cf8985ccde3098865eef0c9f",
+    "bytes": 63076
+   },
+   "data/final/C/faith_final-C-dpo_s1_samples.jsonl": {
+    "sha256": "492243f3c7663a8fc3bbfd668e2d664f17db53fa731b8ca65d8d8668e2097088",
+    "bytes": 45878373,
+    "rows": 8000
+   },
+   "data/final/C/faith_final-C-dpo_s1_scored.jsonl": {
+    "sha256": "804577e1237e0899d04790953519cc4a4836a0a6c486b1a11b2319b8014dfc6a",
+    "bytes": 54945595,
+    "rows": 8000
+   }
+  },
+  "test sets": {
+   "data/eval_real/itemfirst_nosim_v4/test.jsonl": {
+    "sha256": "c93b824623ca01143789fe72aec8a7257d213a5438b59bcf5e8f7aed4003ee68",
+    "bytes": 2903947,
+    "rows": 1495
+   },
+   "data/eval_para/itemfirst_nosim_v4/test.jsonl": {
+    "sha256": "f40280d79c9c6d1b6d5e93d2f346b1eb7d81100a96271275af7a440998ce20ea",
+    "bytes": 4230983,
+    "rows": 2175
+   },
+   "data/schemas_eval2/itemfirst_nosim_v4/test.jsonl": {
+    "sha256": "a13657d02432299560239e854aeb5bd3e037fc2a9a626c94bb9a165866aefb29",
+    "bytes": 849147,
+    "rows": 482
+   },
+   "data/eval_challenge/itemfirst_nosim_v4/test.jsonl": {
+    "sha256": "dc6b4770546707ccdaac7343e53fb3c755e54808386a08406e3c848f832c4406",
+    "bytes": 3903227,
+    "rows": 2244
+   },
+   "data/eval_tables/itemfirst_nosim/test.jsonl": {
+    "sha256": "bacae269c5eeb8c3adf71cb336a017f1feb21a0c3e40884a9df02d9cf216e892",
+    "bytes": 1258471,
+    "rows": 649
+   }
+  },
+  "third-party": {
+   "data/geo/lid.176.ftz": {
+    "sha256": "8f3472cfe8738a7b6099e8e999c3cbfae0dcd15696aac7d7738a8039db603e83",
+    "bytes": 938013
+   }
+  }
+ }
+}

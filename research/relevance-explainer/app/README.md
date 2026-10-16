@@ -1,12 +1,16 @@
 # Relevance Explainer web app
 
-A single-page viewer for the 21.6 MB model. Pick one of 100 test inputs (or edit one), choose a model and decoding
-settings, and the model generates its verdict and narrative on CPU, streamed token by token. The page also shows the
+A single-page viewer for the project's models. Pick a test input (or edit one), choose a model and decoding
+settings, and the model generates its verdict and explanation on CPU, streamed token by token. The page also shows the
 signals the model receives, its verdict probabilities, timing, the teacher's reference, the three audit labels and
-the offline judge scores, and can run every model on the same input side by side.
+the offline judge scores, and can run every model on the same input side by side. For the claim-carrying model
+("Claims + DPO (verified references)", `answer_c.py`) it also shows the tl;dr, each reference marked verified or not,
+the claims copied from the record, the conformal verdict set, the expected grade and the faithfulness score.
 
 - Server: `src/relevance_explainer/webapp/server.py` (Starlette on uvicorn); page: `webapp/static/index.html`.
-- Examples, two sets selectable on the page:
+- Examples, three sets selectable on the page:
+  - Realistic searches, `app/examples_realistic.json`: 100 searches on themes unseen in training, with their catalog
+    records, so the server renders the input for each model's format (`/api/render`).
   - Unseen items, `app/examples_fresh.json`: 100 searches and catalog items that occur in no data round, built
     after training from new themes with `scripts/build_fresh.sh data/fresh 100 --anchor-unseen 140`.
   - Held-out searches, `app/examples.json`: 100 test-split searches from held-out themes; their catalog items do
@@ -22,7 +26,8 @@ PORT=3410 BASE_PATH=/relevance-explainer MAX_CONCURRENT=4 TORCH_THREADS=4 script
 
 `BASE_PATH` is stripped from incoming paths when present, so the app works whether or not the proxy forwards the
 prefix. The page uses relative URLs. `MAX_CONCURRENT` limits simultaneous generations (others wait up to 30 s);
-each generation takes about 0.5 to 1 s with 4 threads. Inputs are limited to 12,000 characters and to the model's
+each generation takes about 0.5 to 1 s with 4 threads (2.6 s median for the claim-carrying model, which also runs
+the verifier, the expected grade and the faithfulness score). Inputs are limited to 12,000 characters and to the model's
 context length.
 
 ## Behind nginx

@@ -24,6 +24,7 @@ from relevance_explainer.tiny.train import SEP, quantize
 ap = argparse.ArgumentParser()
 ap.add_argument("run"); ap.add_argument("cal"); ap.add_argument("test")
 ap.add_argument("--n", type=int, default=3000); ap.add_argument("--threads", type=int, default=8)
+ap.add_argument("--out", default=None, help="output file (default <run>/calibration.json)")
 a = ap.parse_args()
 torch.set_num_threads(a.threads)
 V = ["relevant", "partly_relevant", "irrelevant"]
@@ -83,5 +84,5 @@ for level in (0.90, 0.95):
     out["conformal"][f"{level:.2f}"] = round(q, 6)
     chk[f"{level:.2f}"] = {"coverage": float(sets[np.arange(len(yt)), yt].mean()), "mean_size": float(sets.sum(1).mean()),
                            "single": float(one.mean()), "single_accuracy": float((pt.argmax(1)[one] == yt[one]).mean())}
-(run / "calibration.json").write_text(json.dumps(out, indent=1))
+Path(a.out or run / "calibration.json").write_text(json.dumps(out, indent=1))
 print(json.dumps(out, indent=1))

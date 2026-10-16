@@ -1,8 +1,10 @@
 # Training recipe
 
-This file describes how the deployed relevance explainer is built: `runs/v2g-from-dapt-8ep-dpo/explainer-int8.pt`,
-served by the web app as "Realistic, no retrieval score". The results behind each choice are in
-`notes/lab_notebook.md` (entries of 2026-10-09 15:24, 2026-10-09 23:27 and 2026-10-10 20:43 UTC).
+This file describes how the previous app model is built: `runs/v2g-from-dapt-8ep-dpo/explainer-int8.pt`, served by
+the web app as "Realistic, no retrieval score". The current model, which writes claims with references checked
+against the record, is described in `REPRODUCE.md`; its round G data (section 3 below) is shared. The results behind
+each choice are in the project's lab notebook, kept outside this repository (entries of 2026-10-09 15:24,
+2026-10-09 23:27 and 2026-10-10 20:43 UTC).
 
 The model is built in four steps: a tokenizer, pretraining, one supervised fine-tune and one DPO step. Steps 3 and 4
 run from one command:

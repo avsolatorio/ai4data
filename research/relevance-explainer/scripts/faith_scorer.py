@@ -33,9 +33,11 @@ from relevance_explainer.tiny.model import Config, TinyLM
 ap = argparse.ArgumentParser()
 ap.add_argument("run"); ap.add_argument("data"); ap.add_argument("scored")
 ap.add_argument("--batch", type=int, default=48); ap.add_argument("--seed", type=int, default=0)
+ap.add_argument("--out", default=None, help="output file (default <run>/faith_scorer.json)")
+ap.add_argument("--cache", default=None, help="feature cache (default <run>/faith_features_<scored>.npz)")
 a = ap.parse_args()
 run, data = Path(a.run), Path(a.data)
-cache = run / f"faith_features_{Path(a.scored).stem}.npz"
+cache = Path(a.cache) if a.cache else run / f"faith_features_{Path(a.scored).stem}.npz"
 
 rows = _read(data / "train.jsonl")
 items = []  # (input index, prompt text, answer text, check, faithful)
@@ -109,11 +111,11 @@ for thr in (0.5, 0.7, 0.8, 0.9):
           f"below: {y[te][~sel].mean() if (~sel).any() else float('nan'):.3f}", flush=True)
 m = models["combined"][0]
 sc, lr = m.named_steps["standardscaler"], m.named_steps["logisticregression"]
-(run / "faith_scorer.json").write_text(json.dumps({
+Path(a.out or run / "faith_scorer.json").write_text(json.dumps({
     "label": "teacher judge faithful >= 4", "scored": a.scored, "results": res,
     "features": ["verified", "share", "unverified", "errors", "refs", "words",
                  "lp_mean", "lp_min", "lp_p05", "lp_share_below_0.1", "entropy_mean", "answer_tokens",
                  f"hidden_mean[{hid.shape[1] // 2}]", f"hidden_last[{hid.shape[1] // 2}]"],
     "mean": sc.mean_.tolist(), "scale": sc.scale_.tolist(), "coef": lr.coef_[0].tolist(),
     "intercept": float(lr.intercept_[0])}, indent=1))
-print(f"wrote {run / 'faith_scorer.json'}")
+print(f"wrote {a.out or run / 'faith_scorer.json'}")

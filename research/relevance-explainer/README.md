@@ -1,119 +1,122 @@
-# Relevance Explainer
+# Relevance explainer
 
-A small model (about 20 MB at INT8) that reads a search query, the applied filters, the retriever's similarity score and the metadata of one catalog result, and writes a verdict (`relevant`, `partly_relevant` or `irrelevant`) followed by a short narrative that explains it. Queries and narratives can be in 11 languages; the catalog metadata is in English.
+A small multilingual model (34 MB at INT8, CPU) that reads one catalog record and a search, and writes whether the
+record answers the search (`relevant`, `partly_relevant` or `irrelevant`) with a short explanation. The explanation's
+facts are written as claims copied from the record, and a verifier outside the model checks each claim against the
+record. This README covers the task, the use of the model from Python, the command line and the web app, the checks
+attached to every answer, the results, the repository layout and the limitations. `REPRODUCE.md` gives the full
+lineage of the released model.
 
 ## Task
 
-Input (one text block):
+Input: the record's metadata, then the search, its language, the facets set in the interface, and the constraints
+parsed from the search with their status against the record (rule-based, `synth/understand.py`):
 
 ```
-Respond in: French
-Item type: survey microdata study
-Query: données éducation filles Burkina Faso 2015
-Filters: countries=Burkina Faso; years=2015; sex=female
-Retrieval similarity: 0.40
-Result: Threshold BRIGHT I 2007-2008
-Producer: ...; Survey years: 2007-2008; Coverage: 1 country: Burkina Faso
-Abstract: ...
-Filter check: country Burkina Faso: covered; survey years 2015: not covered
+Item type: statistical indicator series
+Result: Average sovereign recovery rates
+Database: Global Emerging Markets Risk Database; Source: Global Emerging Markets Risk Database
+Unit: Defaults, Percentage, Euros; Frequency: Annual; Years: 2024-2024
+Coverage: not stated
+Definition: Average recovery rates for sovereign and sovereign-guaranteed counterparts in 1984-2024
+Respond in: English
+Search: sovereign recovery rates census data 2024
+Facets: none
+Understood: time=2024 [query]; wants=microdata [query]
+Checks: time 2024: covered (2024) | type microdata: item is an indicator series
 ```
 
-Output: the verdict on the first line, then two or three sentences in the query's language that name the evidence (what the item contains, which filters pass or fail, what is missing).
+Output (as the API returns it, from the realistic test set):
 
-The retrieval similarity and the filter check are computed outside the model. The similarity comes from the retriever. The filter check is a deterministic comparison of the filters with the item's country list, year range and frequency.
+```
+<verdict grade="5">partly_relevant</verdict>
+<claims><c cid="3" field="time">2024</c><c cid="2" field="title">Average sovereign recovery rates</c></claims>
+<tldr>The item matches the topic and year but is an aggregated indicator series, not the requested census microdata.</tldr>
+<exp>The item provides <r cid="2">average sovereign recovery rates</r> for <r cid="3">2024</r>, matching the topic and
+year. However, it is an aggregated indicator series rather than the census microdata requested in the search.</exp>
+```
 
-## Data
+Each claim is a value from one field of the record; each reference in the text points to a claim. Searches and
+explanations can be in English, Arabic, Chinese, French, Hindi, Indonesian, Portuguese, Russian, Spanish, Swahili and
+Turkish.
 
-Synthetic, built from open catalogs and written by a larger teacher model.
+## Use
 
-- Sources: World Bank Data360 indicators, Microdata Library studies, World Bank Policy Research Working Papers (with a passage cut from the full text), and Humanitarian Data Exchange datasets.
-- Queries: a teacher model writes searches with filters in 11 languages, for about 1,270 themes and for specific catalog items (one search the item answers fully and one it answers partly). Results come from each catalog's real search, sampled at several ranks.
-- Labels: Qwen3.8-27B writes the verdict and narrative for each (query, filters, item) pair. It is served with vLLM (8-bit weights) for most of the data and with Ollama (4-bit weights) for the first 4,155 pairs.
-- Six rounds (v1 to v6); from the third on, a flatter language mix gives Russian, Hindi, Indonesian, Turkish and Swahili more examples. Final set: 165,550 training, 25,232 validation and 19,003 test examples after de-duplication. Splits are by theme, so test themes are unseen in training. Class mix in the test set: 63.0% irrelevant, 27.7% partly relevant, 9.3% relevant. Results below are reported on the third-round test set (7,056 examples) so that every model is compared on the same examples; the final model scores 85.0% verdict accuracy on the sixth-round test set as well.
-- Label noise: relabelling 498 training examples with the teacher's thinking mode on agrees with the stored verdicts on 88.2%. Most disagreements are at the irrelevant and partly relevant boundary.
+```
+pip install .                      # inference: torch, tokenizers, numpy
+relevance-explainer bundle --run runs/final-C-dpo --out dist/relevance-explainer-c-dpo
+```
 
-## Model
+```python
+from relevance_explainer.inference import Explainer
 
-- Decoder-only transformer with RMSNorm, rotary positions, SwiGLU and tied embeddings: 7 layers, width 448, 7 heads, feed-forward 1024, vocabulary 12,000. 20.64M parameters.
-- Pretrained on Wikipedia in the 11 languages (1.62B tokens, two passes). The embeddings start from Qwen3-0.6B embeddings, matched by token string and reduced with PCA to the model width.
-- Fine-tuned on the task data with the loss on the output only and a higher weight on the verdict tokens.
-- Preference-tuned with DPO on 4,499 pairs. For each pair the student wrote four narratives for a training input with the teacher's verdict fixed, the teacher scored them for faithfulness and coherence, and the pair prefers a narrative scored 5 over one scored 3 or lower (`distill/`). Settings: beta 0.3, learning rate 2e-5, 2 epochs, plus a supervised term on the preferred narrative.
-- Export: per-row INT8 weights with fp16 row scales in one file (`tiny/export.py`). The file is 21.6 MB including the 0.84 MB tokenizer, and 18.4 MB after gzip. INT4 weights (10.4 MB) were evaluated by simulated quantization; no packed INT4 file is written.
+ex = Explainer.from_bundle("dist/relevance-explainer-c-dpo", threads=4)
+out = ex.explain(record, search="sovereign recovery rates census data 2024", language="English")
+out["verdict"], out["explanation"], out["all_verified"], out["faithfulness"], out["verdict_set"]
+```
+
+`record` is a catalog record as built by `synth/sources.py`; `explain_text` takes an already rendered input. The
+command line reads JSON lines: `relevance-explainer explain --bundle <dir> --input requests.jsonl`. A bundle holds the
+INT8 model, the calibration and the faithfulness scorer with their checksums, and refuses to load if a file was
+changed.
+
+The web app (`scripts/serve_app.sh`, needs `pip install .[app]`) serves curated examples, live CPU generation and the
+checks below for each answer; the earlier models remain selectable for comparison.
+
+## Checks attached to every answer
+
+| Check | What it is | Realistic test |
+|---|---|---|
+| Verified claims and references | each claim's value occurs in its record field, each reference matches its claim, and no number or place outside the record is stated (`claims.py`) | 97.3% of answers fully verified; 99.3% after one round of 3 retries chosen by the verifier |
+| Calibrated verdict probabilities | temperature fitted on held-out training-distribution rows | expected calibration error 2.3% |
+| Conformal verdict set | the verdicts whose calibrated probability passes the 90% threshold | contains the reference verdict for 91.6% of searches; one verdict for 86.9% |
+| Expected grade | 0 to 10, from the grade token probabilities weighted by the verdict probabilities | concordance with the teacher's 0 to 10 grade 0.889, against 0.857 for the written grade (measured on the 250k-sample model) |
+| Faithfulness score | probability that a judge rates the explanation faithful 4 or 5 of 5, from the verifier and the model's own uncertainty (`faith.py`) | AUROC 0.856 against the teacher judge and 0.782 against Gemma 4 (800 answers); at 0.8 or more (83% of answers) the judges rate 94% faithful |
 
 ## Results
 
-Test set of 7,056 examples, greedy decoding with a 4-gram repeat block. Verdict accuracy varies by about 0.1 points across training seeds (measured on the earlier 25k-example model).
+Released model (`runs/final-C-dpo`), INT8, verdict accuracy against the teacher's labels:
 
-| Weights | Size | Verdict accuracy | Macro-F1 |
-|---|---|---|---|
-| INT8 | 20.7 MB (weights) | 85.5% | 0.814 |
-| INT4 | 10.4 MB (weights) | 84.7% | (sixth-round test) |
+| Test set | Searches | Accuracy |
+|---|---|---|
+| Realistic searches on themes unseen in training | 1,495 | 86.6% (CPU) / 86.8% (GPU) |
+| Paraphrased searches | 2,175 | 80.9% |
+| Nine item types | 482 | 81.3% |
+| Challenge phrasings (negation, look-alike topics, proxies and others) | 2,244 | 74.7% |
 
-Always answering "irrelevant" scores 64.4%.
-
-Narrative quality (800 test examples, judged by the teacher model, which also wrote the training narratives and therefore favours them):
-
-| | 25k examples | 60k | 100k | 131k | 166k | 166k + preference tuning (final, INT8) |
-|---|---|---|---|---|---|---|
-| Faithfulness to the input (1 to 5) | 3.24 | 3.85 | 4.04 | 4.18 | 4.30 | 4.44 |
-| Narratives scoring 4 or more | 46.9% | 63.9% | 69.6% | 74.3% | 77.9% | 81.8% |
-| Coherence (1 to 5) | 3.62 | 4.08 | 4.28 | 4.30 | 4.44 | 4.51 |
-| Argues for its own verdict | 98.1% | 99.0% | 99.8% | 99.6% | 99.6% | 99.6% |
-| Written in the requested language | 97.4% | 99.3% | 99.3% | 99.4% | 99.5% | 99.8% |
-
-The teacher's own narratives score 4.99 on faithfulness under this judge (self-judged).
-
-Faithfulness of the final model by language (examples judged): English 4.73 (220), Spanish 4.58 (88), Chinese 4.51 (72), Hindi 4.42 (48), Portuguese 4.29 (42), Russian 4.29 (77), French 4.26 (74), Turkish 4.21 (42), Arabic 4.20 (66), Swahili 4.09 (23), Indonesian 4.08 (48). With 25k training examples the same languages ranged from 2.25 (Hindi) to 4.21 (English).
-
-Inference on one CPU thread: 0.31 s to load, 172 ms to the first token for a 330-token input, 11 ms per generated token (0.77 s for a typical 71-token output).
-
-## What mattered
-
-- Pretraining with Qwen-initialized embeddings cut held-out perplexity by 40 to 56% at equal compute (English 36.0 to 21.3 at 100M tokens). A model trained from scratch on 1,107 examples memorized them (56% verdict accuracy, below the majority rate).
-- The retrieval similarity is the largest single gain. Without it the verdict stayed near the majority rate even with 11,500 training examples (about 74%). With it, the same recipe reaches 82%.
-- A 7-layer, wide model was slightly better than 10 and 14-layer models of the same size.
-- Task data is the main lever for the narratives. On one test set, 25k, 30k, 60k, 100k, 131k and 166k training examples gave faithfulness 3.24, 3.57, 3.85, 4.04, 4.18 and 4.30, with the largest gains in the languages that had the least data (Russian 2.51 to 4.25, Hindi 2.25 to 4.23). The gain per round is shrinking (+0.28, +0.19, +0.14, +0.12). The verdict was flat from 60k to 131k and gained a point at 166k (84.5% to 85.5%).
-- A byte-level architecture (ByteFlow Net, implemented in `tiny/byteflow.py`) was 18% worse in bits per byte at the same text budget, 2.6 points worse on the verdict, and its generation collapsed under any causal boundary rule because the method's chunking is non-causal at training time; see the lab notebook (2026-10-03). The verdict moved less (82.7% to 83.5%); it is bounded by the teacher's own label consistency (88% agreement between its thinking and non-thinking verdicts).
-- Preference tuning on the student's own narratives scored by the teacher adds about +0.15 faithfulness at either data size (3.50 to 3.65 at 25k, 3.85 to 3.99 at 60k) without changing verdict accuracy. Settings matter: a learning rate of 5e-5 with 3 epochs lowered faithfulness to 3.37 (coherence 3.39) and 3e-5 with beta 0.05 lowered it to 2.72. Fine-tuning on the preferred narratives alone gave 3.60.
-- Did not help: doubling the pretraining corpus with FineWeb-2 web text (2 to 6 times more tokens for the small languages; equal verdict and 0.15 lower faithfulness on the 60k data), per-language fine-tunes from the shared base (worse on every language tested), a per-language adapter on the multilingual model (no change), a 40M-parameter model at INT4 (equal to 20M at INT8 at the same file size), and weight-tied recursive layers (no quality gain at equal stored size, no speed gain).
-- Did not help: a logit bonus for input tokens at decoding time (faithfulness 3.50 at strength 1, 2.78 at strength 4), a higher loss weight on the verdict tokens (tested without the similarity input; the final recipe uses a weight of 5 without an ablation), and training on the teacher's verdict probabilities for the 21% of training examples that had them (80.3% accuracy after 14 epochs against 82.6%). The teacher's probabilities are close to one-hot (mean 0.90 on its own label).
-
-## Limitations
-
-- Labels and narratives come from one teacher model and were not reviewed by people. Non-English narratives were not checked by native speakers.
-- 18% of the narratives score below 4 on faithfulness, and faithfulness is lowest in Indonesian, Swahili and Arabic.
-- The judge and the teacher are the same model. Faithfulness numbers show the gap between student and teacher, and the absolute scale is uncertain. The preference pairs were also scored by this judge, so part of the gain may reflect its preferences.
-- The test set has 631 relevant examples, and the judged per-language groups have 23 to 220 examples, so per-language differences of a few tenths are noisy.
-- The similarity is computed by a 97M-parameter search model that the retriever supplies. It is not part of the 20 MB.
-- The year filter is not checked for documents, because a paper's publication year does not give the period its data covers.
-
-## Reproduce
-
-```
-scripts/serve_vllm.sh                                   # teacher on one GPU (GPU=0 MEM=0.9 PORT=8000)
-scripts/run_pipeline.sh data/v2 900 900                 # queries, anchored queries, retrieval, narratives
-scripts/run_round.sh data/v3 200                        # a further round with the flatter language mix
-scripts/round_when_ready.sh data/v4 data/f3 "data/v3 data/v2 data/v1" runs/pre/model.pt runs/f3   # unattended: assemble, fine-tune, DPO, evaluate
-python -m relevance_explainer.synth.generate assemble --out data/f2 --also data/v2 data/v1 --max-ratio 100 --similarity
-python -m relevance_explainer.tiny.corpus fetch|tokenizer|tokenize --root data/corpus
-python -m relevance_explainer.tiny.pretrain --root data/corpus --out runs/pre --tokens 1.6e9 \
-    --init-emb Qwen/Qwen3-0.6B --layers 7 --d-model 448 --heads 7 --d-ff 1024
-python -m relevance_explainer.tiny.train --data data/f2 --out runs/task --tokenizer data/corpus/tokenizer.json \
-    --init runs/pre/model.pt --lr 1e-3 --epochs 8 --bs 32 --verdict-weight 5 --select val_verdict_acc
-# preference tuning (TEACHER_URLS lists the vLLM servers)
-python -m relevance_explainer.distill.onpolicy sample --run runs/task --data data/f2 --n 8000 --k 4
-python -m relevance_explainer.distill.onpolicy score  --data data/f2
-python -m relevance_explainer.distill.onpolicy pairs  --data data/f2
-python -m relevance_explainer.tiny.dpo --run runs/task --data data/f2 --out runs/final --beta 0.3 --lr 2e-5 --epochs 2 --sft 0.5
-python -m relevance_explainer.tiny.export --run runs/final --out runs/final/explainer-int8.pt
-scripts/judge.sh runs/final int8 800
-```
+Explanations of 800 realistic-test answers judged faithful 4 or 5 of 5: 88.4% by the teacher (Qwen3.8-27B), 90.1% by
+Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at the 90th percentile.
 
 ## Layout
 
-- `src/relevance_explainer/synth/`: catalog sources, query and narrative generation, retrieval signals.
-- `src/relevance_explainer/tiny/`: model, corpus, pretraining, task training, preference tuning, evaluation, export, judge.
-- `src/relevance_explainer/distill/`: teacher-side tools (verdict probabilities, label-noise check) and on-policy sampling, scoring and pair building.
-- `scripts/`: pipeline, vLLM serving, judge and sweep scripts.
-- `notes/lab_notebook.md`: dated, append-only experiment log with all numbers.
-- `data/` and `runs/` hold generated data and trained models and are not tracked by git.
+| Path | Contents |
+|---|---|
+| `src/relevance_explainer/inference.py`, `answer_c.py`, `claims.py`, `faith.py` | inference API, answer pipeline, verifier, faithfulness scorer |
+| `src/relevance_explainer/tiny/` | model, pretraining, fine-tuning, DPO, evaluation, INT8 export, decoding guards |
+| `src/relevance_explainer/synth/` | catalog sources, search generation, query understanding, rendering, teacher labelling |
+| `src/relevance_explainer/distill/` | on-policy sampling, scoring and preference pairs |
+| `src/relevance_explainer/webapp/` | web app |
+| `src/relevance_explainer/resources/` | gazetteer, multilingual lexicon and word lists used by query understanding and the verifier |
+| `scripts/` | command-line steps, indexed in `scripts/README.md` |
+| `app/` | the app's curated examples |
+| `requirements/` | exact versions of the research and teacher-serving environments |
+| `tests/` | unit tests, repository checks and inference tests |
+| `data/`, `runs/` | generated data and trained models, not tracked; `artifacts.json` lists their checksums |
+
+## Documentation
+
+- `REPRODUCE.md`: environment, lineage of the released model, checks of a rerun.
+- `RECIPE.md`: the previous app model and the round G data.
+- `docs/first_model.md`: the first model and the findings of rounds 1 to 7.
+- `docs/design_realistic.md`: the realistic search design.
+- `docs/rating_protocol.md`: the planned human rating study.
+
+## Limitations
+
+- Labels and explanations come from one teacher model; faithfulness has been judged by two LLMs and not yet by people.
+- One verdict in eight is wrong on realistic searches, and about one in four on the challenge phrasings. The verdict
+  suits explaining a result to a reader; it is not accurate enough to remove results automatically.
+- The model has been evaluated on World Bank, HDX, ILOSTAT, Eurostat and Statistics Canada records only, with
+  searches written by LLMs. A new catalog needs its own labelled test set before its accuracy is known.
+- Single answers can differ between CPU and GPU (41% of greedy texts on the realistic test), although the rates
+  agree; a service should log the answer it served with its checks.
