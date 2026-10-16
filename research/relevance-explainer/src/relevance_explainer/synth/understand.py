@@ -15,7 +15,7 @@ import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
-_RES = Path(__file__).resolve().parents[3] / "resources"  # tracked copies; data/geo holds freshly built ones
+_RES = Path(__file__).resolve().parents[1] / "resources"  # packaged copies; data/geo holds freshly built ones
 GEO = Path("data/geo/geo.json") if Path("data/geo/geo.json").exists() else _RES / "geo.json"
 LEX = Path("data/geo/lexicon.json") if Path("data/geo/lexicon.json").exists() else _RES / "lexicon.json"
 COMMON = Path("data/geo/common_words.json")

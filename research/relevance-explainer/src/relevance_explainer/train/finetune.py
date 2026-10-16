@@ -16,7 +16,6 @@ from collections import Counter
 from pathlib import Path
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, get_cosine_schedule_with_warmup
 
 VERDICTS = ["relevant", "partly_relevant", "irrelevant"]
 SEP = "\n\n### Judgment\n"
@@ -110,6 +109,8 @@ def script_share(text: str, name: str) -> float:
 
 
 def main() -> None:
+    from transformers import AutoModelForCausalLM, AutoTokenizer, get_cosine_schedule_with_warmup
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
     ap.add_argument("--model", default="Qwen/Qwen3-0.6B")

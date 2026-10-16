@@ -35,7 +35,7 @@ def export_int8(state: dict, config: dict, tokenizer_json: str, path: Path) -> i
 
 
 def load_int8(path: str | Path, device: str = "cpu") -> tuple[TinyLM, Tokenizer]:
-    blob = torch.load(path, map_location="cpu")
+    blob = torch.load(path, map_location="cpu", weights_only=True)  # tensors, a config dict and a string: no pickled code
     state = {}
     for name, t in blob["tensors"].items():
         state[name] = t["q"].float() * t["scale"].float() if "q" in t else t["fp16"].float()
