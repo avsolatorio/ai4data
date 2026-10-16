@@ -8,3 +8,4 @@ notes/
 docs/rating_sample/*_key.csv
 scripts/local.env
 dist/
+logs/

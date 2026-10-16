@@ -142,7 +142,8 @@ _ASSETS: dict = {}
 def _claim_events(text: str, model_name: str, guard: bool):
     """Answer of a claim-carrying model (answer_c.py): stream the explanation as it is written, then the checks."""
     import queue
-    from ..answer_c import Assets, answer, segments as _segments
+    from ..answer_c import Assets, answer, parse_checks, record_view, segments as _segments
+    from ..claims import parse_record
     from ..claims import _SECTION, from_model, strip_model_tags
     model, tk, masks, load_s, size = V.load(model_name)
     if model_name not in _ASSETS:
@@ -196,7 +197,11 @@ def _claim_events(text: str, model_name: str, guard: bool):
                                                 "unverified": ck["unverified"], "flags": ck["flags"], "errors": ck["errors"],
                                                 "verdict_set": o["verdict_set"], "set_level": o["set_level"],
                                                 "expected_grade": o["expected_grade"], "written_grade": ck["grade"],
-                                                "faith": o["faith"], "retried": o["retried"],
+                                                "faith": o["faith"], "retried": o["retried"], "trust": o["trust"],
+                                                "verdict_view": o["verdict_view"], "record": record_view(text),
+                                                "checks": parse_checks(text),
+                                                "search": dict(parse_record(text)).get("Search", ""),
+                                                "language": dict(parse_record(text)).get("Respond in", ""),
                                                 "attempts": [{"kept": x["kept"], "all_verified": x["all_verified"]} for x in o["attempts"]]},
                               "attempts": [], "stats": {
                 "prompt_tokens": prompt_len, "output_tokens": n_out, "first_token_ms": round((first[0] or 0) * 1000),
@@ -347,6 +352,34 @@ async def generate(request: Request) -> Response:
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
+async def explain_page(request: Request) -> Response:
+    return FileResponse(STATIC / "explain.html", headers={"Cache-Control": "no-cache"})
+
+
+FEEDBACK_LOG = Path(os.environ.get("FEEDBACK_LOG", "logs/feedback.jsonl"))
+_feedback_lock = threading.Lock()
+
+
+async def feedback(request: Request) -> Response:
+    """{"feedback_id", "example_id", "search", "verdict", "trust", "helpful": true/false, "comment"} -> one JSON line in
+    FEEDBACK_LOG. A vote followed by a comment arrives as two rows with the same feedback_id; the later row holds both.
+    No user identifiers are stored."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+    if not isinstance(body.get("helpful"), bool):
+        return JSONResponse({"error": "helpful must be true or false"}, status_code=400)
+    row = {"time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "helpful": body["helpful"],
+           **{k: str(body.get(k, ""))[:500] for k in ("feedback_id", "example_id", "search", "verdict", "trust", "model")},
+           "comment": str(body.get("comment", ""))[:2000]}
+    with _feedback_lock:
+        FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
+        with FEEDBACK_LOG.open("a") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return JSONResponse({"ok": True})
+
+
 async def live_page(request: Request) -> Response:
     return FileResponse(STATIC / "live.html", headers={"Cache-Control": "no-cache"})
 
@@ -372,6 +405,7 @@ app = Starlette(routes=[
     Route("/", index), Route("/index.html", index), Route("/api/examples", examples), Route("/api/models", models),
     Route("/api/generate", generate, methods=["POST"]), Route("/api/render", render, methods=["POST"]), Route("/healthz", health),
     Route("/live", live_page), Route("/api/live", live_render, methods=["POST"]),
+    Route("/explain", explain_page), Route("/api/feedback", feedback, methods=["POST"]),
 ], middleware=[Middleware(StripPrefix)])
 
 # Load the default model at startup so the first request is fast (when its file is present; a checkout without the

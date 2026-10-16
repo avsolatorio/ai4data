@@ -8,6 +8,11 @@ the offline judge scores, and can run every model on the same input side by side
 the claims copied from the record, the conformal verdict set, the expected grade and the faithfulness score.
 
 - Server: `src/relevance_explainer/webapp/server.py` (Starlette on uvicorn); page: `webapp/static/index.html`.
+- User view, `/explain` (`webapp/static/explain.html`): one search result as a catalog user sees it, with a plain
+  verdict (hedged when the conformal set holds two verdicts), the one-sentence summary with each cited fact linked
+  to its record field, the search's rule-based checks against the record, one trust state (`answer_c.trust`:
+  shown as is, "check the record" with its reasons, or withheld), the full explanation on request, and a "was this
+  helpful?" control that appends to `FEEDBACK_LOG` (default `$RELEXP_LOGS/feedback.jsonl`; no user identifiers).
 - Examples, three sets selectable on the page:
   - Realistic searches, `app/examples_realistic.json`: 100 searches on themes unseen in training, with their catalog
     records, so the server renders the input for each model's format (`/api/render`).
@@ -72,6 +77,8 @@ before the request reaches the app. Without it the prefix is forwarded, which al
 | GET | `/api/examples` | the 100 examples with labels, reference and offline judge scores |
 | GET | `/api/models` | available models and file sizes |
 | POST | `/api/generate` | `{"input", "model", "temperature", "guard"}`; returns NDJSON events `start`, `probs`, `token`, `done` or `error` |
+| POST | `/api/feedback` | `{"feedback_id", "example_id", "search", "verdict", "trust", "helpful", "comment"}`; one JSON line in `FEEDBACK_LOG` |
+| GET | `/explain` | the user view |
 | GET | `/healthz` | liveness |
 | GET | `/live` | page that explains a live catalog record (link plus typed search) |
 | POST | `/api/live` | `{"url", "search", "language"}`; fetches a Data360 indicator or a study from an allowlisted NADA catalog (Microdata Library, catalog.ihsn.org, NADA demo, Reproducible Research Repository), converts it with `relevance_explainer.schemas` and returns the item-first input, the detected language and the record summary. Generation then goes through `/api/generate` with `"raw": true` |

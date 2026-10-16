@@ -103,7 +103,8 @@ class Explainer:
                 "tldr": ck["sections"].get("tldr", ""), "explanation": ck["sections"].get("exp", ""),
                 "claims": ck["claims"], "references": ck["refs"], "all_verified": ck["all_verified"],
                 "unverified": ck["unverified"], "flags": ck["flags"], "errors": ck["errors"], "faithfulness": o["faith"],
-                "retried": o["retried"], "raw": o["text"], "model": self.meta.get("name"),
+                "retried": o["retried"], "trust": o["trust"], "verdict_view": o["verdict_view"],
+                "raw": o["text"], "model": self.meta.get("name"),
                 "model_version": self.meta.get("version"), "seconds": round(time.time() - t0, 3)}
 
 

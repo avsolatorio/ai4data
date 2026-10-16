@@ -251,15 +251,23 @@ def category(key: str) -> str:
     return CATEGORY.get(key, "other")
 
 
+def claim_source(c: Claim, fields: dict[str, str]) -> str | None:
+    """The first record field of the claim's category that holds its value (the field a reader can check)."""
+    if not c.value:
+        return None
+    for k, fv in fields.items():
+        if category(k) == c.field and (canon(c.value) in canon(fv) or canon(_join_thousands(c.value)) in canon(_join_thousands(fv))):
+            return k
+    return None
+
+
 def _claim_ok(c: Claim, fields: dict[str, str]) -> tuple[bool, str]:
-    same = [v for k, v in fields.items() if category(k) == c.field]
-    if not same:
+    if not any(category(k) == c.field for k in fields):
         return False, f"no {c.field} field in the record"
     if not c.value:
         return False, "empty value"
-    for fv in same:
-        if canon(c.value) in canon(fv) or canon(_join_thousands(c.value)) in canon(_join_thousands(fv)):
-            return True, ""
+    if claim_source(c, fields) is not None:
+        return True, ""
     return False, f"value not in any {c.field} field"
 
 

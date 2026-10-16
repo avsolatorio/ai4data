@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Result Explanations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6fa;--panel:#ffffff;--soft:#f0f2f7;--line:#e3e6ee;--fg:#141824;--fg2:#4a5268;--mute:#6b7389;
+  --acc:#4f46e5;--onacc:#fff;--accbg:rgba(79,70,229,.09);
+  --ok:#047857;--okbg:rgba(16,185,129,.12);--okline:#10b981;
+  --warn:#9a4a07;--warnbg:rgba(245,158,11,.14);--warnline:#f59e0b;
+  --no:#475069;--nobg:rgba(100,116,139,.12);--noline:#94a3b8;
+  --bad:#b91c1c;--badbg:rgba(239,68,68,.10);--badline:#ef4444;
+  --mark:rgba(79,70,229,.10);--markline:rgba(79,70,229,.45);
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 2px 8px rgba(16,24,40,.06);--radius:14px;color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1017;--panel:#151a24;--soft:#1c2230;--line:#262d3d;--fg:#e8ebf3;--fg2:#b4bbcc;--mute:#8b93a8;
+  --acc:#8b85ff;--onacc:#0d1017;--accbg:rgba(139,133,255,.14);
+  --ok:#34d399;--okbg:rgba(52,211,153,.12);--okline:#34d399;
+  --warn:#fbbf24;--warnbg:rgba(251,191,36,.12);--warnline:#fbbf24;
+  --no:#aab3c5;--nobg:rgba(148,163,184,.12);--noline:#64748b;
+  --bad:#f87171;--badbg:rgba(248,113,113,.12);--badline:#f87171;
+  --mark:rgba(139,133,255,.16);--markline:rgba(139,133,255,.6);
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1017;--panel:#151a24;--soft:#1c2230;--line:#262d3d;--fg:#e8ebf3;--fg2:#b4bbcc;--mute:#8b93a8;
+  --acc:#8b85ff;--onacc:#0d1017;--accbg:rgba(139,133,255,.14);
+  --ok:#34d399;--okbg:rgba(52,211,153,.12);--okline:#34d399;
+  --warn:#fbbf24;--warnbg:rgba(251,191,36,.12);--warnline:#fbbf24;
+  --no:#aab3c5;--nobg:rgba(148,163,184,.12);--noline:#64748b;
+  --bad:#f87171;--badbg:rgba(248,113,113,.12);--badline:#f87171;
+  --mark:rgba(139,133,255,.16);--markline:rgba(139,133,255,.6);
+  --shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+a{color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+.top{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.top h1{font-size:16px;margin:0;font-weight:700}
+.top .sp{flex:1}
+.top a,.iconbtn{font-size:13px;color:var(--fg2);text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;cursor:pointer}
+.top a:hover,.iconbtn:hover{background:var(--soft)}
+main{max-width:780px;margin:0 auto;padding:22px 16px 60px}
+.lede{color:var(--fg2);font-size:14px;margin:0 0 18px}
+/* search */
+.search{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:8px}
+.search .q{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 6px}
+.search input{flex:1;min-width:0;border:0;background:transparent;font-size:17px;padding:8px 0;outline:none}
+.search .lang{font-size:12px;color:var(--mute);white-space:nowrap}
+.primary{border:0;border-radius:10px;padding:10px 18px;background:var(--acc);color:var(--onacc);font-weight:600;cursor:pointer}
+.primary:disabled{opacity:.55;cursor:default}
+.examples{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:10px 2px 0}
+.examples .lbl{font-size:12.5px;color:var(--mute);margin-right:2px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-size:13px;cursor:pointer;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg2)}
+.chip:hover{background:var(--soft)}.chip[aria-pressed="true"]{border-color:var(--acc);color:var(--acc);background:var(--accbg)}
+.chip .lc{font-size:11px;color:var(--mute);margin-right:5px;text-transform:uppercase;letter-spacing:.3px}
+/* what the search asks for */
+.asks{padding:2px 20px 14px}
+.h{font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px}
+.asklist{display:flex;flex-wrap:wrap;gap:6px}
+.ask{display:inline-flex;align-items:baseline;gap:6px;border-radius:9px;padding:5px 10px;font-size:13.5px;background:var(--soft);border:1px solid transparent}
+.ask .ic{font-weight:700}
+.ask.met{background:var(--okbg)}.ask.met .ic{color:var(--ok)}
+.ask.unmet{background:var(--badbg)}.ask.unmet .ic{color:var(--bad)}
+.ask.info .ic{color:var(--mute)}
+.ask .st{color:var(--fg2)}
+.ask.flash,.field.flash{border-color:var(--acc);box-shadow:0 0 0 3px var(--accbg)}
+/* result card */
+.result{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card{padding:18px 20px 14px;display:flex;gap:14px}
+.icon{flex:none;width:42px;height:42px;border-radius:11px;background:var(--soft);display:grid;place-items:center;font-size:21px}
+.card .type{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.card h2{font-size:18px;line-height:1.35;margin:2px 0 4px}
+.card .sub{font-size:13.5px;color:var(--fg2)}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.field{border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:13px;color:var(--fg2);transition:box-shadow .2s,border-color .2s}
+.field b{font-weight:600;color:var(--mute);font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;margin-right:5px}
+.desc{font-size:14px;color:var(--fg2);margin-top:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+details.full{border-top:1px solid var(--line)}
+details.full>summary{cursor:pointer;padding:10px 20px;font-size:13px;color:var(--fg2);list-style:none}
+details.full>summary::-webkit-details-marker{display:none}
+details.full>summary::before{content:"▸ ";color:var(--mute)}details.full[open]>summary::before{content:"▾ "}
+.fulllist{padding:0 20px 14px;display:grid;gap:4px}
+.fulllist .field{display:block;border-color:transparent;padding:4px 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+/* explanation */
+.explain{border-top:1px solid var(--line);padding:16px 20px 18px;background:linear-gradient(to bottom,var(--soft),var(--panel) 70px)}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:6px 13px;border-radius:999px;border:1.5px solid transparent}
+.verdict .ic{font-size:14px}
+.v-relevant{color:var(--ok);background:var(--okbg);border-color:var(--okline)}
+.v-partly_relevant{color:var(--warn);background:var(--warnbg);border-color:var(--warnline)}
+.v-irrelevant{color:var(--no);background:var(--nobg);border-color:var(--noline)}
+.v-invalid{color:var(--no);background:var(--nobg)}
+.verdict.unsure{border-style:dashed;color:var(--warn);background:var(--warnbg);border-color:var(--warnline)}
+.hedge{font-size:13px;color:var(--fg2);margin-left:8px}
+.tldr{font-size:17px;line-height:1.55;margin:12px 0 0}
+.exp{font-size:15px;line-height:1.65;color:var(--fg);margin:0}
+mark.fact{background:var(--mark);color:inherit;border-bottom:1.5px dotted var(--markline);border-radius:3px;padding:0 2px;cursor:help}
+mark.fact.bad{background:var(--badbg);border-bottom:1.5px dashed var(--badline)}
+.trust{margin-top:12px;font-size:13.5px;border-radius:10px}
+.trust.checked{color:var(--ok)}
+.trust.check{background:var(--warnbg);color:var(--fg);padding:10px 12px;border-left:3px solid var(--warnline)}
+.trust.withheld{background:var(--nobg);color:var(--fg);padding:12px 14px}
+.trust ul{margin:6px 0 0;padding-left:18px;color:var(--fg2)}
+.trust b{display:block}
+.linkbtn{border:0;background:none;color:var(--acc);cursor:pointer;padding:0;font-size:13.5px;text-decoration:underline}
+details.more{margin-top:12px}
+details.more>summary{cursor:pointer;font-size:13.5px;color:var(--acc);list-style:none;display:inline-block}
+details.more>summary::-webkit-details-marker{display:none}
+.morebody{margin-top:10px;display:grid;gap:12px}
+.sure{font-size:13.5px;color:var(--fg2)}
+.bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:5px;max-width:320px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.cited{display:grid;gap:3px;font-size:13.5px}
+.cited div{display:flex;gap:8px}.cited .k{color:var(--mute);min-width:120px}
+.foot{font-size:12px;color:var(--mute)}
+.feedback{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--fg2)}
+.fb{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:4px 10px;cursor:pointer}
+.fb:hover{background:var(--soft)}
+.feedback textarea{flex-basis:100%;min-height:54px;border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:8px}
+/* progress */
+.steps{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:4px}
+.steps span::before{content:"○ ";}
+.steps .done{color:var(--fg2)}.steps .done::before{content:"✓ ";color:var(--ok)}
+.steps .now{color:var(--fg);font-weight:600}.steps .now::before{content:"● ";color:var(--acc);animation:pulse 1s infinite}
+.partial{color:var(--mute);font-size:15px;line-height:1.65;margin-top:10px}
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--line),var(--soft),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin-top:10px}
+@keyframes sh{to{background-position:-200% 0}}@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion: reduce){.skel,.steps .now::before{animation:none}}
+.empty{color:var(--fg2);font-size:14px}
+.err{color:var(--bad);font-size:14px}
+.about{margin-top:28px;font-size:13px;color:var(--fg2)}
+.about summary{cursor:pointer;color:var(--fg2)}
+.about dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:10px 0 0}
+.about dt{font-weight:600}.about dd{margin:0}
+#tip{position:fixed;z-index:50;max-width:280px;background:var(--fg);color:var(--bg);font-size:12.5px;padding:6px 9px;border-radius:7px;pointer-events:none;opacity:0;transition:opacity .12s}
+#tip.on{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:600px){
+  .search{flex-direction:column;align-items:stretch}.primary{width:100%}.asks{padding:2px 16px 12px}
+  .card{padding:16px}.explain{padding:14px 16px}.icon{width:36px;height:36px;font-size:18px}
+  .tldr{font-size:16px}.chip{max-width:220px;flex:none}.top h1{font-size:15px}
+  .examples{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}.examples .lbl{flex:none}
+  .long{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Search result explanations</h1>
+  <span class="sp"></span>
+  <button class="iconbtn" id="themeBtn" title="Switch light or dark" aria-label="Switch light or dark">◐</button>
+  <a href="./">Model<span class="long"> details</span></a>
+</header>
+<main>
+  <p class="lede">A catalog search result with an explanation of whether it answers the search. Pick an example search or
+    edit it, then press Explain. Every fact the explanation cites is checked against the record.</p>
+
+  <form class="search" id="form" role="search">
+    <label class="q"><span aria-hidden="true">🔍</span><span class="sr">Search</span>
+      <input id="q" dir="auto" autocomplete="off" maxlength="300" placeholder="Pick an example below">
+      <span class="lang" id="lang"></span></label>
+    <button class="primary" id="go" type="submit">Explain</button>
+  </form>
+  <div class="examples" id="examples" aria-label="Example searches"></div>
+
+  <article class="result" id="result" hidden>
+    <div class="card" id="card"></div>
+    <section class="asks" id="asks" hidden>
+      <p class="h">The search compared with this record</p>
+      <div class="asklist" id="asklist"></div>
+    </section>
+    <details class="full" id="full"><summary>Full record</summary><div class="fulllist" id="fulllist"></div></details>
+    <section class="explain" id="explain" aria-live="polite"></section>
+  </article>
+
+  <details class="about">
+    <summary>How to read an explanation</summary>
+    <dl>
+      <dt>Matches / Partly matches / Does not match</dt><dd>Whether the record answers the search. "May match" and "May partly
+        match" mean the model is unsure between two answers.</dd>
+      <dt>Highlighted words</dt><dd>Facts taken from the record. Point at one to see the field it comes from.</dd>
+      <dt>Check the record</dt><dd>The explanation cites something that is not in the record, or its reasoning may not
+        follow from the record. Read the record before relying on it.</dd>
+      <dt>The search compared with this record</dt><dd>Places, years and other conditions found in the search, each
+        compared with the record by fixed rules. These checks are computed before the model writes anything.</dd>
+    </dl>
+  </details>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const MODEL="Claims + DPO (verified references)";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const RTL=new Set(["Arabic"]);
+const LC={English:"en",French:"fr",Spanish:"es",Arabic:"ar",Chinese:"zh",Russian:"ru",Hindi:"hi",Indonesian:"id",Portuguese:"pt",Turkish:"tr",Swahili:"sw"};
+const VERD={relevant:["✓","Matches the search"],partly_relevant:["◐","Partly matches"],irrelevant:["✕","Does not match"],invalid:["?","No answer"]};
+const PLAIN={relevant:"matches",partly_relevant:"partly matches",irrelevant:"does not match"};
+const QUERY_KEYS=new Set(["Respond in","Search","Facets","Understood","Checks","Retrieval similarity","Item type"]);
+const TITLE_KEYS=["Result"],SUB_KEYS=["Database","Organization","Source","Producer","Publisher","Series"];
+const PILL_KEYS=["Coverage","Geographic scope","Country or region","Years","Survey years","Unit","Frequency","Update frequency","Formats"];
+const DESC_KEYS=["Description","Abstract","Definition","Retrieved passage"];
+const MET=["covered","matches","mentioned in the metadata","named in the metadata"],UNMET=["not covered","not mentioned","differs"];
+let EX=[],cur=null,record=null,busy=false,shown=[];
+
+// --- record and checks from a rendered input (same rules as claims.parse_record and answer_c.parse_checks)
+function parseRecord(text){
+  const out=[];
+  for(const line of text.split("\n")){
+    const re=/(?:^|; )([A-Z][A-Za-z ()/]{1,30}): /g;const ks=[...line.matchAll(re)];
+    if(!ks.length||ks[0].index!==0){if(out.length)out[out.length-1][1]+="\n"+line;continue;}
+    ks.forEach((m,i)=>{const end=i+1<ks.length?ks[i+1].index:line.length;out.push([m[1],line.slice(m.index+m[0].length,end).trim()]);});
+  }
+  return out;
+}
+function parseChecks(pairs){
+  const line=(pairs.find(p=>p[0]==="Checks")||[,"none"])[1];
+  if(!line||line.trim()==="none")return [];
+  return line.split(" | ").map(part=>{const i=part.indexOf(": ");const label=i<0?part:part.slice(0,i),st=i<0?"":part.slice(i+2).trim();
+    const state=UNMET.some(u=>st.startsWith(u))?"unmet":MET.some(m=>st.startsWith(m))&&!st.includes("not stated")?"met":"info";
+    return {constraint:label.trim(),status:st,state};});
+}
+function iconFor(type){const t=(type||"").toLowerCase();
+  return t.includes("indicator")?"📈":t.includes("survey")||t.includes("microdata")?"🗂️":t.includes("paper")||t.includes("document")||t.includes("report")?"📄":
+    t.includes("map")||t.includes("layer")?"🗺️":t.includes("table")?"▦":t.includes("script")||t.includes("code")||t.includes("package")?"⌨️":"🗃️";}
+
+// --- rendering
+function renderAsks(checks){
+  $("#asks").hidden=!checks.length;
+  $("#asklist").innerHTML=checks.map((c,i)=>{const sp=c.constraint.indexOf(" ");const kind=sp<0?"":c.constraint.slice(0,sp),val=sp<0?c.constraint:c.constraint.slice(sp+1);
+    const ic=c.state==="met"?"✓":c.state==="unmet"?"✕":"○";
+    return `<span class="ask ${c.state}" data-val="${esc(val.toLowerCase())}" id="ask-${i}"><span class="ic" aria-label="${c.state==="met"?"met":c.state==="unmet"?"not met":"unclear"}">${ic}</span>
+      <span><b>${esc(val)}</b>${kind?` <span class="st">(${esc(kind)})</span>`:""}</span><span class="st">${esc(c.status)}</span></span>`;}).join("");
+}
+function renderCard(pairs){
+  record=pairs.filter(([k])=>!QUERY_KEYS.has(k));
+  const get=keys=>{for(const k of keys){const f=record.find(p=>p[0]===k);if(f)return f;}return null;};
+  const type=(pairs.find(p=>p[0]==="Item type")||[,""])[1],title=get(TITLE_KEYS),sub=get(SUB_KEYS),desc=get(DESC_KEYS);
+  const pills=PILL_KEYS.map(k=>record.find(p=>p[0]===k)).filter(Boolean);
+  $("#card").innerHTML=`<div class="icon" aria-hidden="true">${iconFor(type)}</div><div style="min-width:0">
+    <div class="type">${esc(type)}</div><h2>${esc(title?title[1]:"Untitled record")}</h2>
+    ${sub?`<div class="sub field" data-key="${esc(sub[0])}" style="border:0;padding:0">${esc(sub[1])}</div>`:""}
+    <div class="facts">${pills.map(([k,v])=>`<span class="field" data-key="${esc(k)}"><b>${esc(k)}</b>${esc(v.length>90?v.slice(0,88)+"…":v)}</span>`).join("")}</div>
+    ${desc?`<div class="desc field" data-key="${esc(desc[0])}" style="border:0;padding:0">${esc(desc[1])}</div>`:""}</div>`;
+  $("#fulllist").innerHTML=record.map(([k,v])=>`<div class="field" data-key="${esc(k)}"><b>${esc(k)}</b>${esc(v)}</div>`).join("");
+  $("#result").hidden=false;
+}
+function idle(){$("#explain").innerHTML=`<p class="empty">Press <b>Explain</b> to see whether this record answers the search.</p>`;}
+function progress(phase,partial){
+  const order=["claims","tl;dr","explanation","checking"],names={claims:"Reading the record","tl;dr":"Summarizing",explanation:"Explaining",checking:"Checking facts"};
+  const at=order.indexOf(phase);
+  $("#explain").innerHTML=`<div class="steps">${order.map((p,i)=>`<span class="${i<at?"done":i===at?"now":""}">${names[p]}</span>`).join("")}</div>
+    ${partial?`<div class="partial"${dir()}>${esc(partial)}</div>`:`<div class="skel" style="width:92%"></div><div class="skel" style="width:70%"></div>`}`;
+}
+const dir=()=>RTL.has(cur&&cur.language)?' dir="rtl"':"";
+function segHtml(segs,claims){return(segs||[]).map(s=>{if(s.claim==null)return esc(s.text);
+  const c=claims[s.claim];const src=c&&c.source;
+  const tip=s.ok?(src==="Checks"?"From the search checks":`From the record: ${src||c.field}`):`Not found in the record${s.reason?" ("+s.reason+")":""}`;
+  return `<mark class="fact${s.ok?"":" bad"}" tabindex="0" data-src="${esc(src||"")}" data-val="${esc((c&&c.value||"").toLowerCase())}" data-tip="${esc(tip)}">${esc(s.text)}</mark>`;}).join("");}
+function renderAnswer(ev){
+  const c=ev.claims_answer,vv=c.verdict_view,tr=c.trust,claims=Object.fromEntries(c.claims.map(x=>[x.id,x]));
+  const [ic,label]=VERD[vv.key]||VERD.invalid;
+  const hedge=vv.uncertain&&vv.between.length>1?`<span class="hedge">Unsure whether it ${vv.between.map(v=>PLAIN[v]).join(" or ")}</span>`:"";
+  const tldr=c.sections.tldr?`<p class="tldr"${dir()}>${segHtml(c.sections.tldr,claims)}</p>`:"";
+  const exp=c.sections.exp?`<p class="exp"${dir()}>${segHtml(c.sections.exp,claims)}</p>`:"";
+  let trust="";
+  if(tr.state==="checked")trust=`<div class="trust checked">✓ Every fact it cites is in the record</div>`;
+  if(tr.state==="check")trust=`<div class="trust check"><b>Check the record before relying on this explanation</b><ul>${tr.reasons.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></div>`;
+  const p=ev.probs||{},top=vv.between.length>1?vv.between:[ev.verdict];
+  const sure=`<div class="sure">How sure the model is: ${top.map(v=>`${PLAIN[v]} ${Math.round((p[v]||0)*100)}%`).join(", ")}
+    <div class="bar" aria-hidden="true"><i style="width:${Math.round((p[ev.verdict]||0)*100)}%"></i></div></div>`;
+  const cited=c.claims.length?`<div><p class="h">Facts cited</p><div class="cited">${c.claims.map(x=>`<div><span class="k">${x.ok?"✓":"✕"} ${esc(x.source==="Checks"?"Search checks":x.source||x.field)}</span><span>${esc(x.value)}</span></div>`).join("")}</div></div>`:"";
+  const st=ev.stats||{};
+  const more=`<details class="more"><summary>${tr.state==="withheld"?"Show the model's explanation anyway":"Why? Full explanation"}</summary><div class="morebody">
+    ${tr.state==="withheld"?tldr:""}${exp}${sure}${cited}
+    <div class="foot">Written in ${st.total_s??"?"} s by a ${st.model_mb??"34"} MB model on CPU${c.retried?`, after ${c.retried} more attempts to cite only facts from the record`:""}.</div></div></details>`;
+  const body=tr.state==="withheld"
+    ?`<div class="trust withheld"><b>No reliable explanation for this result</b>Compare the search with the record above.</div>${more}`
+    :`${tldr}${trust}${more}`;
+  $("#explain").innerHTML=`<div><span class="verdict v-${esc(vv.key)}${vv.uncertain?" unsure":""}"><span class="ic" aria-hidden="true">${vv.uncertain?"?":ic}</span>${esc(vv.uncertain&&vv.between.length>1?vv.label:label)}</span>${hedge}</div>
+    ${body}
+    <div class="feedback" id="fbbox"><span>Was this explanation helpful?</span>
+      <button class="fb" data-h="1" aria-label="Helpful">👍 Yes</button><button class="fb" data-h="0" aria-label="Not helpful">👎 No</button></div>`;
+  wireFacts();wireFeedback(ev,tr.state);
+}
+
+// --- fact highlighting: point at a cited fact to see and highlight its source
+const tip=$("#tip");
+function showTip(el){tip.textContent=el.dataset.tip;const r=el.getBoundingClientRect();tip.classList.add("on");
+  const w=tip.offsetWidth;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+"px";
+  tip.style.top=(r.top>48?r.top-tip.offsetHeight-6:r.bottom+6)+"px";}
+function target(el){const src=el.dataset.src,val=el.dataset.val;
+  if(src==="Checks")return [...document.querySelectorAll(".ask")].find(a=>a.dataset.val.includes(val)||val.includes(a.dataset.val));
+  if(!src)return null;
+  const vis=[...document.querySelectorAll("#card .field")].find(f=>f.dataset.key===src);
+  if(vis)return vis;$("#full").open=true;return [...document.querySelectorAll("#fulllist .field")].find(f=>f.dataset.key===src);}
+function wireFacts(){document.querySelectorAll("mark.fact").forEach(m=>{
+  const on=()=>{showTip(m);const t=target(m);if(t){t.classList.add("flash");}};
+  const off=()=>{tip.classList.remove("on");document.querySelectorAll(".flash").forEach(x=>x.classList.remove("flash"));};
+  m.addEventListener("mouseenter",on);m.addEventListener("mouseleave",off);m.addEventListener("focus",on);m.addEventListener("blur",off);
+  m.addEventListener("click",()=>{on();const t=target(m);if(t)t.scrollIntoView({block:"nearest",behavior:"smooth"});});});}
+function wireFeedback(ev,state){const fid=Math.random().toString(36).slice(2,12);  // one id per answer: a later row replaces an earlier one
+  document.querySelectorAll("#fbbox .fb").forEach(b=>b.onclick=async()=>{
+  const helpful=b.dataset.h==="1",box=$("#fbbox");
+  const send=comment=>fetch("api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({feedback_id:fid,example_id:String(cur.id),search:$("#q").value,verdict:ev.verdict,trust:state,helpful,model:MODEL,comment})}).catch(()=>{});
+  send("");
+  box.innerHTML=`<span>Thanks.</span>${helpful?"":`<textarea id="fbc" placeholder="What was wrong or missing? (optional)"></textarea><button class="fb" id="fbs">Send</button>`}`;
+  const s=$("#fbs");if(s)s.onclick=()=>{send($("#fbc").value);box.innerHTML="<span>Thanks, noted.</span>";};});}
+
+// --- examples and flow
+function shuffleExamples(){const pool=EX.filter(e=>!cur||e.id!==cur.id);shown=[];
+  const byLang={};pool.forEach(e=>(byLang[e.language]=byLang[e.language]||[]).push(e));
+  const langs=Object.keys(byLang).sort(()=>Math.random()-.5);
+  for(const l of langs){if(shown.length>=6)break;const a=byLang[l];shown.push(a[Math.floor(Math.random()*a.length)]);}
+  drawExamples();}
+function drawExamples(){$("#examples").innerHTML=`<span class="lbl">Examples:</span>`+[...(cur?[cur]:[]),...shown].map(e=>
+  `<button class="chip" type="button" data-id="${esc(e.id)}" aria-pressed="${cur&&e.id===cur.id}" title="${esc(e.query)}"><span class="lc">${esc(LC[e.language]||e.language)}</span>${esc(e.query)}</button>`).join("")+
+  `<button class="chip" type="button" id="more" title="Show other examples">↻ Others</button>`;
+  document.querySelectorAll(".chip[data-id]").forEach(b=>b.onclick=()=>pick(b.dataset.id));$("#more").onclick=shuffleExamples;}
+function pick(id,push=true){const e=EX.find(x=>String(x.id)===String(id));if(!e||busy)return;cur=e;
+  $("#q").value=e.query;$("#q").dir=RTL.has(e.language)?"rtl":"auto";$("#lang").textContent=`Answer in ${e.language}`;
+  const pairs=parseRecord(e.input);renderCard(pairs);renderAsks(parseChecks(pairs));idle();drawExamples();
+  if(push)history.replaceState(null,"",`#ex=${encodeURIComponent(e.id)}`);}
+async function explain(){
+  if(!cur||busy)return;const q=$("#q").value.trim();if(!q)return;busy=true;$("#go").disabled=true;
+  const edited=q!==cur.query;
+  try{
+    if(edited){const r=await fetch("api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({example_id:String(cur.id),search:q})});
+      if(r.ok){const j=await r.json();const pairs=parseRecord(j.itemfirst);renderAsks(parseChecks(pairs));}}
+    progress("claims");
+    const r=await fetch("api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({example_id:String(cur.id),search:edited?q:null,model:MODEL,guard:true})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||r.statusText);}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="",done=null,timer=null;
+    for(;;){const{value,done:end}=await rd.read();if(end)break;buf+=dec.decode(value,{stream:true});let i;
+      while((i=buf.indexOf("\n"))>=0){const line=buf.slice(0,i);buf=buf.slice(i+1);if(!line.trim())continue;const ev=JSON.parse(line);
+        if(ev.type==="token"){const words=ev.text.split("\n").slice(1).join("\n");progress(ev.phase||"claims",ev.phase==="explanation"?words:"");
+          clearTimeout(timer);timer=setTimeout(()=>progress("checking"),700);}
+        if(ev.type==="done"){clearTimeout(timer);done=ev;}
+        if(ev.type==="error"){clearTimeout(timer);throw new Error(ev.message);}}}
+    if(!done)throw new Error("The connection ended before the explanation was complete.");
+    renderAnswer(done);
+  }catch(e){$("#explain").innerHTML=`<p class="err">Could not explain this result: ${esc(e.message)}. Try again in a moment.</p>`;}
+  finally{busy=false;$("#go").disabled=false;}
+}
+$("#form").onsubmit=e=>{e.preventDefault();explain();};
+$("#themeBtn").onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("rx-theme",r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem("rx-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}
+(async()=>{
+  try{const ex=await fetch("api/examples").then(r=>r.json());EX=ex.filter(e=>e.set==="realistic");}
+  catch(e){$("#explain").innerHTML=`<p class="err">Could not load the examples.</p>`;return;}
+  const h=location.hash.match(/ex=([\w-]+)/);
+  const start=h&&EX.find(e=>String(e.id)===h[1])||EX.find(e=>e.language==="English")||EX[0];
+  shuffleExamples();pick(start.id,false);
+})();
+</script>
+</body>
+</html>

@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from .claims import _REF, NO_REPEAT_TAGGED, from_model, sanitize_input, verify
+from .claims import _REF, NO_REPEAT_TAGGED, QUERY_FIELDS, claim_source, from_model, parse_record, record_fields, sanitize_input, verify
 from .faith import FaithScorer, model_features, verifier_features
 
 SEP = "\n\n### Judgment\n"
@@ -65,9 +65,70 @@ def _band(p: float) -> str:
     return next(name for lo, name in FAITH_BANDS if p >= lo)
 
 
-def _checked(ck) -> dict:
+PLAIN = {"relevant": "matches the search", "partly_relevant": "partly matches the search", "irrelevant": "does not match the search"}
+_MET = ("covered", "matches", "mentioned in the metadata", "named in the metadata")
+_UNMET = ("not covered", "not mentioned", "differs")
+
+
+def record_view(text: str) -> dict:
+    """The record part of a rendered input, for display: its item type and its fields in order."""
+    pairs = parse_record(text)
+    return {"item_type": next((v for k, v in pairs if k == "Item type"), ""),
+            "fields": [[k, v] for k, v in pairs if k not in QUERY_FIELDS and k not in ("Checks", "Item type")]}
+
+
+def parse_checks(text: str) -> list[dict]:
+    """The rule-based checks of the search's constraints against the record (the input's Checks line), each with a
+    state: met, unmet, or info (the status neither confirms nor rules out the constraint)."""
+    line = next((v for k, v in parse_record(text) if k == "Checks"), "none")
+    out = []
+    for part in [] if line.strip() == "none" else line.split(" | "):
+        label, _, status = part.partition(": ")
+        st = status.strip()
+        state = ("unmet" if st.startswith(_UNMET) else "met" if st.startswith(_MET) and "not stated" not in st else "info")
+        out.append({"constraint": label.strip(), "status": st, "state": state})
+    return out
+
+
+def trust(o: dict) -> dict:
+    """One display state for the explanation from its checks: "checked" (show as is), "check" (show, ask the reader to
+    check the record, with the reasons) or "withheld" (show the record; the explanation only on request). Uncertainty
+    about the verdict itself is shown by verdict_view."""
+    ck, faith = o["check"], o.get("faith")
+    reasons = []
+    if o["verdict"] not in VERDICTS or ck["errors"]:
+        return {"state": "withheld", "reasons": ["The model did not produce a complete answer."]}
+    if not ck["all_verified"]:
+        reasons.append("Some facts in the explanation could not be found in the record.")
+    if faith and faith["band"] == "low":
+        reasons.append("The explanation is likely not supported by the record.")
+    elif faith and faith["band"] == "check":
+        reasons.append("The explanation may not fully follow from the record.")
+    withheld = faith is not None and faith["band"] == "low" and not ck["all_verified"]
+    return {"state": "withheld" if withheld else "check" if reasons else "checked", "reasons": reasons}
+
+
+def verdict_view(o: dict) -> dict:
+    """The verdict as a reader sees it. A conformal set with more than one verdict is shown as one hedged label."""
+    vset = o.get("verdict_set") or [o["verdict"]]
+    if o["verdict"] not in VERDICTS:
+        return {"key": "invalid", "label": "No answer", "uncertain": True, "between": []}
+    labels = {"relevant": "Matches the search", "partly_relevant": "Partly matches", "irrelevant": "Does not match"}
+    if len(vset) <= 1:
+        return {"key": o["verdict"], "label": labels[o["verdict"]], "uncertain": False, "between": vset}
+    if set(vset) == {"relevant", "partly_relevant"}:
+        label, key = "May match", "relevant"
+    elif set(vset) == {"partly_relevant", "irrelevant"}:
+        label, key = "May partly match", "partly_relevant"
+    else:
+        label, key = "Unclear", "partly_relevant"
+    return {"key": key, "label": label, "uncertain": True, "between": [v for v in VERDICTS if v in vset]}
+
+
+def _checked(ck, fields: dict | None = None) -> dict:
     return {"all_verified": ck.all_verified, "grade": ck.grade,
-            "claims": [{"id": c.id, "field": c.field, "value": c.value, "ok": c.ok, "reason": c.reason}
+            "claims": [{"id": c.id, "field": c.field, "value": c.value, "ok": c.ok, "reason": c.reason,
+                        "source": claim_source(c, fields) if fields is not None and c.ok else None}
                        for c in ck.claims.values()],
             "refs": [{"claim": r.claim, "text": r.text, "section": r.section, "ok": r.ok, "reason": r.reason} for r in ck.refs],
             "sections": ck.sections, "unverified": ck.unverified, "flags": ck.flags, "errors": ck.errors}
@@ -145,9 +206,12 @@ def answer(a: Assets, text: str, *, retries: int = 3, retry_temperature: float =
         if not np.isnan(gen).any():
             s = float(a.scorer.proba(np.array([verifier_features(out, text)]), gen, hid)[0])
             faith = {"score": round(s, 3), "band": _band(s)}
-    return {"verdict": verdict if verdict in VERDICTS else "invalid", "probs": {k: round(v, 4) for k, v in probs.items()},
-            "verdict_set": vset, "set_level": level if vset is not None else None,
-            "expected_grade": None if eg is None else round(eg, 2), "check": _checked(ck), "faith": faith,
-            "text": out, "attempts": attempts, "retried": retried,
-            "stats": {"prompt_tokens": len(prompt), "output_tokens": len(toks), "greedy_s": round(t_greedy, 2),
-                      "total_s": round(time.time() - t0, 2)}}
+    o = {"verdict": verdict if verdict in VERDICTS else "invalid", "probs": {k: round(v, 4) for k, v in probs.items()},
+         "verdict_set": vset, "set_level": level if vset is not None else None,
+         "expected_grade": None if eg is None else round(eg, 2), "check": _checked(ck, record_fields(text)), "faith": faith,
+         "text": out, "attempts": attempts, "retried": retried,
+         "stats": {"prompt_tokens": len(prompt), "output_tokens": len(toks), "greedy_s": round(t_greedy, 2),
+                   "total_s": round(time.time() - t0, 2)}}
+    o["trust"] = trust(o)
+    o["verdict_view"] = verdict_view(o)
+    return o

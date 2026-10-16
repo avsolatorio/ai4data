@@ -10,6 +10,7 @@ export CUDA_VISIBLE_DEVICES=""
 export BASE_PATH=${BASE_PATH:-}
 export TORCH_THREADS=${TORCH_THREADS:-4}
 export MAX_CONCURRENT=${MAX_CONCURRENT:-4}
+export FEEDBACK_LOG=${FEEDBACK_LOG:-$RELEXP_LOGS/feedback.jsonl}  # answers to "was this helpful?" on /explain
 exec "$RELEXP_PY" -m uvicorn relevance_explainer.webapp.server:app \
   --host "${HOST:-0.0.0.0}" --port "${PORT:-3410}" --workers "${WORKERS:-1}" \
   --proxy-headers --forwarded-allow-ips "*" --timeout-keep-alive 30
