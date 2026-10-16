@@ -1558,3 +1558,55 @@ Code: commit b2a4f7c (deployed to the app on port 3410 at about 16:12 UTC).
 - Browser checks (Chromium, light, dark, 390 px wide): no page errors; editing the search recomputes the checks and the answer; focusing a cited fact shows and highlights its source; the withheld state renders; feedback rows reach the log.
 
 **Implication.** A warning on one answer in four would teach readers to ignore it; keeping verdict uncertainty on the verdict label leaves "check the record" for the 17% of explanations whose facts or reasoning are in doubt, which is where the judges agree less (57% to 72% faithful below a score of 0.8). Whether readers understand the labels is untested; a short task-based test with 5 to 8 users, and the feedback log during a pilot, are the evidence still needed.
+
+## 2026-10-16 18:52 UTC — Records and searches outside the training catalogs
+
+**Question.** How does the released model (final-C-dpo, INT8 bundle, CPU, code at commit b2a4f7c) behave on catalogs it never saw in training?
+
+**What was done.**
+- Records were fetched on 2026-10-16 from four catalogs absent from training:
+  - Our World in Data: 8 charts, rendered as indicator series.
+  - open.canada.ca and data.gov.au (CKAN): 20 datasets.
+  - Zenodo: 8 datasets.
+- The CKAN and Zenodo records were rendered with the HDX dataset renderer, because no generic open-data dataset type exists. Their item type therefore reads "humanitarian dataset (HDX)".
+- 49 searches were written with labels set before the model ran:
+  - 45 searches in the supported languages.
+  - 4 in unsupported languages: German, Tagalog, Japanese and Vietnamese.
+  - Nine borderline cases carry an accepted second label.
+- Files: scripts, records, labels and answers are in `$RELEXP_LOGS/ood_2026-10-16/` (fetch.py, run.py, show.py, cases.tsv, records.jsonl, answers.jsonl).
+
+**Result.**
+- **Label correction.** One label was wrong: the OWID literacy series has no row for Turkey. The model's irrelevant/partly answer for "Türkiye okuma yazma oranı" is correct, and cases.tsv keeps the original label.
+- **Verdicts, supported languages.** After that correction, 33 of 45 match (73%; 31 of 45 strict).
+  - For comparison: realistic test 86.8%, challenge 74.7%.
+  - By source: OWID 13/14, Zenodo 9/10, Canada 5/10, Australia 6/11.
+- **The 12 disagreements by cause:**
+  - **Subnational coverage, 5 cases** (Nunavut, Québec, Saskatchewan, Ontario, South Australia).
+    - The title or description names the provinces, or the item is a point map of all of Canada.
+    - The rule check reports "subnational detail not stated" because CKAN records carry only the country.
+    - The model follows the check and answers partly_relevant.
+  - **Adapter metadata, 1 case.** The solar dataset for 2017 was given Years 2025. The Ontario record also had Years 1990-1990 and frequency "P1M" from my adapter.
+  - **Topic reasoning, 5 cases:**
+    - 城镇化率 read as different from the urban population share;
+    - a wildfire-smoke health page called partly relevant for burned-area statistics;
+    - school enrolment called relevant for university enrolment;
+    - koala diet, a garbled answer that was withheld;
+    - koala hospital data.
+  - **Region mapping, 1 case.** "Europe" was parsed as Europe & Central Asia; the answer was hedged {relevant, partly}.
+- **Query parser.** It found false places in 5 of 49 searches: "spoken" → Spokane, "oranı" → Oran, "sa" → South Africa, "na" → North America, and Arrah (India) in a French search. The model repeats them, for example "pour Québec, en Inde".
+- **Trust states, 45 supported searches.**
+  - checked 27, check 16, withheld 2, so flagged 40%. The realistic test had 17%.
+  - 6 of the 27 "checked" answers have a wrong verdict. "checked" states that the cited facts are in the record; it says nothing on the verdict.
+- **Free text.** Corrupted words appear outside the tagged facts ("CO Nem�� emissions", "rought risk", "Estustralian", "Travel Government Schools", "Sri Lanka" repeated four times). The claim verifier does not see them; the faithfulness scorer gave most of them low scores, so they show "check".
+- **Unsupported languages.**
+  - German, Tagalog and Vietnamese were answered in Spanish or French with garbled words; Japanese was answered in English.
+  - Verdicts: 2 of 4 right. All 4 were flagged "check" (faith ≤ 0.34), and none were withheld.
+
+**Implication.**
+- Deterministic fixes found by this test:
+  - a stopword and minimum-length guard in the place parser;
+  - a subnational check that reads the title and description;
+  - a generic dataset type for open-data portals;
+  - refusing searches outside the 11 languages.
+- Catalog adapters need their own tests: year and frequency fields were wrong in two of the twenty CKAN records.
+- Accuracy on unseen catalogs is about 13 points below the realistic test. A pilot on a new catalog needs a labelled sample from that catalog before deployment.
