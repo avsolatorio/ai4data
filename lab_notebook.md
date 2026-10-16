@@ -1542,3 +1542,19 @@ Code: commits 854cc16, 42f3999, 1d1b46b, 7d92cc0, 29eb2f3 and b14bb76 on `releva
 - Tests: 426 pass in the working tree; 422 pass with 4 stated skips in a fresh checkout without the trained model and the language-ID file.
 
 **Implication.** Every step after the teacher-written data is reproducible exactly, except training, which reproduces within about 0.2 points. Exact reproduction of the released model therefore depends on releasing the round G data, the teacher's tl;dr and grade files, the format C data, the DPO pairs and the base model; `artifacts.json` lists them with checksums. Data generation itself is scripted but not reproducible row by row.
+
+## 2026-10-16 16:14 UTC — User view of an explanation (/explain): display rules from the served answers
+
+Code: commit b2a4f7c (deployed to the app on port 3410 at about 16:12 UTC).
+
+**Question.** The model-details panel shows every signal at once (verdict, confidence, verified references, faithfulness, verdict set, grade, decoding statistics), and signals can look contradictory to a reader. What should a catalog user see?
+
+**What was done.** A separate page for catalog users, with display rules computed in `answer_c.py` (so the API returns them too): `verdict_view` (a plain verdict label; a hedged label when the 90% conformal set holds two verdicts), `trust` (one state for the explanation: checked, check the record with reasons, or withheld), `claim_source` (the record field behind each cited fact, using the verifier's own matching), and the input's rule-based Checks line parsed into met, unmet and unclear. The rules were tallied on the 1,495 CPU answers of the realistic test before the page was built. A first rule that also sent two-verdict sets to "check the record" was dropped.
+
+**Result.**
+- Verification is unchanged by the claim_source refactor (1,495 of 1,495 identical), and every verified claim has a source field.
+- First rule (verdict doubt counted as a reason to check): checked 73.2%, check 26.4%, withheld 0.3%. Final rule (verdict doubt shown on the verdict label only): checked 83.0%, check 16.7%, withheld 0.3%; hedged verdict labels 13.0% (May partly match 10.4%, May match 2.6%).
+- Search checks on the realistic test: 1,205 met, 886 unmet, 887 unclear.
+- Browser checks (Chromium, light, dark, 390 px wide): no page errors; editing the search recomputes the checks and the answer; focusing a cited fact shows and highlights its source; the withheld state renders; feedback rows reach the log.
+
+**Implication.** A warning on one answer in four would teach readers to ignore it; keeping verdict uncertainty on the verdict label leaves "check the record" for the 17% of explanations whose facts or reasoning are in doubt, which is where the judges agree less (57% to 72% faithful below a score of 0.8). Whether readers understand the labels is untested; a short task-based test with 5 to 8 users, and the feedback log during a pilot, are the evidence still needed.
