@@ -1518,3 +1518,27 @@ Code: commit 0f20ab2 (answer_c.py, server and page, scripts/calibrate_c.py, scri
 - Scorer on CPU features, on the 460 judged answers identical on CPU and GPU: AUROC 0.836 against the teacher and 0.766 against Gemma; at 0.8 or more (84.8%) the judges rate 93.6% and 93.1% faithful, below it 60.0% and 75.7%.
 
 **Implication.** The offline figures describe what the app serves: verification, calibration, conformal coverage and the scorer carry over to int8 on CPU within a few tenths of a point, at about 2.6 s per answer. Single answers are not reproducible across hardware (41% of texts differ between CPU and GPU), so an audit log should keep the served text with its checks. All faithfulness figures still rest on LLM judges; a human review on an NSO's own catalog is the next validation needed before deployment beyond a supervised pilot.
+
+## 2026-10-16 15:37 UTC — Reproducibility and packaging of the claim-carrying model; notebook kept out of the PR branch
+
+Code: commits 854cc16, 42f3999, 1d1b46b, 7d92cc0, 29eb2f3 and b14bb76 on `relevance-explainer`.
+
+**Question.** Can the released model (`runs/final-C-dpo`) be reproduced from the repository alone, and does the code run outside this machine?
+
+**What was done.**
+- Decisions (user, 2026-10-16): the lab notebook stays in the fork only and is untracked on the PR branch (snapshot on the fork-only branch `relevance-explainer-notebook`); the rating study's answer key is untracked because the study has not run. The key was in the pushed history; the study sample has to be redrawn from the new model anyway, which makes the exposed key unusable.
+- Scripts: machine paths (interpreter, vllm, log disk) moved to `scripts/env.sh` with an uncommitted `scripts/local.env` (80 scripts rewritten mechanically; the running keepalive's two scripts replaced by rename so the running process kept its file). Three superseded operations scripts removed. An earlier proposal to remove 51 unreferenced scripts was withdrawn after reading their headers: most are data-generation steps of earlier rounds or produced reported results.
+- Packaging: `relevance_explainer.inference` (bundle with SHA-256 checks, input rendering from a record and a search, explain, command line); dependencies declared with a light core (torch, tokenizers, numpy) and extras; `transformers` no longer imported on the inference path; INT8 files loaded weights-only; resources moved into the package; lock files of both environments.
+- Fresh-checkout test (a `git archive` export with no data, runs or local.env) found three tests reading an untracked tokenizer (now a fixture) and a test depending on the fastText language-ID file, whose absence silently disabled the language check (now a warning, a download script with checksum, and a skip with reason). The wheel installed into an empty directory and run from a neutral directory gives the same answer as the app for the same example.
+- Documentation: `REPRODUCE.md` (lineage with commands, inputs, commits), `artifacts.json` (checksums of 31 artifacts), `scripts/README.md` (all 145 scripts indexed, kept complete by a test), README for the current model; the first model's README moved to `docs/first_model.md`.
+- `scripts/verify_reproduction.sh` reran the deterministic steps.
+
+**Result.**
+- Format C data rebuilt under Python hash seeds 1 and 2: train, validation and test byte-identical to the released files.
+- Calibration refit: identical file. Faithfulness scorer refit with features recomputed on GPU: identical file (AUROC 0.8812).
+- Realistic-test generations of the released model: identical file.
+- DPO retrained from the released pairs with the same seed: different weights (GPU kernels), realistic-test verdict accuracy 86.62% against 86.82% (3 of 1,495 searches).
+- Bundle answers on CPU (4 threads) equal the app's parity answers in text, checks and scores (`tests/test_inference.py`).
+- Tests: 426 pass in the working tree; 422 pass with 4 stated skips in a fresh checkout without the trained model and the language-ID file.
+
+**Implication.** Every step after the teacher-written data is reproducible exactly, except training, which reproduces within about 0.2 points. Exact reproduction of the released model therefore depends on releasing the round G data, the teacher's tl;dr and grade files, the format C data, the DPO pairs and the base model; `artifacts.json` lists them with checksums. Data generation itself is scripted but not reproducible row by row.
