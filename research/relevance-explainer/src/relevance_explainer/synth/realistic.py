@@ -88,15 +88,23 @@ SCRIPT = {"Arabic": r"[؀-ۿ]", "Chinese": r"[一-鿿]", "Hindi": r"[ऀ-ॿ]", 
 NEAR = {"Indonesian": {"ms"}, "Portuguese": {"gl"}, "Spanish": {"gl", "ca"}}
 LID_PATH = Path("data/geo/lid.176.ftz")
 _LID = None
+_LID_WARNED = False
 
 
 def language_ok(q: str, lang: str) -> bool:
     """The search is in the requested language: target script for Arabic, Chinese, Hindi and Russian; for the others
     fastText language ID must not confidently name another language (searches under 4 words are not checked)."""
-    global _LID
+    global _LID, _LID_WARNED
     if lang in SCRIPT:
         return re.search(SCRIPT[lang], q) is not None
-    if len(re.findall(r"\w+", q)) < 4 or not LID_PATH.exists():
+    if len(re.findall(r"\w+", q)) < 4:
+        return True
+    if not LID_PATH.exists():  # the check is then skipped: say so once (scripts/fetch_resources.sh downloads the file)
+        if not _LID_WARNED:
+            import warnings
+            warnings.warn(f"{LID_PATH} is missing; language checks of Latin-script text are skipped "
+                          "(run scripts/fetch_resources.sh)", stacklevel=2)
+            _LID_WARNED = True
         return True
     if _LID is None:
         import fasttext

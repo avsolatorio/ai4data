@@ -1,4 +1,7 @@
+import pytest
+
 from relevance_explainer.synth import llm
+from relevance_explainer.synth.realistic import LID_PATH
 from relevance_explainer.synth.tldr_grade import _keys, check
 
 ROW = {"input": ("Item type: indicator series (Data360)\nResult: Unemployment rate\nYears: 2015-2023\nCoverage: Kenya\n"
@@ -22,8 +25,12 @@ def test_invented_number_and_place_fail():
     assert any("does not" in b for b in bad)
 
 
-def test_two_sentences_and_wrong_language_fail():
+def test_two_sentences_fail():
     assert any("one sentence" in b for b in check({"tldr": "It covers Kenya. It includes 2018.", "grade": 8}, ROW))
+
+
+@pytest.mark.skipif(not LID_PATH.exists(), reason="fastText language ID not downloaded (scripts/fetch_resources.sh)")
+def test_wrong_language_fails():
     assert any("not in English" in b for b in check(
         {"tldr": "La serie cubre la tasa de desempleo de Kenia entre 2015 y 2023.", "grade": 8}, ROW))
 
