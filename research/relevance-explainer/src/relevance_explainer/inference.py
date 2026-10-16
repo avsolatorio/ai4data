@@ -35,7 +35,11 @@ import time
 from pathlib import Path
 
 FILES = ("explainer-int8.pt", "calibration.json", "faith_scorer.json")
-INPUT_FORMAT = "itemfirst_nosim, render version 4"
+# Render version of served inputs. Version 5 parses searches and checks records as version 4 (the training data) with
+# the level-5 fixes of synth/understand.py: no places from short everyday words or short alternate city names, and
+# plural subnational words. Version 4 inputs are unchanged (notebook 2026-10-16).
+RENDER_VERSION = 5
+INPUT_FORMAT = f"itemfirst_nosim, render version {RENDER_VERSION}"
 _SIM = re.compile(r"\nRetrieval similarity: [-0-9.]+")
 
 
@@ -47,14 +51,16 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def render(record: dict, search: str, language: str, facets: dict | None = None, understander=None) -> str:
-    """The model input for a record and a search, as the app and the evaluation sets render it (item-first, query
-    understanding and checks at render version 4, no retrieval similarity line)."""
+def render(record: dict, search: str, language: str, facets: dict | None = None, understander=None,
+           render_version: int = RENDER_VERSION) -> str:
+    """The model input for a record and a search, as the app renders it (item-first, query understanding and checks at
+    `render_version`, no retrieval similarity line). render_version=4 gives the inputs of the evaluation sets."""
     from .synth.realistic import item_first, render_v2
     from .synth.understand import Understander
     u = understander or Understander()
-    p = {"query": search.strip(), "language": language, "record": record, "facet_values": facets or {}, "render_version": 4}
-    parsed = u.parse(p["query"], p["facet_values"], level=4)
+    p = {"query": search.strip(), "language": language, "record": record, "facet_values": facets or {},
+         "render_version": render_version}
+    parsed = u.parse(p["query"], p["facet_values"], level=render_version)
     return _SIM.sub("", item_first(render_v2(p, u, parsed, 0.0)))
 
 
@@ -104,6 +110,7 @@ class Explainer:
                 "claims": ck["claims"], "references": ck["refs"], "all_verified": ck["all_verified"],
                 "unverified": ck["unverified"], "flags": ck["flags"], "errors": ck["errors"], "faithfulness": o["faith"],
                 "retried": o["retried"], "trust": o["trust"], "verdict_view": o["verdict_view"],
+                "unsupported_language": o["unsupported_language"],
                 "raw": o["text"], "model": self.meta.get("name"),
                 "model_version": self.meta.get("version"), "seconds": round(time.time() - t0, 3)}
 

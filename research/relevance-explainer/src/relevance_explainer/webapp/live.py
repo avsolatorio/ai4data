@@ -12,6 +12,8 @@ import urllib.parse
 import urllib.request
 from functools import lru_cache
 
+from ..inference import RENDER_VERSION
+
 NADA_HOSTS = {"microdata.worldbank.org", "catalog.ihsn.org", "nada-demo.ihsn.org", "reproducibility.worldbank.org"}
 D360_SEARCH = "https://data360api.worldbank.org/data360/searchv2"
 UA = {"User-Agent": "relevance-explainer demo", "Content-Type": "application/json"}
@@ -110,7 +112,7 @@ def render(url: str, search: str, language: str | None) -> dict:
     lang = language if language in LANGS else detect_language(search)
     t0 = time.time()
     sim = similarity(search, rec)
-    text = to_input(rec, search, lang, sim=sim, fmt="itemfirst", render_version=4)
+    text = to_input(rec, search, lang, sim=sim, fmt="itemfirst", render_version=RENDER_VERSION)
     return {"input": text, "language": lang, "detected": language not in LANGS, "similarity": round(sim, 2),
             "record": {"title": rec["name"], "type": RENDERERS[rec["kind"]].label, "kind": rec["kind"], "link": page,
                        "countries": len(rec.get("countries") or []), "years": [rec.get("year_start"), rec.get("year_end")]},

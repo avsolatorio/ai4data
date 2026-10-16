@@ -96,6 +96,8 @@ def trust(o: dict) -> dict:
     about the verdict itself is shown by verdict_view."""
     ck, faith = o["check"], o.get("faith")
     reasons = []
+    if o.get("unsupported_language"):  # language.py: answers outside the eleven languages were garbled
+        return {"state": "withheld", "reasons": [o["unsupported_language"]]}
     if o["verdict"] not in VERDICTS or ck["errors"]:
         return {"state": "withheld", "reasons": ["The model did not produce a complete answer."]}
     if not ck["all_verified"]:
@@ -111,7 +113,7 @@ def trust(o: dict) -> dict:
 def verdict_view(o: dict) -> dict:
     """The verdict as a reader sees it. A conformal set with more than one verdict is shown as one hedged label."""
     vset = o.get("verdict_set") or [o["verdict"]]
-    if o["verdict"] not in VERDICTS:
+    if o["verdict"] not in VERDICTS or o.get("unsupported_language"):  # verdicts in other languages were right 2 times in 4
         return {"key": "invalid", "label": "No answer", "uncertain": True, "between": []}
     labels = {"relevant": "Matches the search", "partly_relevant": "Partly matches", "irrelevant": "Does not match"}
     if len(vset) <= 1:
@@ -212,6 +214,8 @@ def answer(a: Assets, text: str, *, retries: int = 3, retry_temperature: float =
          "text": out, "attempts": attempts, "retried": retried,
          "stats": {"prompt_tokens": len(prompt), "output_tokens": len(toks), "greedy_s": round(t_greedy, 2),
                    "total_s": round(time.time() - t0, 2)}}
+    from .language import unsupported
+    o["unsupported_language"] = unsupported(text)
     o["trust"] = trust(o)
     o["verdict_view"] = verdict_view(o)
     return o

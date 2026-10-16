@@ -65,8 +65,10 @@ phenomena, hard negatives) are listed under "Data generation" in `scripts/README
 | Teacher judge and Gemma 4 judge of 800 realistic-test answers | `scripts/judge_decode.sh runs/final-C-dpo`, `scripts/judge_gemma.sh runs/final-C runs/final-C-dpo` |
 | The app's CPU path on the realistic test | `scripts/cpu_parity_c.py runs/final-C-dpo data/eval_real/itemfirst_nosim_v4/test.jsonl` |
 | Faithfulness scorer against both judges | `scripts/faith_scorer_eval.py runs/final-C-dpo [--suffix _gemma4]`, `scripts/faith_cpu_check.py runs/final-C-dpo` |
+| Served render version 5 against version 4 on the evaluation sets | `python -m relevance_explainer.synth.eval_v3 --version 5`, `RUN_DIR=runs/final-C-dpo SUF=_v5 scripts/eval_sets.sh`, `scripts/render_change_relabel.py label` and `score` |
+| Records from catalogs absent from training | `scripts/unseen_catalogs.py run --bundle <bundle>` and `report` (`evalsets/unseen_catalogs`) |
 
-Released model on the realistic test (1,495 searches; CPU INT8, as served):
+Released model on the realistic test (1,495 searches; CPU INT8, the app's answer path, inputs at render version 4):
 
 | Measure | Value |
 |---|---|

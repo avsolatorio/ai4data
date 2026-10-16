@@ -424,7 +424,66 @@ class Database:
                       _line(("Topics", _kw(rec))), _line(("Abstract", rec.get("abstract"))))
 
 
-RENDERERS = {**SOURCES, **{c.kind: c() for c in (Table, Geospatial, Image, Video, Script, Database)}}
+class OpenData:
+    """A dataset from an open-data portal (CKAN and similar). Same fields as the HDX renderer, with a neutral item type:
+    HDX records are humanitarian, and on records from other portals that label was wrong (notebook 2026-10-16)."""
+    kind, label = "opendata", "dataset (open data portal)"
+
+    def render(self, rec):
+        return _lines(f"Result: {rec['name']}",
+                      _line(("Organization", rec.get("organization")), ("Source", rec.get("source")),
+                            ("Formats", ", ".join(rec.get("formats") or []))),
+                      _line(("Years", _years(rec) if rec.get("year_end") or not rec.get("year_start") else f"from {rec['year_start']}"),
+                            ("Update frequency", rec.get("update_frequency"))),
+                      _line(("Coverage", _cov(rec))), _line(("Tags", ", ".join(rec.get("tags") or []))),
+                      _line(("Description", rec.get("notes"))))
+
+
+_ISO_FREQ = {"P1D": "daily", "P1W": "weekly", "P2W": "every two weeks", "P1M": "monthly", "P3M": "quarterly",
+             "P6M": "every six months", "P1Y": "annual", "P2Y": "every two years", "P5Y": "every five years"}
+_START_KEYS = ("temporal_coverage_from", "time_period_coverage_start", "temporal_start", "temporal_coverage_start")
+_END_KEYS = ("temporal_coverage_to", "time_period_coverage_end", "temporal_end", "temporal_coverage_end")
+
+
+def _text(v) -> str:
+    """CKAN multilingual fields are {"en": ..., "fr": ...}; take English, else the first value."""
+    if isinstance(v, dict):
+        v = v.get("en") or next(iter(v.values()), "")
+    return str(v or "")
+
+
+def _coverage_year(v) -> int | None:
+    """The year of a temporal-coverage value. Portals also fill these fields automatically: data.gov.au gave the harvest
+    time (2025-03-06 09:24:59.45) for a 2017 dataset and the Unix epoch (1970-01-01 00:00:00) for an undated one; both
+    are read as not stated."""
+    v = str(v or "").strip()
+    m = re.match(r"((?:19|20)\d\d)(?:-\d\d(?:-\d\d)?)?(?:[ T](\d\d:\d\d:\d\d(?:\.\d+)?))?", v)
+    if not m or v.startswith("1970-01-01") or (m.group(2) and not m.group(2).startswith("00:00:00")):
+        return None
+    return int(m.group(1))
+
+
+def ckan_record(pkg: dict, countries: list[str] | None = None) -> dict:
+    """An "opendata" record from a CKAN package_search or package_show result. `countries` is the portal's country when
+    its records do not state one; otherwise countries are taken from the title and description. Years come only from the
+    temporal-coverage fields (_coverage_year); a missing field leaves that end unstated."""
+    title, notes = _text(pkg.get("title_translated") or pkg.get("title")), _text(pkg.get("notes_translated") or pkg.get("notes"))
+    notes = re.sub(r"<[^>]+>", " ", notes)
+    ys, ye = (next((y for k in keys if (y := _coverage_year(pkg.get(k)))), None) for keys in (_START_KEYS, _END_KEYS))
+    kw = pkg.get("keywords")
+    tags = (kw.get("en") if isinstance(kw, dict) else None) or [t.get("display_name") or t.get("name") for t in pkg.get("tags") or []]
+    freq = pkg.get("frequency") or pkg.get("update_freq") or pkg.get("accrual_periodicity")
+    freq = _ISO_FREQ.get(str(freq).upper(), str(freq).replace("_", " ")) if freq else None
+    return {"kind": "opendata", "id": pkg.get("name") or pkg.get("id"), "name": title,
+            "organization": _text((pkg.get("organization") or {}).get("title")).split(" | ")[0] or None,
+            "source": pkg.get("dataset_source") or None, "notes": _clip(notes, 500), "tags": [t for t in tags if t][:8],
+            "formats": sorted({r.get("format") for r in pkg.get("resources") or [] if r.get("format")})[:5],
+            "countries": countries if countries is not None else countries_in_text(title, notes),
+            "year_start": ys, "year_end": ye,
+            "frequency": freq, "update_frequency": freq, "year_label": "years"}
+
+
+RENDERERS = {**SOURCES, **{c.kind: c() for c in (Table, Geospatial, Image, Video, Script, Database, OpenData)}}
 TRAINED_KINDS = set(SOURCES)
 
 _U = None

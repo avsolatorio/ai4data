@@ -30,6 +30,7 @@ from starlette.responses import FileResponse, JSONResponse, PlainTextResponse, R
 from starlette.routing import Route
 
 from .. import viewer as V
+from ..inference import RENDER_VERSION
 from ..tiny.scriptguard import banned_for
 
 STATIC = Path(__file__).parent / "static"
@@ -80,7 +81,7 @@ def render_for(example_id: str, search: str | None) -> dict:
     if _U is None:
         _U = Understander()
     # facets belong to the original search; an edited search is treated as typed with no facets set
-    p = {"query": q, "language": e["language"], "record": e["record"], "facet_values": (e.get("facets") or {}) if q == e["query"] else {}, "render_version": 4}
+    p = {"query": q, "language": e["language"], "record": e["record"], "facet_values": (e.get("facets") or {}) if q == e["query"] else {}, "render_version": RENDER_VERSION}
     parsed = _U.parse(q, p["facet_values"], level=p["render_version"])
     v2 = render_v2(p, _U, parsed, sim)
     return {"itemfirst": item_first(v2), "v1": render_v1(p, p["facet_values"], sim), "similarity": round(sim, 2)}
@@ -198,6 +199,7 @@ def _claim_events(text: str, model_name: str, guard: bool):
                                                 "verdict_set": o["verdict_set"], "set_level": o["set_level"],
                                                 "expected_grade": o["expected_grade"], "written_grade": ck["grade"],
                                                 "faith": o["faith"], "retried": o["retried"], "trust": o["trust"],
+                                                "unsupported_language": o.get("unsupported_language"),
                                                 "verdict_view": o["verdict_view"], "record": record_view(text),
                                                 "checks": parse_checks(text),
                                                 "search": dict(parse_record(text)).get("Search", ""),

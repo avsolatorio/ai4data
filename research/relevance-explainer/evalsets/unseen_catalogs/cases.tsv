@@ -1,0 +1,50 @@
+record	group	language	search	label	also_ok	note
+owid:share-of-population-in-extreme-poverty	supported	English	extreme poverty Bangladesh 2015	relevant		
+owid:share-of-population-in-extreme-poverty	supported	Spanish	pobreza extrema en Bolivia por departamento	partly_relevant		national only, no departments
+owid:co2-emissions-per-capita	supported	French	émissions de CO2 par habitant Sénégal	relevant		
+owid:co2-emissions-per-capita	supported	English	air pollution PM2.5 deaths India	irrelevant		different subject
+owid:life-expectancy	supported	Russian	ожидаемая продолжительность жизни Казахстан	relevant		
+owid:life-expectancy	supported	English	healthy life expectancy by sex Japan	partly_relevant		total life expectancy, no sex breakdown
+owid:literacy-rate-adults	supported	English	literacy rate women Niger 2018	partly_relevant		adults, no sex breakdown
+owid:literacy-rate-adults	supported	Turkish	Türkiye okuma yazma oranı	irrelevant	partly_relevant	the series has no row for Turkey (label corrected after the first run)
+owid:share-of-population-urban	supported	Chinese	中国 城镇化率	relevant		
+owid:plastic-waste-per-capita	supported	Indonesian	sampah plastik per kapita Indonesia 2020	partly_relevant	irrelevant	data only for 2010
+owid:maternal-mortality	supported	English	maternal mortality Sierra Leone 2022	partly_relevant		data end in 2020
+owid:maternal-mortality	supported	Hindi	भारत में मातृ मृत्यु दर	relevant		
+owid:share-of-the-population-with-access-to-electricity	supported	Swahili	upatikanaji wa umeme Tanzania	relevant		
+owid:share-of-the-population-with-access-to-electricity	supported	English	household electricity prices Germany	irrelevant	partly_relevant	access, not prices
+canada:e2f2f3e8-0200-4bca-b819-4ae9fc23b014	supported	English	wildfire burned area statistics British Columbia	irrelevant		health advice page
+canada:ab0c22c6-bbc2-5838-9b6e-7d83c61ba91d	supported	English	permafrost map Canada	relevant		
+canada:ab0c22c6-bbc2-5838-9b6e-7d83c61ba91d	supported	English	permafrost thaw Siberia	irrelevant	partly_relevant	wrong country
+canada:82865d85-8cb8-4ab8-9a7a-b3a79af0bfc3	supported	English	Indigenous languages spoken in Nunavut	relevant		territories included
+canada:d39ad418-11aa-42d2-b7d5-c907e39279d1	supported	French	langues autochtones parlées à la maison Québec	relevant		provinces included
+canada:82865d85-8cb8-4ab8-9a7a-b3a79af0bfc3	supported	English	Aboriginal languages Australia	irrelevant		wrong country
+canada:5e0b5778-80cd-4697-8b84-23b4a814c1ae	supported	English	grain elevator locations Saskatchewan 2015	relevant		
+canada:a3bb167f-9088-59b7-9f22-6c89fb05c648	supported	English	grain elevator locations Saskatchewan 2015	partly_relevant		1974 atlas map
+canada:a1361030-c554-4bf1-83fb-42392c03e1da	supported	English	housing starts Ontario monthly	relevant		
+canada:a1361030-c554-4bf1-83fb-42392c03e1da	supported	English	house prices Toronto	irrelevant	partly_relevant	starts, not prices
+australia:nsw-nsw-combined-drought-indicator	supported	English	drought conditions New South Wales	relevant		
+australia:nsw-nsw-combined-drought-indicator	supported	Spanish	sequía en Australia	partly_relevant	relevant	NSW only
+australia:abares-drought-risk-by-farm-profit	supported	English	drought risk for farms in Australia	relevant		
+australia:nsw-koala-diet-fire	supported	English	koala diet after bushfires	relevant		
+australia:koala-hospital-data	supported	English	koala hospital admissions	relevant		
+australia:coral-sea-marine-park-coral-reef-health-survey-2023	supported	English	coral bleaching Great Barrier Reef 2024	partly_relevant	irrelevant	Coral Sea, 2023
+australia:coral-sea-marine-park-coral-reef-health-survey-2023	supported	Portuguese	saúde dos recifes de coral na Austrália 2023	relevant		
+australia:school-enrolments	supported	English	school enrolment South Australia 2020	relevant		
+australia:school-enrolments	supported	English	university enrolment Australia	irrelevant	partly_relevant	schools only
+australia:au-govt-cer-cer-small-scale-instllns-swh-solar-poa-2017-poa2016	supported	English	rooftop solar installations by postcode 2017	relevant		
+australia:au-govt-cer-cer-small-scale-instllns-swh-solar-poa-2017-poa2016	supported	Arabic	تركيب الألواح الشمسية في أستراليا	relevant		
+zenodo:4454580	supported	English	energy access in refugee camps Rwanda	relevant		
+zenodo:3373822	supported	English	burn injuries household survey Nepal	relevant		
+zenodo:3373822	supported	Indonesian	survei rumah tangga kemiskinan Nepal	irrelevant	partly_relevant	household survey on burns
+zenodo:17161438	supported	English	monthly malaria cases by district Malawi	relevant		
+zenodo:17161438	supported	French	paludisme Mozambique	irrelevant		wrong country
+zenodo:14756245	supported	English	malaria in pregnancy trial Kenya	relevant		
+zenodo:21891416	supported	English	groundwater level time series Europe	relevant		
+zenodo:21891416	supported	English	arsenic in groundwater Bangladesh	irrelevant		
+zenodo:13983147	supported	English	migration in Nairobi slums	relevant		
+zenodo:19643626	supported	English	post-disaster housing reconstruction Haiti	relevant		
+zenodo:21891416	unsupported	German	Grundwasserstände Europa Zeitreihen	relevant		
+owid:share-of-population-in-extreme-poverty	unsupported	Tagalog	kahirapan sa Pilipinas	relevant		
+owid:life-expectancy	unsupported	Japanese	日本の平均寿命	relevant		
+zenodo:17161438	unsupported	Vietnamese	ca sốt rét theo huyện ở Malawi	relevant		

@@ -84,6 +84,19 @@ Released model (`runs/final-C-dpo`), INT8, verdict accuracy against the teacher'
 | Nine item types | 482 | 81.3% |
 | Challenge phrasings (negation, look-alike topics, proxies and others) | 2,244 | 74.7% |
 
+These sets are rendered at render version 4, the format of the training data. The app and `inference.py` render
+version 5, which drops places found in short everyday words or short alternate city names (Swahili "za" read as South
+Africa, "spoken" as Spokane) and counts plural subnational words such as "provinces and territories". 293 of the
+6,396 evaluation inputs change. On those rows, against teacher labels written on the version-5 inputs, the model is
+right on 84.6% of version-5 inputs and 80.5% of version-4 inputs (18 rows better, 6 worse, McNemar p = 0.023; Gemma 4
+labels: 19 better, 6 worse). Against the stored labels it loses 15 rows, because those labels were written on inputs
+that named the false place.
+
+On 45 searches over 29 records from catalogs absent from training (Our World in Data, open.canada.ca, data.gov.au and
+Zenodo; `evalsets/unseen_catalogs`, with labels written before the model was run on them), the verdict agrees with
+the label on 33 (73%). Five of the 12 disagreements are searches for a province or state of a record whose metadata
+names only the country.
+
 Explanations of 800 realistic-test answers judged faithful 4 or 5 of 5: 88.4% by the teacher (Qwen3.8-27B), 90.1% by
 Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at the 90th percentile.
 
@@ -101,6 +114,7 @@ Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at t
 | `app/` | the app's curated examples |
 | `requirements/` | exact versions of the research and teacher-serving environments |
 | `tests/` | unit tests, repository checks and inference tests |
+| `evalsets/` | committed test sets: records from catalogs absent from training, with labelled searches |
 | `data/`, `runs/` | generated data and trained models, not tracked; `artifacts.json` lists their checksums |
 
 ## Documentation
@@ -116,7 +130,10 @@ Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at t
 - Labels and explanations come from one teacher model; faithfulness has been judged by two LLMs and not yet by people.
 - One verdict in eight is wrong on realistic searches, and about one in four on the challenge phrasings. The verdict
   suits explaining a result to a reader; it is not accurate enough to remove results automatically.
-- The model has been evaluated on World Bank, HDX, ILOSTAT, Eurostat and Statistics Canada records only, with
-  searches written by LLMs. A new catalog needs its own labelled test set before its accuracy is known.
+- The model has been evaluated on World Bank, HDX, ILOSTAT, Eurostat and Statistics Canada records with searches
+  written by LLMs, and on a 45-search set from four other catalogs (73% agreement). A new catalog needs its own
+  labelled test set before its accuracy is known.
+- Searches in a language outside the eleven are withheld (`language.py`): their explanations were written in a third
+  language with garbled words. The script and fastText checks miss short Latin-script keyword searches.
 - Single answers can differ between CPU and GPU (41% of greedy texts on the realistic test), although the rates
   agree; a service should log the answer it served with its checks.

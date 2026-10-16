@@ -280,7 +280,7 @@ function renderAnswer(ev){
     ${tr.state==="withheld"?tldr:""}${exp}${sure}${cited}
     <div class="foot">Written in ${st.total_s??"?"} s by a ${st.model_mb??"34"} MB model on CPU${c.retried?`, after ${c.retried} more attempts to cite only facts from the record`:""}.</div></div></details>`;
   const body=tr.state==="withheld"
-    ?`<div class="trust withheld"><b>No reliable explanation for this result</b>Compare the search with the record above.</div>${more}`
+    ?`<div class="trust withheld"><b>No reliable explanation for this result</b>${c.unsupported_language?esc(c.unsupported_language)+" ":""}Compare the search with the record above.</div>${more}`
     :`${tldr}${trust}${more}`;
   $("#explain").innerHTML=`<div><span class="verdict v-${esc(vv.key)}${vv.uncertain?" unsure":""}"><span class="ic" aria-hidden="true">${vv.uncertain?"?":ic}</span>${esc(vv.uncertain&&vv.between.length>1?vv.label:label)}</span>${hedge}</div>
     ${body}

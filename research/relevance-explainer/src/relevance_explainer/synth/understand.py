@@ -49,7 +49,8 @@ DATATYPE_KIND = {"indicator": "indicator", "microdata": "study", "document": "do
 KIND_LABEL = {"indicator": "an indicator series", "study": "survey microdata", "document": "a document", "dataset": "a dataset",
               # metadata-schemas types without training data (relevance_explainer.schemas)
               "table": "a statistical table", "geospatial": "a geospatial dataset", "image": "a photograph",
-              "video": "a video", "script": "a research project", "database": "a time series database"}
+              "video": "a video", "script": "a research project", "database": "a time series database",
+              "opendata": "a dataset"}
 
 
 def norm(s: str) -> str:
@@ -165,6 +166,13 @@ COUNTRY_ALIASES = {"turkey": "TUR", "ivory coast": "CIV", "czech republic": "CZE
                    "britain": "GBR", "great britain": "GBR", "usa": "USA", "united states": "USA", "uae": "ARE",
                    "png": "PNG", "kosovo": "XKX", "bosnia": "BIH", "trinidad": "TTO", "st kitts": "KNA", "st vincent": "VCT"}
 
+# Level 5: short words of the supported languages that are also place abbreviations (Swahili "za" and "na", Portuguese
+# "na" and "as", Turkish "mi" and "kır", French "eau" and "car", English "can", "man" and "sea", Indonesian "jam" and
+# "anda", pH).
+# In the version-4 training inputs "za" put South Africa in 14,786 Swahili searches and "na" North America in 17,014
+# (notebook 2026-10-16). From level 5 they count as places only when written in capitals (SA, CAN, EAU).
+SHORT_WORDS = {"na", "za", "mi", "can", "as", "eau", "man", "car", "sea", "kir", "jam", "sa", "li", "ph", "anda"}
+
 
 def _stem(tok: str) -> str:
     """Crude suffix trim for Russian case endings (index and query side)."""
@@ -227,11 +235,14 @@ class Understander:
             for key, words in lang.get("scope", {}).items():
                 for w in words:
                     self._add(w, {"kind": "scope", "name": key}, stop_ok=True)
+        self.primary: dict[tuple, set] = {}  # token key -> places whose own or ASCII name it is (level 5 drops Latin alternates)
         for p in self.geo["places"]:
             ent = {"kind": p["kind"], "name": p["name"], "iso3": p["iso3"], "admin1": p.get("admin1", ""), "population": p.get("population", 0)}
             for n in {p["name"], p["ascii"], *p.get("alt", [])}:
                 if len(n) >= 4 or _is_cjk(n):
                     self._add(n, ent, stop=stop)
+            for n in (p["name"], p["ascii"]):
+                self.primary.setdefault(tuple(TOKEN.findall(norm(n))), set()).add((p["name"], p["iso3"]))
         self.cyr: dict[int, list[tuple[tuple, list]]] = {}  # Cyrillic names by word count, countries and groups first
         rankk = {"country": 0, "group": 1, "scope": 2, "admin1": 3, "city": 4}
         items = [(k, v) for k, v in self.names.items() if any("Ѐ" <= c <= "ӿ" for t in k for c in t)]
@@ -333,7 +344,19 @@ class Understander:
             self.lex_flat[sec] = d
 
     # ------------------------------------------------------------------ parsing
-    def places(self, text: str) -> list[dict]:
+    def _strict(self, key: tuple, cands: list[dict], text: str) -> list[dict]:
+        """Level 5 filters: a short everyday word is a place only in capitals. A city or province matched by a short Latin
+        alternate name is dropped (spoken for Spokane, orani for Oran, kuna, wapi, a la, de moins); its own name, non-Latin
+        names and longer alternates (one word of 7+ letters, or words of 3+ letters: belgrado, ciudad del cabo) still match.
+        On 36,396 searches the filters removed 2,224 places, nearly all of them false (notebook 2026-10-16)."""
+        if len(key) == 1 and key[0] in SHORT_WORDS and not re.search(rf"(?<!\w){re.escape(key[0].upper())}(?!\w)", text):
+            return []
+        long_alt = len(key[0]) >= 7 if len(key) == 1 else all(len(t) >= 3 for t in key)
+        if long_alt or not all(t.isascii() for t in key):
+            return cands
+        return [c for c in cands if c["kind"] not in ("admin1", "city") or (c["name"], c["iso3"]) in self.primary.get(key, ())]
+
+    def places(self, text: str, level: int = 4) -> list[dict]:
         n = norm(text)
         toks = [(m.group(0), m.start(), m.end()) for m in TOKEN.finditer(n)]
         found, used = [], set()
@@ -353,6 +376,8 @@ class Understander:
                             break
                 if not cands and size <= 3 and all(t.isascii() for t in key):
                     cands = self._typo(key)
+                if cands and level >= 5:
+                    cands = self._strict(key if key in self.names else qk, cands, text)
                 if cands:
                     found.append({"span": n[toks[i][1] : toks[i + size - 1][2]], "cands": cands})
                     used.update(range(i, i + size))
@@ -452,7 +477,7 @@ class Understander:
         """level 3 (render version 3) adds thresholds, exclusions and named periods (synth/constraints.py); level 2 is the
         understanding that rows narrated before render version 3 were written against. Level 4 parses as level 3 and
         changes only the Checks wording for excluded parts the metadata does not contain (check())."""
-        p = self._parse2(query, facets)
+        p = self._parse2(query, facets, level)
         if level >= 3:
             from . import constraints as C
             n = norm(query)
@@ -486,9 +511,9 @@ class Understander:
                 p["time"] = {**t, "source": "query"}
         return p
 
-    def _parse2(self, query: str, facets: dict | None = None) -> dict:
+    def _parse2(self, query: str, facets: dict | None = None, level: int = 2) -> dict:
         p = {"places": [], "time": None, "frequency": None, "groups": [], "datatype": None, "scope": None}
-        for pl in self.places(query):
+        for pl in self.places(query, level):
             if pl["kind"] == "scope":
                 p["scope"] = pl["name"]
             else:
@@ -661,6 +686,9 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
             in_country = pl.get("ambiguous") is None and pl["iso3"] in iso3s
             named = norm(pl["name"]) in ntext
             sub = re.search(r"\b(district|province|regional|region-level|subnational|sub-national|admin ?[12]|county|municipal|state-level|departments?)\b", text, re.I)
+            if not sub and p.get("level", 2) >= 5:  # plurals: "Canada, provinces and territories", "by state", "counties"
+                sub = re.search(r"\b(districts|provinces|provincial|territories|states and territories|by state|counties|"
+                                r"municipalities|regions of|oblasts?|governorates?|prefectures?)\b", text, re.I)
             if named:
                 st = "named in the metadata"
             elif in_country:
@@ -717,5 +745,5 @@ def check(rec: dict, p: dict, u: Understander) -> list[str]:
         out.append(f"excluded term {t}: {'mentioned in the metadata (the item may include it)' if stem in ntext else absent}")
     if p.get("datatype"):
         want = DATATYPE_KIND[p["datatype"]["value"]]
-        out.append(f"type {p['datatype']['value']}: " + ("matches" if want == rec.get("kind") else f"item is {KIND_LABEL.get(rec.get('kind'), rec.get('kind'))}"))
+        out.append(f"type {p['datatype']['value']}: " + ("matches" if want == rec.get("kind") or (want, rec.get("kind")) == ("dataset", "opendata") else f"item is {KIND_LABEL.get(rec.get('kind'), rec.get('kind'))}"))
     return out

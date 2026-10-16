@@ -5,6 +5,8 @@ The labels were written against the earlier inputs; the new lines state facts ab
   python -m relevance_explainer.synth.eval_v3
   python -m relevance_explainer.synth.eval_v3 --version 4   # _v4 copies (exclusion wording); the challenge suite's
                                                              # version-4 copy is built from its relabelled file instead
+  python -m relevance_explainer.synth.eval_v3 --version 5   # _v5 copies (place filters, plural subnational words);
+                                                             # the challenge copy starts from its relabelled _v4 rows
 """
 from __future__ import annotations
 
@@ -30,8 +32,11 @@ def main() -> None:
     ap.add_argument("--version", type=int, default=3)
     v = ap.parse_args().version
     u = Understander()
-    for name, (src, ev) in SETS.items():
-        if v >= 4 and name == "challenge":  # relabelled with the verdict rules: challenge build --labeled labeled_v4.jsonl
+    sets = dict(SETS)
+    if v >= 5:  # the relabelled challenge rows (labeled_v4.jsonl, eval dir _v4) in the same order
+        sets["challenge"] = ("data/challenge/labeled_v4.jsonl", "data/eval_challenge/itemfirst_nosim_v4")
+    for name, (src, ev) in sets.items():
+        if v == 4 and name == "challenge":  # relabelled with the verdict rules: challenge build --labeled labeled_v4.jsonl
             continue
         srows = [json.loads(l) for l in Path(src).read_text().splitlines()]
         erows = [json.loads(l) for l in (Path(ev) / "test.jsonl").read_text().splitlines()]
@@ -45,7 +50,7 @@ def main() -> None:
             inp = re.sub(r"\nRetrieval similarity: [-0-9.]+", "", inp)
             changed += inp != e["input"]
             out.append({**e, "input": inp})
-        d = Path(ev + f"_v{v}")
+        d = Path(ev.removesuffix("_v4") + f"_v{v}")
         d.mkdir(parents=True, exist_ok=True)
         text = "".join(json.dumps(x, ensure_ascii=False) + "\n" for x in out)
         for split in ("test", "val"):
