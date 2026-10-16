@@ -4,9 +4,10 @@
 # Usage: scripts/milestone_cont.sh <name> <min_chunks> [init=runs/f6-dpo] [old_share=0.5]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 NAME=${1:?name}; MINC=${2:?min chunks}; INIT=${3:-runs/f6-dpo}; SHARE=${4:-0.5}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 until [ "$(ls data/real/c*/examples.jsonl 2>/dev/null | wc -l)" -ge "$MINC" ]; do sleep 300; done
 echo "milestone $NAME: $(ls data/real/c*/examples.jsonl | wc -l) chunks, $(ls data/real/t*/examples.jsonl 2>/dev/null | wc -l) translation sets $(date -u +%H:%M)"
 [ -f "data/v2_${NAME}_itemfirst/train.jsonl" ] || $PY -m relevance_explainer.synth.assemble_v2 --out "data/v2_$NAME" --old-share "$SHARE" || exit 1

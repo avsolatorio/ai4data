@@ -5,8 +5,9 @@
 # Usage: GPU=1 MICRO=32 scripts/multibase_lr.sh 4e-3 [more rates]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-1}
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi_v32k
 echo "lr start $(date -u +%H:%M) on GPU $CUDA_VISIBLE_DEVICES"
 for LR in "$@"; do

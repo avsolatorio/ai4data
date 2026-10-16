@@ -4,9 +4,10 @@
 # sets; 4. continue the round D model; 5. evaluate on the version-3 test sets; 6. DPO and evaluate again.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' LLM_REASONING=
 export LLM_BASE_URL=http://localhost:8000/v1,http://localhost:8001/v1 QUERY_MODEL=qwen3.8-27b NARRATE_MODEL=qwen3.8-27b
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 CH="$PY -m relevance_explainer.synth.challenge"
 echo "round E start $(date -u +%H:%M)"
 # 1. phenomenon slices relabelled at version 3 with the concept rules

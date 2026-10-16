@@ -3,8 +3,9 @@
 # Usage: RUN_DIR=<run> [SUF=_v3] [TAG_SUF=_v3] scripts/eval_sets.sh
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 SUF=${SUF:-}; TS=${TAG_SUF:-$SUF}
 for pair in "data/eval_real/itemfirst_nosim realtest" "data/eval_para/itemfirst_nosim para" "data/schemas_eval2/itemfirst_nosim schemas" "data/eval_challenge/itemfirst_nosim challenge"; do
   set -- $pair

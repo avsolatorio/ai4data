@@ -5,9 +5,10 @@
 # trains runs/v2<name>-{full,min,itemfirst} with the round recipe, and scores each on data/eval_real/<format>.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 NAME=${1:?name}; MINC=${2:?min chunks}; SHARE=${3:-0.6}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 until [ "$(ls data/real/c*/examples.jsonl 2>/dev/null | wc -l)" -ge "$MINC" ] && [ -f data/real_test/examples_labeled.jsonl ]; do sleep 300; done
 echo "milestone $NAME: $(ls data/real/c*/examples.jsonl | wc -l) chunks $(date -u +%H:%M)"
 $PY -m relevance_explainer.synth.assemble_v2 --out "data/v2_$NAME" --old-share "$SHARE" || exit 1

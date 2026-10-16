@@ -2,9 +2,10 @@
 # Score a run on the simulated retriever-scale variants after scripts/sim_variants.sh. Usage: scripts/sim_shifted.sh [run]
 set -euo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 RUN=${1:-runs/v2b-cont-itemfirst-dpo}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 until grep -q SIM-VARIANTS-DONE /tmp/claude-1002/-home-jupyter-wb536061-WBG-ai4data/f9459d82-c4fb-49c4-a88f-41cc1ffd548f/scratchpad/sim_variants.log; do sleep 20; done
 $PY scripts/sim_shifted.py
 for v in shift_up compress generic_like; do

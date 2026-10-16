@@ -4,8 +4,9 @@
 # Usage: scripts/single_stage.sh <epochs> [base=runs/pre-dapt/model.pt] [name=v2g-from-dapt-<epochs>ep]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 EP=${1:?epochs}; BASE=${2:-runs/pre-dapt/model.pt}; RUN=runs/${3:-v2g-from-dapt-${EP}ep}
 DN=data/v2_g_itemfirst_nosim
 echo "single stage $RUN start $(date -u +%H:%M)"

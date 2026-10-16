@@ -4,8 +4,9 @@
 #   scripts/fmt_train_one.sh data/fmt_s/B runs/fmt-s-B 0 --special-tokens
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 DATA=$1; RUN=$2; GPU=$3; shift 3
 if [ ! -f "$RUN/model_fp32.pt" ]; then
   CUDA_VISIBLE_DEVICES=$GPU $PY -m relevance_explainer.tiny.train --data "$DATA" --out "$RUN" \

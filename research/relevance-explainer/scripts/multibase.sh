@@ -4,12 +4,13 @@
 # Every step skips when its output exists, so a restart resumes.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi
 MC="$PY -m relevance_explainer.tiny.multicorpus"
 echo "multibase start $(date -u +%H:%M)"
-[ -f "$R/plan.json" ] || $MC plan --sizes /data/wb536061/ai4data-relevance-explainer/multibase/fw2_size_hub.json --root "$R" --chars 18e9 || exit 1
+[ -f "$R/plan.json" ] || $MC plan --sizes $RELEXP_LOGS/multibase/fw2_size_hub.json --root "$R" --chars 18e9 || exit 1
 for attempt in 1 2 3; do  # failed languages are retried; after three attempts the rest goes ahead without them
   grep -q FETCH-DONE "$R/fetch.log" 2>/dev/null && break
   $MC fetch --root "$R" --procs 24 2>&1 | grep -v Warning | tee "$R/fetch.log"

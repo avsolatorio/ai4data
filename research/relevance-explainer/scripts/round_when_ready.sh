@@ -4,6 +4,7 @@
 # Usage: GPU=1 scripts/round_when_ready.sh data/v4 data/f3 "data/v3 data/v2 data/v1" runs/pre-wide-full2/model.pt runs/f3
 set -euo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 ROUND=${1:?round directory being narrated}
 OUT=${2:?combined dataset directory}
 ALSO=${3:?earlier round directories}
@@ -12,7 +13,7 @@ RUN=${5:?run prefix}
 export CUDA_VISIBLE_DEVICES=${GPU:-1}
 export PYTHONPATH=src
 export TEACHER_URLS=${TEACHER_URLS:-http://localhost:8000/v1}
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 
 until ! pgrep -u "$USER" -f "run_pipeline.sh $ROUND" > /dev/null; do sleep 60; done
 

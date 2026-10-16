@@ -11,8 +11,9 @@
 # Every run skips when its output exists.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-0}
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi_v32k
 PART=$1
 if [ "$PART" = A ]; then

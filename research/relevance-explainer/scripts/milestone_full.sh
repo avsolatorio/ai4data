@@ -3,10 +3,11 @@
 # first format. Usage: scripts/milestone_full.sh <name> <min_chunks> [old_share=0.5] [formats="itemfirst full"]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 NAME=${1:?name}; MINC=${2:?min chunks}; SHARE=${3:-0.5}; FORMATS=${4:-"itemfirst full"}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
 export TEACHER_URLS=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 until [ "$(ls data/real/c*/examples.jsonl 2>/dev/null | wc -l)" -ge "$MINC" ]; do sleep 300; done
 echo "milestone $NAME: $(ls data/real/c*/examples.jsonl | wc -l) chunks, $(ls data/real/t*/examples.jsonl 2>/dev/null | wc -l) translation sets $(date -u +%H:%M)"
 [ -f "data/v2_$NAME/train.jsonl" ] || $PY -m relevance_explainer.synth.assemble_v2 --out "data/v2_$NAME" --old-share "$SHARE" || exit 1

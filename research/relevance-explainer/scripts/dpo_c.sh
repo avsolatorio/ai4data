@@ -7,9 +7,10 @@
 # sampling, DPO training and the test sets have the GPUs without them.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 RUN=${1:?run}; D=${2:?data}; N=${3:-15000}; K=${4:-8}; GPU=${5:-0}
 export PYTHONPATH=src TEACHER_URLS=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 TAG=$(basename "$RUN")
 OUT=$RUN-dpo
 S="onpolicy_c_${TAG}_samples.jsonl"; SC="onpolicy_c_${TAG}_scored.jsonl"; P="dpo_c_pairs_${TAG}.jsonl"

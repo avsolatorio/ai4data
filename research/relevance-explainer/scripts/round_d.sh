@@ -3,8 +3,9 @@
 # line; continue the no-score model, evaluate on every test set, then on-policy DPO and evaluate again.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 D=data/v2_d; DN=data/v2_d_itemfirst_nosim; RUN=runs/v2d-nosim
 echo "round D start $(date -u +%H:%M)"
 [ -f "${D}_itemfirst/train.jsonl" ] || $PY -m relevance_explainer.synth.assemble_v2 --out "$D" --old-share 0.4 \

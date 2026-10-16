@@ -3,9 +3,10 @@
 # Usage: scripts/continue_train.sh <init_run> <data_dir> <out_run> <format> [lr=3e-4] [epochs=3]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 INIT=${1:?init run}; D=${2:?data}; RUN=${3:?out run}; FMT=${4:?format}; LR=${5:-3e-4}; EP=${6:-3}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 $PY -m relevance_explainer.tiny.train --data "$D" --out "$RUN" --tokenizer data/corpus/tokenizer.json \
   --init "$INIT/model_fp32.pt" --lr "$LR" --epochs "$EP" --bs 32 --dropout 0.1 --verdict-weight 5 --select val_verdict_acc \
   > "$RUN.train.log" 2>&1 || exit 1

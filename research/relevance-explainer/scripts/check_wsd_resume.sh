@@ -3,8 +3,9 @@
 # and the same run resumed from its step-20 state must end with the same held-out score and learning rates.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-0}
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 T=${TMPDIR:-/tmp}/wsd_check
 rm -rf "$T"
 COMMON=(--root data/corpus_multi_v32k --all-shards --holdout 200000 --eval-seqs 1 --tokens 40960 --seq 128 --bs 8

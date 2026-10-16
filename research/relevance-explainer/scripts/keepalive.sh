@@ -5,8 +5,9 @@
 # Arguments: an optional job script and the marker it prints when finished (the job is restarted until the marker appears;
 # the round scripts skip completed steps).
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 JOB=${1:-}; DONE=${2:-}
-LOGD=/data/wb536061/ai4data-relevance-explainer
+LOGD=$RELEXP_LOGS
 up() { curl -s -o /dev/null --max-time 5 -w "%{http_code}" "localhost:$1/$2" | grep -q 200; }
 running() { pgrep -u "$(id -u)" -f "$1" > /dev/null; }
 # While $LOGD/pause_gpu0 exists, the GPU 0 servers (teacher on 8000, Gemma on 8002) are left stopped so GPU 0 can

@@ -4,12 +4,13 @@
 # Chunks go to data/real/cN; a chunk with examples.jsonl is skipped. Themes: data/themes.json (split by theme later).
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 N=${1:-10}; NT=${2:-2000}; NA=${3:-2500}; FIRST=${4:-1}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
 export LLM_BASE_URL=${LLM_BASE_URL:-http://localhost:8000/v1,http://localhost:8001/v1}
 export QUERY_MODEL=qwen3.8-27b NARRATE_MODEL=qwen3.8-27b LLM_REASONING=
 export LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
-PY="$HOME/venvs/relexp/bin/python -m relevance_explainer.synth.realistic"
+PY="$RELEXP_PY -m relevance_explainer.synth.realistic"
 for k in $(seq "$FIRST" "$N"); do
   OUT=data/real/c$k; SEED=$((100 + k))
   [ -f "$OUT/examples.jsonl" ] && { echo "chunk $k done"; continue; }

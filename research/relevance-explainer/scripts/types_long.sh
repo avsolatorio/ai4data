@@ -3,6 +3,7 @@
 # Same stages as scripts/realistic_long.sh; stop with data/real_types/STOP. Usage: scripts/types_long.sh [first=1] [last=8]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 FIRST=${1:-1}; LAST=${2:-8}
 until grep -q POOLS-DONE /tmp/claude-1002/-home-jupyter-wb536061-WBG-ai4data/f9459d82-c4fb-49c4-a88f-41cc1ffd548f/scratchpad/pools.log 2>/dev/null || [ -f data/pools/READY ]; do sleep 60; done
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
@@ -12,7 +13,7 @@ export LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
 tables=$(ls data/pools/table_*.jsonl | sed 's/.*/"&"/' | paste -sd, -)
 export RECORD_POOLS="{\"table\": [$tables], \"geospatial\": [\"data/pools/geospatial_hdx.jsonl\"], \"script\": [\"data/pools/script_rrr.jsonl\"]}"
 export SOURCE_WEIGHTS='{"table": 55, "geospatial": 25, "script": 20}'
-PY="$HOME/venvs/relexp/bin/python -m relevance_explainer.synth.realistic"
+PY="$RELEXP_PY -m relevance_explainer.synth.realistic"
 for k in $(seq "$FIRST" "$LAST"); do
   [ -f data/real_types/STOP ] && { echo "stop file found"; break; }
   OUT=data/real_types/c$k; SEED=$((5000 + k))

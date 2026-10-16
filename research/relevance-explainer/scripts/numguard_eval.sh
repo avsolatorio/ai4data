@@ -3,9 +3,10 @@
 # Usage: scripts/numguard_eval.sh [run=runs/v2e-nosim-dpo]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 RUN=${1:-runs/v2e-nosim-dpo}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 for pair in "data/eval_real/itemfirst_nosim_v3 realtest_v3_rs" "data/eval_para/itemfirst_nosim_v3 para_v3_rs" "data/schemas_eval2/itemfirst_nosim_v3 schemas_v3_rs" "data/eval_challenge/itemfirst_nosim_v3 challenge_v3_rs"; do
   set -- $pair
   for attempt in 1 2 3; do

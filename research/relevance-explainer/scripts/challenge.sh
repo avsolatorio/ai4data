@@ -2,8 +2,9 @@
 # Challenge suite: write, label, build, then score the current realistic models per phenomenon. Usage: scripts/challenge.sh [per=150]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1 LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' LLM_REASONING=
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 [ -f data/challenge/searches.jsonl ] || $PY -m relevance_explainer.synth.challenge write --out data/challenge --per "${1:-150}" || exit 1
 [ -f data/challenge/labeled.jsonl ] || $PY -m relevance_explainer.synth.challenge label --out data/challenge || exit 1
 $PY -m relevance_explainer.synth.challenge build --out data/challenge --eval data/eval_challenge || exit 1

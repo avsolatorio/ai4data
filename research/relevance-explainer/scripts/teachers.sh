@@ -8,7 +8,9 @@
 #   scripts/teachers.sh status
 # up and down leave pause_gemma as it is. Up waits at most 30 minutes and exits 1 if a server has not answered by then.
 set -uo pipefail
-LOGD=/data/wb536061/ai4data-relevance-explainer
+cd "$(dirname "$0")/.."
+. scripts/env.sh
+LOGD=$RELEXP_LOGS
 up() { curl -s -o /dev/null --max-time 5 -w "%{http_code}" "localhost:$1/v1/models" | grep -q 200; }
 case "${1:?up, down or status}" in
   up)

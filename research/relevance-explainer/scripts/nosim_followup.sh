@@ -3,8 +3,9 @@
 # retrieval-score sensitivity variants. Usage: scripts/nosim_followup.sh
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 [ -f data/eval_real/itemfirst_nosim/test.jsonl ] || $PY scripts/strip_similarity.py data/eval_real/itemfirst data/eval_real/itemfirst_nosim || exit 1
 scripts/dpo_run.sh runs/v2c-cont-itemfirst-nosim data/v2_c_itemfirst_nosim itemfirst_nosim || exit 1
 scripts/sim_variants.sh runs/v2c-cont-itemfirst-nosim-dpo

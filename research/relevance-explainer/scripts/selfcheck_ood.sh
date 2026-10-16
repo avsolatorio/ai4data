@@ -4,8 +4,9 @@
 # Every step skips when its output exists.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1 TEACHER_URLS=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 RUN=${1:-runs/v2g-from-dapt-8ep-dpo}; O=$RUN/selfcheck
 SC="$PY -m relevance_explainer.tiny.selfcheck"
 echo "selfcheck ood start $(date -u +%H:%M)"

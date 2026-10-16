@@ -6,8 +6,9 @@
 # Usage: scripts/multibase_shapes.sh [tokens=1e9]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-1}
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 TOKENS=${1:-1e9}
 SRC=data/corpus_multi
 echo "shapes start $(date -u +%H:%M)"

@@ -3,8 +3,9 @@
 # retrieval-similarity line removed from every training and test input. Supervised stage only.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 D=data/v2_c_itemfirst_nosim
 RUN=runs/v2c-cont-itemfirst-nosim
 [ -f "$D/train.jsonl" ] || $PY scripts/strip_similarity.py data/v2_c_itemfirst "$D" || exit 1

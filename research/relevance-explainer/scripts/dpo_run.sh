@@ -3,9 +3,10 @@
 # Usage: scripts/dpo_run.sh <run> <data_dir> <format>
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 RUN=${1:?run}; D=${2:?data}; FMT=${3:?format}
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1 TEACHER_URLS=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 TAG=$(basename "$RUN")
 $PY -m relevance_explainer.distill.onpolicy sample --run "$RUN" --data "$D" --n 8000 --k 4 --out "onpolicy_${TAG}_samples.jsonl" || exit 1
 $PY -m relevance_explainer.distill.onpolicy score --data "$D" --samples "onpolicy_${TAG}_samples.jsonl" --out "onpolicy_${TAG}_scored.jsonl" --workers 160 || exit 1

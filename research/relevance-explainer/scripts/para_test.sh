@@ -3,10 +3,11 @@
 # Usage: scripts/para_test.sh [n_anchored=2500]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1 PARAPHRASE_SHARE=1
 export LLM_BASE_URL=http://localhost:8000/v1,http://localhost:8001/v1 QUERY_MODEL=qwen3.8-27b NARRATE_MODEL=qwen3.8-27b LLM_REASONING=
 export LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}'
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 OUT=data/para_test
 mkdir -p "$OUT"
 [ -f "$OUT/queries.jsonl" ] || : > "$OUT/queries.jsonl"

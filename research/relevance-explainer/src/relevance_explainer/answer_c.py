@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from .claims import NO_REPEAT_TAGGED, from_model, sanitize_input, verify
+from .claims import _REF, NO_REPEAT_TAGGED, from_model, sanitize_input, verify
 from .faith import FaithScorer, model_features, verifier_features
 
 SEP = "\n\n### Judgment\n"
@@ -41,6 +41,20 @@ class Assets:
         cal = json.loads((run / "calibration.json").read_text()) if (run / "calibration.json").exists() else None
         sc = FaithScorer(run / "faith_scorer.json") if (run / "faith_scorer.json").exists() else None
         return cls(model, tk, cal, sc)
+
+
+def segments(section_raw: str, refs: list[dict]) -> list[dict]:
+    """A section in attribute form split into plain text and references, each reference with its check."""
+    out, at, k = [], 0, 0
+    for m in _REF.finditer(section_raw):
+        if m.start() > at:
+            out.append({"text": section_raw[at:m.start()]})
+        r = refs[k] if k < len(refs) else {"ok": False, "reason": "not checked"}
+        out.append({"text": m.group(2), "claim": int(m.group(1)), "ok": r["ok"], "reason": r.get("reason", "")})
+        at, k = m.end(), k + 1
+    if at < len(section_raw):
+        out.append({"text": section_raw[at:]})
+    return out
 
 
 def _score(ck) -> tuple:

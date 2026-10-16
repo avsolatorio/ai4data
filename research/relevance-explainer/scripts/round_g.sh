@@ -4,8 +4,9 @@
 # other half a held-out table test). Every step skips when its output exists, so a restart resumes.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' LLM_REASONING= CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 CH="$PY -m relevance_explainer.synth.challenge"
 LAB="--prompt v3 --render-version 4 --workers 64"
 echo "round G start $(date -u +%H:%M)"

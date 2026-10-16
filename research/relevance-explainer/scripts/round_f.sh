@@ -3,8 +3,9 @@
 # supervised model; DPO whose pairs prefer explanations without invented numbers; evaluations with and without resampling.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 D=data/v2_f_itemfirst_nosim; RUN=runs/v2f-nosim
 echo "round F start $(date -u +%H:%M)"
 [ -f "$D/train.jsonl" ] || $PY scripts/filter_numbers.py data/v2_e_itemfirst_nosim "$D" || exit 1

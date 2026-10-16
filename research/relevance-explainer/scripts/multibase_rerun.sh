@@ -3,9 +3,10 @@
 # with 32 sequences per forward pass. Gradient accumulation keeps the effective batch at 128, so results are comparable.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=${GPU:-1}
-PY="$HOME/venvs/relexp/bin/python"
-until grep -q SHAPES-DONE /data/wb536061/ai4data-relevance-explainer/shapes.log; do sleep 60; done
+PY="$RELEXP_PY"
+until grep -q SHAPES-DONE $RELEXP_LOGS/shapes.log; do sleep 60; done
 echo "rerun start $(date -u +%H:%M)"
 for c in "v24k-d384-l6 24000 384 6 6" "v32k-d384-l5 32000 384 5 6"; do
   set -- $c

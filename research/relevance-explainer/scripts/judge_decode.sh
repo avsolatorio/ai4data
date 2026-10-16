@@ -4,9 +4,10 @@
 #   scripts/judge_decode.sh [--n 800] runs/fmt-s-A runs/fmt-s-B runs/fmt-s-C
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' LLM_REASONING=
 export LLM_BASE_URL=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 N=800
 if [ "${1:-}" = "--n" ]; then N=$2; shift 2; fi
 for R in "$@"; do

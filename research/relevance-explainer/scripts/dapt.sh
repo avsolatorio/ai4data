@@ -6,9 +6,10 @@
 # Every step skips when its output exists, so a restart resumes.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
-until grep -q "ROUND-G-DONE" /data/wb536061/ai4data-relevance-explainer/round_g.log; do sleep 300; done
+PY="$RELEXP_PY"
+until grep -q "ROUND-G-DONE" $RELEXP_LOGS/round_g.log; do sleep 300; done
 echo "dapt start $(date -u +%H:%M)"
 # 1. domain corpus (after round G, so its labelled sets and the Eurostat test half exist)
 DC=data/corpus_domain

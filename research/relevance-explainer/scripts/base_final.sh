@@ -5,8 +5,9 @@
 # (step 305,176). Waits for scripts/multibase_final_data.sh; after an interruption it resumes from the latest state.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi_final
 OUT=runs/base-final
 until [ -f "$R/tok/.done" ]; do sleep 120; done

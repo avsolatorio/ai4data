@@ -5,8 +5,9 @@
 #   scripts/judge_gemma.sh runs/final-B runs/final-C runs/final-C-dpo
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src LLM_BASE_URL=http://localhost:8002/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 todo=0
 for R in "$@"; do [ -f "$R/judge_realnb_int8_gemma4.json" ] || todo=1; done
 if [ $todo = 1 ]; then

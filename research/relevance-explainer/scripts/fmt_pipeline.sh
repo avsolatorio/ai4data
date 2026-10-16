@@ -16,9 +16,10 @@
 # Every step skips when its output exists, so a restart resumes.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src LLM_EXTRA='{"chat_template_kwargs":{"enable_thinking":false}}' LLM_REASONING=
-PY="$HOME/venvs/relexp/bin/python"
-LOGD=/data/wb536061/ai4data-relevance-explainer
+PY="$RELEXP_PY"
+LOGD=$RELEXP_LOGS
 SRC=data/v2_g_itemfirst_nosim
 F=data/fmt          # full-data teacher output
 S=data/fmt_s        # the sample and its arms

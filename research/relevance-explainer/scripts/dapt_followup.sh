@@ -6,9 +6,10 @@
 # 4. Evaluate on all test sets and judge, for comparison with runs/v2g-nosim-dpo (the chain).
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1
-PY="$HOME/venvs/relexp/bin/python"
-until grep -q "DAPT-DONE" /data/wb536061/ai4data-relevance-explainer/dapt.log; do sleep 300; done
+PY="$RELEXP_PY"
+until grep -q "DAPT-DONE" $RELEXP_LOGS/dapt.log; do sleep 300; done
 echo "followup start $(date -u +%H:%M)"
 BEST=$($PY scripts/pick_best.py runs/v2g-from-base runs/v2g-from-cont runs/v2g-from-dapt) || exit 1
 ARM=${BEST#runs/v2g-from-}

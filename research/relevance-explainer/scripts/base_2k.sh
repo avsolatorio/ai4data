@@ -5,8 +5,9 @@
 # base stays 10,000 (adequate at 2,048). After an interruption it resumes from the latest state of this run.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi_final
 OUT=runs/base-2k
 [ -f "$OUT/done" ] && { echo "BASE-2K-DONE (already)"; exit 0; }

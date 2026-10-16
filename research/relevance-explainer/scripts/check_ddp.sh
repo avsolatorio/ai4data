@@ -4,8 +4,9 @@
 #   2. 300 steps on one GPU and on two GPUs (same global batch, different random windows) reach similar held-out scores
 set -euo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 TR="$PY -m torch.distributed.run --nproc-per-node 2 --master-port 29531 -m relevance_explainer.tiny.pretrain"
 T=${TMPDIR:-/tmp}/ddp_check
 rm -rf "$T"

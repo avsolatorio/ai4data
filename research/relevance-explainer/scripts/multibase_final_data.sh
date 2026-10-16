@@ -10,12 +10,13 @@
 # Every step skips when its output exists, so a restart resumes.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 R=data/corpus_multi_final
 MC="$PY -m relevance_explainer.tiny.multicorpus"
 echo "final data start $(date -u +%H:%M)"
-[ -f "$R/plan_target.json" ] || [ -f "$R/plan.json" ] || $MC plan --sizes /data/wb536061/ai4data-relevance-explainer/multibase/fw2_size_hub.json \
+[ -f "$R/plan_target.json" ] || [ -f "$R/plan.json" ] || $MC plan --sizes $RELEXP_LOGS/multibase/fw2_size_hub.json \
   --root "$R" --chars 176e9 --english-share 0.10 --fetch-full || exit 1
 for attempt in 1 2 3; do
   grep -q FETCH-DONE "$R/fetch.log" 2>/dev/null && break

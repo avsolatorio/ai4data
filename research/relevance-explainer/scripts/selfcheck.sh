@@ -5,8 +5,9 @@
 # Usage: scripts/selfcheck.sh [run=runs/v2g-from-dapt-8ep-dpo] [n_train=6000] [out_dir=<run>/selfcheck]
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src CUDA_VISIBLE_DEVICES=1 TEACHER_URLS=http://localhost:8000/v1,http://localhost:8001/v1
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 RUN=${1:-runs/v2g-from-dapt-8ep-dpo}; N=${2:-6000}; O=${3:-$RUN/selfcheck}
 mkdir -p "$O"
 SC="$PY -m relevance_explainer.tiny.selfcheck"

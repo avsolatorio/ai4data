@@ -4,6 +4,8 @@
 # Another model: REPO=RedHatAI/gemma-4-31B-it-FP8-dynamic NAME=gemma-4-31b PORT=8002 scripts/serve_vllm.sh
 set -euo pipefail
 
+cd "$(dirname "$0")/.."
+. scripts/env.sh
 REPO=${REPO:-Qwen/Qwen3.8-27B-FP8}
 MODEL_DIR=$(ls -d "$HOME"/.cache/huggingface/hub/models--${REPO/\//--}/snapshots/* | head -n 1)
 export CUDA_VISIBLE_DEVICES=${GPU:-0}
@@ -12,7 +14,7 @@ export VLLM_USE_DEEP_GEMM=0
 # The FlashInfer sampler also JIT-compiles CUDA kernels (nvcc and ninja); use the PyTorch sampler.
 export VLLM_USE_FLASHINFER_SAMPLER=0
 
-exec "$HOME/venvs/vllm/bin/vllm" serve "$MODEL_DIR" \
+exec "$RELEXP_VLLM" serve "$MODEL_DIR" \
   --served-model-name "${NAME:-qwen3.8-27b}" \
   --port "${PORT:-8000}" \
   --max-model-len "${MAXLEN:-4096}" \

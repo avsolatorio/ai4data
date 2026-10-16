@@ -65,7 +65,8 @@ invented number.
 
 ## Analysis
 
-`scripts/rating_analysis.py` (to be written when ratings come back) reports:
+An analysis script (planned as `rating_analysis.py`, not yet written; it will be written when ratings come back)
+reports:
 
 1. **Accuracy by people:** the share of fully correct answers, verdict accuracy and the share with a wrong or invented
    statement, overall and per language, reweighted to the confidence bands' real shares.

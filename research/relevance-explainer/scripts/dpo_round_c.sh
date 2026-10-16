@@ -5,8 +5,9 @@
 #   tmux new-window -d -t relexp -n dpo 'scripts/dpo_round_c.sh > runs/final-C-dpo.pipeline.log 2>&1'
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
+PY="$RELEXP_PY"
 D=data/final/C; S=onpolicy_c_final-C_samples.jsonl
 [ -f "$D/$S" ] || CUDA_VISIBLE_DEVICES=0 $PY -m relevance_explainer.distill.onpolicy_c sample --run runs/final-C --data "$D" \
   --n 15000 --k 8 --out "$S" || exit 1

@@ -139,25 +139,10 @@ async def health(request: Request) -> Response:
 _ASSETS: dict = {}
 
 
-def _segments(section_raw: str, refs: list[dict]) -> list[dict]:
-    """A section in attribute form split into plain text and references, each reference with its check."""
-    from ..claims import _REF
-    out, at, k = [], 0, 0
-    for m in _REF.finditer(section_raw):
-        if m.start() > at:
-            out.append({"text": section_raw[at:m.start()]})
-        r = refs[k] if k < len(refs) else {"ok": False, "reason": "not checked"}
-        out.append({"text": m.group(2), "claim": int(m.group(1)), "ok": r["ok"], "reason": r.get("reason", "")})
-        at, k = m.end(), k + 1
-    if at < len(section_raw):
-        out.append({"text": section_raw[at:]})
-    return out
-
-
 def _claim_events(text: str, model_name: str, guard: bool):
     """Answer of a claim-carrying model (answer_c.py): stream the explanation as it is written, then the checks."""
     import queue
-    from ..answer_c import Assets, answer
+    from ..answer_c import Assets, answer, segments as _segments
     from ..claims import _SECTION, from_model, strip_model_tags
     model, tk, masks, load_s, size = V.load(model_name)
     if model_name not in _ASSETS:
@@ -389,5 +374,7 @@ app = Starlette(routes=[
     Route("/live", live_page), Route("/api/live", live_render, methods=["POST"]),
 ], middleware=[Middleware(StripPrefix)])
 
-# Load the default model at startup so the first request is fast.
-V.load("Round 7 + DPO (best)")
+# Load the default model at startup so the first request is fast (when its file is present; a checkout without the
+# trained models still imports, and requests for a missing model are refused by /api/generate).
+if (V.ROOT / V.MODELS["Round 7 + DPO (best)"]).exists():
+    V.load("Round 7 + DPO (best)")

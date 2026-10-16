@@ -8,9 +8,10 @@
 #   5. decoding test (no repeat ban, verifier-selected resampling), structure report, and the judge for final-C
 set -uo pipefail
 cd "$(dirname "$0")/.."
+. scripts/env.sh
 export PYTHONPATH=src
-PY="$HOME/venvs/relexp/bin/python"
-LOGD=/data/wb536061/ai4data-relevance-explainer
+PY="$RELEXP_PY"
+LOGD=$RELEXP_LOGS
 SRC=data/v2_g_itemfirst_nosim
 F=data/final
 R=runs/final-C
