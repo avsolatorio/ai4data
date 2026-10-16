@@ -1499,3 +1499,22 @@ Code: commit 122f0ea plus scripts/judge_gemma.sh, scripts/judge_agreement.py, th
 - Scorer on final-C against Gemma's labels: AUROC 0.762 (0.713 to 0.808), Brier 0.107, ECE 0.060 (against the teacher's labels: 0.820, 0.096, 0.035). At score 0.8 or more, Gemma rates 92.9% faithful 4-5; below, 74.6%.
 
 **Implication.** The second judge reproduces both conclusions: C equals B in faithfulness, and DPO gives a small gain that is not significant at 800 examples. The judges disagree more on the DPO model's answers (agreement 92.0% against 94.8%, AUROC 0.874 against 0.958), and the answers both judges flag fall from 81 to 54. This is consistent with DPO partly fitting the teacher judge's preferences, though at these counts it is not established. The scorer transfers to the second judge with lower discrimination (0.76) and remains usable for flagging: the flagged quarter has about 3 times the rate of answers Gemma rates below 4 (25% against 7%). A future DPO round could use both judges in the pair rule to avoid fitting one judge.
+
+## 2026-10-16 02:16 UTC — Serving path for the DPO model: calibration, faithfulness scorer refit, CPU parity
+
+Code: commit 0f20ab2 (answer_c.py, server and page, scripts/calibrate_c.py, scripts/cpu_parity_c.py, scripts/faith_refit.sh); scripts/faith_cpu_check.py in the commit that carries this entry. Run `runs/final-C-dpo`, served from `explainer-int8.pt` (34.3 MB).
+
+**Question.** Do the GPU results for the DPO model hold on the app's path (int8 file on CPU, greedy without the repeat ban, one round of 3 verifier-selected retries), and do calibration and the faithfulness scorer, refitted for this model, hold on the realistic test?
+
+**What was done.**
+- Calibration (calibrate_c.py): verdict temperature and split-conformal thresholds fitted on 3,000 rows of `data/final/C/val.jsonl` (seed 0), checked on the realistic test. The realistic test's val.jsonl is a byte copy of its test.jsonl, so it could not serve as the calibration set.
+- Scorer refit (faith_refit.sh): the DPO model sampled 8 answers for each of 8,000 training inputs drawn with seed 1 (the DPO round used seed 0); teacher judge on the 2 best and the worst per input (24,000 calls, 0 failures, teachers up 00:19 to 00:58 UTC); same feature sets and 80/20 split by input as before; evaluated on the realistic test against the teacher and Gemma 4.
+- CPU parity (cpu_parity_c.py): the app's answer path on all 1,495 realistic-test rows, 4 threads.
+
+**Result.**
+- Calibration: T = 1.18. On the realistic test, raw ECE 1.6% and scaled 2.3% (NLL 0.323 and 0.325), so the DPO model is already calibrated there. Conformal 90%: coverage 91.6%, mean size 1.13, single-verdict sets 86.9% with 90.7% accuracy. Conformal 95%: coverage 95.5%, size 1.29, single 71.8% with 94.5% accuracy.
+- Scorer refit, AUROC on held-out inputs: verifier 0.641, generator log-probabilities 0.870, hidden-state probe 0.848, combined 0.881 (0.868 to 0.893); first fit on final-C was 0.847. On the realistic test: teacher labels 0.856 (0.815 to 0.892), ECE 0.023; Gemma labels 0.782 (0.732 to 0.830), ECE 0.050. At score 0.8 or more (83% of answers) the teacher rates 94.7% faithful 4-5 and Gemma 93.8%; below 0.8, 57.4% and 72.1%.
+- CPU parity: verdict accuracy 86.6 (GPU int8 86.8); fully verified 97.3% on the first answer (GPU greedy 97.3%) and 99.3% after the retry round (retried 2.7% of answers); conformal 90% coverage 91.6%, size 1.13; faithfulness bands high 83.3%, check 9.4%, low 7.3%; seconds per answer median 2.64, 90th percentile 3.49, maximum 9.84. The CPU answer text equals the GPU greedy text for only 58.6% of the answers that were not retried; the rates agree although individual answers differ.
+- Scorer on CPU features, on the 460 judged answers identical on CPU and GPU: AUROC 0.836 against the teacher and 0.766 against Gemma; at 0.8 or more (84.8%) the judges rate 93.6% and 93.1% faithful, below it 60.0% and 75.7%.
+
+**Implication.** The offline figures describe what the app serves: verification, calibration, conformal coverage and the scorer carry over to int8 on CPU within a few tenths of a point, at about 2.6 s per answer. Single answers are not reproducible across hardware (41% of texts differ between CPU and GPU), so an audit log should keep the served text with its checks. All faithfulness figures still rest on LLM judges; a human review on an NSO's own catalog is the next validation needed before deployment beyond a supervised pilot.
