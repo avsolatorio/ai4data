@@ -5,7 +5,7 @@ from tokenizers import Tokenizer
 
 from relevance_explainer.tiny.train import batches, encode, from_verdict_last
 
-TOK = Path(__file__).resolve().parents[1] / "data/corpus/tokenizer.json"
+TOK = Path(__file__).resolve().parent / "fixtures" / "tokenizer-12k.json"  # the first-round tokenizer (data/corpus/tokenizer.json)
 
 
 def test_from_verdict_last():

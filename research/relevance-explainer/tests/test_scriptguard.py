@@ -7,7 +7,7 @@ from tokenizers import Tokenizer
 from relevance_explainer.tiny.model import Config, TinyLM
 from relevance_explainer.tiny.scriptguard import banned_for, classes_of, token_masks
 
-TOK = Path(__file__).resolve().parents[1] / "data/corpus/tokenizer.json"
+TOK = Path(__file__).resolve().parent / "fixtures" / "tokenizer-12k.json"  # the first-round tokenizer (data/corpus/tokenizer.json)
 
 
 def test_classes_of_lead_bytes():

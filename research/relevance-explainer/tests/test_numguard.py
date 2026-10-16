@@ -1,10 +1,12 @@
 """Number guard: numbers in the explanation must occur in the input; backward year ranges are repaired."""
+from pathlib import Path
+
 import torch
 from tokenizers import Tokenizer
 
 from relevance_explainer.tiny.numguard import NumberGuard, repair_ranges
 
-TK = Tokenizer.from_file("data/corpus/tokenizer.json")
+TK = Tokenizer.from_file(str(Path(__file__).resolve().parent / "fixtures" / "tokenizer-12k.json"))
 NG = NumberGuard(TK)
 INPUT = "Result: Poverty headcount ratio at $1.90 a day\nYears: 1981-2019; Coverage: 167 countries"
 
