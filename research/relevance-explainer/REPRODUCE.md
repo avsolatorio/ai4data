@@ -80,6 +80,15 @@ Released model on the realistic test (1,495 searches; CPU INT8, as served):
 
 - `scripts/verify_reproduction.sh` reruns steps 5, 7 (training from the released pairs), 9 and 10 and the realistic
   evaluation, writing under `data/repro` and `runs/repro-*`, and reports which outputs are identical.
+  Result on the training machine, 2026-10-16 (commit 29eb2f3):
+
+  | Rerun | Result |
+  |---|---|
+  | Format C data, Python hash seeds 1 and 2 | train, validation and test files byte-identical to the released ones |
+  | Calibration | identical file |
+  | Faithfulness scorer, features recomputed on GPU | identical file (AUROC 0.8812) |
+  | Realistic-test generations of the released model | identical file |
+  | DPO from the released pairs, same seed | different weights; realistic-test verdict accuracy 86.62% against 86.82% (3 of 1,495 searches) |
 - `python scripts/manifest.py --check` compares the files present with `artifacts.json`.
 - `pytest` runs the unit tests, the repository checks and, when the released model is present, the inference tests.
 
