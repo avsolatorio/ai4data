@@ -136,12 +136,99 @@ async def health(request: Request) -> Response:
     return PlainTextResponse("ok")
 
 
+_ASSETS: dict = {}
+
+
+def _segments(section_raw: str, refs: list[dict]) -> list[dict]:
+    """A section in attribute form split into plain text and references, each reference with its check."""
+    from ..claims import _REF
+    out, at, k = [], 0, 0
+    for m in _REF.finditer(section_raw):
+        if m.start() > at:
+            out.append({"text": section_raw[at:m.start()]})
+        r = refs[k] if k < len(refs) else {"ok": False, "reason": "not checked"}
+        out.append({"text": m.group(2), "claim": int(m.group(1)), "ok": r["ok"], "reason": r.get("reason", "")})
+        at, k = m.end(), k + 1
+    if at < len(section_raw):
+        out.append({"text": section_raw[at:]})
+    return out
+
+
+def _claim_events(text: str, model_name: str, guard: bool):
+    """Answer of a claim-carrying model (answer_c.py): stream the explanation as it is written, then the checks."""
+    import queue
+    from ..answer_c import Assets, answer
+    from ..claims import _SECTION, from_model, strip_model_tags
+    model, tk, masks, load_s, size = V.load(model_name)
+    if model_name not in _ASSETS:
+        _ASSETS[model_name] = Assets.from_run(model, tk, V.ROOT / V.CLAIM_RUNS[model_name])
+    prompt_len = len(tk.encode(text + V.SEP).ids)
+    if prompt_len > model.c.max_len - 440:
+        yield json.dumps({"type": "error", "message": f"Input is {prompt_len} tokens; the limit is {model.c.max_len - 440}. Shorten the metadata."}) + "\n"
+        return
+    yield json.dumps({"type": "start", "prompt_tokens": prompt_len, "model_mb": round(size / 1e6, 1)}) + "\n"
+    q: queue.Queue = queue.Queue()
+    t1, first = time.time(), [None]
+
+    def on_tokens(toks):
+        if first[0] is None:
+            first[0] = time.time() - t1
+        if len(toks) % 3 == 0:
+            q.put(("tokens", list(toks)))
+
+    def work():
+        try:
+            q.put(("done", answer(_ASSETS[model_name], text, banned=banned_for(masks, text) if guard else None, stream=on_tokens)))
+        except Exception as exc:  # reported to the page
+            q.put(("error", f"{type(exc).__name__}: {exc}"))
+
+    threading.Thread(target=work, daemon=True).start()
+    while True:
+        kind, val = q.get()
+        if kind == "tokens":
+            raw = tk.decode(val, skip_special_tokens=False)
+            head, _, body = raw.partition("\n")
+            phase = "explanation" if "<|exp|>" in body else "tl;dr" if "<|tldr|>" in body else "claims"
+            words = strip_model_tags(body.split("<|exp|>", 1)[1]) if phase == "explanation" else ""
+            yield json.dumps({"type": "token", "text": head.strip() + "\n" + words, "phase": phase}) + "\n"
+        elif kind == "error":
+            yield json.dumps({"type": "error", "message": val}) + "\n"
+            return
+        else:
+            o = val
+            attr = from_model(o["text"])
+            ck = o["check"]
+            sections = {}
+            for name, rx in _SECTION.items():
+                m = rx.search(attr)
+                if m:
+                    sections[name] = _segments(m.group(1).strip(), [r for r in ck["refs"] if r["section"] == name])
+            total = time.time() - t1
+            n_out = o["stats"]["output_tokens"]
+            yield json.dumps({"type": "done", "text": o["text"], "verdict": o["verdict"],
+                              "narrative": ck["sections"].get("exp", ""), "probs": o["probs"], "score": None,
+                              "claims_answer": {"claims": ck["claims"], "sections": sections, "all_verified": ck["all_verified"],
+                                                "unverified": ck["unverified"], "flags": ck["flags"], "errors": ck["errors"],
+                                                "verdict_set": o["verdict_set"], "set_level": o["set_level"],
+                                                "expected_grade": o["expected_grade"], "written_grade": ck["grade"],
+                                                "faith": o["faith"], "retried": o["retried"],
+                                                "attempts": [{"kept": x["kept"], "all_verified": x["all_verified"]} for x in o["attempts"]]},
+                              "attempts": [], "stats": {
+                "prompt_tokens": prompt_len, "output_tokens": n_out, "first_token_ms": round((first[0] or 0) * 1000),
+                "total_s": round(total, 2), "per_token_ms": round(o["stats"]["greedy_s"] / max(1, n_out) * 1000, 1),
+                "model_mb": round(size / 1e6, 1), "resampled": 0, "retried": o["retried"], "first_score": None}}) + "\n"
+            return
+
+
 def _events(text: str, model_name: str, temperature: float, guard: bool):
     """Generate one answer and yield NDJSON lines: start, probs, token (cumulative text), done."""
     if not _slots.acquire(timeout=30):
         yield json.dumps({"type": "error", "message": "The server is busy; try again in a moment."}) + "\n"
         return
     try:
+        if model_name in V.CLAIM_RUNS:  # greedy with verifier-selected retries; the temperature setting does not apply
+            yield from _claim_events(text, model_name, guard)
+            return
         t0 = time.time()
         model, tk, masks, load_s, size = V.load(model_name)
         prompt = tk.encode(text + V.SEP).ids

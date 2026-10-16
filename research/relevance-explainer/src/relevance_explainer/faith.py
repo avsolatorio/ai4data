@@ -26,6 +26,7 @@ def model_features(model, prompts: list[list[int]], answers: list[list[int]], ba
     """Token ids of the prompts (up to and including the verdict line) and of the answers after it (EOS included).
     Returns the log-probability features [n, 6] (NaN when the answer does not fit) and the final hidden states [n, 2d]
     (mean over the answer positions, then the last position)."""
+    dev = next(model.parameters()).device
     store = {}
     hook = model.norm.register_forward_hook(lambda m, i, o: store.__setitem__("h", o))
     gen, hid = [None] * len(prompts), [None] * len(prompts)
@@ -37,8 +38,8 @@ def model_features(model, prompts: list[list[int]], answers: list[list[int]], ba
             ids = torch.zeros(len(ch), max(map(len, seqs)), dtype=torch.long)
             for r, s in enumerate(seqs):
                 ids[r, : len(s)] = torch.tensor(s)
-            with torch.autocast("cuda", dtype=torch.bfloat16):
-                logits = model(ids.cuda())
+            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=dev.type == "cuda"):
+                logits = model(ids.to(dev))
             lp = torch.log_softmax(logits.float(), -1)
             h = store["h"].float()
             for r, j in enumerate(ch):
@@ -47,7 +48,7 @@ def model_features(model, prompts: list[list[int]], answers: list[list[int]], ba
                     gen[j], hid[j] = np.full(6, np.nan), np.zeros(2 * h.size(-1), np.float32)
                     continue
                 l = lp[r, p0 - 1 : n - 1]
-                tok = l.gather(1, ids[r, p0:n].cuda()[:, None])[:, 0]
+                tok = l.gather(1, ids[r, p0:n].to(dev)[:, None])[:, 0]
                 ent = -(l.exp() * l).sum(-1)
                 hv = h[r, p0 - 1 : n - 1]
                 gen[j] = np.array([tok.mean().item(), tok.min().item(), torch.quantile(tok, 0.05).item(),

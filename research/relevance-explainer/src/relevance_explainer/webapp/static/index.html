@@ -123,6 +123,12 @@ dl.meta dd{margin:0;color:var(--fg2);max-height:6.6em;overflow:auto;overflow-wra
 .lab span{display:block;font-size:11.5px;color:var(--mute);margin-bottom:6px}
 .note{margin-top:10px;font-size:12.8px;padding:9px 12px;border-radius:10px}
 .note.ok{background:var(--okbg);color:var(--ok)}.note.warn{background:var(--warnbg);color:var(--warn)}.note.info{background:var(--accbg);color:var(--acc)}
+.ref-ok{border-bottom:2px solid var(--okbar);cursor:help}.ref-bad{border-bottom:2px dashed var(--badbar);background:var(--badbg);cursor:help}
+.tldr{font-size:15px;font-weight:600;margin:12px 0 0;line-height:1.55}
+.checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chk{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:help}
+.chk.ok{background:var(--okbg);color:var(--ok)}.chk.warn{background:var(--warnbg);color:var(--warn)}.chk.bad{background:var(--badbg);color:var(--bad)}.chk.info{background:var(--accbg);color:var(--acc)}
+.claims{margin-top:12px;font-size:13px}.claims table{border-collapse:collapse;width:100%}.claims td{padding:3px 8px 3px 0;border-top:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
 .ref{margin-top:8px;padding:11px 13px;border-radius:11px;background:var(--soft);font-size:13.8px;line-height:1.6}
 .judge{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 .score{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;padding:4px 10px;border-radius:9px;background:var(--soft);color:var(--fg2)}
@@ -254,6 +260,30 @@ function attemptsHtml(s,lang){const a=(s.attempts||[]).map((x,j)=>({...x,n:j+1})
   return `<details class="attempts" open><summary>${a.length} other explanation${a.length>1?"s":""}, lower confidence or discarded</summary>${a.map(x=>
     `<div class="attempt"><div class="muted">Attempt ${x.n}${x.n===1?" (first answer)":""} · ${x.score!=null?`confidence ${Math.round(x.score*100)}%`:esc(x.note||"discarded")}</div>
     <div class="narr sm"${dirOf(lang)}>${esc(x.narrative)}</div></div>`).join("")}</details>`;}
+// Claim-carrying answers (answer_c.py): references checked against the record, calibrated verdict probabilities with a
+// conformal verdict set, the expected grade and the faithfulness score (probability that a judge rates the explanation
+// faithful 4 or 5; on the realistic test the judge agrees for 94% of answers at 0.8 or more and 46% below 0.5).
+const FAITH_TIP="Probability that an independent judge would rate this explanation faithful to the record (4 or 5 of 5), from the verifier and the model's own uncertainty while writing. Fitted on judged answers; on held-out searches 94% of answers scored 0.8 or more were rated faithful.";
+const SET_TIP="Conformal verdict set: on searches like the calibration set, the correct verdict is inside this set 90% of the time.";
+const GRADE_TIP="Expected relevance grade (0 to 10): the grade the model expects, weighted by its probability for each verdict.";
+function segHtml(segs){return(segs||[]).map(x=>x.claim==null?esc(x.text):
+  `<span class="${x.ok?"ref-ok":"ref-bad"}" title="${x.ok?"Verified against the record":"Not verified: "+esc(x.reason||"")}">${esc(x.text)}</span>`).join("");}
+function claimsHtml(s,lang){const c=s.claims_answer;if(!c)return"";
+  const refs=[...(c.sections.tldr||[]),...(c.sections.exp||[])].filter(x=>x.claim!=null),bad=refs.filter(x=>!x.ok).length;
+  const chips=[];
+  chips.push(c.all_verified?`<span class="chk ok" title="Every claim occurs in the record and every reference matches its claim; no number or place outside the record.">✓ All ${refs.length} reference${refs.length===1?"":"s"} verified</span>`
+    :`<span class="chk bad" title="Unverified items are marked in the text.">${bad?`${bad} of ${refs.length} references not verified`:"Unverified mentions"}${c.unverified.length?` · ${c.unverified.length} mention${c.unverified.length>1?"s":""} outside the record`:""}</span>`);
+  if(c.faith)chips.push(`<span class="chk ${c.faith.band==="high"?"ok":c.faith.band==="check"?"warn":"bad"}" title="${FAITH_TIP}">Faithfulness ${Math.round(c.faith.score*100)}%${c.faith.band==="high"?"":c.faith.band==="check"?" · check the record":" · likely unfaithful"}</span>`);
+  if(c.verdict_set)chips.push(c.verdict_set.length===1?`<span class="chk ok" title="${SET_TIP}">Single verdict at 90%</span>`
+    :`<span class="chk warn" title="${SET_TIP}">At 90%: ${c.verdict_set.map(v=>NICE[v]).join(" or ")}</span>`);
+  if(c.expected_grade!=null)chips.push(`<span class="chk info" title="${GRADE_TIP}">Grade ${c.expected_grade.toFixed(1)} / 10</span>`);
+  const retry=c.retried?`<div class="retrynote">The first answer had unverified items, so the model wrote ${c.retried} more after the same verdict. ${c.attempts.filter(a=>a.kept).length&&!c.attempts[0].kept?"A better-verified one is shown.":"None verified better, so the first answer is shown."}</div>`:"";
+  const tl=c.sections.tldr?`<div class="tldr"${dirOf(lang)}>${segHtml(c.sections.tldr)}</div>`:"";
+  const ex=c.sections.exp?`<div class="narr"${dirOf(lang)}>${segHtml(c.sections.exp)}</div>`:`<div class="narr"${dirOf(lang)}>${esc(s.narrative)}</div>`;
+  const cl=c.claims.length?`<details class="claims"><summary>${c.claims.length} claim${c.claims.length>1?"s":""} copied from the record</summary><table>${c.claims.map(x=>
+    `<tr><td>${x.ok?'<span style="color:var(--ok)">✓</span>':'<span style="color:var(--bad)">✗</span>'}</td><td class="muted">${esc(x.field)}</td><td>${esc(x.value)}${x.ok?"":` <span class="muted">(${esc(x.reason)})</span>`}</td></tr>`).join("")}</table></details>`:"";
+  const um=c.unverified.length?`<div class="note warn">Outside the record: ${c.unverified.map(esc).join(", ")}</div>`:"";
+  return `<div class="checks">${chips.join("")}</div>${retry}${tl}${ex}${um}${cl}`;}
 const VERD=["relevant","partly_relevant","irrelevant"];
 const BAR={relevant:"var(--okbar)",partly_relevant:"var(--warnbar)",irrelevant:"var(--badbar)"};
 const SRC={indicator:["📈","Indicator"],study:["🗂️","Survey"],dataset:["🆘","HDX"],document:["📄","Paper"]};
@@ -386,7 +416,7 @@ function renderOutput(s){
     .map(([k,v])=>`<div class="stat"><b>${esc(v)}</b><span>${k}</span></div>`).join("")}</div>`:"";
   p.innerHTML=`<div class="h">Model output · ${esc(s.model)}</div>
     <span class="badge v-${s.verdict}">${s.verdict==="pending"?"◌":"●"} ${NICE[s.verdict]||esc(s.verdict)}</span>${lowConf(s)}
-    <div class="narr"${dirOf(lang)}>${esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>${attemptsHtml(s,lang)}
+    ${s.claims_answer?claimsHtml(s,lang):`<div class="narr"${dirOf(lang)}>${s.running&&s.phase&&s.phase!=="explanation"?`<span class="muted">Writing the ${esc(s.phase)}…</span>`:esc(s.narrative)}${s.running?'<span class="caret"></span>':""}</div>`}${attemptsHtml(s,lang)}
     ${bars}${st}${s.error?`<div class="err">${esc(s.error)}</div>`:""}`;
 }
 
@@ -441,8 +471,8 @@ async function generate(){
   try{
     const last=await runOnce(model,ev=>{
       if(ev.type==="probs")s.probs=ev.probs;if(ev.type==="retry")s.retrying=ev.score;
-      if(ev.type==="token")Object.assign(s,split(ev.text));
-      if(ev.type==="done"){Object.assign(s,{verdict:ev.verdict,narrative:ev.narrative,stats:ev.stats,running:false,score:ev.score??null,attempts:ev.attempts||[]});live={model,text:ev.text};}
+      if(ev.type==="token"){Object.assign(s,split(ev.text));s.phase=ev.phase||null;}
+      if(ev.type==="done"){Object.assign(s,{verdict:ev.verdict,narrative:ev.narrative,stats:ev.stats,running:false,score:ev.score??null,attempts:ev.attempts||[],claims_answer:ev.claims_answer||null});if(ev.probs)s.probs=ev.probs;live={model,text:ev.text};}
       if(ev.type==="error"){s.error=ev.message;s.running=false;}
       renderOutput(s);});
     if(!last){s.running=false;s.error="The stream ended early.";renderOutput(s);}
@@ -461,7 +491,7 @@ async function compare(){
       <div class="cell muted">${r.t?r.t+" s":""}</div>`).join("")}</div>`;};
   for(const m of MODELS.filter(m=>!m.format.startsWith("itemfirst")||sel.set==="realistic")){const r={model:m.name,mb:m.size_mb};rows.push(r);draw();
     try{let probs=null;const last=await runOnce(m.name,ev=>{if(ev.type==="probs")probs=ev.probs;if(ev.type==="token"){Object.assign(r,split(ev.text));draw();}});
-      if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:last.score!=null?last.score:probs?probs[last.verdict]:null});}
+      if(last&&last.type==="done"){Object.assign(r,{verdict:last.verdict,narrative:last.narrative,t:last.stats.total_s,p:last.score!=null?last.score:(last.probs||probs)?(last.probs||probs)[last.verdict]:null});}
       else r.error=last?last.message:"no result";}catch(e){r.error=e.message;}
     draw();}
   busy=false;$("#genBtn").disabled=$("#cmpBtn").disabled=false;p.scrollIntoView({behavior:"smooth",block:"nearest"});
