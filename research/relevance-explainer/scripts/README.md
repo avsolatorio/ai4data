@@ -19,6 +19,8 @@ produced with them.
 | `run_keepalive.sh` | Run scripts/keepalive.sh with its log appended to the shared log directory. |
 | `run_logged.sh` | Run a script with its output appended to <log_dir>/<script name>.log, for use as a tmux window command: tmux new-window -t relexp -n roundf scripts/run_logged.sh scripts/round_f.sh. |
 | `teachers.sh` | Start the teacher servers only for the steps that need them, through the keepalive's pause files. |
+| `serve_judge.sh` | Serve one model of synth/models.py (the teacher, Gemma 4 or the judges added on 2026-10-18: gpt-oss-120b, Nemotron 3.5 Lightning, Mistral Small 4) with vLLM, for a tmux window. |
+| `vllm_overlay.sh` | Build an environment that reuses the vllm environment's packages with another transformers release, for a model the locked transformers cannot load (Mistral Small 4 needs transformers 5.16.1 with vllm 0.30.0). |
 | `py.sh` | Run a project module with the training environment. |
 | `manifest.py` | Manifest of the artifacts behind the released claim-carrying model (REPRODUCE.md): for each file, its SHA-256, size and, for JSONL, the number of rows. |
 | `verify_reproduction.sh` | Rerun the deterministic steps behind runs/final-C-dpo and compare the outputs with the released artifacts (artifacts.json, REPRODUCE.md). |
@@ -68,6 +70,7 @@ produced with them.
 | `faith_cpu_check.py` | The faithfulness scores the app computed on CPU (scripts/cpu_parity_c.py) against the judges' labels, on the rows where the CPU answer is identical to the judged GPU greedy answer (judge labels exist only for that text). |
 | `unseen_catalogs.py` | Test set of records from catalogs absent from training (evalsets/unseen_catalogs): rebuild the records from Our World in Data, open.canada.ca, data.gov.au and Zenodo, explain every labelled case with a model bundle at a chosen render version, and report verdict agreement, trust states and faithfulness bands. |
 | `render_change_relabel.py` | Effect of a render-version change on the evaluation sets: the teacher and Gemma 4 label every row whose input changes on both versions' inputs, and the run's verdicts on each version are scored against the stored and the new labels (McNemar's exact test). |
+| `judge_panel.py` | Open-weights models as judges of the challenge, realistic and unseen-catalog sets: each model's verdict on the same inputs (NARRATE_V3, temperature 0, reasoning off), agreement with each set's references, Cohen's kappa between models, agreement by language and the models' majority. |
 | `uncertainty_check.py` | Calibration, conformal verdict sets and the expected grade for a tagged run on the realistic test (CPU, int8). |
 | `grade_vs_probs.py` | Does the model's grade rank results better than its verdict probabilities?. |
 | `teacher_grade_repeat.py` | How reliable is the teacher's 0-10 grade? Re-grade a sample of realistic-test rows with the same prompt and checks (synth/tldr_grade.one) and compare with the grade written for the training data… |

@@ -100,6 +100,25 @@ names only the country.
 Explanations of 800 realistic-test answers judged faithful 4 or 5 of 5: 88.4% by the teacher (Qwen3.8-27B), 90.1% by
 Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at the 90th percentile.
 
+Five open-weights models judged the challenge, realistic and unseen-catalog searches with the teacher's prompt
+(`scripts/judge_panel.py`, models in `synth/models.py`). Agreement with the designed verdicts of the challenge set
+(2,244) and with the unseen-set labels (45):
+
+| Model | Family | Challenge, designed verdict | Unseen set |
+|---|---|---|---|
+| Gemma 4 31B | Google | 79.2% (wrote the cases) | 45 |
+| gpt-oss-120b, reasoning low | OpenAI | 76.2% | 41 |
+| Qwen3.8-27B (teacher) | Alibaba | 73.2% | 39 |
+| Nemotron 3.5 Lightning 30B, reasoning off | NVIDIA | 48.5% | 32 |
+| Mistral Small 4 119B, reasoning off | Mistral | 47.7% | 31 |
+
+gpt-oss-120b is the one judge independent of every reference (Gemma 4 wrote the challenge cases; the teacher wrote
+the realistic labels). Cohen's kappa with Gemma 4 is 0.71 on the challenge set and on the realistic test. With
+reasoning on, on a sample of 150 challenge searches, Mistral Small 4 reaches 65.3% (gpt-oss 78.0% on the same
+searches). Nemotron answers 128 of them within 6,000 tokens, and on those it matches gpt-oss (79.7% each) with 36
+times the tokens. Where Gemma 4 and gpt-oss agree with each other and not with the teacher (11.1% of challenge
+searches), they match the designed verdict on 71%.
+
 ## Layout
 
 | Path | Contents |
@@ -128,6 +147,7 @@ Gemma 4 31B. On CPU with 4 threads an answer takes 2.6 s (median) and 3.5 s at t
 ## Limitations
 
 - Labels and explanations come from one teacher model; faithfulness has been judged by two LLMs and not yet by people.
+  The comparison of judges has no labels written by people as its reference.
 - One verdict in eight is wrong on realistic searches, and about one in four on the challenge phrasings. The verdict
   suits explaining a result to a reader; it is not accurate enough to remove results automatically.
 - The model has been evaluated on World Bank, HDX, ILOSTAT, Eurostat and Statistics Canada records with searches

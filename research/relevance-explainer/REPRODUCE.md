@@ -33,6 +33,10 @@ byte-identical files under different Python hash seeds (step 1 of `scripts/verif
 - Teacher servers: `scripts/serve_vllm.sh` serves Qwen3.8-27B (FP8) on ports 8000 and 8001, and Gemma 4 31B (FP8) on
   port 8002; `scripts/keepalive.sh` keeps them running and `scripts/teachers.sh` starts and stops them around the steps
   that need them. Thinking mode is off for every teacher call.
+- Further judges: `synth/models.py` lists every model with its weights, server settings and request fields, and
+  `scripts/serve_judge.sh <name>` serves one (gpt-oss-120b on one GPU, Mistral Small 4 on both). Mistral Small 4
+  needs the transformers 5.16.1 overlay of `scripts/vllm_overlay.sh` and its Mistral-format weights. Set
+  `RELEXP_HF_CACHE` and `RELEXP_VLLM_OVERLAY` in `scripts/local.env`.
 
 ## Lineage
 
@@ -67,6 +71,7 @@ phenomena, hard negatives) are listed under "Data generation" in `scripts/README
 | Faithfulness scorer against both judges | `scripts/faith_scorer_eval.py runs/final-C-dpo [--suffix _gemma4]`, `scripts/faith_cpu_check.py runs/final-C-dpo` |
 | Served render version 5 against version 4 on the evaluation sets | `python -m relevance_explainer.synth.eval_v3 --version 5`, `RUN_DIR=runs/final-C-dpo SUF=_v5 scripts/eval_sets.sh`, `scripts/render_change_relabel.py label` and `score` |
 | Records from catalogs absent from training | `scripts/unseen_catalogs.py run --bundle <bundle>` and `report` (`evalsets/unseen_catalogs`) |
+| Open-weights judges on the challenge, realistic and unseen sets | `scripts/judge_panel.py label <name>` for each model, then `report` |
 
 Released model on the realistic test (1,495 searches; CPU INT8, the app's answer path, inputs at render version 4):
 

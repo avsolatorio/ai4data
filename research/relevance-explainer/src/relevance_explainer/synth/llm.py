@@ -47,9 +47,10 @@ def load_key() -> str:
 
 
 def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
-         max_tokens: int = 1500, retries: int = 4, base_urls: list[str] | None = None) -> tuple[str, dict]:
+         max_tokens: int = 1500, retries: int = 4, base_urls: list[str] | None = None,
+         extra: dict | None = None) -> tuple[str, dict]:
     """Return (text, usage). Raises after exhausting retries. `base_urls` overrides LLM_BASE_URL for this call (to send
-    a request to the server that hosts `model`)."""
+    a request to the server that hosts `model`); `extra` adds request fields after LLM_EXTRA (models.MODELS[...]["request"])."""
     body = json.dumps({
         "model": model,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -58,6 +59,7 @@ def chat(model: str, system: str, user: str, *, temperature: float = 0.7,
         **({"reasoning_effort": os.environ["LLM_REASONING"]} if os.environ.get("LLM_REASONING") else {}),
         # Extra request fields as JSON, e.g. '{"chat_template_kwargs": {"enable_thinking": false}}' for vLLM.
         **json.loads(os.environ.get("LLM_EXTRA", "{}")),
+        **(extra or {}),
     }).encode()
     headers = {"Authorization": f"Bearer {load_key()}", "Content-Type": "application/json"}
     last: Exception | None = None
