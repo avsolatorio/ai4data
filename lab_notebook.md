@@ -1671,3 +1671,56 @@ Code: commit b2a4f7c (deployed to the app on port 3410 at about 16:12 UTC).
 - The published evaluation numbers (version 4) stand as measured. Their labels carry the false-place artifact on 293 rows (4.6%).
 - Version 5 is the served format. A future training round should render its data at version 5 and relabel the affected rows; 1,609 of 30,000 sampled training searches (5.4%) change their places.
 - The province searches need a check status that says the record's breakdown level covers the place. That status would be new to the model, so it needs training data.
+
+## 2026-10-18 14:21 UTC — Open-weights judges from three more model families
+
+**Question.** All labels come from Qwen3.8-27B, checked by Gemma 4. Do open-weights models from other families judge the evaluation sets well enough to serve as validators or as a second teacher? Code at commit d068d9e.
+
+**What was done.**
+- **Models.** Three were chosen from families absent from the data that fit the two H100s, with permissive licences:
+  - gpt-oss-120b (OpenAI, Apache-2.0, MXFP4, one GPU, reasoning "low", since it has no off setting);
+  - Nemotron 3.5 Lightning 30B-A3B (NVIDIA, OpenMDW-1.1, FP8, one GPU, thinking off);
+  - Mistral Small 4 119B (Mistral, Apache-2.0, FP8, both GPUs, reasoning "none").
+  - Also considered: Llama 4 Scout (gated, needs approval) and Aya / Command A (CC-BY-NC or too large). GLM-4.7-Flash covers only English and Chinese.
+- **Registry and serving.** `synth/models.py` and `scripts/serve_judge.sh`. Serving needed three fixes:
+  - ninja put on the PATH of the server;
+  - Triton MoE kernels, because the FlashInfer FP8 MoE kernels are compiled at start-up and the compile fails with the installed nvcc;
+  - for Mistral, a transformers 5.16.1 overlay (`scripts/vllm_overlay.sh`) and its Mistral-format weights. vllm 0.30.0 imports `PixtralRotaryEmbedding`, which transformers 5.18.0 renamed, and finds no text architecture in the Hugging Face config.
+- **Panel** (`scripts/judge_panel.py`). Every model judged the same inputs with NARRATE_V3 at temperature 0:
+  - challenge, 2,244 searches with their stored inputs. Reference: the designed verdict, written by Gemma 4 with the case;
+  - realistic test, 1,495. References: the stored teacher label and the three-label majority, which includes Gemma 4;
+  - unseen catalogs, the 45 supported-language searches rendered at version 5. Reference: labels written in this project before the model ran (written by the assistant; no person has labelled them).
+  - The teacher and Gemma 4 were rerun in the same way, so all five are comparable.
+
+**Result.**
+
+| Model | Challenge vs designed | Challenge vs stored | Realistic vs stored | Unseen, lenient | Explanation in the requested language |
+|---|---|---|---|---|---|
+| Gemma 4 31B | 79.2% | 81.6% | 84.3% | 45/45 | 100% |
+| gpt-oss-120b (low) | 76.2% | 79.9% | 82.5% | 41/45 | 99.8–100% |
+| Qwen3.8-27B (teacher) | 73.2% | 93.7% | 92.0% | 39/45 | 100% |
+| Nemotron 3.5 Lightning (thinking off) | 48.5% | 58.7% | 73.6% | 32/45 | 93.7–97.7% |
+| Mistral Small 4 (reasoning none) | 47.7% | 57.7% | 62.5% | 31/45 | 99.2–100% |
+
+- **Circular references.** The teacher's agreement with the stored labels is with its own earlier labels (NARRATE_V2 on the challenge set). Gemma 4's agreement with the designed verdicts is partly with itself. gpt-oss is the only judge independent of every reference.
+- **Agreement between models** (Cohen's kappa):
+  - gpt-oss and Gemma 4: 0.71 on the challenge set and on the realistic test; 0.77 on the unseen set;
+  - gpt-oss and the teacher: 0.65 and 0.71;
+  - Nemotron or Mistral with any other model: 0.21–0.49 on the challenge and realistic sets.
+- **By language** (realistic, against the stored label). gpt-oss ranges 75% (Swahili) to 88% (Indonesian). Gemma 4 ranges 76% (Swahili) to 89% (Russian). Both are lowest in Swahili and Hindi.
+- **Confound check: reasoning setting** (seeded samples, same searches, McNemar):
+  - gpt-oss at "medium" against "low" (300 per set): no gain. Challenge 75.0% vs 76.0% (p = 0.74); realistic 82.3% vs 84.3% (p = 0.44). It takes 2.2 to 2.6 times the tokens.
+  - Nemotron with thinking on (150 per set): 79.7% vs 52.3% on the challenge set (p < 0.001), and 83.9% vs 68.6% on realistic (p = 0.001). It used 3,900 tokens per answer against 110 (about 36 times as many), and 140–180 s per answer.
+    - 35 of 300 answers did not finish within 6,000 tokens, so the comparison covers the 265 that finished, which may be the easier ones.
+    - On those rows it equals gpt-oss on the challenge set (79.7% each, p = 1.0) and is below Gemma 4 on the realistic majority (82.5% vs 90.5%, p = 0.007).
+    - Correction within this run: the first thinking-on pass returned 3 verdicts in 600. The server had no reasoning parser, so the reasoning text came before the JSON. The panel now reads the last JSON object with a verdict, and the failed pass is kept in data/judge_panel_failed.
+  - Mistral with reasoning "high" (150 per set): 65.3% vs 52.0% on the challenge set (p = 0.022). That is still below gpt-oss on the same searches: 78.0% (p = 0.003), and on realistic 70.0% vs 84.7% (p < 0.001). With reasoning off it labels most searches partly_relevant: 1,569 of 2,244 challenge searches, 898 of them designed relevant.
+- **Validators against the teacher.** On the challenge set, Gemma 4 and gpt-oss agree with each other and against the teacher on 249 searches (11.1%), and they match the designed verdict on 178 of them (71%). These cover 184 of the teacher's 601 disagreements with the designed verdict (31%). On the unseen set they flag 6 searches and match the label on all 6.
+
+**Implication.**
+- gpt-oss-120b is a useful third judge. Its family is independent of the teacher and of Gemma 4, it agrees with Gemma 4 at kappa 0.71, it is close to Gemma 4 on the references, and it takes 6 s per answer with reasoning low.
+- Nemotron 3.5 Lightning and Mistral Small 4 are registered but not used:
+  - with reasoning off they are near chance on the designed verdicts;
+  - with reasoning on, Nemotron costs about 36 times the tokens for gpt-oss's accuracy, and Mistral stays below gpt-oss.
+- Rows where two independent judges agree against the teacher are a candidate review or relabel queue. About 70% of them are teacher errors by the designed verdict.
+- The ranking of the teacher below Gemma 4 and gpt-oss on references the teacher did not write suggests the teacher is not the strongest labeller available here. Neither reference is written by people, so this needs the human-labelled sample before a teacher change.
