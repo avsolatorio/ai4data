@@ -2,7 +2,7 @@
 
 This page describes the internal architecture of `ai4data.metadata.reviewer`: how its two main classes divide responsibility, how the five-agent pipeline processes a metadata record, how jobs are managed, and how the design remains independent of any specific LLM provider.
 
-The implementation is in [`src/ai4data/metadata/reviewer/`](../../src/ai4data/metadata/reviewer/).
+The implementation is in [`src/ai4data/metadata/reviewer/`](https://github.com/worldbank/ai4data/tree/main/src/ai4data/metadata/reviewer/).
 
 ---
 
@@ -33,7 +33,7 @@ Each run passes the metadata record through five agents in sequence. The table b
 | **secondary** | Raw metadata record | JSON array of candidate issues (same schema) | Independent re-scan. Does NOT rely on primary's output. Surfaces issues the primary may have missed. |
 | **critic** | Combined candidate list from primary and secondary | Filtered JSON array | Removes issues matching general, field-level, and data-state exclusion rules (see below). No speculation; only unambiguous issues pass. |
 | **categorizer** | Critic's filtered list | Same array with `issue_category` added | Assigns one of six exact category strings. Does not add or remove findings; only annotates. Tie-breaker rules applied in fixed order. |
-| **severity_scorer** | Categorizer's annotated list | Final array with `issue_severity` (integer 1–5) added | Assigns severity based on impact, not category alone. Down-weights issues matching exclusion classes to severity 1. Terminates with "DONE" to signal pipeline end. |
+| **severity_scorer** | Categorizer's annotated list | Final array with `issue_severity` (integer 1–5) added | Assigns severity by impact; the category alone does not decide it. Down-weights issues matching exclusion classes to severity 1. Terminates with "TERMINATE" to signal pipeline end. |
 
 Candidates accumulate through the primary and secondary passes. The critic applies a defined filter that removes noise. The categorizer annotates surviving issues without altering them. The severity scorer closes the pipeline with an impact-based score and the termination signal.
 
@@ -115,7 +115,7 @@ agents_manifest:
   - name: severity_scorer
     system_message: |
       Assign issue_severity (1–5) to each finding based on impact.
-      Output a JSON array. Print a final line: DONE
+      Output a JSON array. Print a final line: TERMINATE
 ```
 
 To use it:
@@ -133,9 +133,9 @@ client.submit(
 
 ## References
 
-- [`src/ai4data/metadata/reviewer/core.py`](../../src/ai4data/metadata/reviewer/core.py) — `MetadataReviewerCore` implementation
-- [`src/ai4data/metadata/reviewer/client.py`](../../src/ai4data/metadata/reviewer/client.py) — `MetadataReviewerClient` implementation
-- [`src/ai4data/metadata/reviewer/jobs.py`](../../src/ai4data/metadata/reviewer/jobs.py) — `Job` class
-- [`src/ai4data/metadata/reviewer/agents_manifest/default_agents_manifest.yml`](../../src/ai4data/metadata/reviewer/agents_manifest/default_agents_manifest.yml) — Default agents manifest
+- [`src/ai4data/metadata/reviewer/core.py`](https://github.com/worldbank/ai4data/blob/main/src/ai4data/metadata/reviewer/core.py) — `MetadataReviewerCore` implementation
+- [`src/ai4data/metadata/reviewer/client.py`](https://github.com/worldbank/ai4data/blob/main/src/ai4data/metadata/reviewer/client.py) — `MetadataReviewerClient` implementation
+- [`src/ai4data/metadata/reviewer/jobs.py`](https://github.com/worldbank/ai4data/blob/main/src/ai4data/metadata/reviewer/jobs.py) — `Job` class
+- [`src/ai4data/metadata/reviewer/agents_manifest/default_agents_manifest.yml`](https://github.com/worldbank/ai4data/blob/main/src/ai4data/metadata/reviewer/agents_manifest/default_agents_manifest.yml) — Default agents manifest
 - [Microsoft AutoGen documentation](https://microsoft.github.io/autogen/) — Multi-agent framework
 - [autogen-agentchat](https://pypi.org/project/autogen-agentchat/) — AutoGen conversation and team orchestration library

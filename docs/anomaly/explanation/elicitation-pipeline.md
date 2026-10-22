@@ -15,7 +15,7 @@ The pipeline has six stages:
 5. **Parsed output** — Responses are validated against the schema. Each anomaly record includes `classification`, `confidence`, `explanation`, `evidence_strength`, and `evidence_source`.
 6. **Review** — Human reviewers use a web app to view explanations alongside timeseries charts, approve or reject them, and optionally suggest corrections. Feedback is exportable for audit or model improvement.
 
-The implementation is available in the `ai4data.anomaly.explanation` package. A step-by-step notebook is provided: [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/Timeseries_Anomaly_Explanation_with_LLMs.ipynb).
+The implementation is available in the `ai4data.anomaly.explanation` package. A step-by-step notebook is provided: [Timeseries Anomaly Explanation with LLMs](../../notebooks/data-anomaly/timeseries-anomaly-explanation-with-llms.md).
 
 ---
 
@@ -89,17 +89,18 @@ A typical context object passed to the LLM looks like:
 
 Prompts are built and sent to one or more LLMs. Implementations are in [`src/ai4data/anomaly/explanation/prompts.py`](../../../src/ai4data/anomaly/explanation/prompts.py) and [`src/ai4data/anomaly/explanation/llm_client.py`](../../../src/ai4data/anomaly/explanation/llm_client.py).
 
-For large-scale runs, use the **batch mode** (see [Running at Scale](#running-at-scale) below). For small exploratory runs:
+Requests go through the providers' batch APIs (OpenAI, Gemini, or Anthropic); the [Running at Scale](#running-at-scale) section shows the full sequence. The one-shot form builds the batch file for a shortlist of series, runs it, and parses the output:
 
 ```python
-from ai4data.anomaly.explanation import run_batch, parse_batch_output
+from ai4data.anomaly.explanation import build_batch_file, run_batch, parse_batch_output
 
-batch_id = run_batch(
-    contexts,
-    model="gpt-4o-mini",       # or "gemini-2.0-flash", etc.
-    provider="openai",
+path, count = build_batch_file(
+    "batch_input.jsonl", shortlist, source_df, geo_map, ind_map,
+    provider="openai",            # "gemini" or "anthropic" change the row format and the default model
+    model_id="gpt-4.1-mini",
 )
-explanations = parse_batch_output(batch_id, provider="openai")
+run_batch("openai", path, "batch_output.jsonl", poll_interval=60)
+anomalies_df = parse_batch_output("batch_output.jsonl", "openai", ind_map, geo_map)
 ```
 
 ### Example LLM Input/Output
@@ -213,21 +214,29 @@ from ai4data.anomaly.explanation import (
     submit_batch,
     wait_for_batch,
     download_batch_output,
+    parse_batch_output,
+    export_for_review,
 )
 
-# Build the JSONL batch file
-batch_file_path = build_batch_file(contexts, output_path="batch_input.jsonl")
+# Build the JSONL batch file: one request per (indicator, geography) series in the
+# shortlist, with the context window extracted from source_df. A sidecar
+# batch_input_custom_id_map.json is written next to it.
+path, count = build_batch_file(
+    "batch_input.jsonl", shortlist, source_df, geo_map, ind_map,
+    provider="openai", period_window=3, min_outlier_count=3,
+)
 
-# Submit to OpenAI Batch API
-batch_id = submit_batch(batch_file_path, provider="openai")
+# Submit, wait (polls every 60 seconds by default), download
+batch_id = submit_batch("openai", path)
+wait_for_batch("openai", batch_id, poll_interval=60)
+download_batch_output("openai", batch_id, "batch_output.jsonl")
 
-# Wait for completion (polls every 60 seconds by default)
-wait_for_batch(batch_id, provider="openai")
-
-# Download and parse results
-raw_output = download_batch_output(batch_id, provider="openai")
-explanations = parse_batch_output(raw_output)
+# Parse the responses and export them for review
+anomalies_df = parse_batch_output("batch_output.jsonl", "openai", ind_map, geo_map)
+export_for_review(anomalies_df, timeseries_df=canonical_df, output_path="anomaly_review.json")
 ```
+
+`run_batch("openai", path, "batch_output.jsonl")` performs the submit, wait, and download steps in one call.
 
 Batch APIs offer significantly lower cost (typically 50% cheaper than synchronous API calls) and higher throughput for large-scale runs.
 
@@ -249,19 +258,19 @@ The following design choices govern how the LLM is prompted and how outputs are 
 
 ## Human-in-the-Loop
 
-The [Reviewer Feedback System](../anomaly-detection/feedback-system.md) supports:
+The [Reviewer Feedback System](../../anomaly-detection/feedback-system.md) supports:
 
 - Approving, rejecting, or flagging explanations for further review
 - Suggesting an alternative classification when the reviewer disagrees
 - Optional free-text comments
 - Export to CSV for audit, coverage analysis, or model improvement
 
-This loop ensures that LLM-elicited explanations are treated as hypotheses to be validated, not as final authority. The methodology prioritizes traceability and human oversight in line with official statistics principles.
+This loop ensures that LLM-elicited explanations are treated as hypotheses to be validated. The methodology prioritizes traceability and human oversight in line with official statistics principles.
 
 ---
 
 ## References
 
-- {cite}`openai_structured_outputs_2024` — [OpenAI: Structured model outputs](https://platform.openai.com/docs/guides/structured-outputs)
-- {cite}`google_gemini_structured_output_2024` — [Gemini: Structured output](https://ai.google.dev/gemini-api/docs/structured-output)
-- {cite}`worldbank_data_quality_2024` — [World Bank: Data Quality and Effectiveness](https://datahelpdesk.worldbank.org/knowledgebase/articles/906534-data-quality-and-effectiveness)
+- [OpenAI: Structured model outputs](https://platform.openai.com/docs/guides/structured-outputs)
+- [Gemini: Structured output](https://ai.google.dev/gemini-api/docs/structured-output)
+- [World Bank: Data Quality and Effectiveness](https://datahelpdesk.worldbank.org/knowledgebase/articles/906534-data-quality-and-effectiveness)

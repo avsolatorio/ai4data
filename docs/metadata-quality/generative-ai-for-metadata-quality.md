@@ -14,7 +14,7 @@ This section explores how generative AI—particularly large language models (LL
 - **Interoperability.** Well-structured, standards-compliant metadata enables data to be combined and compared across sources. Development datasets from the World Bank, national statistical offices, and UN agencies can only be compared reliably if they share common terminologies and schema conventions.
 - **Trust and Reusability.** Accurate, up-to-date metadata builds user confidence and increases data reuse. When metadata is inconsistent or misleading, users learn not to trust it—and eventually not to use the data at all.
 
-Poor metadata is not just an inconvenience: it actively obscures valuable datasets and can lead to misuse. A poverty indicator with an outdated geographic definition, or a health survey with a misclassified age group, can distort research conclusions and policy decisions if the error is not caught and documented.
+Poor metadata obscures valuable datasets and can lead to misuse. A poverty indicator with an outdated geographic definition, or a health survey with a misclassified age group, can distort research conclusions and policy decisions if the error is not caught and documented.
 
 ---
 
@@ -40,7 +40,7 @@ LLMs can draft descriptive metadata fields—titles, descriptions, keyword tags,
 
 ### Semantic Alignment Assessment
 
-Embedding models can assess whether two metadata fields that should be semantically related actually are. For example, an indicator's **name** ("Poverty headcount ratio at $2.15 a day") and its **definition** (the full methodological description) should be semantically consistent. A mismatch—detectable by comparing embedding cosine similarity against a threshold—may indicate that the definition refers to a different poverty line, a different population, or has been incorrectly copied from another indicator.
+Embedding models can assess whether two metadata fields that should be semantically related are. For example, an indicator's **name** ("Poverty headcount ratio at $3.00 a day") and its **definition** (the full methodological description) should be semantically consistent. A mismatch—detectable by comparing embedding cosine similarity against a threshold—may indicate that the definition refers to a different poverty line, a different population, or has been incorrectly copied from another indicator.
 
 ### Controlled Vocabulary Standardization
 
@@ -62,7 +62,7 @@ AI models can systematically identify missing or inconsistent fields, flag unusu
 
 ## LLM Assessment Workflow
 
-The [`notebooks/metadata-quality-assessment-with-llm.ipynb`](../../notebooks/metadata-quality-assessment-with-llm.ipynb) notebook demonstrates a complete metadata quality assessment pipeline applied to a development data catalog.
+The [`notebooks/metadata-quality-assessment-with-llm.ipynb`](../notebooks/metadata-quality-assessment-with-llm.md) notebook demonstrates a complete metadata quality assessment pipeline applied to a development data catalog.
 
 The workflow:
 
@@ -121,3 +121,12 @@ Generative AI will not replace the need for human expertise in metadata manageme
 ---
 
 *This section is updated as new tools and case studies become available. Contributions and feedback are welcome.*
+
+---
+
+## Limitations
+
+- The workflow is a notebook, and there is no packaged command. Running it on a catalog means adapting the notebook to the catalog's fields.
+- Scores are model judgments. They are calibrated against a sample of curator scores before they are used to prioritize work, and the [assessment chapter](/cookbook/metadata-curation-with-llms/assess) of the curation cookbook gives the agreement measures.
+- The dimensions scored are those a model can judge from the record. Whether a definition is correct for the country or a source is the authoritative one needs a curator.
+- Status on the [tools catalogue](/tools#metadata-quality): method.

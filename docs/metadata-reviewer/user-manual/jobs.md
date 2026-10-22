@@ -13,10 +13,13 @@ A job moves through the following states, exposed as strings on
 | `failed` | `JobStatus.FAILED` | An exception occurred; `job.error` holds the message. |
 | `cancelled` | `JobStatus.CANCELLED` | Stopped in response to `job.cancel()`. |
 
-The valid transitions are:
+A job starts as `pending`, moves to `running` when the pipeline picks it
+up, and ends in exactly one of three terminal states:
 
 ```
-pending → running → done → failed → cancelled
+pending → running → done
+                  → failed
+                  → cancelled
 ```
 
 ## Waiting for results
@@ -36,7 +39,7 @@ except RuntimeError as exc:
     print("Review did not complete:", exc)
 ```
 
-:::{note} Timeout behaviour
+:::note[Timeout behaviour]
 If the timeout elapses before the job finishes, the wait returns
 rather than raising, but the result will reflect the job's current
 (possibly unfinished) state. Check `job.status` if you need to

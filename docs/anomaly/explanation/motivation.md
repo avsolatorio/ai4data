@@ -1,6 +1,6 @@
 # Motivation: Why LLM Elicitation for Anomaly Explanation
 
-This chapter describes the problem of explaining anomalies in development data, the rationale for using large language models (LLMs), and the design choice of *elicitation*—structured, schema-constrained outputs—rather than free-form generation.
+This chapter describes the problem of explaining anomalies in development data, the rationale for using large language models (LLMs), and the design choice of *elicitation*, which produces structured, schema-constrained outputs.
 
 ---
 
@@ -22,19 +22,19 @@ Large language models bring two critical capabilities to anomaly explanation:
 
 **Structured reasoning over time.** By framing the task as anomaly *windows* (e.g., 2019–2020) rather than single points, we align with how real-world events unfold. The model reasons over the relevant period and produces explanations that fit that context.
 
-The key design choice is **elicitation**, not generation: we do not ask the LLM for creative narrative. We elicit structured outputs—classifications, evidence citations, confidence scores—that are constrained by schema and prompt rules, making them amenable to validation and audit.
+The key design choice is **elicitation**. We do not ask the LLM for creative narrative. We elicit structured outputs (classifications, evidence citations, confidence scores) that are constrained by schema and prompt rules, which makes them amenable to validation and audit.
 
 ---
 
 ## LLM Elicitation as a Design Choice
 
-**Elicitation** means prompting the model to produce outputs that conform to a predefined schema—much like form-filling rather than essay-writing. This aligns with established frameworks for data quality and official statistics:
+**Elicitation** means prompting the model to produce outputs that conform to a predefined schema—much like filling in a form. This aligns with established frameworks for data quality and official statistics:
 
-**OpenAI Structured Outputs** {cite}`openai_structured_outputs_2024` and **Gemini Structured Output** {cite}`google_gemini_structured_output_2024` support JSON Schema enforcement so that responses are type-safe, parseable, and reliable. Schema adherence reduces hallucination and format errors.
+**OpenAI Structured Outputs** (OpenAI, 2024) and **Gemini Structured Output** (Google AI, 2024) support JSON Schema enforcement so that responses are type-safe, parseable, and reliable. Schema adherence reduces hallucination and format errors.
 
-**World Bank Data Quality Standards** {cite}`worldbank_data_quality_2024` stress traceability, verifiability, and transparent documentation. The guidelines require that explanations reference well-documented events when available.
+The World Bank's guidance on data quality and effectiveness (World Bank, 2024) describes traceability, verifiability, and transparent documentation as properties of usable data. The pipeline is designed with reference to them: every explanation cites its evidence and states how verifiable that evidence is.
 
-By constraining outputs to a rigid taxonomy (`data_error`, `external_driver`, `measurement_system_update`, `insufficient_data`) and requiring evidence strength and verifiability levels, we ensure that explanations are actionable for reviewers and downstream systems.
+By constraining outputs to a fixed taxonomy (`data_error`, `external_driver`, `measurement_system_update`, `modeling_artifact`, `insufficient_data`) and requiring evidence strength and verifiability levels, we ensure that explanations are actionable for reviewers and downstream systems.
 
 ---
 
@@ -44,7 +44,7 @@ Manual expert review does not scale to thousands of anomalies across many indica
 
 - **Triage** — Prioritize anomalies by confidence, evidence strength, or classification for human review. Focus expert attention on the most uncertain or high-impact cases.
 - **Audit trail** — Structured outputs (classification, evidence_source, verifiability) create a record that can be exported, analyzed, and used to improve future models.
-- **Human-in-the-loop** — The [Reviewer Feedback System](../anomaly-detection/feedback-system.md) collects verdicts, suggested corrections, and free-text comments. This feedback can support fine-tuning, prompt refinement, or audit coverage analysis.
+- **Human-in-the-loop** — The [Reviewer Feedback System](../../anomaly-detection/feedback-system.md) collects verdicts, suggested corrections, and free-text comments. This feedback can support fine-tuning, prompt refinement, or audit coverage analysis.
 
 ---
 
@@ -64,8 +64,8 @@ Elicitation combines the breadth of LLM world-knowledge with the structure neede
 
 The design draws on several lines of research and practice:
 
-- **Faithful explanation and attribution.** Work on faithfulness in language model explanations (e.g., {cite}`openai_structured_outputs_2024`) motivates strict schema enforcement to reduce hallucination and post-hoc rationalization.
-- **UN Data Quality Assessment Framework (DQAF).** The UN Statistics Division's quality framework emphasizes traceability, coherence, and timeliness as dimensions of statistical data quality. The pipeline's classification taxonomy and verifiability levels are designed to produce outputs that speak directly to these dimensions.
+- **Faithful explanation and attribution.** Work on faithfulness in language model explanations (e.g., OpenAI, 2024) motivates strict schema enforcement to reduce hallucination and post-hoc rationalization.
+- **Data quality frameworks for official statistics.** The IMF's Data Quality Assessment Framework (DQAF) and the UN Statistics Division's National Quality Assurance Framework (NQAF) name accuracy, coherence, and timeliness among the dimensions of statistical data quality. The pipeline's classification taxonomy and verifiability levels are designed with reference to these dimensions.
 - **LLMs for data quality.** Narayan et al. (2022) demonstrated that foundation models can perform data wrangling tasks—entity matching, error detection, data transformation—with surprising effectiveness even without task-specific fine-tuning, suggesting that LLM world-knowledge is broadly applicable to data quality tasks.
 - **World Bank statistical review processes.** Internal review protocols for the WDI and Scorecard databases involve indicator-level sign-off by country economists and thematic experts, providing a well-understood human review target for the automated pipeline to support.
 
@@ -77,4 +77,5 @@ The design draws on several lines of research and practice:
 - [Google AI: Structured outputs (Gemini)](https://ai.google.dev/gemini-api/docs/structured-output)
 - [World Bank: Data Quality and Effectiveness](https://datahelpdesk.worldbank.org/knowledgebase/articles/906534-data-quality-and-effectiveness)
 - Narayan, A. et al. (2022). "Can Foundation Models Wrangle Your Data?" *Proceedings of VLDB*, 16(4).
-- UN Statistics Division. *Data Quality Assessment Framework (DQAF)*. https://unstats.un.org/unsd/methodology/dataquality/
+- International Monetary Fund. *Data Quality Assessment Framework (DQAF)*. https://dsbb.imf.org/dqrs/DQAF
+- UN Statistics Division. *National Quality Assurance Frameworks (NQAF)*. https://unstats.un.org/unsd/methodology/dataquality/

@@ -15,7 +15,7 @@ assigns impact and closes the pipeline.
 | **categorizer** | The critic's filtered list | Same array, with `issue_category` added | Annotates each surviving issue with exactly one category. Adds or removes nothing. |
 | **severity_scorer** | The categorizer's list | Final array, with `issue_severity` added | Assigns a 1–5 impact score to each issue and emits the termination signal that ends the run. |
 
-:::{note} Why two detectors?
+:::note[Why two detectors?]
 Running two independent first-pass scans (primary and secondary)
 increases recall: a single pass tends to miss issues, while a second,
 independent pass catches them. The critic then trims the combined
@@ -26,7 +26,7 @@ cost for higher coverage.
 ## Issue categories
 
 The categorizer assigns exactly one label to each confirmed issue. The
-bundled default manifest uses these five categories:
+bundled default manifest uses these six categories:
 
 | Category | Meaning |
 |---|---|
@@ -35,6 +35,7 @@ bundled default manifest uses these five categories:
 | Missing / Redundant Information | Unquestionably missing required information, or accidental duplication. |
 | Inconsistency / Conflict | Direct contradictions across fields. |
 | Incorrect / Invalid Content | Clearly wrong facts, values, units, methods, or invalid values. |
+| Ambiguity / Unclear | Vague or underspecified meaning; unclear scope, method, or definition. |
 
 ## Severity scale
 
