@@ -1,0 +1,9 @@
+# Python packages for record.py, review.py and music.py (tested with Python 3.10).
+# Install the Chromium build for this Playwright version with:
+#   .venv/bin/python -m playwright install chromium
+playwright==1.63.0
+piper-tts==1.8.0
+kokoro-onnx==0.6.1
+soundfile==0.14.0
+numpy==2.2.6
+pillow==12.3.0

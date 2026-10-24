@@ -1,0 +1,76 @@
+{
+  "title": "Using the Document collection",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "https://worldbank.github.io/ai4data/",
+      "pause": 0.1
+    },
+    {
+      "do": "card",
+      "kicker": "AI for Data – Data for AI · Training",
+      "title": "Using the Document collection",
+      "subtitle": "Session 01 · Building AI applications for research and data",
+      "say": "This video shows how to open and read the Document collection of training session one.",
+      "pause": 1.0
+    },
+    {
+      "do": "click",
+      "target": "nav.navbar a.navbar__link:has-text('Training')",
+      "caption": "Open Training in the top menu",
+      "say": "On the AI for Data site, open Training in the top menu."
+    },
+    {
+      "do": "click",
+      "target": "nav.menu a:has-text('Document collection')",
+      "caption": "Select Document collection under session 01",
+      "say": "In the sidebar, under session one, select Document collection."
+    },
+    {
+      "do": "highlight",
+      "target": "nav[aria-label=Documents]",
+      "caption": "Eight documents, grouped by their role",
+      "say": "The list shows the eight documents that the notebooks of the session search. The documents are grouped by their role in the worked example."
+    },
+    {
+      "do": "click",
+      "target": "nav[aria-label=Documents] button:has-text('Kenya: internet use')",
+      "caption": "Select a document to read it",
+      "say": "Select a document to read it. This country brief covers internet use and mobile subscriptions in Kenya."
+    },
+    {
+      "do": "highlight",
+      "target": "[class*=sheet_]:not([hidden]) dl",
+      "caption": "The metadata of the document",
+      "say": "The metadata comes first. It gives the type of document, the country, the date, and the source of the figures."
+    },
+    {
+      "do": "scroll",
+      "target": "[class*=sheet_]:not([hidden]) [class*=chunk_]",
+      "caption": "Chunks and their citations",
+      "say": "Below the metadata, the document is divided into the chunks that notebook two creates. The label of each chunk is the citation that answers of the application use."
+    },
+    {
+      "do": "click",
+      "target": "nav[aria-label=Documents] button:has-text('Coffee exports')",
+      "caption": "Distractors are on other subjects",
+      "say": "The distractors are documents on other subjects. In the notebooks, a search that returns the coffee note has failed.",
+      "then_show": "[class*=sheet_]:not([hidden])"
+    },
+    {
+      "do": "highlight",
+      "show_url": true,
+      "caption": "The address ends with the document's id",
+      "say": "The address of the page ends with the identifier of the document. A copied link therefore opens this document directly.",
+      "target": "[class*=sheet_]:not([hidden]) [class*=role_]"
+    },
+    {
+      "do": "card",
+      "kicker": "AI for Data – Data for AI · Training",
+      "title": "Document collection",
+      "subtitle": "worldbank.github.io/ai4data/training/session-01/documents/",
+      "say": "The Document collection is in the Training section, under session one.",
+      "pause": 1.5
+    }
+  ]
+}

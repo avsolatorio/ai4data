@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TITLE OF THE METHOD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this explainer only; shared styles are in kit/stage.css. */
+  .a3 { position: absolute; left: 80px; top: 300px; width: 330px; padding: 18px 22px; font-size: 20px; }
+  .b3 { position: absolute; left: 870px; top: 300px; width: 330px; padding: 18px 22px; font-size: 20px; }
+</style>
+</head>
+<body>
+<!-- Copy this file to stages/<name>.html. See GUIDE.md for the scene sequence. -->
+
+<!-- 1 title -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · AREA</div>
+  <h1>Name of the method</h1>
+  <div class="sub">One sentence that states what the method does</div>
+</section>
+
+<!-- 2 context: a light scene with the program logo -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A heading that names what the scene shows</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="node" id="n2a" style="left:110px;top:330px" data-b="1"><div class="ic">A</div><div class="lb">Source</div><div class="sm">a short description</div></div>
+  <div class="node" id="n2b" style="left:525px;top:330px" data-b="1"><div class="ic pri" style="color:#fff">B</div><div class="lb">System</div><div class="sm">a short description</div></div>
+  <div class="node" id="n2c" style="left:940px;top:330px" data-b="1"><div class="ic">C</div><div class="lb">People</div><div class="sm">a short description</div></div>
+</section>
+
+<!-- 3 a method step: progress bar in the eyebrow -->
+<section class="scene" id="s3">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i></i><i></i><i></i></span>Step 1 of 4 · Short name</div>
+  <h2>A heading that states what this step does</h2>
+  <svg class="wires" id="w3"></svg>
+  <div class="card a3" id="a3" data-b="1"><div class="label">Input</div>Text of the first card</div>
+  <div class="card b3" id="b3" data-b="2"><div class="label">Output</div>Text of the second card</div>
+</section>
+
+<!-- last: closing -->
+<section class="scene dark" id="s4">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · AREA</div>
+  <h1 style="font-size:60px">Name of the method</h1>
+  <div class="links">
+    <span>Code</span><b>github.com/worldbank/...</b>
+    <span>Paper</span><b>...</b>
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+</section>
+
+<script>
+  // HOOKS[scene][beat] runs once when go(scene, beat) first reaches that beat.
+  const HOOKS = {
+    2: {
+      1: () => {
+        const s = $('w2');
+        later(400, () => { const p = wire(s, $('n2a').querySelector('.ic'), $('n2b').querySelector('.ic'), { hot: true }); later(700, () => flow(s, p, '#1558d6')); });
+        later(1000, () => { const p = wire(s, $('n2b').querySelector('.ic'), $('n2c').querySelector('.ic'), { hot: true, color: '#12a08a' }); later(700, () => flow(s, p, '#12a08a')); });
+      },
+    },
+    3: {
+      2: () => {
+        const p = wire($('w3'), $('a3'), $('b3'), { ms: 600, color: '#1558d6' });
+        later(650, () => carry(p, 'value', '#1558d6', 1800));
+      },
+    },
+  };
+  go(1, 0);
+</script>
+</body>
+</html>

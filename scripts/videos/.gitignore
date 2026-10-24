@@ -1,0 +1,4 @@
+# Local environment, models, and recordings
+.venv
+voices
+out
