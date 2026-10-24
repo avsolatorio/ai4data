@@ -198,8 +198,8 @@
     {
       "do": "eval",
       "js": "go(10,0)",
-      "say": "The release table, the report on the labour market, and the transcript of this video are at stats.example. The narration of this video uses a synthetic voice.",
-      "speak": "The release table, the report on the labour market, and the transcript of this video are at stats dot example. The narration of this video uses a synthetic voice.",
+      "say": "The release table, the report on the labour market, and the transcript of this video are at stats.example.",
+      "speak": "The release table, the report on the labour market, and the transcript of this video are at stats dot example.",
       "settle": 1.0,
       "pause": 2.0
     }

@@ -43,7 +43,7 @@ person's was generated has reason to doubt the rest of the video.
 - The narration is read by an open text-to-speech model whose licence allows the organization's use, or by a member of staff with the same script.
 - The voice, the speed, and the loudness target are fixed in the production guide and are the same in every video of the series.
 - The loudness of every video has been measured and is at the target.
-- Every video with a synthetic voice says so in the narration, on the web page, and in its catalogue record.
+- Every video with a synthetic voice says so on the web page that embeds it and in its catalogue record.
 
 ## Maturity levels
 
@@ -51,14 +51,13 @@ person's was generated has reason to doubt the rest of the video.
 |---|---|
 | **Foundational** | Choose the model and read its licence with recipe 5.1, set the voice and the loudness with recipe 5.2, and add the disclosure of recipe 5.3. |
 | **AI-ready** | Record the model, its version, the voice, the speed, and the loudness target in the production guide, and measure the loudness of every video. |
-| **AI-native** | Generate the disclosure line, the catalogue record's source type, and the loudness measurement in the same run that records the video. |
+| **AI-native** | Generate the disclosure text, the catalogue record's source type, and the loudness measurement in the same run that records the video. |
 
 :::info[Running example]
 The team has no recording room and no narrator. It chooses the Kokoro
 model with the voice `af_heart` at speed 1.1, the settings of the
-program's videos, normalizes the narration to -16 LUFS, and closes the
-release video with the line "The narration of this video uses a synthetic
-voice."
+program's videos, normalizes the narration to -16 LUFS, and puts a line under the video
+on the release page saying that the narration uses a synthetic voice.
 :::
 
 ## Recipes
@@ -155,33 +154,33 @@ that wants speech without competition leaves the music out.
 
 <Recipe title="5.3 Disclose that the narration is synthetic" level="Foundational" skills="Dissemination officer" time="Fifteen minutes per video">
 
-**Result:** the viewer is told, in the video and on the web page, that the
+**Result:** the web page that embeds the video tells the viewer that the
 narration uses a synthetic voice, and the catalogue record carries the
 same statement.
 
 A disclosure is a short statement that tells the viewer how the video was
-made. It belongs in three places. The closing narration says it, so that
-a viewer who only listens hears it. The page that embeds the video says
-it beside the video. The catalogue record carries it in its description
-and as a machine-readable source type, so that a search engine or a
-catalogue can show it (chapter 7).
+made. It belongs in two places. The page that embeds the video says it
+in a line beside the video, where a viewer reads it before or while
+watching. The catalogue record carries it in its description and as a
+machine-readable source type, so that a search engine or a catalogue can
+show it (chapter 7). The narration is kept to the topic of the video and
+carries no disclosure.
 
-1. Add one sentence to the closing step of the narration: "The narration
-   of this video uses a synthetic voice."
-2. Add a line under the video on the web page with the name of the model and
-   the voice, and a statement that staff wrote the script and checked the
-   figures.
-3. Put the same statement in the video card, from which the catalogue
+1. Add a line under the video on the web page with the name of the model
+   and the voice, and a statement that staff wrote the script and checked
+   the figures.
+2. Put the same statement in the video card, from which the catalogue
    record is generated.
+3. Where the video is also published on a video platform, put the same
+   statement in the description there.
 
-**Worked example.** The closing step of
-[narration.json](pathname:///cookbook-files/explainer-videos/narration.json)
-ends with the disclosure sentence. The
+**Worked example.** The
 [video card](pathname:///cookbook-files/explainer-videos/video_card.json)
-carries the longer statement: "The narration of this video uses a
-synthetic voice (Kokoro text-to-speech, voice af_heart). Staff of the
-office wrote the script and checked every figure against the release
-table."
+carries the statement: "The narration of this video uses a synthetic
+voice (Kokoro text-to-speech, voice af_heart). Staff of the office wrote
+the script and checked every figure against the release table." The
+release page shows the same statement under the video, and the catalogue
+record of chapter 7 adds it to the end of the description.
 
 **What this does not do.** The disclosure says how the voice was made. It
 does not meet a legal duty of disclosure where one applies; an
@@ -221,7 +220,7 @@ service.
 
 - **Licence check.** The production guide names the model, the voice, and the licence of each, with the address of the model card.
 - **Loudness check.** The measured integrated loudness of every published video is within one loudness unit of the target.
-- **Disclosure check.** The closing narration, the page, and the catalogue record of every video with a synthetic voice say so.
+- **Disclosure check.** The page and the catalogue record of every video with a synthetic voice say so.
 
 ## Checklist
 
@@ -230,5 +229,5 @@ service.
   'Model running on the organization\'s workstation',
   'Voice, speed, and loudness target fixed in the production guide',
   'Loudness of the finished video measured',
-  'Disclosure in the narration, on the web page, and in the record',
+  'Disclosure on the web page and in the catalogue record',
 ]} />

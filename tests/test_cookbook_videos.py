@@ -52,8 +52,8 @@ def test_narration_finds_the_planted_errors(scripts, capsys):
     )
     out = capsys.readouterr().out
     assert rc == 1
-    assert "28 narrated steps, 555 spoken words" in out
-    assert "estimated length: 3 min 27 s" in out
+    assert "28 narrated steps, 546 spoken words" in out
+    assert "estimated length: 3 min 24 s" in out
     assert "16.3 is not a value or a previous value in release_table.csv" in out
     assert "speak keeps the digits 61.2" in out
     assert "sentence of 32 words (limit 25)" in out
@@ -86,7 +86,7 @@ def test_captions_find_the_planted_problems(scripts, capsys):
     rc = scripts["check_captions"].main([str(SCRIPTS / "captions.vtt")])
     out = capsys.readouterr().out
     assert rc == 1
-    assert "60 cues" in out
+    assert "59 cues" in out
     assert "cue 46 (00:02:39.370): line of 68 characters (limit 37)" in out
     assert "cue 47 (00:02:43.000): starts before the previous cue ends" in out
     assert out.count("problem:") == 2
@@ -135,7 +135,7 @@ def test_video_record(scripts, capsys, tmp_path):
     )
     out = capsys.readouterr().out
     assert rc == 0
-    assert "duration PT3M34S, 2 sources" in out
+    assert "duration PT3M31S, 2 sources" in out
     assert "duration taken from the last caption cue" in out
     record = json.loads(out_file.read_text(encoding="utf-8"))
     assert record["@type"] == "VideoObject"
