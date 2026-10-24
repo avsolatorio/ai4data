@@ -1,0 +1,207 @@
+{
+  "title": "Labour Force Survey, second quarter 2025",
+  "source": {
+    "dataset": "EX-LFS-2025-Q2",
+    "document": "EX-REP-2025-02",
+    "table": "release_table.csv"
+  },
+  "_comment": "Step script for the running example, in the format of the program's video tool. The stage page stages/lfs-2025-q2.html is not part of this example. The script carries two planted errors for the check of chapter 3.",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "stages/lfs-2025-q2.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "say": "This video explains the Labour Force Survey release for the second quarter of 2025 and the definitions behind its headline figures.",
+      "speak": "This video explains the Labour Force Survey release for the second quarter of twenty twenty-five and the definitions behind its headline figures.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "Every quarter, the National Statistics Office interviews a sample of households about the work of each member aged 15 and over.",
+      "speak": "Every quarter, the National Statistics Office interviews a sample of households about the work of each member aged fifteen and over.",
+      "settle": 1.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The answers are weighted so that the sample represents the whole population of that age.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,3)",
+      "say": "The office then publishes a release with a table of headline figures and a report on the labour market.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',1)",
+      "say": "A journalist opens the new release and wants to know whether unemployment fell during the quarter.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',2)",
+      "say": "The table answers in one line. The unemployment rate was 6.1 percent in the second quarter, after 6.3 percent in the first.",
+      "speak": "The table answers in one line. The unemployment rate was six point one percent in the second quarter, after six point three percent in the first.",
+      "min": 5.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',3)",
+      "say": "The table also marks the second-quarter rate with the letter P, which means that the figure is provisional.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "A rate shown without its definition is easy to misread. One reader takes 6.1 percent as the share of all adults without a job.",
+      "speak": "A rate shown without its definition is easy to misread. One reader takes six point one percent as the share of all adults without a job.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "A second reader sets the overall rate beside the youth rate and reads the two as one series.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "A third reader quotes the provisional figure months later, after the office has revised it.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "The survey first sorts every person into one of three groups for the reference week: employed, unemployed, or outside the labour force.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "A person counts as employed after working at least one hour for pay or profit in that week, or when temporarily absent from a job.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "A person without work counts as unemployed after looking for work in the last four weeks. The person must also be able to start a job now.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "These definitions follow the international standard of the International Labour Organization, so that the rates can be compared with those of other countries.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "The labour force is the employed and the unemployed together.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "The unemployment rate divides the number of unemployed persons by the labour force.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "The participation rate divides the labour force by the whole population aged 15 and over.",
+      "speak": "The participation rate divides the labour force by the whole population aged fifteen and over.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "A provisional figure rests on the data available at the time of the release.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "The office revises the figure when the round is complete, and the release calendar gives the date of the final figures.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "The release for the second quarter reports four headline figures.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "The unemployment rate was 6.1 percent, provisional, after 6.3 percent in the first quarter.",
+      "speak": "The unemployment rate was six point one percent, provisional, after six point three percent in the first quarter.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "Youth unemployment, for people aged 15 to 24, was 16.3 percent, after 17.5 percent.",
+      "speak": "Youth unemployment, for people aged fifteen to twenty-four, was sixteen point three percent, after seventeen point five percent.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,4)",
+      "say": "Labour force participation rose to 61.2 percent, after 60.9 percent.",
+      "speak": "Labour force participation rose to 61.2 percent, after sixty point nine percent.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,5)",
+      "say": "The number of employed persons was 4,312 thousand, after 4,268 thousand in the first quarter.",
+      "speak": "The number of employed persons was four million, three hundred and twelve thousand, after four million, two hundred and sixty-eight thousand in the first quarter.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,1)",
+      "say": "The release reports these figures with their definitions. The report on the labour market discusses the reasons for the changes, with the judgement of the office's analysts.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,2)",
+      "say": "Comparisons with earlier years, with other countries, or with the administrative registers of jobseekers need the same definitions and the same population, which the methodology note of the survey describes in full.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,3)",
+      "say": "Before publication, a member of the office's staff checked every figure in this video against the release table.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,0)",
+      "say": "The release table, the report on the labour market, and the transcript of this video are at stats.example. The narration of this video uses a synthetic voice.",
+      "speak": "The release table, the report on the labour market, and the transcript of this video are at stats dot example. The narration of this video uses a synthetic voice.",
+      "settle": 1.0,
+      "pause": 2.0
+    }
+  ]
+}

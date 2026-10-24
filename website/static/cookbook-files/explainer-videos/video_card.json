@@ -1,0 +1,35 @@
+{
+  "_comment": "Card for one explainer video of the running example. The organization fills it in when the video is approved; video_record.py turns it into a catalogue record. The addresses under stats.example are fictional.",
+  "id": "lfs-2025-q2-explainer",
+  "title": "Labour Force Survey, second quarter 2025: headline figures and definitions",
+  "description": "A narrated, animated explainer of the Labour Force Survey release for the second quarter of 2025. It explains how the survey classifies people as employed, unemployed, or outside the labour force, how the unemployment and participation rates are calculated, and what the four headline figures of the release are.",
+  "language": "en",
+  "publisher": "National Statistics Office (example)",
+  "upload_date": "2025-08-20",
+  "duration_seconds": null,
+  "content_url": "https://stats.example/videos/lfs-2025-q2.mp4",
+  "embed_url": "https://stats.example/videos/lfs-2025-q2/embed",
+  "thumbnail_url": "https://stats.example/videos/lfs-2025-q2.jpg",
+  "page_url": "https://stats.example/releases/lfs-2025-q2",
+  "captions": "captions.vtt",
+  "captions_url": "https://stats.example/videos/lfs-2025-q2.vtt",
+  "transcript_from_captions": true,
+  "sources": [
+    {
+      "id": "EX-LFS-2025-Q2",
+      "name": "Labour Force Survey, second quarter 2025",
+      "url": "https://stats.example/data/EX-LFS-2025-Q2",
+      "type": "Dataset"
+    },
+    {
+      "id": "EX-REP-2025-02",
+      "name": "Labour market report 2025 Q2",
+      "url": "https://stats.example/reports/EX-REP-2025-02",
+      "type": "Report"
+    }
+  ],
+  "narration": "synthetic",
+  "narration_disclosure": "The narration of this video uses a synthetic voice (Kokoro text-to-speech, voice af_heart). Staff of the office wrote the script and checked every figure against the release table.",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "signed_off_by_role": "Head of dissemination"
+}
