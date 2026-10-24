@@ -36,7 +36,7 @@ Every page route the site has published is listed in `published-routes.txt`, and
 
 The build fails when a published route has neither a page nor a redirect, and when a redirect points to a route that is not a page. A new route that is missing from `published-routes.txt` is a warning in a local build and an error in CI. Pull requests run the same build in the "Publish to GitHub Pages" workflow, without deploying.
 
-The local preview server (`npm run serve`) rewrites addresses that end in `.html`, so redirects from `.html` routes are tested with a plain static server, for example `python3 -m http.server` in a folder where `ai4data` links to `build`.
+The local preview server (`npm run serve`) and `python3 -m http.server` look up addresses differently from GitHub Pages. GitHub Pages answers `/x` with `x.html` when that file exists, so the redirect page written at `documents.html` also answers `/documents`, and the plugin therefore writes redirect targets with a trailing slash. Redirects are tested with `python3 scripts/docs/serve_like_pages.py`, which serves `build` with the lookup order of GitHub Pages.
 
 ## Deployment
 

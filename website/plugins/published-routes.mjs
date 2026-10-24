@@ -79,7 +79,12 @@ export default function publishedRoutes(context) {
         else {
           const file = from.endsWith('.html') ? path.join(outDir, from) : path.join(outDir, from, 'index.html');
           fs.mkdirSync(path.dirname(file), {recursive: true});
-          fs.writeFileSync(file, redirectPage(base + to));
+          // GitHub Pages answers /x with x.html when that file exists, so a stub at
+          // x.html that sent the browser to /x would load itself again. The target
+          // is written as /x/, which GitHub Pages answers with x/index.html.
+          const hash = to.slice(toPath.length);
+          const dir = toPath.endsWith('.html') || toPath === '/' ? toPath : toPath.replace(/\/$/, '') + '/';
+          fs.writeFileSync(file, redirectPage(base + dir + hash));
           redirected.add(from);
         }
       }
