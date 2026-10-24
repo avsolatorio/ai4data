@@ -16,7 +16,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a coding assistant that reads and writes files and runs commands on a workstation.
+**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
 
 **Agents manifest.** The file that defines the agents of the review pipeline (detectors, critic, categorizer, severity scorer) and their instructions.
 
@@ -61,6 +61,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Co-use.** The use of another organization's dataset in the same document as the organization's own.
 
 **Code list.** A published table of the codes used in a dataset (for geography, periods, categories) with their labels. In SDMX, a code list is part of the data structure definition.
+
+**Coding assistant.** An AI agent that reads and writes files and runs commands on a workstation, for example to draft a narration script or to build a web page.
 
 **Cohen's kappa.** A measure of agreement between two labellers that discounts the agreement expected by chance; 1 is perfect agreement, 0 is chance.
 <!-- match: kappa -->

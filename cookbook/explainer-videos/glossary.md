@@ -7,7 +7,7 @@ description: Terms used in this guide.
 
 # Glossary
 
-**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a coding assistant that reads and writes files and runs commands on a workstation.
+**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
 
 **AI-ready.** Data and metadata that software, including AI systems, can find, retrieve, interpret, and cite without manual steps. See the [AI-ready data framework](/docs/ai-ready-framework).
 
@@ -16,6 +16,8 @@ description: Terms used in this guide.
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
 
 **Checksum.** A fingerprint of a file's content (here SHA-256) that changes if one byte of the file changes; used to prove that a file is as released.
+
+**Coding assistant.** An AI agent that reads and writes files and runs commands on a workstation, for example to draft a narration script or to build a web page.
 
 **Concept explainer.** A short narrated video with animated scenes of its own that explains a method, an indicator, or a data release step by step.
 
