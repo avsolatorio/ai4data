@@ -1,0 +1,260 @@
+{
+  "title": "Preparing documents for retrieval",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "stages/preparing-knowledge.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "say": "This video explains how a collection of documents is prepared for retrieval: the metadata, the chunks, the embeddings, and the vector store.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "An AI application that answers questions from documents cannot pass every document to the language model. It searches the collection and passes the model only the passages that match the question.",
+      "settle": 1.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',1)",
+      "say": "In this example the collection holds eight short documents: four country briefs, an indicator note, a regional summary from 2016, and two notes on other topics.",
+      "speak": "In this example the collection holds eight short documents: four country briefs, an indicator note, a regional summary from twenty sixteen, and two notes on other topics.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',2)",
+      "say": "A user asks for the latest available figures for internet use in Kenya and Rwanda.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',3)",
+      "say": "The answer needs two figures from two country briefs: 35.0 percent for Kenya and 31.7 percent for Rwanda, both for 2024.",
+      "speak": "The answer needs two figures from two country briefs: thirty-five point zero percent for Kenya and thirty-one point seven percent for Rwanda, both for twenty twenty-four.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "In a collection prepared badly, the information about each document is dropped, and the eight texts are joined into one long text.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "The long text is then cut into windows of at most 400 characters, regardless of headings.",
+      "speak": "The long text is then cut into windows of at most four hundred characters, regardless of headings.",
+      "min": 3.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "A search for the question returns the three closest windows. The first comes from the 2016 summary, and none of the three holds the figure for Kenya.",
+      "speak": "A search for the question returns the three closest windows. The first comes from the twenty sixteen summary, and none of the three holds the figure for Kenya.",
+      "min": 3.4,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,4)",
+      "say": "Every window carries the same label, blob, so no result shows the reader which document a passage came from or how old that document is.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "Preparation starts with metadata. Each document file has a header of information about the document, followed by the text itself.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "The loader keeps the text as the content of the document and turns the header into its metadata.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,3)",
+      "say": "Read on its own, the regional summary sounds current. Its text ends by saying that the latest available figures are for 2015.",
+      "speak": "Read on its own, the regional summary sounds current. Its text ends by saying that the latest available figures are for twenty fifteen.",
+      "min": 2.4,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,4)",
+      "say": "Its date in the metadata shows that it was written in 2016, ten years before the country briefs. An application can filter or rank on that date only if the date was kept.",
+      "speak": "Its date in the metadata shows that it was written in twenty sixteen, ten years before the country briefs. An application can filter or rank on that date only if the date was kept.",
+      "min": 2.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "The next step cuts each document into chunks, the units that a search returns. A splitter by length cuts the Kenya brief into four windows of at most 400 characters.",
+      "speak": "The next step cuts each document into chunks, the units that a search returns. A splitter by length cuts the Kenya brief into four windows of at most four hundred characters.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "The second window starts partway through the section on internet use. It ends with the heading of the next section, separated from the paragraph below that heading.",
+      "min": 1.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,3)",
+      "say": "A splitter by headings cuts the same brief into four sections, one for each heading, and keeps the heading inside each chunk.",
+      "min": 2.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,4)",
+      "say": "Each section chunk also carries the metadata of its document and the name of its section, here mobile subscriptions.",
+      "min": 1.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "An embedding model then turns each chunk into a list of numbers. The small model in this example produces 384 numbers for every chunk.",
+      "speak": "An embedding model then turns each chunk into a list of numbers. The small model in this example produces three hundred and eighty-four numbers for every chunk.",
+      "settle": 0.8,
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "The numbers place each text on a map of meaning, where texts with similar meaning lie close together.",
+      "min": 2.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "The embedding model also turns a question into numbers. For a question on the share of people using the internet, the sections on internet use score highest, and the sections on economic growth score lowest.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,4)",
+      "say": "The score depends on the text of each chunk. An embedding holds nothing about the date of the document.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "The vector store keeps all twenty-one chunks of the prepared collection.",
+      "settle": 0.8,
+      "min": 3.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "Each record in the store holds the text of a chunk, its metadata, and its 384 numbers.",
+      "speak": "Each record in the store holds the text of a chunk, its metadata, and its three hundred and eighty-four numbers.",
+      "min": 1.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,3)",
+      "say": "For a search, the store embeds the question and returns the three chunks whose numbers lie closest to it.",
+      "min": 4.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,4)",
+      "say": "This store lives in memory and disappears when the program stops. An application in production keeps its store in a database, so that the store lasts and can be shared.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "In the collection prepared well, the same question returns the 2016 summary and the sections on internet use from both country briefs.",
+      "speak": "In the collection prepared well, the same question returns the twenty sixteen summary and the sections on internet use from both country briefs.",
+      "settle": 0.8,
+      "min": 2.4,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "Both figures for 2024 appear in the results. The collection prepared badly missed the figure for Kenya.",
+      "speak": "Both figures for twenty twenty-four appear in the results. The collection prepared badly missed the figure for Kenya.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "Each result carries a citation with its document, its section, and the year of the document.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,4)",
+      "say": "Across eight test questions that need nine figures, the top three chunks hold seven of them in the collection prepared well, and five in the collection prepared badly.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,1)",
+      "say": "Preparation decides what a search can find. Each passage that the prepared collection returns can be cited and dated.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,2)",
+      "say": "Whether a passage is recent enough for the question remains a judgement for the reader, or for a rule in the application.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,3)",
+      "say": "The 2016 summary still ranks first in both searches, because a search compares meaning and takes no account of age.",
+      "speak": "The twenty sixteen summary still ranks first in both searches, because a search compares meaning and takes no account of age.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,4)",
+      "say": "Its citation carries the year 2016, and the question asks for the latest figures. The year in the citation lets a reader set the summary aside at once.",
+      "speak": "Its citation carries the year twenty sixteen, and the question asks for the latest figures. The year in the citation lets a reader set the summary aside at once.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,0)",
+      "say": "The address of the AI for Data program is on screen.",
+      "settle": 0.9,
+      "pause": 2.0
+    }
+  ]
+}

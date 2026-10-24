@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Preparing documents for retrieval</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this explainer only; shared styles are in kit/stage.css. */
+  #s1 h1 { font-size: 66px; white-space: nowrap; }
+
+  /* 2b: the collection */
+  .dgrid { position: absolute; left: 80px; top: 180px; width: 660px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .dcard { padding: 12px 16px; height: 92px; transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
+  .dcard b { display: block; font: 600 17px var(--mono); }
+  .dcard .ty { display: block; font-size: 15px; color: var(--muted); margin-top: 3px; }
+  .dcard .ti { display: block; font-size: 15px; color: var(--subtle); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dcard.hit { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-subtle); }
+  .dcard.old { border-color: #e0b100; }
+  .need { margin-top: 22px; }
+  .need .label { margin-bottom: 10px; }
+  .need .chip { display: inline-block; margin: 0 8px 8px 0; font-size: 17px; }
+
+  /* 3: prepared badly */
+  .strip { position: absolute; left: 80px; top: 186px; width: 1120px; height: 104px; display: flex; gap: 12px; transition: gap .8s ease; }
+  .tile { flex-basis: 0; flex-shrink: 1; background: #fff; border: 1px solid var(--hairline); border-radius: 8px; padding: 34px 8px 8px; position: relative;
+    transition: border-radius .8s, border-color .8s; overflow: hidden; }
+  .tile .hd { position: absolute; left: 6px; right: 6px; top: 6px; font: 600 12px var(--mono); color: var(--primary); background: var(--primary-subtle);
+    border-radius: 4px; padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: transform .6s ease, opacity .6s ease; }
+  .tile i { display: block; height: 6px; border-radius: 3px; background: var(--surface-2); margin-bottom: 7px; }
+  .merged { gap: 0; }
+  .merged .tile { border-radius: 0; border-left-color: transparent; border-right-color: transparent; }
+  .merged .tile:first-child { border-radius: 8px 0 0 8px; border-left-color: var(--hairline); }
+  .merged .tile:last-child { border-radius: 0 8px 8px 0; border-right-color: var(--hairline); }
+  .drop .tile .hd { transform: translateY(60px); opacity: 0; }
+  .blade { position: absolute; top: 176px; width: 3px; height: 124px; background: var(--primary); border-radius: 2px; left: 80px; opacity: 0; }
+  .cutl { stroke: var(--primary); stroke-width: 1.5; }
+  .hitr { fill: var(--primary-subtle); stroke: var(--primary); stroke-width: 2; opacity: 0; transition: opacity .4s; }
+  .stripnote { position: absolute; left: 80px; top: 300px; font-size: 18px; color: var(--muted); }
+  .qcard { position: absolute; left: 80px; top: 404px; width: 420px; padding: 16px 20px; font-size: 19px; line-height: 1.45; }
+  .qcard .label { margin-bottom: 6px; }
+  .found { position: absolute; left: 80px; top: 550px; width: 420px; font-size: 18px; font-weight: 600; line-height: 1.9; }
+  .found .ok { color: var(--ok); } .found .bad { color: var(--bad); }
+  .hitc { position: absolute; left: 540px; width: 660px; padding: 10px 18px; }
+  .wmeta { position: absolute; left: 80px; top: 340px; width: 1120px; padding: 10px 20px; font-size: 17px; display: flex; align-items: center; gap: 12px; }
+  .wmeta .chip { font-size: 15px; padding: 4px 10px; }
+  .hitc .cit { font: 600 15px var(--mono); color: var(--muted); border-radius: 4px; padding: 1px 4px; margin-left: -4px; transition: background .4s, box-shadow .4s, color .4s; }
+  .hitc .cit.ask { background: #fff7d6; box-shadow: 0 0 0 3px #fff7d6; color: #8a6400; }
+  .hitc .cit.good { background: var(--primary-subtle); box-shadow: 0 0 0 3px var(--primary-subtle); color: var(--primary); }
+  .hitc .ex { display: block; font-size: 17px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* 4: metadata */
+  .grpA, .grpB { transition: opacity .5s ease; }
+  .gone { opacity: 0; }
+  .file { position: absolute; left: 80px; top: 180px; width: 560px; padding: 0; overflow: hidden; font: 15px/1.75 var(--mono); }
+  .file .fl { padding: 0 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file .hdr { background: var(--surface-1); border-bottom: 1px solid var(--hairline); padding: 12px 0; transition: background .4s; }
+  .file .hdr.glow { background: var(--primary-subtle); }
+  .file .body { padding: 12px 0 16px; transition: background .4s; }
+  .file .body.glow { background: var(--teal-subtle); }
+  .file .k { color: var(--primary); }
+  .file .lab { font: 700 12px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); padding: 0 18px 4px; }
+  .meta { position: absolute; left: 690px; top: 180px; width: 510px; padding: 14px 20px; }
+  .meta .row { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding: 6px 0; border-top: 1px solid var(--surface-2); font-size: 16px; line-height: 1.35;
+    opacity: 0; transform: translateX(-10px); transition: opacity .4s, transform .4s, background .4s; }
+  .meta .row.in2 { opacity: 1; transform: none; }
+  .meta .row span:first-child { font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); padding-top: 3px; }
+  .meta .row .mono { font-size: 15px; }
+  .meta .row.key { background: #fff7d6; }
+  .content { position: absolute; left: 690px; top: 476px; width: 510px; height: 124px; padding: 14px 20px; font-size: 16px; line-height: 1.5; }
+  .content .tx4 { opacity: 0; transition: opacity .5s; }
+  .content.in2 .tx4 { opacity: 1; }
+  .content .label, .meta .label { margin-bottom: 8px; }
+  .old16 { position: absolute; left: 80px; top: 180px; width: 640px; height: 430px; padding: 18px 26px; font-size: 17.5px; line-height: 1.5; }
+  .old16 h3 { margin: 4px 0 10px; font-size: 23px; }
+  .old16 p { margin: 0 0 12px; }
+  .hl { border-radius: 4px; transition: background .5s, box-shadow .5s; }
+  .hl.on { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .meta2 { top: 180px; left: 760px; width: 440px; }
+  .tl { position: absolute; left: 760px; top: 400px; width: 440px; height: 210px; padding: 16px 20px; }
+  .tl .ax { position: absolute; left: 40px; top: 108px; height: 3px; width: 0; background: var(--primary); border-radius: 2px; transition: width 1.4s ease; }
+  .tl .ax.in2 { width: 360px; }
+  .tl .mk { position: absolute; top: 98px; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; transform: scale(0); transition: transform .4s ease; }
+  .tl .mk.in2 { transform: scale(1); }
+  .tl .mt { position: absolute; font-size: 15px; line-height: 1.35; width: 180px; opacity: 0; transition: opacity .4s; }
+  .tl .mt.in2 { opacity: 1; }
+  .tl .mt b { font: 600 15px var(--mono); display: block; }
+  .tl .gap { position: absolute; left: 0; right: 0; top: 52px; text-align: center; font-size: 18px; font-weight: 700; color: var(--primary); opacity: 0; transition: opacity .4s; }
+  .tl .gap.in2 { opacity: 1; }
+
+  /* 5: chunking */
+  .kdoc { position: absolute; left: 140px; top: 200px; width: 360px; padding: 14px 16px; }
+  .kdoc .t { font-size: 15px; font-weight: 700; line-height: 1.35; margin-bottom: 8px; }
+  .kdoc .h { font: 600 13.5px var(--mono); margin: 10px 0 7px; white-space: nowrap; }
+  .kdoc .p i { display: block; height: 7px; border-radius: 4px; background: var(--surface-2); margin-bottom: 6px; transition: background .4s; }
+  .kdoc .blk { border-radius: 4px; transition: background .4s; }
+  .kdoc .blk.wt { background: var(--primary-subtle); }
+  .kdoc .blk.st { background: var(--teal-subtle); }
+  .kdoc .blk.wt .p i, .kdoc .blk.st .p i { background: #d3dbe6; }
+  .scan { position: absolute; left: 140px; width: 360px; height: 2px; background: var(--primary); opacity: 0; }
+  .colhd { position: absolute; top: 174px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .brk { position: absolute; width: 12px; border: 2.5px solid var(--primary); opacity: 0; transition: opacity .4s, border-color .4s; }
+  .brk.r { border-left: none; border-radius: 0 6px 6px 0; }
+  .brk.l { border-right: none; border-radius: 6px 0 0 6px; border-color: var(--teal); }
+  .brk.in2 { opacity: 1; }
+  .brk.dim { opacity: .28; }
+  .brk em { position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: var(--primary); color: #fff;
+    font: 700 12px Inter, sans-serif; font-style: normal; display: flex; align-items: center; justify-content: center; }
+  .brk.r em { left: 14px; } .brk.l em { right: 14px; background: var(--teal); }
+  .brk.act { box-shadow: 0 0 0 3px var(--primary-subtle); }
+  .wcard { position: absolute; left: 590px; width: 610px; padding: 14px 20px; font-size: 17px; line-height: 1.5; }
+  .wcard .label { margin-bottom: 6px; }
+  .wcard .mono { font-size: 15px; }
+  .wcard .note { font-size: 16px; color: var(--muted); margin-top: 8px; }
+  .mchip { display: inline-block; font: 500 14.5px var(--mono); border: 1px solid var(--teal); background: var(--teal-subtle); color: #0d6e5f; border-radius: 6px;
+    padding: 3px 9px; margin: 8px 6px 0 0; }
+  .tail { border-radius: 4px; background: #fff7d6; box-shadow: 0 0 0 3px #fff7d6; color: #8a6400; }
+
+  /* 6: embeddings */
+  .chunk6 { position: absolute; left: 80px; top: 180px; width: 370px; height: 150px; padding: 14px 18px; font-size: 16px; line-height: 1.5; }
+  .chunk6 .label { margin-bottom: 6px; }
+  .model.emb { left: 510px; top: 190px; width: 190px; height: 130px; }
+  .model.emb small { font-family: var(--mono); font-size: 13px; }
+  .vec { left: 760px; top: 180px; width: 440px; height: 150px; }
+  .vec #v6t { font-size: 17px; color: #fff; }
+  .vec .cnt { margin-top: 10px; color: var(--block-soft); font: 14px var(--mono); opacity: 0; transition: opacity .4s; }
+  .vec .cnt.in2 { opacity: 1; }
+  .map { position: absolute; left: 80px; top: 360px; width: 610px; height: 240px; padding: 12px 16px; overflow: hidden; }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .dotp { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--teal); transform: scale(0); transition: transform .4s ease; }
+  .dotp.in2 { transform: scale(1); }
+  .dotl { position: absolute; font: 500 13.5px var(--mono); color: var(--muted); white-space: nowrap; opacity: 0; transition: opacity .4s; background: #fff; padding: 0 3px; border-radius: 3px; }
+  .dotl.in2 { opacity: 1; }
+  .qdot { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 5px var(--primary-subtle);
+    opacity: 0; transition: left 1s cubic-bezier(.4,0,.2,1), top 1s cubic-bezier(.4,0,.2,1), opacity .3s; }
+  .rank { position: absolute; left: 720px; top: 360px; width: 480px; height: 240px; padding: 12px 18px; }
+  .rank .q { font-size: 16px; margin: 4px 0 8px; }
+  .rank .rr { display: grid; grid-template-columns: 58px 1fr; gap: 10px; align-items: center; height: 25px; font-size: 14.5px;
+    opacity: 0; transform: translateX(-10px); transition: opacity .35s, transform .35s; }
+  .rank .rr.in2 { opacity: 1; transform: none; }
+  .rank .rr b { font: 700 15px var(--mono); }
+  .rank .rr .bar { position: relative; height: 22px; }
+  .rank .rr .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--primary-subtle); border-radius: 4px; transition: width .8s ease; }
+  .rank .rr .bar span { position: relative; font-family: var(--mono); padding-left: 8px; line-height: 22px; white-space: nowrap; }
+  .nodate { position: absolute; left: 80px; top: 616px; width: 1120px; padding: 10px 20px; font-size: 18px; display: flex; align-items: center; gap: 14px; }
+
+  /* 7: vector store */
+  .tiles { position: absolute; left: 80px; top: 214px; width: 380px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .tiles i { height: 30px; border-radius: 5px; background: #fff; border: 1px solid var(--hairline); border-top: 3px solid var(--teal); }
+  .store { position: absolute; left: 520px; top: 196px; width: 190px; height: 210px; text-align: center; }
+  .store .num { font: 700 30px var(--mono); margin-top: 4px; }
+  .store .lb { font-size: 18px; font-weight: 600; margin-top: 2px; }
+  .store.pulse svg { animation: pulse .5s ease; }
+  @keyframes pulse { 40% { transform: scale(1.06); } }
+  .rec { position: absolute; left: 760px; top: 176px; width: 440px; padding: 12px 18px; font-size: 16px; }
+  .rec .r { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding: 7px 0; border-top: 1px solid var(--surface-2); line-height: 1.45; }
+  .rec .r:first-of-type { border-top: 0; }
+  .rec .r > span:first-child { font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); padding-top: 3px; }
+  .rec .mono { font-size: 14px; }
+  .q7 { position: absolute; left: 80px; top: 470px; width: 380px; padding: 14px 18px; font-size: 18px; line-height: 1.45; }
+  .res7 { position: absolute; left: 760px; top: 470px; width: 440px; padding: 12px 18px; height: 150px; }
+  .res7 .cit { display: block; font: 600 15px var(--mono); color: var(--primary); margin-top: 7px; }
+  .mem { position: absolute; left: 80px; top: 600px; display: flex; align-items: center; gap: 12px; font-size: 20px; color: var(--subtle); }
+  .mem .chip { font-size: 16px; font-family: Inter, sans-serif; }
+  .tiles i.done { background: var(--teal-subtle); }
+  .mem .chip.on { border-color: var(--teal); background: var(--teal-subtle); color: #0d6e5f; }
+
+  /* 8: results */
+  .col { position: absolute; top: 178px; width: 540px; height: 372px; padding: 14px 18px; }
+  .col.b { left: 80px; border-top: 4px solid var(--subtle); }
+  .col.g { left: 660px; border-top: 4px solid var(--primary); }
+  .col .ttl { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .col.g .ttl { color: var(--primary); }
+  .col .sm { font-size: 15px; color: var(--muted); margin-bottom: 6px; }
+  .hit8 { border-top: 1px solid var(--surface-2); padding: 8px 0; }
+  .hit8 .cit { font: 600 14.5px var(--mono); color: var(--muted); border-radius: 4px; padding: 1px 4px; margin-left: -4px; transition: background .4s, box-shadow .4s, color .4s; }
+  .hit8 .cit.good { background: var(--primary-subtle); box-shadow: 0 0 0 3px var(--primary-subtle); color: var(--primary); }
+  .hit8 .ex { display: block; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .hit8.wait { opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; }
+  .hit8.wait.in2 { opacity: 1; transform: none; }
+  .marks { margin-top: 8px; font-size: 17px; font-weight: 700; line-height: 1.75; }
+  .marks div { opacity: 0; }
+  .marks div.in2 { animation: stamp .45s ease both; }
+  .marks .ok { color: var(--ok); } .marks .bad { color: var(--bad); }
+  @keyframes stamp { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .bars { position: absolute; left: 80px; top: 566px; width: 1120px; padding: 10px 20px; }
+  .bars .br { display: grid; grid-template-columns: 170px 1fr 110px; gap: 14px; align-items: center; height: 30px; font-size: 16px; }
+  .bars .track { height: 16px; background: var(--surface-2); border-radius: 8px; overflow: hidden; }
+  .bars .track i { display: block; height: 100%; width: 0; border-radius: 8px; transition: width 1.2s ease; }
+  .bars .v { font: 700 16px var(--mono); }
+
+  /* 9: scope */
+  .two { position: absolute; left: 80px; top: 196px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .two .card { padding: 22px 26px; font-size: 22px; line-height: 1.45; }
+  .two .card b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .two .g { border-top: 4px solid var(--ok); } .two .g b { color: var(--ok); }
+  .two .n { border-top: 4px solid var(--primary); } .two .n b { color: var(--primary); }
+  .match { position: absolute; left: 80px; top: 404px; width: 1120px; height: 230px; padding: 20px 26px; }
+  .match .q { font-size: 23px; }
+  .match .q .w { border-radius: 5px; padding: 0 3px; transition: background .4s; }
+  .match .q .w.on { background: var(--primary-subtle); color: var(--primary); }
+  .chips { position: absolute; left: 26px; top: 140px; display: flex; gap: 14px; }
+  .chips .chip { font-size: 17px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="floaters">
+    <span style="left:700px;top:600px;animation-delay:-2s">[kenya-digital · Internet use · 2026]</span>
+    <span style="left:980px;top:660px;animation-delay:-9s">date: 2016-06-01</span>
+    <span style="left:560px;top:680px;animation-delay:-5s">[-0.036, 0.013, 0.046, -0.004, …]</span>
+    <span style="left:900px;top:620px;animation-delay:-13s">chunk_size=400, chunk_overlap=50</span>
+  </div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Preparing documents for retrieval</h1>
+  <div class="sub">Turning a document collection into chunks that carry metadata and embeddings and can be searched by meaning</div>
+</section>
+
+<!-- 2 context: search between the documents and the model -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>An application selects passages for the model</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="node" id="n2a" style="left:110px;top:330px" data-b="1">
+    <div class="ic"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.6"><path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v4h4"/><path d="M8.5 11h7M8.5 14h7M8.5 17h4.5"/></svg></div>
+    <div class="lb">Documents</div><div class="sm">briefs, notes, and reports</div></div>
+  <div class="node" id="n2b" style="left:525px;top:330px" data-b="1">
+    <div class="ic pri"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg></div>
+    <div class="lb">Search</div><div class="sm">finds passages by meaning</div></div>
+  <div class="node" id="n2c" style="left:940px;top:330px" data-b="1">
+    <div class="ic" style="background:var(--block);border-color:var(--block)"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/><path d="M9.5 9.5h5v5h-5z"/></svg></div>
+    <div class="lb">Language model</div><div class="sm">writes the answer from them</div></div>
+</section>
+
+<!-- 2b the collection and a question -->
+<section class="scene" id="s2b">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A collection of eight documents</h2>
+  <div class="dgrid">
+    <div class="card dcard" data-b="1" style="transition-delay:0s"><b>coffee</b><span class="ty">sector note · 2026-10-13</span><span class="ti">Coffee exports in East Africa</span></div>
+    <div class="card dcard" data-b="1" style="transition-delay:.08s"><b>internet-indicator</b><span class="ty">indicator note · 2026-10-13</span><span class="ti">How the internet-users indicator is defined</span></div>
+    <div class="card dcard" id="d2k" data-b="1" style="transition-delay:.16s"><b>kenya-digital</b><span class="ty">country brief · 2026-10-13</span><span class="ti">Kenya: internet use and mobile subscriptions</span></div>
+    <div class="card dcard" data-b="1" style="transition-delay:.24s"><b>kenya-economy</b><span class="ty">country brief · 2026-10-13</span><span class="ti">Kenya: GDP per capita and growth</span></div>
+    <div class="card dcard" data-b="1" style="transition-delay:.32s"><b>mobile-money</b><span class="ty">topic note · 2026-10-13</span><span class="ti">Mobile money in Kenya and Rwanda</span></div>
+    <div class="card dcard" data-b="1" style="transition-delay:.40s"><b>regional-2016</b><span class="ty">summary · 2016-06-01</span><span class="ti">Regional digital summary, 2016</span></div>
+    <div class="card dcard" id="d2r" data-b="1" style="transition-delay:.48s"><b>rwanda-digital</b><span class="ty">country brief · 2026-10-13</span><span class="ti">Rwanda: internet use and mobile subscriptions</span></div>
+    <div class="card dcard" data-b="1" style="transition-delay:.56s"><b>rwanda-economy</b><span class="ty">country brief · 2026-10-13</span><span class="ti">Rwanda: GDP per capita and growth</span></div>
+  </div>
+  <div class="win" style="left:780px;top:180px;width:420px;height:416px" data-b="2">
+    <div class="bar"><span class="dot live"></span>Document search</div>
+    <div class="body">
+      <div class="uq" id="q2b" style="font-size:19px"></div>
+      <div class="need" data-b="3"><div class="label">Needed in the answer</div>
+        <span class="chip" id="n2k">Kenya · 2024 · 35.0</span><br><span class="chip" id="n2r">Rwanda · 2024 · 31.7</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 the problem: a collection prepared badly -->
+<section class="scene" id="s3">
+  <div class="eyebrow">The problem</div>
+  <h2>A collection prepared badly</h2>
+  <div class="strip" id="strip3" data-b="1">
+    <div class="tile" style="flex-grow:884"><span class="hd">coffee · 2026</span><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div>
+    <div class="tile" style="flex-grow:1658"><span class="hd">internet-indicator · 2026</span><i></i><i></i><i style="width:85%"></i><i></i></div>
+    <div class="tile" style="flex-grow:1301"><span class="hd">kenya-digital · 2026</span><i></i><i style="width:90%"></i><i></i><i style="width:70%"></i></div>
+    <div class="tile" style="flex-grow:856"><span class="hd">kenya-economy · 2026</span><i></i><i style="width:75%"></i><i></i><i style="width:85%"></i></div>
+    <div class="tile" style="flex-grow:1155"><span class="hd">mobile-money · 2026</span><i></i><i></i><i style="width:80%"></i><i style="width:65%"></i></div>
+    <div class="tile" style="flex-grow:726"><span class="hd">regional-2016 · 2016</span><i></i><i style="width:85%"></i><i></i><i style="width:55%"></i></div>
+    <div class="tile" style="flex-grow:1063"><span class="hd">rwanda-digital · 2026</span><i></i><i style="width:90%"></i><i></i><i style="width:75%"></i></div>
+    <div class="tile" style="flex-grow:806"><span class="hd">rwanda-economy · 2026</span><i></i><i></i><i style="width:70%"></i><i style="width:80%"></i></div>
+  </div>
+  <svg class="wires" id="w3"></svg>
+  <div class="blade" id="blade3"></div>
+  <div class="stripnote" id="sn3"></div>
+  <div class="card wmeta" data-b="2"><span class="label">Metadata of every window</span><span class="chip">id: blob</span><span class="chip">section: (fixed window)</span><span class="chip">date: empty</span></div>
+  <div class="card qcard" data-b="3"><div class="label">Question</div>What are the latest available figures for internet use in Kenya and Rwanda?</div>
+  <div class="found" id="f3"></div>
+  <div class="card hitc" id="h3a" style="top:404px" data-b="3"><span class="cit">[blob · (fixed window) · ]</span><span class="ex"># Regional digital summary, 2016 · Internet use in East Africa continues to expand…</span></div>
+  <div class="card hitc" id="h3b" style="top:492px" data-b="3"><span class="cit">[blob · (fixed window) · ]</span><span class="ex"># Rwanda: internet use … 31.7 percent in 2024, the latest year available.</span></div>
+  <div class="card hitc" id="h3c" style="top:580px" data-b="3"><span class="cit">[blob · (fixed window) · ]</span><span class="ex">## Reading the two indicators together … # Rwanda: GDP per capita and growth</span></div>
+</section>
+
+<!-- 4 step 1: metadata -->
+<section class="scene" id="s4">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i></i><i></i><i></i></span>Step 1 of 4 · Metadata</div>
+  <h2>Metadata records what the text does not say</h2>
+  <div class="grpA" id="g4a">
+    <div class="card file" data-b="1">
+      <div class="hdr" id="hdr4"><div class="lab">Header</div>
+        <div class="fl" id="f4id"><span class="k">id:</span> kenya-digital</div>
+        <div class="fl" id="f4ti"><span class="k">title:</span> "Kenya: internet use and mobile subscriptions, …"</div>
+        <div class="fl" id="f4ty"><span class="k">type:</span> country brief</div>
+        <div class="fl" id="f4co"><span class="k">country:</span> Kenya</div>
+        <div class="fl" id="f4da"><span class="k">date:</span> 2026-10-13</div>
+        <div class="fl" id="f4so"><span class="k">source:</span> "Figures from World Development Indicators …"</div></div>
+      <div class="body" id="body4"><div class="lab">Text</div>
+        <div class="fl"># Kenya: internet use and mobile subscriptions, …</div>
+        <div class="fl">## Internet use</div>
+        <div class="fl">The share of individuals using the internet in</div>
+        <div class="fl">Kenya rose from 7.2 percent of the population …</div></div>
+    </div>
+    <div class="card meta" data-b="1"><div class="label" style="color:var(--primary)">metadata</div>
+      <div class="row" id="m4id"><span>id</span><span class="mono">kenya-digital</span></div>
+      <div class="row" id="m4ti"><span>title</span><span>Kenya: internet use and mobile subscriptions, 2010 to 2024</span></div>
+      <div class="row" id="m4ty"><span>type</span><span>country brief</span></div>
+      <div class="row" id="m4co"><span>country</span><span>Kenya</span></div>
+      <div class="row" id="m4da"><span>date</span><span class="mono">2026-10-13</span></div>
+      <div class="row" id="m4so"><span>source</span><span>Figures from World Development Indicators, retrieved 2026-10-13</span></div>
+    </div>
+    <div class="card content" id="c4" data-b="1"><div class="label" style="color:var(--teal)">page_content</div>
+      <div class="tx4"># Kenya: internet use and mobile subscriptions, 2010 to 2024 ## Internet use The share of individuals using the internet in Kenya rose from 7.2 percent …</div></div>
+  </div>
+  <div class="grpB gone" id="g4b">
+    <div class="card old16"><div class="label">Text of regional-2016</div>
+      <h3>Regional digital summary, 2016</h3>
+      <p>Internet use in East Africa continues to expand. In Kenya, 16.6 percent of the population used the internet in 2015, up from 7.2 percent in 2010. In Rwanda the share was 12.5 percent in 2015, up from 8.0 percent in 2010.</p>
+      <p>Mobile cellular subscriptions reached 80.1 per 100 people in Kenya and 75.3 per 100 people in Rwanda in 2015.</p>
+      <p>On current trends, internet use in both countries is expected to reach about 25 percent of the population by 2020 and about half of the population by 2025. …</p>
+      <p><span class="hl" id="hl4">The latest available figures are for 2015.</span> Values for later years will be added as they are released.</p></div>
+    <div class="card meta meta2"><div class="label" style="color:var(--primary)">metadata</div>
+      <div class="row in2"><span>id</span><span class="mono">regional-2016</span></div>
+      <div class="row in2"><span>type</span><span>summary</span></div>
+      <div class="row in2" id="m4old"><span>date</span><span class="mono">2016-06-01</span></div>
+    </div>
+    <div class="card tl" id="tl4"><div class="label">Dates in the metadata</div>
+      <div class="gap" id="tlg">ten years apart</div>
+      <div class="ax" id="tla"></div>
+      <div class="mk" id="tlm1" style="left:30px;background:#e0b100"></div>
+      <div class="mk" id="tlm2" style="left:390px;background:var(--primary)"></div>
+      <div class="mt" id="tlt1" style="left:20px;top:134px"><b>2016-06-01</b>regional-2016</div>
+      <div class="mt" id="tlt2" style="left:240px;top:134px;text-align:right"><b>2026-10-13</b>country briefs</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 step 2: chunking -->
+<section class="scene" id="s5">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i></i><i></i></span>Step 2 of 4 · Chunking</div>
+  <h2>A chunk is the unit that a search returns</h2>
+  <div class="colhd" id="ch5r" style="left:470px;color:var(--primary);opacity:0;transition:opacity .4s">By length</div>
+  <div class="colhd" id="ch5l" style="left:60px;color:var(--teal);opacity:0;transition:opacity .4s">By heading</div>
+  <div class="card kdoc" id="kd5" data-b="1">
+    <div class="blk" id="b5t"><div class="t">Kenya: internet use and mobile subscriptions, 2010 to 2024</div></div>
+    <div class="blk" id="b5h1"><div class="h">## Internet use</div></div>
+    <div class="blk" id="b5p1"><div class="p"><i></i><i style="width:96%"></i><i></i><i style="width:58%"></i></div></div>
+    <div class="blk" id="b5p2"><div class="p"><i style="width:94%"></i><i></i><i style="width:40%"></i></div></div>
+    <div class="blk" id="b5h2"><div class="h">## Mobile subscriptions</div></div>
+    <div class="blk" id="b5p3"><div class="p"><i></i><i style="width:92%"></i><i></i><i style="width:97%"></i><i style="width:50%"></i></div></div>
+    <div class="blk" id="b5h3"><div class="h">## Population</div></div>
+    <div class="blk" id="b5p4"><div class="p"><i style="width:72%"></i></div></div>
+    <div class="blk" id="b5h4"><div class="h">## Reading the two indicators together</div></div>
+    <div class="blk" id="b5p5"><div class="p"><i></i><i style="width:95%"></i><i></i><i style="width:35%"></i></div></div>
+  </div>
+  <div class="scan" id="scan5"></div>
+  <div id="br5"></div>
+  <div class="card wcard" id="wc5" style="top:180px" data-b="2"><div class="label" style="color:var(--primary)">Window 2 · cut by length</div>
+    Over the full period the share increased by about 28 percentage points. The fastest growth in absolute terms came between 2010 and 2015, when the share more than doubled.<br>
+    <span class="mono tail">## Mobile subscriptions</span>
+    <div class="note">The window starts partway through a section and ends on the heading of the next one.</div></div>
+  <div class="card wcard" id="sc5" style="top:440px" data-b="4"><div class="label" style="color:var(--teal)">Section 2 · cut by heading</div>
+    <span class="mono">## Mobile subscriptions</span><br>Mobile cellular subscriptions per 100 people stood at 60.0 in 2010, 80.1 in 2015, and 117.6 in 2020. …
+    <div><span class="mchip">section: Mobile subscriptions</span><span class="mchip">country: Kenya</span><span class="mchip">date: 2026-10-13</span></div></div>
+</section>
+
+<!-- 6 step 3: embeddings -->
+<section class="scene" id="s6">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>Step 3 of 4 · Embeddings</div>
+  <h2>An embedding places a text by its meaning</h2>
+  <svg class="wires" id="w6"></svg>
+  <div class="card chunk6" id="ck6" data-b="1"><div class="label">Chunk</div><span class="mono" style="font-size:14.5px">## Mobile subscriptions</span><br>Mobile cellular subscriptions per 100 people stood at 60.0 in 2010, 80.1 in 2015, …</div>
+  <div class="model emb" id="m6" data-b="1">Embedding model<small>all-MiniLM-L6-v2</small></div>
+  <div class="term vec" id="vc6" data-b="1"><div class="head"><span class="dot"></span>Numbers for the chunk</div><div id="v6t"></div>
+    <div class="cnt" id="v6c">384 numbers in all</div></div>
+  <div class="card map" id="map6" data-b="2"><div class="label">Map of meaning · positions drawn for illustration</div>
+    <svg id="ms6"></svg>
+    <div class="dotp" id="p1" style="left:400px;top:84px"></div><div class="dotl" id="l1" style="left:416px;top:75px">KEN · Internet use</div>
+    <div class="dotp" id="p2" style="left:430px;top:126px"></div><div class="dotl" id="l2" style="left:446px;top:117px">RWA · Internet use</div>
+    <div class="dotp" id="p3" style="left:250px;top:134px"></div><div class="dotl" id="l3" style="left:266px;top:125px">KEN · Mobile subs.</div>
+    <div class="dotp" id="p4" style="left:210px;top:172px"></div><div class="dotl" id="l4" style="left:226px;top:163px">RWA · Mobile subs.</div>
+    <div class="dotp" id="p5" style="left:90px;top:214px"></div><div class="dotl" id="l5" style="left:106px;top:205px">RWA · Growth</div>
+    <div class="dotp" id="p6" style="left:50px;top:186px"></div><div class="dotl" id="l6" style="left:66px;top:177px">KEN · Growth</div>
+    <div class="qdot" id="qd6" style="left:440px;top:-20px"></div>
+  </div>
+  <div class="card rank" data-b="3"><div class="label">Similarity to the question</div>
+    <div class="q">"share of people using the internet"</div>
+    <div id="rk6"></div></div>
+  <div class="card nodate" data-b="4"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#565f68" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M4 21L20 4" stroke="#565f68"/></svg>
+    The numbers come from the text of the chunk alone. The date of the document is not part of them.</div>
+</section>
+
+<!-- 7 step 4: the vector store -->
+<section class="scene" id="s7">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Step 4 of 4 · The vector store</div>
+  <h2>The vector store keeps each chunk with its numbers</h2>
+  <svg class="wires" id="w7"></svg>
+  <div class="label" style="position:absolute;left:80px;top:186px" data-b="1">Chunks of the prepared collection</div>
+  <div class="tiles" id="tl7" data-b="1"></div>
+  <div class="store" id="st7" data-b="1">
+    <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.3"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+    <div class="lb">Vector store</div><div class="num" id="n7">0</div><div class="label">chunks</div></div>
+  <div class="card rec" id="rc7" data-b="2"><div class="label" style="margin-bottom:4px">One record</div>
+    <div class="r"><span>Text</span><span>## Mobile subscriptions Mobile cellular subscriptions per 100 people stood at 60.0 in 2010, …</span></div>
+    <div class="r"><span>Metadata</span><span class="mono">id: kenya-digital<br>section: Mobile subscriptions<br>country: Kenya · date: 2026-10-13</span></div>
+    <div class="r"><span>Numbers</span><span class="mono">[-0.036, 0.013, 0.046, -0.004, -0.012, 0.036, …] 384 in all</span></div></div>
+  <div class="card q7" id="q7" data-b="3"><div class="label" style="margin-bottom:6px">Question</div>What are the latest available figures for internet use in Kenya and Rwanda?</div>
+  <div class="card res7" id="r7" data-b="3"><div class="label">Closest three chunks</div><div id="r7t"></div></div>
+  <div class="mem" data-b="4"><span class="chip" id="mm7a">This example: in memory</span><span id="mm7c" style="opacity:0;transition:opacity .4s">→</span><span class="chip" id="mm7b" style="opacity:0;transition:opacity .4s,border-color .4s,background .4s">An application: a database</span></div>
+</section>
+
+<!-- 8 the search results -->
+<section class="scene" id="s8">
+  <div class="eyebrow">In the search results</div>
+  <h2>Each passage names its document, section, and year</h2>
+  <div class="card col b" data-b="1"><div class="ttl">Prepared badly</div><div class="sm">no metadata, one long text, fixed windows</div>
+    <div class="hit8"><span class="cit">[blob · (fixed window) · ]</span><span class="ex"># Regional digital summary, 2016 · Internet use in East Africa …</span></div>
+    <div class="hit8"><span class="cit">[blob · (fixed window) · ]</span><span class="ex"># Rwanda: internet use … 31.7 percent in 2024</span></div>
+    <div class="hit8"><span class="cit">[blob · (fixed window) · ]</span><span class="ex">## Reading the two indicators together …</span></div>
+    <div class="marks"><div class="bad" id="k8a">✗ missing Kenya, 2024: 35.0</div><div class="ok" id="k8b">✓ found Rwanda, 2024: 31.7</div></div></div>
+  <div class="card col g" data-b="1"><div class="ttl">Prepared well</div><div class="sm">metadata kept, one chunk per section</div>
+    <div class="hit8 wait"><span class="cit">[regional-2016 · intro · 2016]</span><span class="ex"># Regional digital summary, 2016 · Internet use in East Africa …</span></div>
+    <div class="hit8 wait"><span class="cit">[rwanda-digital · Internet use · 2026]</span><span class="ex">… 31.7 percent in 2024, the latest year available.</span></div>
+    <div class="hit8 wait"><span class="cit">[kenya-digital · Internet use · 2026]</span><span class="ex">… 35.0 percent in 2024, the latest year available.</span></div>
+    <div class="marks"><div class="ok" id="k8c">✓ found Kenya, 2024: 35.0</div><div class="ok" id="k8d">✓ found Rwanda, 2024: 31.7</div></div></div>
+  <div class="card bars" data-b="4">
+    <div class="br"><span>Prepared badly</span><div class="track"><i id="bb8" style="background:var(--subtle)"></i></div><span class="v">5 of 9</span></div>
+    <div class="br"><span>Prepared well</span><div class="track"><i id="bg8" style="background:var(--primary)"></i></div><span class="v">7 of 9</span></div>
+  </div>
+</section>
+
+<!-- 9 scope and judgement -->
+<section class="scene" id="s9">
+  <div class="eyebrow">Scope of the preparation</div>
+  <h2>The reader judges whether a passage is current</h2>
+  <div class="two">
+    <div class="card g" data-b="1"><b>Settled by preparation</b>Each passage that a search returns names its document, its section, and its year.</div>
+    <div class="card n" data-b="2"><b>Judged by the reader</b>Whether a passage is recent enough for the question that was asked.</div>
+  </div>
+  <div class="card match" data-b="3"><div class="label" style="margin-bottom:8px">Reviewing the first passage with its citation</div>
+    <div class="q">Question: What are the <span class="w" id="w9a">latest available figures</span> for internet use in Kenya and Rwanda?</div>
+    <svg class="wires" id="w9" style="left:-80px;top:-404px"></svg>
+    <div class="chips">
+      <div class="chip" id="c9a">regional-2016<small>Regional digital summary</small></div>
+      <div class="chip" id="c9b">intro<small>section</small></div>
+      <div class="chip" id="c9c">2016<small>year of the document</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 closing -->
+<section class="scene dark" id="s10">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1 style="font-size:60px">Preparing documents for retrieval</h1>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+</section>
+
+<script>
+  // Character offsets of the 30 fixed windows in the joined text (8,463 characters), and the three that the search returns.
+  const TOTAL = 8463;
+  const CUTS = [271, 581, 946, 1270, 1643, 1977, 2223, 2608, 2903, 3075, 3463, 3849, 3899, 4260, 4457, 4743, 5095, 5161, 5384, 5700, 5864, 6231, 6592, 6925, 7069, 7416, 7708, 7989, 8186];
+  const HITS = [[5864, 6229], [6592, 6923], [7416, 7725]];
+  const sx = (c) => 80 + c * 1120 / TOTAL;
+
+  const svgEl = (svg, tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; };
+
+  // A bracket beside a run of blocks in the Kenya brief; side 'r' or 'l'.
+  const bracket = (side, first, last, n, off) => {
+    const a = rectOf($(first)), b = rectOf($(last));
+    const d = document.createElement('div');
+    d.className = 'brk ' + side;
+    d.style.top = a.top + 'px'; d.style.height = (b.bottom - a.top) + 'px';
+    d.style.left = (side === 'r' ? 506 + off : 108 - off) + 'px';
+    d.innerHTML = `<em>${n}</em>`;
+    $('br5').appendChild(d);
+    requestAnimationFrame(() => d.classList.add('in2'));
+    return d;
+  };
+  const tint = (ids, cls, on) => ids.forEach((id) => $(id).classList.toggle(cls, on));
+  const W5 = [['b5t', 'b5p1'], ['b5p2', 'b5h2'], ['b5h2', 'b5p3'], ['b5h3', 'b5p5']];
+  const S5 = [['b5t', 'b5p2'], ['b5h2', 'b5p3'], ['b5h3', 'b5p4'], ['b5h4', 'b5p5']];
+  const brk5 = { r: [], l: [] };
+  const sweep = (ms) => { const k = rectOf($('kd5')), s = $('scan5'); s.style.transition = 'none'; s.style.top = k.top + 'px'; s.style.opacity = 1;
+    s.getBoundingClientRect(); s.style.transition = `top ${ms}ms linear, opacity .3s`; s.style.top = k.bottom + 'px'; later(ms, () => { s.style.opacity = 0; }); };
+
+  const RANK = [['0.407', 'kenya-digital · Internet use'], ['0.398', 'rwanda-digital · Internet use'], ['0.290', 'kenya-digital · Mobile subscriptions'],
+    ['0.235', 'rwanda-digital · Mobile subscriptions'], ['0.045', 'rwanda-economy · Growth'], ['0.042', 'kenya-economy · Growth']];
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        const s = $('w2');
+        later(400, () => { const p = wire(s, $('n2a').querySelector('.ic'), $('n2b').querySelector('.ic'), { hot: true }); later(700, () => flow(s, p, '#1558d6')); });
+        later(1000, () => { const p = wire(s, $('n2b').querySelector('.ic'), $('n2c').querySelector('.ic'), { hot: true, color: '#12a08a' }); later(700, () => flow(s, p, '#12a08a')); });
+      },
+    },
+    '2b': {
+      2: () => later(300, () => typeText($('q2b'), 'What are the latest available figures for internet use in Kenya and Rwanda?', 28)),
+      3: () => {
+        later(200, () => $('d2k').classList.add('hit'));
+        later(700, () => $('d2r').classList.add('hit'));
+        later(500, () => fly($('d2k'), $('n2k'), '35.0', 1000));
+        later(1000, () => fly($('d2r'), $('n2r'), '31.7', 1000));
+      },
+    },
+    3: {
+      1: () => {
+        later(300, () => $('strip3').classList.add('drop'));
+        later(1200, () => $('strip3').classList.add('merged'));
+        later(1900, () => { $('sn3').textContent = 'One long text without metadata'; });
+      },
+      2: () => {
+        const s = $('w3'), b = $('blade3'), ms = 2600;
+        b.style.opacity = 1; b.style.transition = `left ${ms}ms linear`; b.getBoundingClientRect(); b.style.left = '1200px';
+        CUTS.forEach((c) => later(ms * (sx(c) - 80) / 1120, () => svgEl(s, 'line', { x1: sx(c), y1: 186, x2: sx(c), y2: 290, class: 'cutl' })));
+        later(ms + 100, () => { b.style.opacity = 0; $('sn3').textContent = 'Cut into windows of at most 400 characters'; });
+      },
+      3: () => {
+        const s = $('w3');
+        HITS.forEach(([a, z], i) => {
+          const r = svgEl(s, 'rect', { x: sx(a), y: 188, width: sx(z) - sx(a), height: 100, rx: 3, class: 'hitr' });
+          later(300 + i * 500, () => { r.style.opacity = .85; });
+          later(500 + i * 500, () => fly(r, $(['h3a', 'h3b', 'h3c'][i]), 'window', 900));
+        });
+        later(2800, () => { $('f3').innerHTML = '<div class="bad">✗ missing Kenya, 2024: 35.0</div><div class="ok">✓ found Rwanda, 2024: 31.7</div>'; });
+      },
+      4: () => document.querySelectorAll('#s3 .cit').forEach((c, i) => later(i * 300, () => c.classList.add('ask'))),
+    },
+    4: {
+      2: () => {
+        $('hdr4').classList.add('glow');
+        ['id', 'ti', 'ty', 'co', 'da', 'so'].forEach((k, i) => later(200 + i * 380, () => {
+          fly($('f4' + k), $('m4' + k), k === 'ti' ? 'title' : $('f4' + k).querySelector('.k').textContent.replace(':', ''), 600);
+          later(600, () => $('m4' + k).classList.add('in2'));
+        }));
+        later(2700, () => { $('body4').classList.add('glow'); fly($('body4'), $('c4'), 'text', 800); later(800, () => $('c4').classList.add('in2')); });
+      },
+      3: () => {
+        $('g4a').classList.add('gone');
+        later(500, () => $('g4b').classList.remove('gone'));
+        later(1600, () => $('hl4').classList.add('on'));
+      },
+      4: () => {
+        $('m4old').classList.add('key');
+        later(300, () => { $('tlm1').classList.add('in2'); $('tlt1').classList.add('in2'); });
+        later(500, () => $('tla').classList.add('in2'));
+        later(1700, () => { $('tlm2').classList.add('in2'); $('tlt2').classList.add('in2'); });
+        later(2100, () => $('tlg').classList.add('in2'));
+      },
+    },
+    5: {
+      1: () => {
+        $('ch5r').style.opacity = 1;
+        later(400, () => sweep(2400));
+        W5.forEach(([a, z], i) => later(700 + i * 520, () => brk5.r.push(bracket('r', a, z, i + 1, i % 2 ? 22 : 0))));
+      },
+      2: () => {
+        const w = brk5.r[1]; w.classList.add('act');
+        tint(['b5p2', 'b5h2'], 'wt', true);
+        later(300, () => fly(w, $('wc5'), 'window 2', 900));
+      },
+      3: () => {
+        brk5.r.forEach((b) => b.classList.add('dim'));
+        tint(['b5p2', 'b5h2'], 'wt', false);
+        $('ch5l').style.opacity = 1;
+        later(300, () => sweep(2000));
+        S5.forEach(([a, z], i) => later(600 + i * 450, () => brk5.l.push(bracket('l', a, z, i + 1, 0))));
+      },
+      4: () => {
+        tint(['b5h2', 'b5p3'], 'st', true);
+        later(200, () => fly(brk5.l[1], $('sc5'), 'section 2', 900));
+      },
+    },
+    6: {
+      1: () => {
+        const s = $('w6');
+        later(300, () => { const p = wire(s, $('ck6'), $('m6'), { color: '#12a08a', ms: 500 }); later(500, () => flow(s, p, '#12a08a', 1200, 2, 4.5)); });
+        later(800, () => $('m6').classList.add('busy'));
+        later(1300, () => { const p = wire(s, $('m6'), $('vc6'), { hot: true, ms: 500 }); later(500, () => flow(s, p, '#1558d6', 1200, 2, 4.5)); });
+        later(1700, () => stream($('v6t'), ['[', '-0.036, ', '0.013, ', '0.046, ', '-0.004, ', '-0.012, ', '0.036, ', '…]'], 260, null, () => {
+          $('m6').classList.remove('busy'); $('v6c').classList.add('in2'); }));
+      },
+      2: () => [1, 2, 3, 4, 5, 6].forEach((k, i) => later(300 + i * 260, () => { $('p' + k).classList.add('in2'); $('l' + k).classList.add('in2'); })),
+      3: () => {
+        const q = $('qd6'); q.style.opacity = 1;
+        later(100, () => { q.style.left = '370px'; q.style.top = '56px'; });
+        const svg = $('ms6');
+        later(1200, () => [1, 2, 3, 4, 5, 6].forEach((k, i) => later(i * 150, () => {
+          const p = $('p' + k);
+          const l = svgEl(svg, 'line', { x1: 370, y1: 56, x2: parseFloat(p.style.left), y2: parseFloat(p.style.top), stroke: '#7ba7f2', 'stroke-width': 1.5, 'stroke-dasharray': '4 4' });
+          l.style.opacity = 0; l.style.transition = 'opacity .4s'; requestAnimationFrame(() => { l.style.opacity = 1; });
+        })));
+        RANK.forEach(([v, n], i) => later(1500 + i * 280, () => {
+          $('rk6').insertAdjacentHTML('beforeend', `<div class="rr" id="rr${i}"><b>${v}</b><div class="bar"><i></i><span>${n}</span></div></div>`);
+          const r = $('rr' + i); requestAnimationFrame(() => { r.classList.add('in2'); r.querySelector('i').style.width = (parseFloat(v) / 0.407 * 100) + '%'; });
+        }));
+      },
+    },
+    7: {
+      1: () => {
+        const t = $('tl7');
+        for (let i = 0; i < 21; i++) t.insertAdjacentHTML('beforeend', '<i></i>');
+        const s = $('w7');
+        later(700, () => { const p = wire(s, t, $('st7').querySelector('svg'), { color: '#12a08a', ms: 500 }); });
+        [...t.children].forEach((el, i) => later(1100 + i * 110, () => {
+          const a = rectOf(el), b = rectOf($('st7').querySelector('svg'));
+          const c = el.cloneNode(); c.style.cssText = `position:absolute;left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px;margin:0;background:#fff;border:1px solid #e2e5e8;border-top:3px solid #12a08a;border-radius:5px`;
+          $('s7').appendChild(c); el.classList.add('done');
+          c.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${b.left + b.width / 2 - a.left - a.width / 2}px, ${b.top + b.height / 2 - a.top - a.height / 2}px) scale(.4)`, opacity: 0 }],
+            { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => { c.remove(); $('n7').textContent = i + 1; };
+        }));
+      },
+      2: () => {
+        const s = $('w7');
+        const p = wire(s, $('st7').querySelector('svg'), $('rc7'), { hot: true, ms: 600 });
+        later(600, () => carry(p, 'record', '#1558d6', 1100));
+      },
+      3: () => {
+        const s = $('w7'), sv = $('st7').querySelector('svg');
+        const p = wire(s, $('q7'), sv, { color: '#8a929a', ms: 600 });
+        later(600, () => carry(p, '384 numbers', '#8a929a', 1200, null, () => $('st7').classList.add('pulse')));
+        later(2000, () => { const p2 = wire(s, sv, $('r7'), { hot: true, ms: 600 }); later(600, () => flow(s, p2, '#1558d6', 1300, 3, 4.5)); });
+        later(2600, () => stream($('r7t'), ['<span class="cit">[regional-2016 · intro · 2016]</span>', '<span class="cit">[rwanda-digital · Internet use · 2026]</span>',
+          '<span class="cit">[kenya-digital · Internet use · 2026]</span>'], 450));
+      },
+      4: () => {
+        later(400, () => $('mm7a').classList.add('on'));
+        later(1600, () => { $('mm7a').classList.remove('on'); $('mm7c').style.opacity = 1; $('mm7b').style.opacity = 1; $('mm7b').classList.add('on'); });
+      },
+    },
+    8: {
+      1: () => document.querySelectorAll('#s8 .hit8.wait').forEach((h, i) => later(600 + i * 600, () => h.classList.add('in2'))),
+      2: () => ['k8a', 'k8b', 'k8c', 'k8d'].forEach((k, i) => later(200 + i * 450, () => $(k).classList.add('in2'))),
+      3: () => document.querySelectorAll('#s8 .col.g .cit').forEach((c, i) => later(i * 350, () => c.classList.add('good'))),
+      4: () => later(300, () => { $('bb8').style.width = (5 / 9 * 100) + '%'; later(400, () => { $('bg8').style.width = (7 / 9 * 100) + '%'; }); }),
+    },
+    9: {
+      4: () => {
+        const s = $('w9');
+        $('w9a').classList.add('on');
+        $('c9a').classList.add('on');
+        later(700, () => { $('c9c').classList.add('ask'); wire(s, $('w9a'), $('c9c'), { from: 'bottom', to: 'top', hot: true }); });
+      },
+    },
+  };
+
+  go(1, 0);
+</script>
+</body>
+</html>

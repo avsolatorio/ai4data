@@ -42,8 +42,10 @@ scripts/videos/
   stages/kit/stage.js     go(), later(), wire(), flow(), carry(), fly(), typeText(), stream()
   stages/_template.html   starting point for a new stage
   stages/pcn.html         the reference stage
+  stages/preparing-knowledge.html   a second explainer, made from this guide alone
   videos/_template.json   starting point for a new step script
   videos/pcn-explainer.json
+  videos/preparing-knowledge.json
   videos/document-collection.json   a site walkthrough
   voices/                 Piper voices (*.onnx) and Kokoro model files (voices/kokoro/)
   out/<name>.mp4, .vtt    results; out/<name>/ holds narration clips and review sheets
@@ -83,7 +85,11 @@ a background task and wait for it; it does not need tmux.
 
 1. **Study the source.** Read the notebook, documentation, library code and
    paper behind the method. Write down the facts the video will state, with
-   where each one comes from. Use real values from the source data for the
+   where each one comes from. Prefer values recorded in the source (a
+   notebook's saved outputs). When a value has to be computed again, use a
+   separate environment built from the source's own requirements file (for
+   a training notebook, its `requirements.txt`); the video environment
+   holds only the recording tools. Use real values from the source data for the
    worked example (PCN used internet use in Kenya and Rwanda from World
    Development Indicators, with the values that notebook 06 returns). Check
    any claim about the library against its code; for example, PCN claim ids
@@ -119,6 +125,26 @@ the kinds of scene; the number of method steps changes with the method.
 | 9 | Result for the user | In the chatbot (or the equivalent) | What a person sees when the method runs | Marks and hover popovers |
 | 10 | Scope and judgement | Scope of the check | What the method checks, what remains a human judgement, and how the method helps that judgement | "The reader makes the final judgement" |
 | 11 | Closing (dark) | none | Code, paper, program addresses | github.com/worldbank/pcn, arXiv, worldbank.github.io/ai4data |
+
+Scene ids follow the PCN stage: `s1` is the title, `s2` the context
+diagram, `s2b` the context example, then `s3`, `s4`, … in the order of the
+table, and the closing is the last id. The step script calls `go(n, beat)`
+with the part of the id after `s`: `go(3, 1)` for `s3`, and `go('2b', 1)`
+for `s2b`, with `HOOKS['2b']` for its hooks. Copy the numbering of
+`stages/pcn.html` or `stages/preparing-knowledge.html`.
+
+The kicker on the title and closing names one of the six areas of the
+program hub (`website/src/content/tools.js`), in noun form: Assessment,
+Documentation, Access, Verification, Implementation, or Adoption. Pick the
+area where the method's tools are listed; PCN is Verification, and the
+preparation of a document collection for retrieval is Implementation.
+
+The closing lists addresses that the program maintains. A method with its
+own program library and paper lists Code, Paper and Program, as PCN does.
+A topic built on general third-party tools (LangChain, an embedding model)
+shows the Program address only, and the closing line says that the address
+of the AI for Data program is on screen. Third-party projects can be named
+in the narration where the method uses them.
 
 Rules that came from review feedback on PCN:
 
@@ -162,8 +188,10 @@ are in `stages/kit/stage.css`; do not introduce new colours.
 | `--block` | #12151a | Title and closing scenes, code panels, the model node |
 
 - Type: Inter for text (headings 700, 40 px, letter-spacing -0.025em);
-  JetBrains Mono for code, identifiers and values from data. Body text on
-  screen is at least 16 px; labels at least 11.5 px uppercase with letter
+  JetBrains Mono for code, identifiers and values from data. Prose on
+  screen (sentences in cards and chat bubbles) is at least 16 px. Data
+  lines, identifiers, table cells and chart labels in JetBrains Mono are
+  12–15 px, as in PCN. Labels are at least 11.5 px uppercase with letter
   spacing.
 - Surfaces are flat: white cards with 1 px hairline borders and 10 px radius,
   no drop shadows. Emphasis comes from a coloured top border, a coloured
@@ -177,6 +205,13 @@ are in `stages/kit/stage.css`; do not introduce new colours.
   role. No emoji.
 - Decorative elements (the drifting code on the title) stay faint and do not
   cross text.
+- Values come from the source data. A visual that cannot be real, such as
+  positions on a map of meaning drawn in two dimensions, carries a label on
+  screen that says so ("positions drawn for illustration").
+- Empty space: early beats of a scene may leave part of the frame empty,
+  because later beats fill it. In the final state of every scene, the
+  content spans the frame; no half of the frame (left, right, top or
+  bottom) is empty.
 
 ### Motion
 
@@ -194,6 +229,12 @@ is not finished. The kit provides the motions used in PCN:
 | `stream(el, tokens, ms, onToken)` | Tokens appended one at a time with a caret | Model output, in a chat bubble or a code panel |
 | `.model.busy` | Spinning gradient ring | The model while it writes |
 | `.pm.stamp` | A mark stamps onto a figure | Verification marks |
+
+A stage can add its own motion code where the kit has no helper; keep it in
+the stage's script, use `later()` for its timers and `rectOf()` for
+positions. `stages/preparing-knowledge.html` moves clones of whole elements
+(tiles flying into a store) and draws straight dashed lines on a chart; a
+helper used by a second stage moves into the kit.
 
 Beats are driven from the step script: `go(scene, beat)` reveals elements
 with `data-b ≤ beat` and runs `HOOKS[scene][beat]`. Timers must use
@@ -292,3 +333,5 @@ section 7 apply unchanged.
 | 2026-10-24 | Needed: chatbots as a data channel, a more dynamic origins scene, streaming, site theme, hash claim ids, a different instruction example, a precise verifier, judgement with PCN's help, livelier voice | Current stage and Kokoro voice |
 | 2026-10-24 | Intro and outro too tied to the session | Generic title and closing |
 | 2026-10-24 | Connectors drawn during a card's slide-in pointed a few pixels off | `rectOf()` in the kit measures the resting position |
+| 2026-10-24 | A second explainer (preparing documents for retrieval) made by an agent from this guide alone matched the reference; the agent listed gaps | Rules for scene ids, the kicker area, closing addresses, type sizes, illustrative visuals, empty space, stage-local motion, and the environment for checking values |
+| 2026-10-24 | Closing of that video listed third-party projects | Program address only for topics built on third-party tools |
