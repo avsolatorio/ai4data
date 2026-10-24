@@ -1,0 +1,291 @@
+---
+id: review
+title: "6. Review and accessibility"
+sidebar_label: "6. Review"
+sidebar_position: 6
+description: How an explainer video is checked before publication, with every figure compared with the source by a person and by script, the whole video watched and heard, captions checked against subtitle guidelines and published with a transcript, and a sign-off by a named person.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 6. Review and accessibility
+
+**Question:** How is a video checked and made accessible before it is published?
+
+## Rationale
+
+A video is harder to check than a page. Its figures pass at the speed of
+the voice, its text appears for a few seconds, and a fault in one beat can
+hide behind the motion of the next. The checks of the earlier chapters
+cover the parts: the fact sheet, the narration, and the stage. The review
+covers the finished video, as a viewer meets it, and it ends with a
+person who takes responsibility for its publication in the
+organization's name.
+
+Accessibility is part of the same review. The Web Content Accessibility
+Guidelines (WCAG) 2.2 require captions for the audio of prerecorded video
+at level A (success criterion 1.2.2). They require audio description of
+the video content, or a media alternative such as a full transcript, at
+level A (1.2.3), and audio description at level AA (1.2.5). The W3C's
+explanation of these criteria states that where all of the video
+information is already provided in the existing audio, no additional
+audio description is necessary. A narration that describes what is on
+screen, as chapter 3 requires, therefore serves viewers who cannot see
+the screen. A transcript published with the video meets the media
+alternative of level AAA (1.2.8) and lets a reader search and quote the
+video.
+
+## Target state
+
+- Every figure in the video, in the captions, and on screen has been compared with the source by a person and by script.
+- The whole video has been watched and heard once with sound and once with captions and no sound.
+- The captions pass the caption check, and the captions and a transcript are published with the video.
+- A named person has signed off the video, and the sign-off is recorded with the checks behind the decision.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Run the four recipes of this chapter on every video before publication. |
+| **AI-ready** | Keep the sign-off record of recipe 6.4 with the video's files and the catalogue record, and run the narration and caption checks on every version. |
+| **AI-native** | Run the checks of chapters 3 and 6 automatically on every change to the step script or the captions, and block publication until they pass and the sign-off is recorded. |
+
+:::info[Running example]
+The team reviews the recorded release video. The narration check passes
+after the corrections of chapter 3. The viewing finds that the captions
+cover a line of text on screen. The caption check finds the two problems
+planted in [captions.vtt](pathname:///cookbook-files/explainer-videos/captions.vtt):
+a line of 68 characters and a cue that starts before the previous one
+ends. The head of dissemination signs the video off after the
+corrections.
+:::
+
+## Recipes
+
+<Recipe title="6.1 Compare every figure with the source, by person and by script" level="Foundational" skills="Dissemination officer and the owner of the source" time="An hour per video">
+
+**Result:** every figure that the video states, in the narration, in the
+captions, and on screen, has been compared with the release table by the
+narration check and by a person who did not write the narration.
+
+The narration check of chapter 3 compares the figures of the captions with
+the table. It does not see the screen and it does not hear the voice. A
+person therefore reads the stage sheets and the video sheets against the
+fact sheet and listens to every figure. The two checks find different faults. The script finds a changed digit
+in a caption. The person finds a figure on a card that the narration does
+not mention, or a spoken figure that differs from the caption.
+
+1. Run the narration check on the final step script. It has to pass.
+2. Give the fact sheet, the video sheets, and the video to a person who
+   did not write the narration, with the owner of the source available
+   for questions.
+3. The person compares every figure on screen with the fact sheet, then
+   listens to every figure in the narration and compares it with the
+   caption.
+4. Record each finding and its correction, and run the narration check
+   again after any change.
+
+**Worked example.** After the corrections of chapter 3, the narration
+check found eleven figures in the table and no problem. The reviewer from
+the labour statistics unit compared the four result cards with the
+release table and found them correct, and heard "sixteen point eight" for
+the corrected youth rate.
+
+**What this does not do.** The review compares figures with the source.
+Whether the video says the right things about the figures is the judgement
+of the owner of the source, which the sign-off of recipe 6.4 records.
+
+</Recipe>
+
+<Recipe title="6.2 Watch and listen to the whole video" level="Foundational" skills="Dissemination officer and a second reviewer" time="Twenty minutes per video">
+
+**Result:** two people have watched the whole video, once with sound on
+headphones and once without sound with the captions shown, and the faults
+found have been fixed.
+
+The contact sheets show the state at the end of each beat. The viewing
+shows what happens between: a transition that flashes, an animation that
+is too fast to read, a figure that the voice reads before it appears, or
+music that competes with the voice. WCAG 2.2 sets one limit that applies
+to motion: nothing in the video flashes more than three times in any one
+second (success criterion 2.3.1, level A). The viewing without sound tests
+the captions as a deaf viewer meets them.
+
+1. Watch the video with sound on headphones. Note any figure read before
+   it appears, any line that is hard to hear over the music, and any word
+   the voice mispronounces.
+2. Watch it again without sound, with the captions on. Note any caption
+   that disappears before it can be read and any caption that covers text
+   on screen.
+3. Check the length against the estimate of chapter 3 and the loudness
+   with the measurement of chapter 5.
+4. Fix the faults in the stage, the step script, or the captions, and
+   record again where the stage or the narration changed.
+
+**Worked example.** The viewing with sound found that the bar of the
+employed persons card was still growing while its figure was read, which
+the video sheets had shown and the team had fixed with a longer step. The
+viewing without sound found that the captions covered the source line at
+the bottom of the result scene, and the agent moved the source line up.
+The video ran within a few seconds of the estimate.
+
+**What this does not do.** Two viewers from the team can miss faults
+that a viewer who relies on captions or on a screen reader would find.
+An organization with a user panel asks one of its members to watch the
+video before publication.
+
+</Recipe>
+
+<Recipe title="6.3 Check the captions and publish them with a transcript" level="Foundational" skills="Dissemination officer" time="An hour per video">
+
+**Result:** the caption file passes the caption check, and the captions
+and a transcript are ready to publish with the video.
+
+Captions are the text of the audio, timed to it, shown on request by the
+video player. The format used on the web is WebVTT, a W3C text format in
+which each cue has a start time, an end time, and one or more lines of
+text. The program's tool writes the caption file from the `say` fields,
+one cue per narration step, with the whole step on one line. A player
+shows such a cue as a block that covers much of the frame. The cues are
+therefore divided into shorter cues before publication.
+
+The limits of the check come from published subtitle guidelines. The BBC Subtitle Guidelines (version 1.2.5, March 2026) limit a line to
+37 characters where subtitles are shown in Teletext. For online video they
+express the limit as a share of the frame width, and they recommend at
+most two lines for landscape video. The Netflix English (USA) Timed Text Style Guide
+sets 42 characters per line, two lines, and a reading speed of up to 20
+characters per second for adult programmes. The script uses 37 characters,
+two lines, and 20 characters per second by default. It also checks the
+timing rules of the WebVTT format: a cue ends after it starts, and no cue
+starts before the start of the previous one. A cue that starts before the
+previous one ends is allowed by the format, but it shows two captions at
+once, and the script flags it.
+
+1. Divide the tool's cues into short cues. The option `--rewrap` divides
+   each cue at the ends of sentences and between words into cues of at
+   most two lines of 37 characters, and shares the time of the original
+   cue by the number of characters.
+2. Run the caption check and correct each problem by hand: shorten or
+   break a line, divide a cue, or move a start time.
+3. Read the captions once against the narration, because a rewrapped line
+   can break at an awkward point.
+4. Write the transcript from the caption text. The catalogue record of
+   chapter 7 does this from the same file, so the transcript and the
+   captions say the same thing.
+
+```bash
+python check_captions.py captions.vtt
+```
+
+```text
+captions.vtt: 60 cues, last cue ends at 00:03:33.939
+reading speed: highest 17.5 characters per second; median 172 words per minute
+problem: cue 46 (00:02:39.370): line of 68 characters (limit 37)
+problem: cue 47 (00:02:43.000): starts before the previous cue ends at 00:02:43.256
+result: FAIL
+```
+
+**Worked example.** The team's caption file had 60 cues after the rewrap,
+and a hand edit had joined the two lines of the participation cue into one
+of 68 characters. Another edit had moved the start of the employed persons
+cue one second earlier, so that it overlapped the participation cue by a
+quarter of a second. The team broke the line after "rose to" and moved the
+start back, and the second run passed. On the program's own
+Proof-Carrying Numbers explainer, the check finds that every one of the 34
+cues written by the tool has a line longer than 37 characters, and one
+cue reads at 20.2 characters per second. After the rewrap, the file has 79 cues and passes, with a highest reading speed of
+19.9 characters per second.
+
+**What this does not do.** The check measures lines, cues, and timing. It
+does not check that a caption matches what the voice says, that a line
+breaks at a natural point, or that the captions are placed clear of text
+on screen. The viewing of recipe 6.2 checks those.
+
+</Recipe>
+
+<Recipe title="6.4 Record the sign-off by a named person" level="Foundational" skills="Head of dissemination and the owner of the source" time="Fifteen minutes per video">
+
+**Result:** one named person has decided that the video may be published,
+and a record says who decided, on which version of the files, and on the
+basis of which checks.
+
+A sign-off is the organization's decision to publish, and it is made by
+a person who can be asked about it later. It rests on the checks of this
+chapter and on the owner of the source's confirmation that the video
+states the facts correctly. Recording the version of the files that was
+signed off matters because a video can be recorded again after the
+sign-off, and the record shows whether the published file is the one that
+was approved. A checksum, a short code computed from the content of a
+file, identifies the version: a file that has changed has a different
+checksum.
+
+1. Collect the results: the narration check, the caption check, the
+   findings of the viewing and their corrections, and the loudness.
+2. Ask the owner of the source to confirm the fact sheet and the final
+   video.
+3. Compute the checksums of the video file and the caption file, for
+   example with `sha256sum`.
+4. Record the decision with the name and the role of the person, the
+   date, the checksums, and the results. Keep the record with the video's
+   files and link it from the catalogue record.
+
+**Worked example.** The sign-off record of the release video names the
+head of dissemination as the person who decided to publish on the day of
+the release, with the confirmation of the head of the labour statistics
+unit. The record holds the checksums of the video and caption files, the
+passing runs of the two checks, and the two findings of the viewing with
+their corrections. This guide shows roles in place of the names that the
+organization's record carries.
+
+**What this does not do.** The sign-off records a decision. It does not
+make the video correct; the checks before it do, and the record makes
+them traceable.
+
+</Recipe>
+
+## Implementation options
+
+- **Caption files.** WebVTT for the web and for most video platforms; a broadcaster may ask for EBU-TT-D, the format the BBC guidelines specify for delivery.
+- **Caption editors.** An open caption editor can divide and retime cues by hand, in place of or after the rewrap of recipe 6.3.
+- **Transcript on the web page.** The transcript can sit below the video on the release page, or in an expandable section, so that it can be searched and quoted.
+- **Sign-off in a workflow tool.** The record of recipe 6.4 can be an approval in the organization's content system, as long as it keeps the checksums and the results.
+
+## World Bank examples
+
+- The program's [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md), section 8, gives the review checklist for its videos: contact sheets, motion, the greps of the writing rules on the narration, figures against the source, length and levels, and the MP4 and caption file sent together.
+- The program's tool writes the WebVTT caption file of each video from the `say` fields of its step script, which is the file that recipe 6.3 divides into short cues.
+
+## Resources
+
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/): success criteria 1.2.2, 1.2.3, 1.2.5, and 1.2.8 for captions, audio description, and media alternatives, and 2.3.1 for flashes.
+- [Understanding success criterion 1.2.5](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-prerecorded.html): the W3C explanation that a narration conveying all of the video information needs no additional audio description.
+- [WebVTT: The Web Video Text Tracks Format](https://www.w3.org/TR/webvtt1/): the W3C caption format and its rules for cue timings, checked in recipe 6.3.
+- [BBC Subtitle Guidelines](https://www.bbc.co.uk/accessibility/forproducts/guides/subtitles/): the line length, the number of lines, and the rate in words per minute used in recipe 6.3.
+- [Netflix English (USA) Timed Text Style Guide](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977-English-USA-Timed-Text-Style-Guide): the reading speed in characters per second used in recipe 6.3.
+- [captions.vtt](pathname:///cookbook-files/explainer-videos/captions.vtt) and [check_captions.py](pathname:///cookbook-files/explainer-videos/check_captions.py): the caption file with two planted problems and the check.
+
+## Common mistakes
+
+- **Captions as one cue per narration step.** The player covers a large part of the frame with a block of text that changes every few seconds.
+- **Only the script checks the figures.** A figure on a card or in the voice is outside what the script reads.
+- **The video watched only with sound.** The captions are first seen by the viewers who depend on them.
+- **A sign-off without the version.** The record cannot show that the published file is the one that was approved.
+
+## Verification
+
+- **Check runs.** The narration check and the caption check pass on the files of the published video.
+- **Accessibility check.** The published video has captions that can be turned on in the player and a transcript on the web page.
+- **Sign-off check.** The checksums in the sign-off record match the published video and caption files.
+
+## Checklist
+
+<Checklist id="explainer-videos-review" items={[
+  'Narration check passed on the final step script',
+  'Every figure on screen and in the voice compared with the fact sheet',
+  'Video watched with sound and without sound',
+  'No flashes more than three times in one second',
+  'Caption check passed',
+  'Captions and transcript ready to publish',
+  'Sign-off recorded with checksums',
+]} />

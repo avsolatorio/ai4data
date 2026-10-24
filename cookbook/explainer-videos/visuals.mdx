@@ -1,0 +1,241 @@
+---
+id: visuals
+title: "4. Animated scenes built with an AI agent"
+sidebar_label: "4. Visuals"
+sidebar_position: 4
+description: How an AI agent builds the scenes of an explainer video as an animated web page in the organization's theme, recorded by an automated browser, with real values from the source, a label on every visual drawn for illustration, a written production guide that keeps videos alike, and contact sheets for review.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 4. Animated scenes built with an AI agent
+
+**Question:** How are the visuals built, and how are they kept consistent across videos?
+
+## Rationale
+
+The scenes of an explainer can be built in an animation program, which
+needs an animator, or as a web page that a browser plays and records. A
+web page suits an AI agent: a coding agent writes HTML, CSS, and
+JavaScript well, and it can use the organization's own website styles, so
+that the video looks like the organization's other products. The
+program's tool records such a page with Playwright, a library that
+controls a browser from a script. The tool opens the page at 1280 by 720
+pixels, plays the beats in the order of the step script, and records the
+browser window as video.
+
+An agent left without instructions makes a different design for every
+video. It picks colours, type sizes, and layouts afresh, and it fills an
+empty area with whatever looks plausible, including figures. Two rules
+prevent this. The first is a written production guide that the agent
+reads before it starts, with the theme, the scene sequence, the motions,
+and the review checklist. The second is a review of every beat as an
+image before the recording, because a layout fault seen in a five-minute
+recording costs another five minutes to find again.
+
+The figures on screen carry the same responsibility as those in the
+narration. A chart in the video draws the values of the release table. A
+visual that cannot show real values, such as a group of figures of people
+standing for the labour force, carries a label that says it is drawn for
+illustration.
+
+## Target state
+
+- The scenes are one web page in the organization's theme, with one section per scene and one hook per animated beat.
+- Every value on screen comes from the fact sheet, and every visual drawn for illustration carries a label that says so.
+- The agent works from a written production guide that sets the theme, the scene sequence, the motions, and the review checklist.
+- Every beat has been read on a contact sheet before the recording, and every narration line has been read on a contact sheet after it.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Build the stage page with recipe 4.1 from the outline, and review it with the contact sheets of recipe 4.3 before and after the recording. |
+| **AI-ready** | Write the production guide of recipe 4.2 from the first video, and give it to the agent at the start of every new video. |
+| **AI-native** | Keep the theme tokens, the stage kit, and the guide in version control, with the history of review decisions, so that a change of the organization's website theme reaches every new video. |
+
+:::info[Running example]
+The team's agent builds the release video's stage page from the outline
+of chapter 2, starting from the program's stage template, with the
+colours and type of the organization's website. The classification scene
+shows figures of people moving into three groups, labelled as drawn for
+illustration, because the release table gives rates and the number of
+employed persons and no counts of unemployed persons. The contact sheets
+before the recording show two layout faults, which the agent fixes.
+:::
+
+## Recipes
+
+<Recipe title="4.1 Build the scenes as a stage page in the organization's theme" level="Foundational" skills="Dissemination officer with an AI agent" time="One to two days for a first video">
+
+**Result:** the team has a stage page, one HTML file with one section per
+scene of the outline, that the recorder can play beat by beat.
+
+A stage page is a web page made for recording. Each scene is a section at
+the size of the video frame, with a heading and the elements of the
+scene. Each element carries the number of the beat at which it appears.
+The step script calls `go(scene, beat)`, which shows the elements up to
+that beat and runs the animation attached to it. The animation can be a
+connector that draws itself, a value that travels from a table to a card,
+or text that types itself. The program's stage kit provides these motions and a theme taken
+from the program's website. An organization replaces the theme with its
+own colours and type.
+
+1. Copy the stage template of the tool (`stages/_template.html`) and
+   replace the theme tokens in the kit's style sheet with the colours and
+   fonts of the organization's website.
+2. Give the agent the outline, the fact sheet, and the production guide,
+   with the instruction to add one section per scene and one hook per
+   animated beat, and to take every value on screen from the fact sheet.
+3. Ask for motion in every scene. A scene in which elements only fade in
+   gives the viewer nothing to follow while the narration explains.
+4. Label every visual that does not show real values, on screen, with a
+   short line such as "figures drawn for illustration".
+5. Open the page in a browser and step through the beats once by hand.
+
+The commands of the program's tool, run from its folder, are the
+following; the guide in the tool's folder describes the setup.
+
+```bash
+.venv/bin/python review.py stage videos/lfs-2025-q2.json
+.venv/bin/python record.py videos/lfs-2025-q2.json --voice af_heart --speed 1.1 --music
+```
+
+**Worked example.** The agent built eleven sections, `s1` to `s10` with `s2b`, matching
+the step script. The result scene (`s8`) shows four cards, each with the
+figure and the previous value from the release table and a small bar that
+grows from the previous value to the current one. The rate scene (`s6`)
+shows the two divisions in words (unemployed persons over the labour
+force, and the labour force over the population aged 15 and over) and
+the resulting 6.1 and 61.2 percent from the table. The agent's first
+version showed counts of unemployed persons in the division. The table
+has no such counts, and the team removed them.
+
+**What this does not do.** The recipe produces scenes that explain one
+topic. It does not make the page accessible as a web page in its own
+right; the stage page is an intermediate file, and the accessibility of
+the video is the subject of chapter 6.
+
+</Recipe>
+
+<Recipe title="4.2 Write the production guide that the agent follows" level="AI-ready" skills="Head of dissemination with the dissemination officer" time="Half a day, after the first video">
+
+**Result:** the organization has a written guide that an AI agent or a new
+member of staff can follow to make a video that looks and sounds like the
+previous ones.
+
+A production guide is the organization's standard for its videos. It is
+written once, from the first accepted video, and extended after each
+review. The program's guide is an example. It opens with the reference video and
+then sets out the files and tools, the process, the scene sequence, the
+visual and narration rules, the voice and music settings, and the review
+checklist. It ends with a history of the decisions that reviews
+produced. The program's second explainer was made by an agent
+from the guide alone. Its review found that it matched the reference, and
+the agent's list of gaps in the guide became new rules.
+
+1. Name the reference video and its files. The agent compares its work
+   with the reference.
+2. Write the theme as a table of tokens (colour, use) and the type sizes.
+   Forbid colours outside the table.
+3. Copy the scene sequence of chapter 2 and the narration rules of
+   chapter 3, with the organization's own examples.
+4. Fix the voice, the speed, and the loudness of chapter 5, and the
+   review checklist of chapter 6.
+5. Add a history table, one row per review finding and the change it
+   produced. A rule with its reason is followed more reliably than a rule
+   alone.
+
+**Worked example.** The team adapted the program's guide. It replaced the colour table with the organization's website colours,
+set the kicker on the title scene to "Labour statistics", and set the
+closing to show the address of the release page at `stats.example`. It
+also added a rule from the first review: a scene that explains a rate
+shows the rate from the table and no counts that the table does not
+give.
+
+**What this does not do.** The guide keeps videos alike. It does not
+replace the review; each video is still read on contact sheets and
+watched in full.
+
+</Recipe>
+
+<Recipe title="4.3 Review every beat on contact sheets before and after recording" level="Foundational" skills="Dissemination officer" time="An hour per review">
+
+**Result:** every beat of the stage has been read as an image before the
+recording, and every narration line of the video has been read as an
+image after it, and the faults found have been fixed.
+
+A contact sheet is one image that holds small frames of a sequence, here
+nine frames at half size. The program's tool makes two kinds. Before the recording, it plays the beats of the step script without
+narration and takes a screenshot after each. These sheets show layout
+faults, such as text that overlaps other text, an identifier wrapped in
+the middle, an element that runs off the frame, or a large empty area. After the recording, it takes a frame from the video shortly before the end of each narration line, which
+is what the viewer sees while the line is read. That sheet shows an
+animation that has not finished by the end of its line.
+
+1. Make the stage sheets and read every frame. Compare each value on
+   screen with the fact sheet.
+2. Fix the faults in the stage page, make the sheets again, and repeat
+   until a pass finds nothing.
+3. After the recording, make the video sheets and check that each
+   animation has finished by the end of its line. Give a step more time
+   (`min`) where it has not.
+
+**Worked example.** The first stage sheets of the release video showed two
+faults. In the result scene, the series code `LF_UNEMP_PCT_YOUTH` on the
+youth card wrapped after the second underscore. In the final beat of the
+classification scene, the right third of the frame was empty. The agent
+shortened the card label to the series name and moved the three groups
+apart to fill the frame. The video sheets after the recording showed that
+the bar of the employed persons card was still growing at the end of its
+line, and the team gave that step a minimum of five seconds.
+
+**What this does not do.** Contact sheets show the state at the end of
+each beat. They do not show motion that is too fast or a flash during a
+transition; the full viewing of chapter 6 does that.
+
+</Recipe>
+
+## Implementation options
+
+- **A web page recorded by a browser.** The program's tool uses Playwright with Chromium; Puppeteer or a screen recorder can record the same page.
+- **An animation library on the page.** The program's kit has its own small helpers; a team that prefers a library can use an open animation library inside the stage page.
+- **An animation program.** A team with an animator can build the scenes in an animation program and keep the step script and the narration rules of this guide.
+- **The organization's theme.** The tokens can come from the website's style sheet, as the program's kit takes them from the program site, or from the organization's brand guide.
+
+## World Bank examples
+
+- The program's [stage kit](https://github.com/worldbank/ai4data/tree/main/scripts/videos/stages/kit) and [reference stage](https://github.com/worldbank/ai4data/blob/main/scripts/videos/stages/pcn.html) for the Proof-Carrying Numbers explainer, with the motions listed in the guide's section 5.
+- The [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md) of recipe 4.2, including the rule that a visual that cannot be real carries the label "positions drawn for illustration" and the history of review decisions.
+- The tool's `review.py` makes the contact sheets of recipe 4.3 before and after the recording.
+
+## Resources
+
+- [Playwright](https://playwright.dev/): the browser automation library, released under the Apache 2.0 licence, that the program's tool uses to play and record the stage page.
+- [Program video tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos): the template, the kit, the recorder, and the review script for recipes 4.1 and 4.3.
+
+## Common mistakes
+
+- **A figure invented to fill a visual.** A count that the table does not give looks like data on screen and is read as data.
+- **An illustration without its label.** A group of figures of people is read as a count unless the frame says otherwise.
+- **A new design for every video.** Without a guide, each video looks like a different organization made it.
+- **Recording before the stage sheets are read.** A fault seen in the recording costs a full recording to fix.
+
+## Verification
+
+- **Value check.** Every value on the stage sheets matches a row of the fact sheet.
+- **Label check.** Every visual that does not show real values carries a label in the frame.
+- **Guide check.** A second video made by another person or agent from the guide alone matches the reference video in theme and sequence.
+
+## Checklist
+
+<Checklist id="explainer-videos-visuals" items={[
+  'Stage page in the organization\'s theme',
+  'One section per scene and motion in every scene',
+  'Every value on screen from the fact sheet',
+  'Illustrations labelled on screen',
+  'Production guide written and given to the agent',
+  'Stage sheets read before recording',
+  'Video sheets read after recording',
+]} />

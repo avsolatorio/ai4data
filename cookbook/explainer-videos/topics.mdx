@@ -1,0 +1,225 @@
+---
+id: topics
+title: "1. Topics suited to an explainer video"
+sidebar_label: "1. Topics"
+sidebar_position: 1
+description: How a dissemination team decides whether a topic needs an explainer video, which kind of video suits it, and when a page, a chart, or a table serves the reader better, with a topic list that records the decision.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Topics suited to an explainer video
+
+**Question:** When does an explainer video help, and when is a page, a chart, or a table enough?
+
+## Rationale
+
+A video costs more to make and to keep current than a page. It has to be
+remade when the figures or the method change, and a reader cannot search
+it, copy a figure from it, or read it at their own pace. A team that makes
+a video of every release spends its time on videos that a table would
+have served better, and it leaves outdated videos online.
+
+Some topics gain from a video. A calculation that proceeds in steps, a
+classification that sorts people or businesses into groups, or a method
+that turns one kind of data into another is easier to follow when the
+steps appear one after another with a voice that explains each. The
+recurring questions that a user service receives about a release are
+another sign: a question asked many times about what a figure means is a
+question about a concept, and a concept can be explained once.
+
+The decision is therefore made per topic, before any work starts, and it
+is recorded. The record lets the team see later which videos exist, which
+source each one depends on, and which ones need to be remade.
+
+## Target state
+
+- Each proposed video has passed a written test that says why a video serves the topic better than a page, a chart, or a table.
+- Each video is assigned to one of two kinds: a concept explainer or a walkthrough of a website feature.
+- The topics that stay as text, charts, or tables are recorded with the reason.
+- The team keeps a topic list with the source, the owner, and the status of each video.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Test the first topic against the conditions of recipe 1.1 and choose its kind with recipe 1.2. |
+| **AI-ready** | Keep the topic list of recipe 1.3, with the source and the owner of every video, and review it with the release calendar. |
+| **AI-native** | Link each entry of the topic list to the identifiers of its source datasets, so that a new release or a revision marks the videos that depend on it. |
+
+:::info[Running example]
+The dissemination team of the example organization considers three
+topics for its first video: the second-quarter 2025 Labour Force Survey
+release, the youth unemployment rate on its own, and the release calendar
+of the survey. The test of recipe 1.1 selects the release, because the
+definitions of employment and unemployment and the calculation of the
+rates proceed in steps. The youth rate stays as a chart on the release
+page, and the calendar stays as a table.
+:::
+
+## Recipes
+
+<Recipe title="1.1 Test a topic against the conditions for a video" level="Foundational" skills="Dissemination officer with the owner of the source" time="An hour per topic">
+
+**Result:** the team has a written decision for the topic: a video, or a
+page, a chart, or a table, with the reason in one or two sentences.
+
+An explainer video presents information in a fixed order and at a fixed
+pace. That suits content in which each step depends on the one before,
+and it suits readers who would not read a methodology note. It does not
+suit content that a reader wants to look up, compare, or copy, because a
+table or a chart shows all of it at once. The test below makes this
+judgement explicit, so that two people on the team reach the same
+decision for the same topic.
+
+1. Write the topic as one sentence that names what the reader will
+   understand after the video, for example "how the unemployment rate is
+   calculated from the survey".
+2. Check the four conditions. The topic has a sequence (steps, a
+   classification, or a calculation). It has a published source with a
+   named owner. Readers ask about it repeatedly, which the user service or
+   the search log of the website can show. The method or the definitions
+   change less often than the figures, so that the video stays valid
+   across several releases or can be remade with new figures.
+3. Choose a video when all four conditions hold. Choose a chart when the
+   point is a change over time or a comparison, a table when readers need
+   to look up values, and a page of text when the topic is a list of
+   facts without an order.
+4. Write the decision and the reason in the topic list of recipe 1.3.
+
+**Worked example.** The team wrote the release topic as "what the
+second-quarter 2025 Labour Force Survey release reports, and how its rates
+are defined". The topic has a sequence: the survey classifies each person,
+and the rates are calculated from the groups. Its source is the release
+table and the labour market report `EX-REP-2025-02`, owned by the labour
+statistics unit. The user service had received repeated questions about
+the difference between the unemployment rate and the share of adults
+without a job. The definitions follow the international standard and
+change rarely. All four conditions held, and the team chose a video. The
+youth rate on its own failed the first condition, because it is one
+figure with a previous value, and it stays as a chart.
+
+**What this does not do.** The test decides whether a topic suits a video.
+It does not estimate the audience or the cost. A team with a budget for
+only a few videos ranks the topics that pass the test by the number of
+questions the user service receives about each.
+
+</Recipe>
+
+<Recipe title="1.2 Choose the kind of video for the topic" level="Foundational" skills="Dissemination officer" time="Fifteen minutes per topic">
+
+**Result:** each video in the topic list is a concept explainer or a site
+walkthrough, and the choice determines how it will be built.
+
+The program's production guide distinguishes two kinds of video. A concept explainer explains a method or an idea step by step, with animated scenes of its own. A
+site walkthrough shows how to use a feature of a website, recorded from
+the live site with a pointer and captions. The two are built differently.
+A concept explainer needs a stage page with scenes (chapter 4), and a
+walkthrough needs a script of clicks and pages on the live site. In the
+program's practice, a walkthrough of a notebook page was tried for a
+method and rejected, because it showed the page without explaining the
+method.
+
+1. Choose a concept explainer when the reader needs to understand a
+   definition, a calculation, or a method.
+2. Choose a site walkthrough when the reader needs to find, filter, or
+   download something on the organization's website.
+3. Where a topic has both parts, make two short videos. A concept
+   explainer that also shows the website becomes long and dates quickly,
+   because the website changes more often than the method.
+
+**Worked example.** The release video is a concept explainer: it explains
+the classification of the population and the calculation of the rates.
+The team added a second entry to the topic list, a site walkthrough of how
+to download the release table from the organization's data portal, to be
+made after the portal's next redesign.
+
+**What this does not do.** The recipe covers two kinds of video. An
+interview, a recorded presentation, or a short clip for social media
+follows other practices, which this guide does not cover.
+
+</Recipe>
+
+<Recipe title="1.3 Keep a topic list with sources and owners" level="AI-ready" skills="Head of dissemination" time="An hour to set up, then minutes per video">
+
+**Result:** the team has one table that lists every proposed, made, and
+rejected video with its kind, its source, its owner, and its status.
+
+A topic list is the register of the organization's videos. It records the
+decision of recipe 1.1 for each topic, including the topics that stay as
+text or charts, and it records the source of each video by its
+identifier. The identifier lets the team find, at each new release, the
+videos whose figures the release changes. The list has one row per
+topic, with the following columns.
+
+| Column | Content |
+|---|---|
+| Topic | The sentence of recipe 1.1 step 1. |
+| Decision | Video, chart, table, or page, with the reason. |
+| Kind | Concept explainer or site walkthrough. |
+| Sources | Identifiers of the datasets and documents the video uses. |
+| Owner | The role that answers for the facts. |
+| Status | Proposed, in production, published, to be remade, or withdrawn. |
+
+1. Create the list in the format the team already uses for its release
+   calendar (a spreadsheet or a table in the content system).
+2. Add every topic tested with recipe 1.1, including the rejected ones,
+   so that the same topic is not proposed again without a new reason.
+3. At each release, read the list for videos whose sources include the
+   released dataset and mark them "to be remade" where the release changes a figure stated in the video (chapter 7).
+
+**Worked example.** The team's list has three rows after the first
+review.
+
+| Topic | Decision | Kind | Sources | Owner | Status |
+|---|---|---|---|---|---|
+| The second-quarter 2025 release and the definitions of its rates | Video: the definitions and the calculation proceed in steps | Concept explainer | `EX-LFS-2025-Q2`, `EX-REP-2025-02` | Labour statistics unit | In production |
+| The youth unemployment rate | Chart: one figure with a previous value | | `EX-LFS-2025-Q2` | Labour statistics unit | Published as a chart |
+| Downloading the release table from the data portal | Video | Site walkthrough | | Web team | Proposed |
+
+**What this does not do.** The list records sources by identifier. It does
+not detect a change in a source by itself; the release calendar and the
+catalogue record of chapter 7 are where a change becomes visible.
+
+</Recipe>
+
+## Implementation options
+
+- **A page with an embedded video.** The video is one element of the release page or the methodology page. The page keeps the table and the text, and the video explains the concept beside them.
+- **A series of short videos.** A method with several parts becomes several videos of three to five minutes each, so that each can be remade on its own.
+- **A walkthrough recorded from the live site.** The program's tool records a walkthrough with Playwright from a script of pages and clicks; the guide's section on site walkthroughs describes it.
+
+## World Bank examples
+
+- The program's [production guide for explainer videos](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md) defines the two kinds of video and records the decision to use concept explainers for methods.
+- The [Proof-Carrying Numbers](/docs/pcn/) explainer (4 min 40 s) and the explainer on preparing documents for retrieval (4 min 47 s) are concept explainers made with the [program's tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos). The tool also holds a site walkthrough of the document collection page (`videos/document-collection.json`).
+
+## Resources
+
+- [Release table](pathname:///cookbook-files/explainer-videos/release_table.csv): the four headline figures of the running example, used to test the topic.
+- [Program video tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos): the step scripts of the two concept explainers and of the walkthrough, which show what each kind of video contains.
+
+## Common mistakes
+
+- **A video for every release.** A video that repeats the figures of a table adds a file to remake each quarter and explains nothing that the table does not show.
+- **A concept explainer that tours the website.** The website changes more often than the method, and the video dates with the first redesign.
+- **A topic without an owner.** Nobody can check the facts of the video or say when it is out of date.
+- **Rejected topics left unrecorded.** The same topic returns at the next planning meeting without a new reason.
+
+## Verification
+
+- **Decision check.** For each video in the topic list, a second member of the team reads the topic sentence and the reason and reaches the same decision.
+- **Source check.** Every row of the topic list has at least one source identifier and an owner.
+- **Review check.** The topic list was read at the last release, and the status of each video reflects that release.
+
+## Checklist
+
+<Checklist id="explainer-videos-topics" items={[
+  'Topic written as one sentence',
+  'Four conditions checked and the decision recorded',
+  'Kind of video chosen',
+  'Topics that stay as text, charts, or tables recorded with the reason',
+  'Topic list with sources, owners, and status',
+  'Topic list read at each release',
+]} />

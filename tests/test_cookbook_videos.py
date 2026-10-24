@@ -104,7 +104,7 @@ def test_captions_out_of_order_and_header(scripts, capsys, tmp_path):
     out = capsys.readouterr().out
     assert "the file does not start with WEBVTT" in out
     assert "cue 2 (00:00:01.000): starts before the previous cue" in out
-    assert "not after it starts" in out
+    assert "at or before its start" in out
 
 
 def test_captions_rewrap_one_cue_per_step(scripts, capsys, tmp_path):

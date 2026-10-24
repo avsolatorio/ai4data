@@ -1,0 +1,248 @@
+---
+id: narration
+title: "3. Narration script"
+sidebar_label: "3. Narration"
+sidebar_position: 3
+description: How the narration of an explainer video is written as a step script, with one idea per sentence, figures written out in the form the voice reads, a length of three to five minutes, and a script that checks the figures, the spoken forms, the sentence length, and the estimated length.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Narration script
+
+**Question:** How is the narration written for the voice and the captions?
+
+## Rationale
+
+The narration of an explainer is heard once, at the speed of the voice. A
+listener cannot go back to the start of a long sentence, and a figure read
+in an unexpected form ("four thousand three hundred twelve thousand") is
+lost. The narration is therefore written for listening: one idea per
+sentence, short sentences, and figures written out in the words the voice
+will say. The same narration is shown as captions, so it is also written
+for reading, with figures in digits as the release table prints them.
+
+The program's tool handles the two forms with two fields per step. The
+field `say` holds the text of the caption, with figures in digits. The
+field `speak` holds the spoken form where it differs, with figures in
+words. Both are written from the fact sheet of chapter 2, so that the
+caption and the voice state the same facts. The captions are generated
+from `say`, which keeps the caption file in step with the narration.
+
+A narration drafted by an AI agent is fluent and sometimes wrong. It can
+carry a figure that is close to the one in the table, write a figure in
+digits in the spoken form, or join three ideas in one sentence. These are
+problems that a script can find, before the recording and before a person
+spends time listening.
+
+## Target state
+
+- The narration is a step script in which each step is one beat on screen with one or two sentences.
+- Every figure in the captions is in the release table, and every figure in the spoken form is written in words.
+- No sentence is longer than the word limit the organization has set.
+- The estimated length is between three and five minutes.
+- The narration check of recipe 3.3 passes before the video is recorded.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write the narration under the rules of recipe 3.1 with the spoken forms of recipe 3.2, and run the check of recipe 3.3 once before recording. |
+| **AI-ready** | Let the agent draft the narration from the fact sheet and the outline, and run the check on every draft. |
+| **AI-native** | Run the check on every change to the step script, together with the caption check of chapter 6, so that a draft that fails cannot be recorded. |
+
+:::info[Running example]
+The team's agent drafts the narration of the release video as
+[narration.json](pathname:///cookbook-files/explainer-videos/narration.json),
+a step script of 28 narrated steps. The draft has three problems, planted
+for the example: youth unemployment is given as 16.3 percent where the
+table gives 16.8, the spoken form of one step keeps the figure 61.2 in
+digits, and one sentence runs to 32 words. The check of recipe 3.3 finds
+all three.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Write the narration as a step script with one idea per sentence" level="Foundational" skills="Dissemination officer or writer" time="A day for a first video">
+
+**Result:** the narration exists as a step script in which each step is
+one change on screen and one or two sentences that describe it.
+
+A step script is a JSON file with one entry per beat. The program's tool
+reads it in order: it runs the instruction of the step in the stage page
+(for example `go(8,5)`, which shows beat 5 of scene 8), waits, reads the
+narration aloud, and moves on. Writing the narration step by step ties
+each sentence to what is on screen at that moment, which is the rule that
+the narration and the animation describe the same thing.
+
+| Field | Content |
+|---|---|
+| `do` | The kind of step: `goto` opens the stage page, `eval` runs an instruction in it. |
+| `js` | The instruction, `go(scene, beat)`. |
+| `say` | The caption text, with figures in digits. |
+| `speak` | The spoken form, where it differs from `say`. |
+| `settle`, `pause`, `min` | Seconds before the narration, after it, and the least time on the beat. |
+
+The rules below come from the program's production guide and the
+writing rules of the project.
+
+1. Write one idea per sentence, with a named subject and a verb, and at
+   most two sentences per step.
+2. Describe what is on screen as it appears. A sentence about a chart
+   that the viewer cannot yet see is lost.
+3. State only facts from the fact sheet. Say the status of a figure where
+   the source gives one.
+4. Avoid rhetorical questions, announcements of structure ("there are
+   three steps"), and closing slogans. A viewer hears them as filler.
+5. Read the whole narration aloud once before building anything.
+
+**Worked example.** One step of the running example reads as follows.
+
+```json
+{
+  "do": "eval",
+  "js": "go(8,5)",
+  "say": "The number of employed persons was 4,312 thousand, after 4,268 thousand in the first quarter.",
+  "speak": "The number of employed persons was four million, three hundred and twelve thousand, after four million, two hundred and sixty-eight thousand in the first quarter.",
+  "pause": 0.35
+}
+```
+
+The step shows the fifth beat of the result scene, the employed persons
+card, and the sentence names the figure on the card, its unit, and its
+previous value.
+
+**What this does not do.** The rules make the narration easy to follow.
+They do not make it correct; the figures are checked by recipe 3.3 and by
+the review of chapter 6.
+
+</Recipe>
+
+<Recipe title="3.2 Write every figure in its spoken form" level="Foundational" skills="Dissemination officer or writer" time="An hour per video">
+
+**Result:** every step whose caption contains a figure, a year, or an
+abbreviation read as letters has a `speak` field with that text written
+out in words.
+
+A text-to-speech model decides by itself how to read "6.1", "2025", or
+"4,312 thousand", and its choice can differ between versions of the model
+or between languages. Writing the spoken form removes the choice. The
+spoken form also lets the team say a figure in the way the organization
+says it in a briefing, for example "four million, three hundred and
+twelve thousand" for 4,312 thousand persons.
+
+1. Write decimals digit by digit after the point: "six point one percent".
+2. Write years as they are said: "twenty twenty-five".
+3. Write large figures with their unit in the form used in speech: 4,312
+   thousand becomes "four million, three hundred and twelve thousand".
+4. Space out abbreviations that are read as letters ("P C N") and write
+   addresses as they are said ("stats dot example").
+5. Keep the words of `speak` in the same order as those of `say`, so
+   that the caption and the voice can be compared line by line.
+
+**Worked example.** The step on participation in the agent's draft reads
+`"speak": "Labour force participation rose to 61.2 percent, after sixty
+point nine percent."`. The first figure is still in digits, and the voice
+would read it as the model chooses. The team corrected it to "sixty-one
+point two percent".
+
+**What this does not do.** The recipe covers English. A narration in
+another language follows that language's spoken forms for figures and
+dates, and a speaker of the language reviews them.
+
+</Recipe>
+
+<Recipe title="3.3 Check the figures, the spoken forms, and the length by script" level="Foundational" skills="Dissemination officer" time="A minute per run">
+
+**Result:** the narration has passed the narration check. Every figure in
+the captions is in the release table, no figure is left in digits for the
+voice, no sentence exceeds the word limit, and the estimated length is
+between three and five minutes.
+
+The script `check_narration.py` reads the step script and the release
+table. It extracts each figure from the `say` fields, leaving out
+reference periods, years, and ages, and looks it up among the values and
+the previous values of the table. It flags digits in a `speak` field, and
+a `say` with digits that has no `speak`. It splits each `say` into
+sentences and flags those over the limit, 25 words by default, which is
+the organization's choice. It estimates the length from the spoken words.
+The default rate is 3.1 words per second plus one second per step for the
+settle and the pause. These are the values of the program's voice: on the
+program's two explainers the estimate gives 4 min 40 s and 4 min 43 s,
+and the recorded videos last 4 min 40 s and 4 min 47 s.
+
+1. Run the script on the step script and the release table.
+2. For each figure not in the table, find the row of the fact sheet and
+   correct the figure, or remove the sentence.
+3. Write out the digits that the script finds in `speak`, and split the
+   long sentences.
+4. Run the script again until it passes, then record.
+
+```bash
+python check_narration.py narration.json release_table.csv
+```
+
+```text
+narration.json: 28 narrated steps, 555 spoken words
+estimated length: 3 min 27 s at 3.1 words per second and 1.0 s per step (target 3 min 00 s to 5 min 00 s)
+figures in say: 11; 10 in the table, 1 not
+problem: step 23, go(8,3): 16.3 is not a value or a previous value in release_table.csv
+problem: step 24, go(8,4): speak keeps the digits 61.2
+problem: step 27, go(9,2): sentence of 32 words (limit 25)
+result: FAIL
+```
+
+**Worked example.** The draft gave youth unemployment as 16.3 percent,
+and the table gives 16.8; the agent had changed one digit. The team corrected the caption and the spoken form ("sixteen point
+eight") and wrote out 61.2 in step 24. It split the sentence of step 27
+into two: one on the comparisons that need the same definitions and
+population, and one on the methodology note that describes them. The second run passed, with eleven
+figures found in the table.
+
+**What this does not do.** The script checks that each figure is in the
+table. It does not check that the figure is attached to the right series,
+that the spoken words state the same figure as the caption, or that a
+provisional figure is called provisional. The review of chapter 6 checks
+those, by reading against the fact sheet and by listening.
+
+</Recipe>
+
+## Implementation options
+
+- **The program's step script format.** JSON with `say` and `speak`, as in the [program's tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos); the captions are generated from `say`.
+- **Speech Synthesis Markup Language (SSML).** A W3C markup for text-to-speech in which numbers, dates, and pauses can be tagged; some voices support it. The `speak` field does the same work in plain text for a voice that does not.
+- **A narration in a document.** A team without the tool writes the narration in a two-column table (caption, spoken form) and records it line by line, with the same checks run on an export of the table.
+
+## World Bank examples
+
+- The program's [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md), section 6, sets the narration rules and the spoken forms, and records the measured rate of 3.1 words per second.
+- The step scripts of the [Proof-Carrying Numbers explainer](https://github.com/worldbank/ai4data/blob/main/scripts/videos/videos/pcn-explainer.json) and the [explainer on preparing documents for retrieval](https://github.com/worldbank/ai4data/blob/main/scripts/videos/videos/preparing-knowledge.json) show `say` and `speak` for decimals, years, and abbreviations.
+
+## Resources
+
+- [narration.json](pathname:///cookbook-files/explainer-videos/narration.json), [release_table.csv](pathname:///cookbook-files/explainer-videos/release_table.csv), and [check_narration.py](pathname:///cookbook-files/explainer-videos/check_narration.py): the step script with three planted problems, the source table, and the check.
+- [Speech Synthesis Markup Language 1.1](https://www.w3.org/TR/speech-synthesis11/): the W3C markup for spoken forms, for a voice that supports it.
+
+## Common mistakes
+
+- **A figure close to the right one.** A changed digit reads naturally and is found only by comparison with the table.
+- **Digits left for the voice.** The voice reads "61.2" in a form the team did not choose, and a later version of the model may read it differently.
+- **Three ideas in one sentence.** The listener loses the first by the time the third arrives.
+- **A narration that describes the next scene.** The viewer hears about a chart before it appears and cannot connect the two.
+
+## Verification
+
+- **Script check.** The narration check passes on the final step script.
+- **Reading check.** A person who did not write the narration reads it aloud at the speed of the voice and stops at no sentence.
+- **Length check.** The estimated length is between three and five minutes, and the recorded video in chapter 6 is within twenty seconds of the estimate.
+
+## Checklist
+
+<Checklist id="explainer-videos-narration" items={[
+  'Narration written as a step script from the fact sheet',
+  'One idea per sentence, at most two sentences per step',
+  'Spoken form written for every figure, year, and abbreviation',
+  'Narration check passed',
+  'Narration read aloud once by a second person',
+]} />

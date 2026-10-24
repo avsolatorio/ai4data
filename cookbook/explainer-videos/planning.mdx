@@ -1,0 +1,244 @@
+---
+id: planning
+title: "2. Facts and the scene outline"
+sidebar_label: "2. Planning"
+sidebar_position: 2
+description: How an explainer video is planned from its source, with a fact sheet that gives the source of every fact the video will state, a scene outline in a fixed order, and a review of both by the owner of the source.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Facts and the scene outline
+
+**Question:** How is a video planned from its source?
+
+## Rationale
+
+An explainer video states facts in the organization's name, in the
+organization's voice, to readers who will not check them. Every figure,
+definition, and date in it has to come from a published source, and the
+team has to be able to show which source. When an AI agent drafts the
+narration, this requirement becomes more pressing: a language model writes
+fluent sentences about labour statistics from its training data, and a
+figure or a definition from that memory can differ from the
+organization's own. The fact sheet is the list of what the video may
+state, and the agent works from it.
+
+The order of the scenes is the second decision. A viewer follows a video
+in one pass, so the video has to set out the context before the problem
+and the problem before the method. The program's explainers use one
+sequence of scenes for every topic, which makes each video easier to
+plan, and which lets a viewer who has seen one video find the parts of
+the next. The outline is the plan of that sequence for one topic, one
+line per scene.
+
+## Target state
+
+- Every fact the video will state is in a fact sheet with its source and the place in the source.
+- The scene outline follows the standard sequence, with one line per scene saying what is shown and what the narration says.
+- The owner of the source has read the fact sheet and the outline before any narration is written.
+- The AI agent that drafts the narration receives the fact sheet as its only source of figures.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write the fact sheet of recipe 2.1 and the outline of recipe 2.2 by hand, and have the owner of the source read the two documents. |
+| **AI-ready** | Let the agent draft the fact sheet from the source documents with recipe 2.3, check each row against the source, and keep the fact sheet with the video's files. |
+| **AI-native** | Generate the figure rows of the fact sheet from the release table or the data API, so that a revision of the source updates the fact sheet. |
+
+:::info[Running example]
+The team writes a fact sheet of eleven rows for the release video: the
+four headline figures with their previous values, the provisional status
+of the unemployment rate, and the definitions of employment, unemployment,
+the labour force, and the two rates. The figures come from
+[release_table.csv](pathname:///cookbook-files/explainer-videos/release_table.csv),
+and the definitions from the methodology of the survey, which follows the
+international standard. The outline has eleven scenes in the standard order,
+and the head of the labour statistics unit reads both before the
+narration is written.
+:::
+
+## Recipes
+
+<Recipe title="2.1 Write a fact sheet with a source for every fact" level="Foundational" skills="Dissemination officer" time="Two to three hours">
+
+**Result:** the team has a table of every figure, definition, date, and
+claim the video will state, each with its source, the place in the
+source, and the person who checked it.
+
+A fact sheet separates the research from the writing. The person who
+writes it reads the source documents once, with care, and records each
+fact that the video may use. The narration of chapter 3 then uses only
+facts from the sheet, and the review of chapter 6 checks the narration
+against the sheet and the sheet against the source. Figures come from the
+values recorded in the published source. Where a figure has to be
+recalculated, the calculation is run in an environment built from the
+source's own requirements and the result is recorded with the calculation.
+
+| Column | Content |
+|---|---|
+| Fact | The statement as the video will make it, in a full sentence. |
+| Value | The figure, with its unit and reference period, where the fact has one. |
+| Source | The identifier of the dataset or document. |
+| Place | The table row, the paragraph, or the page where the fact appears. |
+| Checked by | The role of the person who compared the row with the source. |
+
+1. List the sources: the release table, the report, and the methodology
+   note. Use the published versions, because the video will be compared
+   with them.
+2. Write one row per fact. A definition is a fact; write it in the words
+   of the methodology and note the paragraph.
+3. Mark the status of each figure where the source gives one (provisional,
+   revised, final), because the narration has to say it.
+4. Leave out any fact that has no source. A fact that the team believes
+   but cannot cite does not go into the video.
+
+**Worked example.** Four rows of the team's fact sheet read as follows.
+
+| Fact | Value | Source | Place | Checked by |
+|---|---|---|---|---|
+| The unemployment rate in the second quarter of 2025 was 6.1 percent, after 6.3 percent in the first quarter. | 6.1; 6.3 | `EX-LFS-2025-Q2` release table | Row `LF_UNEMP_PCT` | Dissemination officer |
+| The second-quarter unemployment rate is provisional. | P | `EX-LFS-2025-Q2` release table | Column `status` | Dissemination officer |
+| Youth unemployment, for people aged 15 to 24, was 16.8 percent, after 17.5 percent. | 16.8; 17.5 | `EX-LFS-2025-Q2` release table | Row `LF_UNEMP_PCT_YOUTH` | Dissemination officer |
+| A person counts as unemployed when without work, having looked for work in the last four weeks, and able to start now. | | Survey methodology, after the ILO resolution | Paragraph 47 of the resolution | Labour statistics unit |
+
+**What this does not do.** The fact sheet records what the sources say.
+It does not decide which facts the video needs; the outline of recipe 2.2
+does that, and facts the outline does not use stay on the sheet for a
+later video.
+
+</Recipe>
+
+<Recipe title="2.2 Write the scene outline in the standard order" level="Foundational" skills="Dissemination officer" time="Two hours">
+
+**Result:** the team has an outline of the video as a list of scenes in
+the standard order, one line per scene, with the facts from the sheet
+that each scene uses.
+
+A scene is one screen of the video with its own heading, for example the
+definition of unemployment. A scene has one or more beats: each beat is
+one change on screen with one or two sentences of narration. The standard
+order below comes from the program's production guide, where it was set
+by review of the first explainer and followed by the second. A data release fits the same order as a method. The context is the
+survey and the release, and the problem is the misreading of a figure.
+The method steps are the definitions and the calculation, and the result
+is the release as a user reads it.
+
+| Scene | Purpose |
+|---|---|
+| Title | Name the topic and say in one sentence what the video explains. |
+| Context | Show where the topic sits, as a flow of a few elements. |
+| Context example | Show one concrete case, animated. |
+| The problem | Show what goes wrong without the method or the definition. |
+| Method steps | One scene per step, starting from the inputs. |
+| The result for the user | Show what a user sees when the method is applied. |
+| Scope and the human judgement | Say what the method or the figures cover, what remains a judgement, and who makes it. |
+| Closing | Give the addresses of the sources, and the disclosure of a synthetic voice. |
+
+1. Write one line per scene: the heading, what appears and moves on
+   screen, and the rows of the fact sheet it uses.
+2. Keep the method steps to the number the method has. A release with a
+   classification, a calculation, and a status has three or four steps;
+   do not add steps to fill time.
+3. End the argument on the human role. A video that explains a figure
+   also says what the figure does not say and who interprets it.
+4. Estimate the length: three to five minutes holds about eight to twelve
+   scenes at two to four beats each.
+
+**Worked example.** The team's outline has eleven scenes, which the step
+script of chapter 3 numbers as the program's stages do.
+
+- `s1`, title: the name of the release and one sentence on the content of the video.
+- `s2`, context: the survey and the release as a flow from households to the release table.
+- `s2b`, context example: a journalist reads the release and looks for the unemployment rate.
+- `s3`, the problem: three misreadings of the 6.1 percent.
+- `s4` to `s7`, method steps: the classification into employed, unemployed, and outside the labour force; the definition of unemployment; the two rates as divisions; provisional figures.
+- `s8`, the result for the user: the four headline figures.
+- `s9`, scope and the human judgement: what the release covers and the role of the analysts.
+- `s10`, closing: the address of the release and the disclosure of the synthetic voice.
+
+**What this does not do.** The outline fixes the order and the content of
+the scenes. It does not fix their design; the stage page of chapter 4
+does that, under the organization's production guide.
+
+</Recipe>
+
+<Recipe title="2.3 Draft the fact sheet with an AI agent and check each row" level="AI-ready" skills="Dissemination officer with an AI agent" time="An hour, plus the check">
+
+**Result:** the agent has drafted the fact sheet from the source files,
+and a person has compared every row with the source and corrected or
+removed the rows that do not match.
+
+An AI agent with access to the source files can read a release table and
+a methodology note faster than a person and write the rows of the fact
+sheet with their places. The agent can also misread a table, take a
+previous value for a current one, or supply a definition from its
+training data. The person's check is therefore part of the recipe, and
+the agent's draft is never used before it.
+
+1. Give the agent the source files and the column table of recipe 2.1,
+   with the instruction to write only facts that appear in the files and
+   to give the place of each.
+2. Check every row against the source: the value, the period, the status,
+   and the place. Mark the row with the role of the person who checked it.
+3. Remove rows whose place cannot be found. Record a pattern of errors
+   (for example previous values taken as current) in the production guide
+   of chapter 4, so that the instruction can be improved.
+
+**Worked example.** The agent drafted twelve rows from the release table
+and the methodology note. The dissemination officer found two problems.
+One row gave the participation rate as 60.9 percent for the second
+quarter, which is the first-quarter value in the column
+`previous_value`. A second row defined the labour force participation rate
+with an age limit of 15 to 64, which is not in the organization's
+methodology; the release table gives the rate for the population aged 15
+and over. The officer corrected the first row and removed the second, and
+the sheet went to the owner with eleven rows checked.
+
+**What this does not do.** The check compares the rows with the source
+files that the agent read. A fact that the agent left out is found only
+when the person reads the source against the outline.
+
+</Recipe>
+
+## Implementation options
+
+- **Fact sheet format.** A spreadsheet, a table in the content system, or a CSV file kept with the video's files. A CSV file can be read by a script that checks the narration against it, as the release table is read in chapter 3.
+- **Sources for the figures.** The published release table, the organization's data API, or the saved output of a notebook. The program's guide prefers values recorded in the source to values computed again.
+- **Outline as a document or as the first draft of the step script.** A short team can write the outline directly as the list of scenes in the step script of chapter 3, with one placeholder line per beat.
+
+## World Bank examples
+
+- The program's [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md) sets the scene sequence of recipe 2.2 (section 4) and the rule to study the source and record each fact with its origin before writing (section 3).
+- The [Proof-Carrying Numbers explainer](https://github.com/worldbank/ai4data/blob/main/scripts/videos/videos/pcn-explainer.json) uses internet use in Kenya and Rwanda from World Development Indicators with the values that the method's notebook returns, as the guide records.
+
+## Resources
+
+- [Resolution concerning statistics of work, employment and labour underutilization](https://www.ilo.org/sites/default/files/wcmsp5/groups/public/@dgreports/@stat/documents/normativeinstrument/wcms_230304.pdf): the ILO standard, as amended by the 21st International Conference of Labour Statisticians in 2023, whose paragraphs 27 and 47 define employment and unemployment for the fact sheet.
+- [Release table](pathname:///cookbook-files/explainer-videos/release_table.csv): the source of the figure rows of the running example's fact sheet.
+
+## Common mistakes
+
+- **Facts from memory.** A definition that the team or the agent knows without a source can differ from the organization's methodology, as the age limit of 15 to 64 did in the running example.
+- **A previous value taken as the current value.** A release table puts the two side by side, and an agent or a tired reader takes the wrong column.
+- **The status left out.** A provisional figure stated without the word "provisional" is quoted as final.
+- **Method steps added for length.** A step that the method does not have confuses the viewer about the method.
+
+## Verification
+
+- **Source check.** A second person picks three rows of the fact sheet at random and finds each fact at its place in the source.
+- **Coverage check.** Every fact that the outline uses has a row in the fact sheet.
+- **Owner check.** The owner of the source has read the fact sheet and the outline and recorded the date of the reading.
+
+## Checklist
+
+<Checklist id="explainer-videos-planning" items={[
+  'Sources listed in their published versions',
+  'One row per fact, with the source and the place',
+  'Status of each figure recorded',
+  'Outline in the standard order of scenes',
+  'Human role stated in the scope scene',
+  'Fact sheet and outline read by the owner of the source',
+]} />

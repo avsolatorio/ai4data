@@ -1,0 +1,98 @@
+---
+id: start-here
+title: Self-assessment
+sidebar_label: Self-assessment
+sidebar_position: 1
+description: A five-minute self-assessment that places a team's practice with explainer videos at a maturity level in each chapter and suggests a reading order.
+---
+
+import SelfAssessment from '@site/src/components/Cookbook/SelfAssessment';
+
+# Self-assessment
+
+Select the statement that best describes the team today, one per chapter.
+The result shows a level for each chapter and the chapters to read first.
+Answers are stored in this browser only.
+
+<SelfAssessment
+  base="/cookbook/explainer-videos/"
+  questions={[
+    {
+      id: 'topics',
+      title: '1. Topics',
+      question: 'How are topics for videos chosen?',
+      options: [
+        'Videos are made when someone asks for one; no test is applied.',
+        'Each topic is tested against the conditions for a video, and its kind is chosen.',
+        'A topic list records every proposed, made, and rejected video with its sources and owner, and it is read at each release.',
+        'The topic list is linked to the source identifiers, and a release marks the videos that depend on it.',
+      ],
+    },
+    {
+      id: 'planning',
+      title: '2. Planning',
+      question: 'How is a video planned?',
+      options: [
+        'The script is written directly, from what the writer knows.',
+        'A fact sheet gives the source of every fact, the outline follows the standard order, and the owner of the source reads them.',
+        'An AI agent drafts the fact sheet from the sources, and a person checks every row against them.',
+        'The figure rows of the fact sheet are generated from the release table or the data API.',
+      ],
+    },
+    {
+      id: 'narration',
+      title: '3. Narration',
+      question: 'How is the narration written and checked?',
+      options: [
+        'The narration is written as prose and read as it stands.',
+        'The narration is a step script with spoken forms, and the narration check is run before recording.',
+        'An agent drafts the narration from the fact sheet, and the check runs on every draft.',
+        'The check runs on every change to the step script, and a failing draft cannot be recorded.',
+      ],
+    },
+    {
+      id: 'visuals',
+      title: '4. Visuals',
+      question: 'How are the scenes built?',
+      options: [
+        'Each video is designed afresh, and values on screen are not compared with the source.',
+        'The scenes are a stage page in the organization\'s theme with real values and labelled illustrations, reviewed on contact sheets.',
+        'A written production guide is given to the agent at the start of every video.',
+        'The theme, the kit, and the guide are in version control with the history of review decisions.',
+      ],
+    },
+    {
+      id: 'voice',
+      title: '5. Voice',
+      question: 'How is the narration voiced?',
+      options: [
+        'Whatever voice is at hand, without a check of its licence or a disclosure.',
+        'An open model with a confirmed licence, a fixed voice and loudness, and a disclosure in the video.',
+        'The model, the voice, the speed, and the loudness target are in the guide, and every video is measured.',
+        'The disclosure, the source type in the record, and the loudness measurement come from the recording run.',
+      ],
+    },
+    {
+      id: 'review',
+      title: '6. Review',
+      question: 'How is a video reviewed before publication?',
+      options: [
+        'The author watches it once.',
+        'Figures are checked by a person and by script, the video is watched with and without sound, the captions pass the check, and a named person signs it off.',
+        'The sign-off record with checksums is kept with the files, and the checks run on every version.',
+        'The checks run automatically on every change, and publication waits for them and the sign-off.',
+      ],
+    },
+    {
+      id: 'publishing',
+      title: '7. Publishing',
+      question: 'How are videos published and kept current?',
+      options: [
+        'Videos are uploaded to a platform channel and left there.',
+        'Videos are hosted with captions and embedded on the pages that discuss their topic.',
+        'Each video has a catalogue record with its sources, and each release is checked against the videos.',
+        'The record is generated at each recording, and the release process lists the affected videos.',
+      ],
+    },
+  ]}
+/>

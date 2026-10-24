@@ -1,0 +1,158 @@
+---
+id: index
+title: Practical Guide to Explainer Videos Made with AI
+sidebar_label: Overview
+sidebar_position: 0
+description: A cookbook for dissemination and communication teams in national statistical organizations on short narrated, animated videos that explain a method, an indicator, or a data release, drafted with an AI agent and checked and signed off by people.
+---
+
+# Practical Guide to Explainer Videos Made with AI
+
+**A cookbook for dissemination and communication teams in national statistical organizations.** Version 0.1 (working draft), October 2026.
+
+:::note[Working draft]
+This guide is a working draft from the AI for Data – Data for AI program. It
+collects practical approaches and open standards. It does not
+represent official World Bank Group guidance or policy and is not legal
+advice; an organization applies it under its own statistical law, data
+protection rules, and institutional policies.
+Comments and corrections are welcome as
+[GitHub issues](https://github.com/worldbank/ai4data/issues), and the
+[contributing](./contributing.md) page explains how to propose a recipe.
+:::
+
+A statistical organization explains its methods, indicators, and releases
+in methodology notes, release pages, and press briefings. A short
+narrated video can reach readers who do not open those documents, and it
+can show a calculation step by step in a way that a paragraph cannot.
+A video made in a studio needs a script writer, an animator, a narrator,
+and recording time, which a dissemination team does not always have. This guide
+describes a way of producing explainer videos with a small team. An AI
+agent drafts the narration and builds the animated scenes as a web page,
+a synthetic voice reads the narration, and a browser records the page.
+People in the organization collect the facts, check every figure, review
+the result, and sign it off.
+
+The guide is organized around seven questions that a dissemination team
+asks: which topics suit a video, how a video is planned from its source,
+how the narration is written, how the visuals are built, which voice reads
+the narration, how the video is reviewed and made accessible, and how it
+is published and kept current. Each chapter answers one question with
+recipes, and the scripts of the guide check the parts of the work that a
+script can check: the figures in the narration, the length, the caption
+file, and the catalogue record.
+
+The recipes build on published standards. The Web Content Accessibility
+Guidelines (WCAG) 2.2 set the requirements for captions, audio
+description, and media alternatives. The W3C WebVTT format carries the
+captions, and the schema.org VideoObject type describes the video in a
+catalogue. Subtitle guidelines of a public broadcaster set the limits for
+caption lines and reading speed. The [standards page](./standards.md)
+lists each source and the chapters that use it. The production practice
+follows the program's own explainer videos and the
+[video tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos)
+with which they were made.
+
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A published source for each video: a release table, a methodology note, or a documentation page, with a named owner who can answer questions about it.
+- A dissemination team with one person who writes the narration and one who reviews it, and access to an AI agent that can write and run code on a workstation (a coding assistant with file and terminal access).
+- A workstation where a browser, a text-to-speech model, and the video tool `ffmpeg` can be installed without administrator rights, as the program's tool requires.
+- At the AI-ready level, a written production guide for the organization's videos and a catalogue in which each video has a record. At the AI-native level, the checks of this guide run as part of the production, and the catalogue record is generated from the same files as the video.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Choose one topic with the test of [chapter 1](./topics.mdx), for example the latest labour force release. This takes an hour.
+2. Write the fact sheet and the scene outline of [chapter 2](./planning.mdx) from the release table and the methodology note. This takes half a day.
+3. Write the narration and run the check of [chapter 3](./narration.mdx). This takes a day for a first video.
+4. Build, record, and review the video with [chapters 4](./visuals.mdx), [5](./voice.mdx), and [6](./review.mdx). This takes two to three days for a first video.
+
+After the first video, the production guide of chapter 4 and the catalogue record of [chapter 7](./publishing.mdx) let the team make the next videos in the same form.
+
+## Self-assessment
+
+The [self-assessment](./start-here.mdx) takes about five minutes and places
+a team's practice with explainer videos at a level in each chapter.
+
+## Chapters and questions
+
+| Chapter | Question | Practical topics |
+|---|---|---|
+| [1. Topics suited to an explainer video](./topics.mdx) | When does an explainer video help, and when is a page, a chart, or a table enough? | Concept explainers, site walkthroughs, topics that stay as text or charts, topic list |
+| [2. Facts and the scene outline](./planning.mdx) | How is a video planned from its source? | Fact sheet with sources, scene sequence, outline review by the owner of the source |
+| [3. Narration script](./narration.mdx) | How is the narration written for the voice and the captions? | One idea per sentence, spoken forms of figures, length at 3.1 words per second, narration check |
+| [4. Animated scenes built with an AI agent](./visuals.mdx) | How are the visuals built, and how are they kept consistent across videos? | Stage page in the organization's theme, real values, illustration labels, production guide, contact sheets |
+| [5. Narration voice](./voice.mdx) | Which voice reads the narration, and how is it set? | Open text-to-speech model and its licence, fixed voice and speed, loudness, disclosure, recorded voice-over |
+| [6. Review and accessibility](./review.mdx) | How is a video checked and made accessible before it is published? | Figure check, watching and listening, captions and transcript, caption check, sign-off |
+| [7. Publishing and upkeep](./publishing.mdx) | How is a video published, catalogued, and kept current? | Hosting, embedding on topic pages, VideoObject record, remaking after a data change |
+
+## Maturity levels
+
+Each chapter describes three levels. An organization can sit at different
+levels in different chapters, and the first level is a complete, useful
+state on its own.
+
+| Level | Meaning |
+|---|---|
+| **Foundational** | The organization has made one explainer video from a fact sheet, with captions, a transcript, a disclosure of the synthetic voice, and a named sign-off. |
+| **AI-ready** | Videos follow a written production guide, the narration and caption checks run on every video, and each video has a catalogue record linked to its sources. |
+| **AI-native** | The step script, the stage page, the captions, and the catalogue record come from one set of files, the checks run on every change, and a change in the source data marks the videos that need to be remade. |
+
+## Running example
+
+The example organization of this series, the National Statistics Office
+(example), makes an explainer video of its Labour Force Survey release for
+the second quarter of 2025 (survey round `EX-LFS-2025-Q2`, report
+`EX-REP-2025-02`). The release table gives four headline figures: the
+unemployment rate of 6.1 percent after 6.3 percent, which is provisional;
+youth unemployment of 16.8 percent after 17.5 percent; labour force
+participation of 61.2 percent after 60.9 percent; and 4,312 thousand
+employed persons after 4,268 thousand. The guide follows the team from the
+choice of the topic to the published video and its catalogue record. The
+figures are those of the shared example of this series. The narration,
+the captions, and the addresses under `stats.example` are invented for
+the example.
+
+## Scope of the examples
+
+The examples are small on purpose: one release table, one narration
+script of 28 steps, one caption file, and one video card, so that a reader
+can run the checks in an hour and see what each one finds. They are
+starting points. Each recipe ends with a **What this does not do** note
+that says where the example stops and what the full version adds. The
+scripts compare figures, count words and characters, and fill a record.
+The decisions on the topic, the wording, the visuals, and the sign-off are
+made by people.
+
+## Files
+
+| File | Used in |
+|---|---|
+| [release_table.csv](pathname:///cookbook-files/explainer-videos/release_table.csv) | Chapters 2, 3, and 6: the source table of the running example |
+| [narration.json](pathname:///cookbook-files/explainer-videos/narration.json) and [check_narration.py](pathname:///cookbook-files/explainer-videos/check_narration.py) | Chapters 3 and 6: the step script with three planted problems and the narration check |
+| [captions.vtt](pathname:///cookbook-files/explainer-videos/captions.vtt) and [check_captions.py](pathname:///cookbook-files/explainer-videos/check_captions.py) | Chapter 6: the caption file with two planted problems and the caption check |
+| [video_card.json](pathname:///cookbook-files/explainer-videos/video_card.json) and [video_record.py](pathname:///cookbook-files/explainer-videos/video_record.py) | Chapter 7: the video card and the script that writes the catalogue record |
+
+## Related resources
+
+| Resource | Purpose |
+|---|---|
+| This guide | What an organization can do, and why, in a sequence of practical steps. |
+| [Video tool and production guide](https://github.com/worldbank/ai4data/tree/main/scripts/videos) | The program's recorder, stage kit, and guide for its own explainer videos. |
+| [AI-Ready Data Dissemination](/cookbook/ai-ready-dissemination/) | The release pages and catalogue records on which a video is embedded and described. |
+| [Small and Open Models](/cookbook/small-and-open-models/) | The choice of an open model and the reading of its licence, which apply to a text-to-speech model. |
+| [Documentation](/docs/introduction) | How each program method and tool works. |
+| [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |
+
+## Citation
+
+World Bank. 2026. *Practical Guide to Explainer Videos Made with AI.* Version 0.1. AI for Data – Data for AI.
+https://worldbank.github.io/ai4data/cookbook/explainer-videos/
+
+## Version history
+
+- **0.1 (October 2026).** First draft.

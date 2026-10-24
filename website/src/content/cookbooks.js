@@ -158,6 +158,17 @@ export const allCookbooks = [
     chapters: 6,
     to: '/cookbook/ai-assistants-at-work/',
   },
+  {
+    id: 'explainer-videos',
+    version: '0.1',
+    date: 'October 2026',
+    audience: 'Dissemination and communication teams in national statistical organizations',
+    title: 'Practical Guide to Explainer Videos Made with AI',
+    description:
+      'A cookbook for dissemination and communication teams in national statistical organizations on short narrated, animated videos that explain a method, an indicator, or a data release, drafted with an AI agent and checked and signed off by people.',
+    chapters: 7,
+    to: '/cookbook/explainer-videos/',
+  },
 ];
 
 export const cookbooks = allCookbooks.filter((c) => !isHiddenCookbook(c.id));

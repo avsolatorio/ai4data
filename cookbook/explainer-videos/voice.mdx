@@ -1,0 +1,234 @@
+---
+id: voice
+title: "5. Narration voice"
+sidebar_label: "5. Voice"
+sidebar_position: 5
+description: How the narration of an explainer video is read, with an open text-to-speech model whose licence allows the use, one voice and speed for the whole series, loudness normalization to a fixed target, a disclosure that the narration is synthetic, and a recorded voice-over by a member of staff as an option.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 5. Narration voice
+
+**Question:** Which voice reads the narration, and how is it set?
+
+## Rationale
+
+The narration needs a voice that is clear, that stays the same from one
+video to the next, and that the organization can produce whenever a video
+is made or remade. A professional narrator meets the first condition and
+not always the other two: each remake needs a new session, and the voice
+changes when the narrator does. A member of staff can record the
+narration where there is a speaker who reads well and a quiet room, and
+the organization then depends on that person for every remake.
+
+A synthetic voice from an open text-to-speech model meets all three
+conditions for an organization without recording resources. A
+text-to-speech model turns written text into speech. An open model runs
+on the organization's own workstation, so the narration of an embargoed
+release does not leave the organization before the release. The same
+model, voice, and speed produce the same voice for every video, and a
+remake after a revision takes minutes. The program's videos use Kokoro, an
+open model with 82 million parameters released under the Apache 2.0
+licence.
+
+A synthetic voice also brings two duties. The licence of the model has to
+allow the organization's use, and the viewer has to be told that the
+voice is synthetic. A viewer who learns later that a voice presented as a
+person's was generated has reason to doubt the rest of the video.
+
+## Target state
+
+- The narration is read by an open text-to-speech model whose licence allows the organization's use, or by a member of staff with the same script.
+- The voice, the speed, and the loudness target are fixed in the production guide and are the same in every video of the series.
+- The loudness of every video has been measured and is at the target.
+- Every video with a synthetic voice says so in the narration, on the web page, and in its catalogue record.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Choose the model and read its licence with recipe 5.1, set the voice and the loudness with recipe 5.2, and add the disclosure of recipe 5.3. |
+| **AI-ready** | Record the model, its version, the voice, the speed, and the loudness target in the production guide, and measure the loudness of every video. |
+| **AI-native** | Generate the disclosure line, the catalogue record's source type, and the loudness measurement in the same run that records the video. |
+
+:::info[Running example]
+The team has no recording room and no narrator. It chooses the Kokoro
+model with the voice `af_heart` at speed 1.1, the settings of the
+program's videos, normalizes the narration to -16 LUFS, and closes the
+release video with the line "The narration of this video uses a synthetic
+voice."
+:::
+
+## Recipes
+
+<Recipe title="5.1 Choose an open text-to-speech model and confirm its licence" level="Foundational" skills="Dissemination officer with the IT unit" time="Half a day">
+
+**Result:** the organization has chosen one text-to-speech model for its
+videos, has confirmed that its licence allows the use, and runs it on its
+own workstation.
+
+The licence of a model says what may be done with the model and with what
+it produces. A permissive licence such as Apache 2.0 allows use,
+modification, and redistribution, including in published works, under
+conditions of notice. Other model licences restrict commercial use, the
+use of the output, or the number of users, and some voices of the same
+software carry different licences from the software. The licence is read
+on the model card, which is the page that the publisher of the model
+writes to describe it, and in the licence file of the repository.
+
+1. List two or three candidate models that run on a workstation without a
+   graphics processor, and listen to a sample of the narration read by
+   each.
+2. Read the licence of each model and of each voice file on its model
+   card. Keep the models whose licence allows the publication of the
+   generated audio by the organization.
+3. Install the chosen model on the organization's workstation. Text that
+   is embargoed stays on that machine.
+4. Record the model, its version, the voice files, their licences, and
+   the address of the model card in the production guide.
+
+**Worked example.** The team listened to the release narration read by
+two voices of the Piper software and by the Kokoro voice `af_heart`. The
+program's reviewers had asked for a livelier voice than Piper's, and the
+team agreed. The Kokoro model card states the Apache 2.0 licence for the
+model weights, and the runtime the program's tool uses, `kokoro-onnx`, is
+released under the MIT licence. The team recorded the two licences in its
+guide and installed the model files in the tool's `voices/kokoro/` folder.
+
+**What this does not do.** The recipe confirms the licence of the model.
+It is not legal advice; an organization with doubts about a licence asks
+its legal service, as for any software.
+
+</Recipe>
+
+<Recipe title="5.2 Fix the voice, the speed, and the loudness for the series" level="Foundational" skills="Dissemination officer" time="An hour, then a minute per video">
+
+**Result:** the voice, the speed, and the loudness target are fixed in the
+production guide, and every video has been measured at the target.
+
+Loudness is the perceived level of a sound, measured in loudness units
+relative to full scale (LUFS) by the method of Recommendation ITU-R
+BS.1770. Two videos normalized to the same loudness play at the same perceived
+level, so a viewer who watches one after the other does not have to change
+the volume. Broadcasters normalize to
+-23 LUFS under EBU R 128. The program's tool normalizes the narration to
+-16 LUFS integrated loudness with a true-peak ceiling of -1.5 dBTP, using
+the `loudnorm` filter of `ffmpeg`, which implements EBU R 128
+normalization with a configurable target. Background music, where it is
+used, is mixed under the voice; the tool's default places it about 9 dB
+under the narration. WCAG 2.2 success criterion 1.4.7 (level AAA) asks
+that background sounds in prerecorded audio-only content be at least 20 dB
+quieter than the speech. The criterion covers audio-only content, and it
+is a reference point for a team that wants the music well under the voice
+of a video.
+
+1. Choose the voice and the speed once, from a sample of a full
+   narration, and write them in the production guide. The program uses
+   `af_heart` at speed 1.1, which reads about 3.1 words per second.
+2. Set the loudness target. An organization that delivers its videos to a
+   broadcaster uses the broadcaster's target, for example -23 LUFS.
+3. Measure the integrated loudness and the true peak of every finished
+   video with the `ebur128` filter of `ffmpeg`.
+4. Export the audio in a format that plays on every device. The program
+   uses AAC at 48 kHz in stereo, after a 22 kHz mono track played silent
+   on a reviewer's device.
+
+```bash
+ffmpeg -hide_banner -nostats -i out/lfs-2025-q2.mp4 -af ebur128=peak=true -f null -
+```
+
+**Worked example.** The team adopted the program's settings: `af_heart`,
+speed 1.1, narration at -16 LUFS, and music at the tool's default gain.
+The program's own Proof-Carrying Numbers explainer, measured with the
+command above, has an integrated loudness of -16.5 LUFS for the mixed
+narration and music, and a true peak of -3.1 dBFS. The team measures each of its videos with the same command and records the two values in the catalogue
+card.
+
+**What this does not do.** The measurement gives the level of the whole
+video. It does not measure how far the music sits under the voice; a
+listener checks that on headphones in the review of chapter 6, and a team
+that wants speech without competition leaves the music out.
+
+</Recipe>
+
+<Recipe title="5.3 Disclose that the narration is synthetic" level="Foundational" skills="Dissemination officer" time="Fifteen minutes per video">
+
+**Result:** the viewer is told, in the video and on the web page, that the
+narration uses a synthetic voice, and the catalogue record carries the
+same statement.
+
+A disclosure is a short statement that tells the viewer how the video was
+made. It belongs in three places. The closing narration says it, so that
+a viewer who only listens hears it. The page that embeds the video says
+it beside the video. The catalogue record carries it in its description
+and as a machine-readable source type, so that a search engine or a
+catalogue can show it (chapter 7).
+
+1. Add one sentence to the closing step of the narration: "The narration
+   of this video uses a synthetic voice."
+2. Add a line under the video on the web page with the name of the model and
+   the voice, and a statement that staff wrote the script and checked the
+   figures.
+3. Put the same statement in the video card, from which the catalogue
+   record is generated.
+
+**Worked example.** The closing step of
+[narration.json](pathname:///cookbook-files/explainer-videos/narration.json)
+ends with the disclosure sentence. The
+[video card](pathname:///cookbook-files/explainer-videos/video_card.json)
+carries the longer statement: "The narration of this video uses a
+synthetic voice (Kokoro text-to-speech, voice af_heart). Staff of the
+office wrote the script and checked every figure against the release
+table."
+
+**What this does not do.** The disclosure says how the voice was made. It
+does not meet a legal duty of disclosure where one applies; an
+organization subject to such a duty checks its wording with its legal
+service.
+
+</Recipe>
+
+## Implementation options
+
+- **A recorded voice-over by a member of staff.** Where a speaker who reads clearly and a quiet room are available, a member of staff can record the narration. The speaker reads the `speak` text of the same step script, line by line, with one audio file per step, and the files are normalized to the same loudness target as a synthetic voice. The disclosure then names the narration as recorded by staff. The program's tool synthesises every line and does not take recorded files; a team that records its own narration assembles the lines with the video in a video editor or adapts the tool.
+- **Other open voices.** The program's tool also runs Piper voices, each with its own licence on its model card. Five other Kokoro voices were sampled for the program and have not been compared in review.
+- **A voice service.** A hosted text-to-speech service gives more voices and languages. It sends the narration to a third party, which an embargoed release may not allow, and its terms set what the organization may publish.
+- **Legal duties of disclosure.** In the European Union, Article 50 of [Regulation (EU) 2024/1689](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) sets transparency obligations for AI systems that generate synthetic audio and video and for those who deploy them. An organization subject to it asks its legal service which obligation applies to its videos.
+
+## World Bank examples
+
+- The program's [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md), section 7, fixes the voice (`af_heart` at speed 1.1), the narration loudness (-16 LUFS), the music, and the audio format, and records why each was chosen.
+- The program's `music.py` synthesises the background track in code, so no music licence applies.
+
+## Resources
+
+- [Kokoro-82M model card](https://huggingface.co/hexgrad/Kokoro-82M): the open text-to-speech model of the program's videos and its Apache 2.0 licence, read in recipe 5.1.
+- [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx): the runtime the program's tool uses to run Kokoro on a workstation, released under the MIT licence, with the download of the model files.
+- [EBU R 128](https://tech.ebu.ch/publications/r128): the broadcast loudness recommendation with the -23 LUFS target, used in recipe 5.2.
+- [Recommendation ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770): the algorithms that measure loudness and true peak, used in recipe 5.2.
+- [ffmpeg filters](https://ffmpeg.org/ffmpeg-filters.html): the `loudnorm` and `ebur128` filters that normalize and measure loudness in recipe 5.2.
+
+## Common mistakes
+
+- **A voice chosen per video.** The series sounds like several organizations, and a remake changes the voice.
+- **A licence read for the software only.** A voice file can carry a licence different from the software that runs it.
+- **Embargoed text sent to a hosted service.** The narration of a release leaves the organization before the release.
+- **No disclosure.** A viewer who later learns that the voice is synthetic has reason to doubt the rest of the video.
+
+## Verification
+
+- **Licence check.** The production guide names the model, the voice, and the licence of each, with the address of the model card.
+- **Loudness check.** The measured integrated loudness of every published video is within one loudness unit of the target.
+- **Disclosure check.** The closing narration, the page, and the catalogue record of every video with a synthetic voice say so.
+
+## Checklist
+
+<Checklist id="explainer-videos-voice" items={[
+  'Model chosen and its licence confirmed on the model card',
+  'Model running on the organization\'s workstation',
+  'Voice, speed, and loudness target fixed in the production guide',
+  'Loudness of the finished video measured',
+  'Disclosure in the narration, on the web page, and in the record',
+]} />

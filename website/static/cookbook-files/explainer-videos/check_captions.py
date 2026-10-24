@@ -177,7 +177,9 @@ def main(argv: list[str] | None = None) -> int:
         where = f"cue {i} ({stamp(cue.start)})"
         duration = cue.end - cue.start
         if duration <= 0:
-            problems.append(f"{where}: ends at {stamp(cue.end)}, not after it starts")
+            problems.append(
+                f"{where}: ends at {stamp(cue.end)}, at or before its start"
+            )
             continue
         if i > 1 and cue.start < cues[i - 2].start:
             problems.append(f"{where}: starts before the previous cue")

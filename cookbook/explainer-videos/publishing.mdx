@@ -1,0 +1,318 @@
+---
+id: publishing
+title: "7. Publishing and upkeep"
+sidebar_label: "7. Publishing"
+sidebar_position: 7
+description: How an explainer video is published on the organization's own site or on a video platform with a privacy-enhanced embed, embedded on the pages that discuss its topic, described in a catalogue record as a schema.org VideoObject, and remade when its data change.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Publishing and upkeep
+
+**Question:** How is a video published, catalogued, and kept current?
+
+## Rationale
+
+An explainer serves the reader of a release best when the video sits beside the figures under discussion. A
+video on a platform channel alone is found by the platform's visitors,
+and a reader of the release page does not see it. The video therefore
+sits on the pages that discuss its topic, with its transcript, its
+sources, and the disclosure of its voice, and it is described in the
+organization's catalogue like any other product.
+
+A catalogue record makes the video findable by software. A record in the
+schema.org vocabulary, embedded in the page, tells search engines and
+catalogues what the video is, how long it lasts, which data it is based
+on, under which licence it is published, and that it has captions and a
+transcript. The same record links the video to its sources by their
+identifiers, which is what makes upkeep possible.
+
+A video states figures of a given release. When the release is revised or
+a new one is published, the video either stays valid for its reference
+period or states something that is no longer true. The organization
+needs to know which of its videos a release affects, and it needs a
+procedure to remake or withdraw them.
+
+## Target state
+
+- Each video is hosted where the organization controls its availability, with the master file and the captions kept in the organization's archive.
+- Each video is embedded on the pages that discuss its topic, with its transcript, its sources, and its disclosure.
+- Each video has a catalogue record with its duration, its sources, its captions, its licence, and its narration disclosure.
+- Each release or revision is checked against the videos that use its data, and the affected videos are remade or withdrawn.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Host the video with recipe 7.1 and embed it on the release page with recipe 7.2. |
+| **AI-ready** | Write the catalogue record of recipe 7.3 for every video and embed it in the page, and follow the upkeep of recipe 7.4 at each release. |
+| **AI-native** | Generate the catalogue record from the video card at each recording, and let the release process list the videos whose sources it changes. |
+
+:::info[Running example]
+The team publishes the release video on the organization's own site,
+embeds it on the release page and on the methodology page of the survey,
+and writes its catalogue record from
+[video_card.json](pathname:///cookbook-files/explainer-videos/video_card.json).
+The record lists the survey round `EX-LFS-2025-Q2` and the report
+`EX-REP-2025-02` as sources. When the final figures for the second
+quarter are published, the record shows that the video depends on them,
+and the team remakes it.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Host the video on the organization's site or with a privacy-enhanced embed" level="Foundational" skills="Web team with the dissemination officer" time="Half a day to set up, then minutes per video">
+
+**Result:** the video plays from a host that the organization controls or
+has chosen with its privacy terms in view, with the captions available in
+the player.
+
+There are two common hosting options. The organization's own website can
+serve the MP4 file with the HTML `video` element, which takes a caption
+file through a `track` element of kind `captions`. The organization keeps
+full control of the file and of what the page records about its viewers.
+A video platform provides streaming at several qualities and a large
+audience, and its embed loads the platform's player on the organization's
+page. YouTube offers a privacy-enhanced mode, used by changing the embed
+address from `www.youtube.com` to `www.youtube-nocookie.com`. In that
+mode, the platform states that views of the embedded video are not used
+to personalize the viewer's browsing experience or the advertising shown
+outside the organization's site.
+
+1. Keep the master files (the MP4, the caption file, the step script, and
+   the stage page) in the organization's archive, whatever the host.
+2. On the organization's site, publish the video with the `video`
+   element, the caption file, and no automatic start. WCAG 2.2 requires a
+   way to pause or stop audio that plays automatically for more than three
+   seconds (success criterion 1.4.2), and a video that does not start by
+   itself avoids the question.
+3. On a platform, upload the caption file with the video, and embed it in
+   the privacy-enhanced mode where the platform offers one.
+4. Check that the captions can be turned on in the player on a phone and
+   on a desktop browser.
+
+A page on the organization's site embeds the video as follows; the
+addresses are those of the running example.
+
+```html
+<video controls preload="metadata" width="1280" height="720"
+       poster="https://stats.example/videos/lfs-2025-q2.jpg">
+  <source src="https://stats.example/videos/lfs-2025-q2.mp4" type="video/mp4">
+  <track kind="captions" srclang="en" label="English"
+         src="https://stats.example/videos/lfs-2025-q2.vtt" default>
+</video>
+```
+
+**Worked example.** The team hosts the release video on the organization's
+site with the element above, and keeps the files in the archive folder of
+the release. The organization's video channel carries a copy for its
+subscribers, with the same caption file uploaded.
+
+**What this does not do.** The recipe chooses a host. It does not assess
+the platform's terms; the organization's data protection officer reads
+them before the organization embeds a platform's player on its pages.
+
+</Recipe>
+
+<Recipe title="7.2 Embed the video on the pages that discuss its topic" level="Foundational" skills="Dissemination officer" time="An hour per video">
+
+**Result:** the video appears on each page where a reader meets its topic,
+with the transcript, the sources, the date of the figures, and the
+disclosure of the voice beside it.
+
+A reader of the release page who sees a figure and does not know what it
+means is the reader the video was made for. The video therefore goes
+where that reader is: the release page, the methodology page, and the
+glossary entry of the concept. Around the video, the page gives what the
+video cannot: the transcript to search and quote, links to the sources,
+the release whose figures the video states, and the line that says how
+the narration was made.
+
+1. List the pages that discuss the topic, from the site's search for the
+   topic's terms.
+2. Embed the video on each page, near the figures that the video explains.
+3. Add below the video: the transcript (or a link to it), the sources
+   with links, the sentence "The figures are those of the release of"
+   with the release date, and the disclosure line of chapter 5.
+4. Link the video from the catalogue record of recipe 7.3.
+
+**Worked example.** The team embedded the release video on the release
+page, under the release table, and on the methodology page of the survey,
+beside the definitions. Under the video, each page shows the transcript
+in an expandable section, the links to `EX-LFS-2025-Q2` and
+`EX-REP-2025-02`, the line "The figures are those of the release of 20
+August 2025", and the disclosure.
+
+**What this does not do.** The recipe places the video on the
+organization's own pages. Whether the video is shared on social media or
+in newsletters is a decision of the communication plan, which this guide
+does not cover.
+
+</Recipe>
+
+<Recipe title="7.3 Write a catalogue record for each video" level="AI-ready" skills="Dissemination officer or metadata officer" time="Fifteen minutes per video">
+
+**Result:** each video has a schema.org VideoObject record, embedded in
+the page that hosts it and kept in the organization's catalogue.
+
+schema.org is a vocabulary that search engines agree on for describing
+things on web pages, and VideoObject is its type for a video. The record
+is written in JSON-LD, which is JSON with the vocabulary attached, and it
+is embedded in the page in a `script` element of type
+`application/ld+json`. The script `video_record.py` writes the record
+from a video card, a short JSON file that the team fills when the video
+is approved. The card's fields map to the record as follows.
+
+| Card field | Record property | Content |
+|---|---|---|
+| `title`, `description` | `name`, `description` | The title and a description of the content; the disclosure is added at the end of the description. |
+| `duration_seconds` | `duration` | The length measured on the MP4 file, written as an ISO 8601 duration. |
+| `sources` | `isBasedOn` | The datasets and documents the video uses, with their identifiers. |
+| `captions`, `captions_url` | `caption`, `transcript` | The caption file, and the transcript taken from its text. |
+| `license` | `license` | The licence under which the video is published. |
+| `narration` | `digitalSourceType` | For a synthetic narration, `CompositeSyntheticDigitalSource`, the IPTC code for a composite of elements of which at least one is generated by AI. |
+
+The record also lists the accessibility features `closedCaptions` and
+`transcript`, and the access modes `auditory` and `visual`, from the
+vocabulary that schema.org uses for these properties.
+
+1. Fill the video card when the video is signed off. Measure the duration
+   on the MP4 file, for example with `ffprobe`, and enter it.
+2. Run the script. It fails when a required field is missing or when a
+   synthetic narration has no disclosure that says "synthetic".
+3. Embed the record in the page that hosts the video, and add it to the
+   organization's catalogue.
+4. Test the published page with the schema.org validator.
+
+```bash
+python video_record.py video_card.json --out video_record.jsonld
+```
+
+```text
+wrote video_record.jsonld: VideoObject 'Labour Force Survey, second quarter 2025: headline figures and definitions'
+duration PT3M34S, 2 sources, transcript of 526 words, narration synthetic
+note: duration taken from the last caption cue; measure the MP4 and put it in the card
+result: PASS
+```
+
+The first lines of the record are the following (abridged).
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "identifier": "lfs-2025-q2-explainer",
+  "name": "Labour Force Survey, second quarter 2025: headline figures and definitions",
+  "inLanguage": "en",
+  "duration": "PT3M34S",
+  "uploadDate": "2025-08-20",
+  "isBasedOn": [
+    {"@type": "Dataset", "identifier": "EX-LFS-2025-Q2", "name": "Labour Force Survey, second quarter 2025", "url": "https://stats.example/data/EX-LFS-2025-Q2"},
+    {"@type": "Report", "identifier": "EX-REP-2025-02", "name": "Labour market report 2025 Q2", "url": "https://stats.example/reports/EX-REP-2025-02"}
+  ],
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "accessibilityFeature": ["closedCaptions", "transcript"],
+  "digitalSourceType": "https://schema.org/CompositeSyntheticDigitalSource"
+}
+```
+
+**Worked example.** The team ran the script on the card of the release
+video. The card had no measured duration yet, and the script took the
+duration from the last caption cue and said so. The video runs on for the
+closing pause after the last cue, so the team measured the MP4, entered
+the duration in the card, and ran the script again before publishing the
+record.
+
+**What this does not do.** The script writes the record from the card. It
+does not check that the addresses resolve or that a particular search
+engine shows the video; the validator and a search after publication
+show that.
+
+</Recipe>
+
+<Recipe title="7.4 Remake or withdraw a video when its data change" level="AI-ready" skills="Head of dissemination with the owner of the source" time="An hour per release, plus the remake">
+
+**Result:** at each release and each revision, the team has listed the
+videos whose sources it changes, and each affected video has been
+remade, relabelled, or withdrawn.
+
+A video states figures for a reference period. A new release for a later
+period does not make it wrong, because it still explains the earlier
+release correctly, and its title and its page say which release it
+explains. A revision of the same period does make it wrong, and so does
+the publication of final figures that the video calls provisional. The
+identifiers in the catalogue record and the topic list of chapter 1 are
+how the team finds the affected videos.
+
+1. At each release and revision, search the catalogue records for the
+   identifiers of the datasets the release changes.
+2. For each video found, decide: keep it (a later period, with the title
+   and page naming its release), remake it (a revision or a change of
+   status), or withdraw it (a method change that the video no longer
+   describes).
+3. To remake, update the fact sheet, the step script, and the stage,
+   run the checks of chapters 3 and 6, record, review, and sign off
+   again. Publish the new version at the same address, and update the
+   record with the new duration, a `dateModified`, and a `version`.
+4. Keep the previous version in the archive with its sign-off record.
+
+**Worked example.** When the office publishes the final figures for the
+second quarter of 2025, the catalogue search for `EX-LFS-2025-Q2` returns
+the release video. The video calls the unemployment rate of 6.1 percent
+provisional, which is out of date once the final figure is published,
+whatever its value. The team remakes the video with the final figures and
+their status, signs it off again, and archives the first version.
+
+**What this does not do.** The search finds the videos that list the
+changed dataset as a source. A video that uses a figure without listing
+its source is found only by reading; the fact sheet and the card of every
+video list all sources for that reason.
+
+</Recipe>
+
+## Implementation options
+
+- **Hosting.** The organization's own web server or content delivery network; a video platform with a privacy-enhanced embed; or both, with the organization's site as the address in the catalogue record.
+- **Streaming formats.** For long or popular videos, an adaptive streaming format such as HLS or DASH serves the right quality to each device; a single MP4 file suits a five-minute explainer.
+- **Catalogue.** The record can live in the organization's data catalogue next to the dataset records, or in the content system of the website, as long as it carries the source identifiers.
+- **Metadata schema.** An organization that documents its products with the World Bank metadata schemas can describe a video with the schema for videos, which the Metadata Editor supports, and generate the schema.org record from it.
+
+## World Bank examples
+
+- The [AI-Ready Data Dissemination](/cookbook/ai-ready-dissemination/find) cookbook describes schema.org Dataset records embedded in series pages, which recipe 7.3 extends to videos.
+- The program's videos are produced with the [video tool](https://github.com/worldbank/ai4data/tree/main/scripts/videos), whose guide requires the MP4 and the caption file to be sent together for review.
+
+## Resources
+
+- [schema.org VideoObject](https://schema.org/VideoObject): the type of the catalogue record of recipe 7.3 and its properties.
+- [IPTC digital source type](https://cv.iptc.org/newscodes/digitalsourcetype/): the controlled vocabulary behind `digitalSourceType`, with the definition of a composite with synthetic elements.
+- [Schema.org Accessibility Properties for Discoverability Vocabulary](https://w3c-cg.github.io/a11y-discov-vocab/latest/): the values `closedCaptions`, `transcript`, `auditory`, and `visual` used in the record.
+- [HTML Living Standard, the track element](https://html.spec.whatwg.org/multipage/media.html#the-track-element): the element that attaches the caption file to the video in recipe 7.1.
+- [YouTube privacy-enhanced mode](https://support.google.com/youtube/answer/171780): the platform's description of the embed address used in recipe 7.1.
+- [video_card.json](pathname:///cookbook-files/explainer-videos/video_card.json) and [video_record.py](pathname:///cookbook-files/explainer-videos/video_record.py): the card of the running example and the script that writes its record.
+
+## Common mistakes
+
+- **A video only on a platform channel.** The reader of the release page, who needs it, does not see it.
+- **A record without sources.** The release process cannot find the video when its data change.
+- **A duration taken from the captions.** The video runs on after the last caption, and the record understates its length.
+- **A provisional figure left in a video after the final release.** The video tells viewers that a figure may change after it has been finalized.
+
+## Verification
+
+- **Embed check.** The video plays with captions on every page listed in recipe 7.2, on a phone and a desktop browser.
+- **Record check.** The schema.org validator reads the record on the published page without errors, and the record lists every source of the fact sheet.
+- **Upkeep check.** At the last release, the search of recipe 7.4 was run and its result recorded.
+
+## Checklist
+
+<Checklist id="explainer-videos-publishing" items={[
+  'Master files kept in the organization\'s archive',
+  'Video hosted with captions in the player and no automatic start',
+  'Video embedded on the pages that discuss its topic',
+  'Transcript, sources, release date, and disclosure beside the video',
+  'Catalogue record written and embedded',
+  'Videos checked against each release and revision',
+]} />
