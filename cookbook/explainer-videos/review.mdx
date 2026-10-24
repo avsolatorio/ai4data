@@ -145,10 +145,12 @@ and a transcript are ready to publish with the video.
 Captions are the text of the audio, timed to it, shown on request by the
 video player. The format used on the web is WebVTT, a W3C text format in
 which each cue has a start time, an end time, and one or more lines of
-text. The program's tool writes the caption file from the `say` fields,
-one cue per narration step, with the whole step on one line. A player
-shows such a cue as a block that covers much of the frame. The cues are
-therefore divided into shorter cues before publication.
+text. The program's tool writes the caption file from the `say` fields
+and divides each narration step into cues of at most two lines of 37
+characters. Other tools write one cue per narration step, with the whole
+step on one line. A player shows such a cue as a block that covers much
+of the frame, so those cues are divided into shorter cues before
+publication.
 
 The limits of the check come from published subtitle guidelines. The BBC Subtitle Guidelines (version 1.2.5, March 2026) limit a line to
 37 characters where subtitles are shown in Teletext. For online video they
@@ -162,10 +164,11 @@ starts before the start of the previous one. A cue that starts before the
 previous one ends is allowed by the format, but it shows two captions at
 once, and the script flags it.
 
-1. Divide the tool's cues into short cues. The option `--rewrap` divides
-   each cue at the ends of sentences and between words into cues of at
-   most two lines of 37 characters, and shares the time of the original
-   cue by the number of characters.
+1. If the tool wrote one cue per narration step, divide the cues into
+   short cues. The option `--rewrap` divides each cue at the ends of
+   sentences and between words into cues of at most two lines of 37
+   characters, and shares the time of the original cue by the number of
+   characters.
 2. Run the caption check and correct each problem by hand: shorten or
    break a line, divide a cue, or move a start time.
 3. Read the captions once against the narration, because a rewrapped line
@@ -191,11 +194,12 @@ and a hand edit had joined the two lines of the participation cue into one
 of 68 characters. Another edit had moved the start of the employed persons
 cue one second earlier, so that it overlapped the participation cue by a
 quarter of a second. The team broke the line after "rose to" and moved the
-start back, and the second run passed. On the program's own
-Proof-Carrying Numbers explainer, the check finds that every one of the 34
-cues written by the tool has a line longer than 37 characters, and one
-cue reads at 20.2 characters per second. After the rewrap, the file has 79 cues and passes, with a highest reading speed of
-19.9 characters per second.
+start back, and the second run passed. The program's Proof-Carrying
+Numbers explainer was first published with one cue per narration step:
+every one of its 34 cues had a line longer than 37 characters, and one
+cue read at 20.2 characters per second. The tool now divides the steps
+and holds each one through the pause after it. The new file has 79 cues
+and passes, with a highest reading speed of 17.7 characters per second.
 
 **What this does not do.** The check measures lines, cues, and timing. It
 does not check that a caption matches what the voice says, that a line
@@ -254,7 +258,7 @@ them traceable.
 ## World Bank examples
 
 - The program's [production guide](https://github.com/worldbank/ai4data/blob/main/scripts/videos/README.md), section 8, gives the review checklist for its videos: contact sheets, motion, the greps of the writing rules on the narration, figures against the source, length and levels, and the MP4 and caption file sent together.
-- The program's tool writes the WebVTT caption file of each video from the `say` fields of its step script, which is the file that recipe 6.3 divides into short cues.
+- The program's tool writes the WebVTT caption file of each video from the `say` fields of its step script and divides each step into cues of at most two lines of 37 characters.
 
 ## Resources
 

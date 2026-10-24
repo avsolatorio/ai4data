@@ -22,8 +22,8 @@ guidelines recommend at 160 to 180 for prepared subtitles, as information.
 With --rewrap OUT, the script writes a copy in which each cue is divided
 at sentence ends and between words into cues that respect the line limits,
 with the time of the original cue shared by character count. This turns a
-file with one cue per narration step, as the program's video tool writes
-it, into captions that a player can show.
+file with one cue per narration step, as some video tools write it, into
+captions that a player can show.
 
 Exit status 1 on any problem (without --rewrap).
 
