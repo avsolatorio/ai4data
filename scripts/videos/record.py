@@ -6,7 +6,8 @@ caption shown on screen, and a narration line read by Piper. The recorder
 synthesises the narration first, so that each step stays on screen for as long
 as its narration takes, then plays the steps in Chromium with Playwright while
 recording the browser. ffmpeg combines the recording and the narration into an
-MP4, and the narration lines are written to a WebVTT subtitle file.
+MP4, and the narration lines are written to a WebVTT subtitle file, divided by
+captions.py into cues of at most two lines of 37 characters.
 
 A step may carry "speak", the text read aloud when it differs from the caption
 in "say", for example numbers written out in words.
@@ -25,6 +26,7 @@ import time
 import wave
 from pathlib import Path
 
+import captions
 from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
@@ -127,12 +129,6 @@ def run_step(page, step, narrate):
         time.sleep(1.0)
 
 
-def vtt_time(t):
-    h, rem = divmod(t, 3600)
-    m, s = divmod(rem, 60)
-    return f"{int(h):02d}:{int(m):02d}:{s:06.3f}"
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("script")
@@ -214,12 +210,12 @@ def main():
          "-r", "30", "-c:a", "aac", "-ar", "48000", "-b:a", "160k", "-movflags", "+faststart", str(out)],
         check=True)
 
-    cues = ["WEBVTT", ""]
+    cues = []
     for step in spec["steps"]:
         if step.get("say"):
             a = step["at"] - trim
-            cues += [f"{vtt_time(a)} --> {vtt_time(a + step['length'])}", step["say"], ""]
-    (HERE / "out" / f"{name}.vtt").write_text("\n".join(cues))
+            cues += captions.cues(a, a + step["length"] + step.get("pause", 0.6), step["say"])
+    (HERE / "out" / f"{name}.vtt").write_text(captions.vtt(cues))
     print(f"{out} ({end - trim:.1f} s)")
 
 

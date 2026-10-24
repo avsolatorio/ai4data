@@ -35,6 +35,7 @@ scripts/videos/
   README.md               this guide
   requirements.txt        Python packages
   record.py               plays a step script, records the browser, adds voice and music
+  captions.py             divides the narration into subtitle cues for the .vtt file
   review.py               contact sheets of the stage (before recording) and of the video (after)
   music.py                synthesises the background track (no licence needed)
   overlay.js              pointer, ring, caption and title cards for site walkthroughs
@@ -290,6 +291,12 @@ words in 34 steps and lasts 4 min 40 s. Aim for 3–5 minutes.
   `ffmpeg -i out/<name>.mp4 -af volumedetect -f null -`.
 - Audio is AAC at 48 kHz stereo. A 22 kHz mono track played silent on a
   reviewer's device.
+- Subtitles: `record.py` divides each narration line with `captions.py` into
+  cues of at most two lines of 37 characters, and shares the time of the
+  line and its pause between them. The result passes `check_captions.py` of
+  the explainer videos cookbook (37 characters, two lines, 20 characters per
+  second). A `.vtt` file written before this change is rewrapped with
+  `python captions.py out/<name>.vtt out/<name>.vtt`.
 - Step timing fields: `settle` (seconds after the beat starts before the
   narration, default 0.4; use 0.8–1.0 on a new scene), `pause` (after the
   narration; 0.35 for most steps, 2.0 on the closing), `min` (the least time
@@ -335,3 +342,4 @@ section 7 apply unchanged.
 | 2026-10-24 | Connectors drawn during a card's slide-in pointed a few pixels off | `rectOf()` in the kit measures the resting position |
 | 2026-10-24 | A second explainer (preparing documents for retrieval) made by an agent from this guide alone matched the reference; the agent listed gaps | Rules for scene ids, the kicker area, closing addresses, type sizes, illustrative visuals, empty space, stage-local motion, and the environment for checking values |
 | 2026-10-24 | Closing of that video listed third-party projects | Program address only for topics built on third-party tools |
+| 2026-10-24 | One cue per narration line exceeded the subtitle limits of the explainer videos cookbook | `captions.py` divides the lines into cues of two lines of 37 characters |
