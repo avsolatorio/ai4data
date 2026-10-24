@@ -7,7 +7,7 @@ description: Terms used in the Practical Guide to Extracting Data from Documents
 
 # Glossary
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a coding assistant that reads and writes files and runs commands on a workstation.
 
 **AI visibility check.** A fixed set of questions asked of AI assistants on a schedule, recording whether the organization is cited and whether the figures are right.
 

@@ -9,7 +9,7 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a coding assistant that reads and writes files and runs commands on a workstation.
 
 **AI-ready.** Data and metadata that software, including AI systems, can find, retrieve, interpret, and cite without manual steps. See the [AI-ready data framework](/docs/ai-ready-framework).
 

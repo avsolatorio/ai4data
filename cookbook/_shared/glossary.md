@@ -16,7 +16,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a coding assistant that reads and writes files and runs commands on a workstation.
 
 **Agents manifest.** The file that defines the agents of the review pipeline (detectors, critic, categorizer, severity scorer) and their instructions.
 
@@ -67,11 +67,15 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Component register.** The table with one row per AI component the organization runs: owner, model, provider, data, human review, risk tier, approval and review dates, and exit plan.
 
+**Concept explainer.** A short narrated video with animated scenes of its own that explains a method, an indicator, or a data release step by step.
+
 **Concept map.** A table that links each variable to the concept it measures and the classification it follows, with version, level, and URI.
 
 **Confidence.** A number between 0 and 1 that a model returns with its output to say how sure it is; the basis of a threshold rule.
 
 **Confidence threshold.** The model confidence above which a code is accepted automatically, set from the measured accuracy curve.
+
+**Contact sheet.** One image that holds small frames of a sequence, used to review every beat of a video's stage before the recording and every narration line after it.
 
 **Content-Oriented Guidelines.** The SDMX guidelines that define cross-domain concepts (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`, and others) and cross-domain code lists for reuse across statistical domains.
 
@@ -149,6 +153,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Exact copy.** A synthetic record identical to a real one; a failed check that sends the file back to the method.
 
 **Exit plan.** The steps by which an AI component would be switched off or moved to a second model or provider, tested once on the component's evaluation suite.
+
+**Fact sheet.** The table of every figure, definition, date, and claim a video will state, each with its source, the place in the source, and the person who checked it.
 
 **Feature.** A column a model may use as input.
 
@@ -234,6 +240,9 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Lock file.** The record of a model's source, version, and file digests that the server verifies before loading.
 
+**Loudness.** The perceived level of a sound, measured in loudness units relative to full scale (LUFS) by the method of ITU-R BS.1770; videos normalized to the same integrated loudness play at the same perceived level.
+<!-- match: lufs -->
+
 **Machine client.** Software, including an AI assistant or agent, that retrieves data from the organization's API or MCP server and accepts the terms of use for doing so.
 
 **Manifest.** A file that lists the parts of something so that it can be checked or resumed: for a job, the records and their status; for a release, every file with its checksum; for an agent interface, the design document of its tools, inputs, outputs, examples, and resources.
@@ -287,6 +296,8 @@ chapters. Edit terms here; never edit the generated pages.
 <!-- match: precision; recall -->
 
 **Printed value label.** A number printed on a chart next to its bar or point, which makes the extracted value verifiable.
+
+**Production guide.** An organization's written standard for its videos: the reference video, the theme, the scene sequence, the narration rules, the voice and loudness settings, the review checklist, and the history of review decisions.
 
 **Prompt.** The instructions and context given to a language model for one task; kept as a versioned file when it is part of a workflow.
 
@@ -353,6 +364,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **schema.org Dataset.** A vocabulary for describing datasets on web pages, read by general crawlers and dataset search engines.
 
+**schema.org VideoObject.** The schema.org type for describing a video on a web page, with properties for its duration, upload date, addresses, captions, transcript, sources, and licence.
+
 **SDMX.** Statistical Data and Metadata eXchange, the standard for exchanging aggregate statistical data, their structure, and code lists; its concept names (SERIES, REF_AREA, TIME_PERIOD, OBS_VALUE) are the column names of this series' data files.
 
 **Semantic search.** Search by meaning; see dense retrieval.
@@ -360,6 +373,10 @@ chapters. Edit terms here; never edit the generated pages.
 **Sequential synthesis.** Fitting and generating one variable at a time conditional on the previous ones, with CART or parametric models.
 
 **Serving stack.** The software that loads a model and answers requests (a single-machine runtime or a batching server).
+
+**Sign-off.** The recorded decision of a named person that a video may be published, with the version of the files and the checks the decision rests on.
+
+**Site walkthrough.** A narrated video that shows how to use a feature of a website, recorded from the live site with a pointer and captions.
 
 **SKOS and XKOS.** SKOS is the web standard for publishing controlled vocabularies (concepts with labels and identifiers); XKOS extends it for statistical classifications and their correspondences.
 <!-- match: skos; xkos -->
@@ -370,11 +387,17 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Split.** The division of a dataset into a training part (the model learns from it), a validation part (the model builder chooses settings on it), and a test part (touched once, to report a score).
 
+**Spoken form.** The text of a narration line as the voice is to read it, with figures, years, and abbreviations written out in words; kept beside the caption text, which keeps the figures in digits.
+
 **Stable identifier.** An identifier for a series or dataset that does not change across releases or site redesigns.
+
+**Stage page.** A web page made for recording an explainer video, with one section per scene at the size of the video frame and one animation hook per beat.
 
 **Statement of model use.** The section of a release's quality report that says where models were used, which, how they performed, who decided, and what the effect was.
 
 **Statistical disclosure control.** Methods that prevent the identification of individuals from published data.
+
+**Step script.** A file with one entry per beat of a video: the instruction that changes the screen, the caption text, the spoken form where it differs, and the timing.
 
 **Streamable HTTP.** The transport for servers used over the network; stdio is the transport for servers run locally by a client.
 
@@ -404,6 +427,9 @@ chapters. Edit terms here; never edit the generated pages.
 **Task card.** The one-page list per role of the everyday tasks an AI assistant may help with, with the model's role, the data tier, and the review for each, and the tasks that stay with the person.
 
 **Text layer.** The machine-readable text inside a PDF; absent in scanned documents until OCR produces it.
+
+**Text-to-speech model.** A model that turns written text into speech; an open one runs on the organization's own workstation under a published licence.
+<!-- match: text-to-speech -->
 
 **Thin group.** A group with too few examples for a model to learn its patterns; listed in the card with the minimum count used.
 
@@ -447,6 +473,15 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Verified.** The status of an extracted value that matched a printed label, a total, a derivation, or a catalog value.
 
+**Video beat.** One change on the screen of an explainer video, with the one or two sentences of narration that describe it. A scene has one or more beats, and the step script has one step per beat.
+<!-- match: per beat; one beat -->
+
+**Video captions.** The text of a video's audio, timed to it and shown on request by the player, published as a caption file in a format such as WebVTT.
+<!-- match: caption file -->
+
+**Video transcript.** The full text of a video's narration, published with the video so that it can be read, searched, and quoted.
+<!-- match: the transcript of; transcript on the page -->
+
 **Vision-language model.** A model that reads an image and returns text or structured output; used to extract chart data from snapshots.
 <!-- match: vision-language -->
 
@@ -455,6 +490,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Vocabulary.** A concept scheme with preferred labels, alternates, and URIs, to which free-text keywords and topics are mapped.
 
 **Wave.** A set of dimensions that can be worked in parallel because everything they depend on is already at target or in an earlier wave.
+
+**WebVTT.** The W3C text format for captions and subtitles on the web, in which each cue has a start time, an end time, and one or more lines of text.
 
 **Weight.** A variable that scales each record to the population, with the calibration and the estimates it applies to documented.
 
