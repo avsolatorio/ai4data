@@ -45,10 +45,12 @@ scripts/videos/
   stages/pcn.html         the reference stage
   stages/preparing-knowledge.html   a second explainer, made from this guide alone
   stages/model-to-application.html  a third explainer (instructions and context in a prompt)
+  stages/retrieval-augmented-generation.html  a fourth explainer (retrieval, the prompt, failure cases)
   videos/_template.json   starting point for a new step script
   videos/pcn-explainer.json
   videos/preparing-knowledge.json
   videos/model-to-application.json
+  videos/retrieval-augmented-generation.json
   videos/document-collection.json   a site walkthrough
   voices/                 Piper voices (*.onnx) and Kokoro model files (voices/kokoro/)
   out/<name>.mp4, .vtt    results; out/<name>/ holds narration clips and review sheets
@@ -173,7 +175,13 @@ Rules that came from review feedback on PCN:
   makes that judgement easier.
 - Failure cases go into the mechanism scene as further beats. They do not
   need scenes of their own. PCN shows verified, flagged and unmarked in one
-  verifier scene.
+  verifier scene. A method whose failure cases each have their own fix can
+  give each failure a method step, with the failure and its fix as beats of
+  that scene; `retrieval-augmented-generation` does this for two-part
+  questions, dates, and questions outside the collection.
+- A method that can be tested on its own (retrieval without the model) may
+  add one scene between the result scene and the scope scene, with the
+  eyebrow naming the test ("Testing retrieval").
 
 ## 5. Visual rules
 
@@ -258,6 +266,14 @@ with `data-b ≤ beat` and runs `HOOKS[scene][beat]`. Timers must use
 `later(ms, fn)` so that they stop when the scene changes. Keep each
 animation shorter than the narration of its beat, or give the step a `min`
 so that the recorder waits for it.
+
+A hook that uses an element written by `stream()` in an earlier beat
+(a citation to point at, for example) finds nothing if the stream has not
+finished. Give the streaming beat a `min` longer than the stream, including
+the 1.6× delay after tokens longer than 30 characters, and let the later
+hook return when the element is missing. `review.py stage` waits only
+`min` (or `--wait`) on each beat, so it shows such a race as a missing
+popover or pointer.
 
 Model output streams. When the method involves an AI system, show its answer
 arriving token by token, in the chat window for what a user sees and in a
@@ -363,3 +379,4 @@ section 7 apply unchanged.
 | 2026-10-24 | One cue per narration line exceeded the subtitle limits of the explainer videos cookbook | `captions.py` divides the lines into cues of two lines of 37 characters |
 | 2026-10-25 | A third explainer (instructions and context in a prompt) made from this guide; the agent found no location for the caption checker, no rule for a general method without a library, and a streamed table that broke apart | Checker location, closing rule for general methods, five-step progress bar, complete-HTML tokens for `stream()` |
 | 2026-10-25 | Reviewer saw no reason for a line saying that the addresses are on screen | Closing narration names the library only; Program-only closings are silent |
+| 2026-10-25 | A fourth explainer (retrieval-augmented generation) made from this guide; it needed a step per failure case, a scene for testing retrieval alone, and found a pointer hook that ran before the stream it pointed into had finished | Rules for failure steps and a test scene; timing note for hooks that use streamed elements |
