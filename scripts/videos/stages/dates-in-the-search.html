@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dates in the search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css.
+     All values on screen come from examples/rag-public (retrieval_runs.json: latest_no_filter,
+     latest_filtered, latest_needed_ranks; answers.json: latest_no_filter, latest_filtered)
+     and the store order of local/rag-public/chunks.jsonl. */
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .stampin { opacity: 0; } .stampin.in2 { animation: stamp .45s ease both; }
+  .fig { display: inline-block; font: 600 14px var(--mono); border-radius: 6px; padding: 4px 9px; background: var(--surface-1); border: 1px solid var(--hairline); color: var(--muted); white-space: nowrap; }
+  .fig.ok { background: var(--ok-bg); border-color: #b5dcc6; color: var(--ok); }
+  .fig.bad { background: var(--bad-bg); border-color: #f2c2bd; color: var(--bad); }
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary) !important; }
+
+  /* passage grid: one square per passage of the archive, by report in store order */
+  .cells { display: grid; }
+  .cells i { display: block; background: #d5dbe3; transition: background .3s, box-shadow .3s; }
+  .cells i.pick { background: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .cells i.lost { background: var(--bad); box-shadow: 0 0 0 2px #f2c2bd; }
+  .cells i.got { background: var(--ok); box-shadow: 0 0 0 2px #b5dcc6; }
+  .arc { position: absolute; left: 80px; top: 170px; width: 500px; height: 456px; padding: 14px 16px; border-top: 4px solid var(--teal); }
+  .blk { display: grid; grid-template-columns: 88px 1fr; align-items: start; margin-top: 8px; transition: opacity .5s; }
+  .blk > span { font: 500 11.5px/14px var(--mono); color: var(--muted); }
+  .blk .cells { grid-template-columns: repeat(76, 4px); gap: 1px; min-height: 14px; align-content: start; }
+  .blk .cells i { width: 4px; height: 4px; }
+  .blk.off { opacity: .16; }
+  .arc .key { position: absolute; left: 16px; right: 16px; bottom: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 16px; }
+  .arc .key i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; }
+  .tag { position: absolute; font: 700 12.5px var(--mono); padding: 3px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; transition: opacity .4s; z-index: 3; }
+  .tag.in2 { opacity: 1; }
+  .tag.bad { background: var(--bad-bg); color: var(--bad); border: 1px solid #f2c2bd; }
+  .tag.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #b5dcc6; }
+
+  /* ranked passages */
+  .rk { position: absolute; left: 610px; width: 590px; padding: 12px 18px; }
+  .rr { display: grid; grid-template-columns: 34px 190px 1fr 62px; gap: 8px; align-items: center; height: 44px; border-top: 1px solid var(--surface-2); padding: 0 6px; border-radius: 6px;
+    opacity: 0; transform: translateX(10px); transition: opacity .4s, transform .4s, background .4s, box-shadow .4s; }
+  .rr.in2 { opacity: 1; transform: none; }
+  .rr .n { font: 700 14px var(--mono); color: var(--subtle); }
+  .rr .id { font: 500 13px var(--mono); color: #0d6e5f; white-space: nowrap; }
+  .rr .ed { font-size: 14.5px; color: var(--muted); white-space: nowrap; }
+  .rr .ed b { border-radius: 4px; padding: 1px 4px; transition: background .4s, color .4s; }
+  .rr .ed b.old { background: var(--bad-bg); color: var(--bad); }
+  .rr .ed b.new { background: var(--ok-bg); color: var(--ok); }
+  .rr .sc { font: 600 14px var(--mono); text-align: right; }
+  .rr.sel { background: var(--primary-subtle); }
+  .rr.lost { box-shadow: 0 0 0 2px var(--bad); background: var(--bad-bg); }
+  .rr.got { box-shadow: 0 0 0 2px var(--ok); background: var(--ok-bg); }
+  .cut { height: 0; border-top: 2px dashed var(--primary); margin: 6px 0 4px; position: relative; opacity: 0; transition: opacity .4s; }
+  .cut.in2 { opacity: 1; }
+  .cut span { position: absolute; right: 6px; top: 4px; font: 700 12px Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); background: #fff; padding: 0 4px; }
+  .gap { font-size: 13.5px; color: var(--subtle); padding: 18px 0 8px 46px; opacity: 0; transition: opacity .4s; } .gap.in2 { opacity: 1; }
+
+  /* 2: the question and the answer from older editions */
+  #s2 .win .body { padding: 20px 24px; }
+  #s2 .uq, #s5 .uq { font-size: 18px; }
+  #s2 .ua .tx, #s5 .ua .tx { font-size: 20px; line-height: 1.6; }
+  #s2 .ua .tx b, #s5 .ua .tx b { font-weight: 700; }
+  .hl { border-radius: 4px; transition: background .4s, box-shadow .4s; }
+  .hl.on { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .ps2 { position: absolute; left: 760px; top: 170px; width: 440px; height: 270px; padding: 12px 18px; }
+  .p2 { padding: 10px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .p2.in2 { opacity: 1; transform: none; }
+  .p2 .ds { font-size: 15px; color: var(--ink); margin-top: 6px; line-height: 1.4; }
+  .p2 .ed { font-size: 13px; color: var(--subtle); margin-top: 6px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .p2 .ed b { font: 700 13px var(--mono); text-transform: none; letter-spacing: 0; color: var(--bad); background: var(--bad-bg); border-radius: 4px; padding: 1px 5px; }
+  .tl2 { position: absolute; left: 760px; top: 456px; width: 440px; height: 170px; padding: 12px 18px; }
+  .tl2 svg { position: absolute; left: 0; top: 0; width: 440px; height: 170px; overflow: visible; }
+  .fg2 { position: absolute; left: 80px; top: 572px; }
+
+  /* 3: metadata of a passage */
+  .md3 { position: absolute; left: 610px; top: 418px; width: 590px; height: 208px; padding: 12px 18px; border-top: 4px solid var(--primary); }
+  .md3 .row { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding: 4px 6px; font-size: 14.5px; border-radius: 6px; transition: background .4s, box-shadow .4s; }
+  .md3 .row > span:first-child { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle); padding-top: 2px; }
+  .md3 .row .mono { font-size: 13.5px; }
+  .md3 .row.on { background: var(--primary-subtle); box-shadow: 0 0 0 2px var(--primary); }
+  .md3 .txt { font-size: 14px; line-height: 1.45; color: var(--muted); }
+
+  /* 4: the filter */
+  .fl4 { position: absolute; left: 610px; top: 170px; width: 590px; height: 190px; padding: 12px 18px; border-top: 4px solid var(--ok); }
+  .fl4 > .label { color: var(--ok); }
+  .fl4 svg { position: absolute; left: 0; top: 0; width: 590px; height: 190px; overflow: visible; }
+  .fl4 .chip { position: absolute; right: 18px; top: 10px; font-size: 15px; padding: 4px 10px; }
+  .doc { transition: opacity .5s, fill .5s, stroke .5s; }
+
+  /* 5: the answer from the newest edition */
+  #s5 .win .body { padding: 20px 24px; }
+  .pop.doc5 { border-top-color: var(--teal); width: 400px; }
+  .pop.doc5 .h { color: #0d6e5f; font-family: var(--mono); font-size: 15px; }
+  .pop.doc5 .r { grid-template-columns: 82px 1fr; font-size: 14.5px; line-height: 1.4; }
+  .pop.doc5 mark { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; border-radius: 3px; }
+  .cmp5 { position: absolute; left: 800px; top: 472px; width: 400px; height: 154px; padding: 12px 18px; }
+  .cmp5 .ln { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+  .cmp5 .ln .mono { font-size: 13px; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- 1 title card -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Dates in the search</h1>
+  <div class="part">Part 3 · Answering from an archive · 3 of 5</div>
+</section>
+
+<!-- 2 the question: passages from older editions -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">The question</div>
+  <h2>The answer gives a figure from 2023</h2>
+  <div class="win" style="left:80px;top:170px;width:656px;height:456px">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq" id="q2"></div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a2"></div></div>
+    </div>
+  </div>
+  <div class="fg2 stampin" id="fg2"><span class="fig bad">2.6% · November 2023 · from the December 2023 edition</span></div>
+  <div class="card ps2" data-b="2"><div class="label">Passages kept for the prompt</div>
+    <div class="p2" id="p2a"><span class="cit">[ueu-2023-12 · p. 17]</span><div class="ds">… reached 2.6 percent in November …</div><div class="ed">Edition <b>2023-12</b></div></div>
+    <div class="p2" id="p2b"><span class="cit">[ueu-2025-02 · p. 23]</span><div class="ds">… Figure 9: headline inflation in Uganda and drivers …</div><div class="ed">Edition <b>2025-02</b></div></div></div>
+  <div class="card tl2" data-b="2"><div class="label">Uganda Economic Update · editions</div><svg id="tl2"></svg></div>
+</section>
+
+<!-- 3 the search ranks by meaning; the edition date is metadata -->
+<section class="scene src-on" id="s3">
+  <div class="eyebrow">The search</div>
+  <h2>The search ranks passages by meaning</h2>
+  <div class="card arc" id="arc3" data-b="1"><div class="label" style="color:#0d6e5f">Archive · 3,440 passages by report</div><div id="g3"></div>
+    <div class="key"><span><i style="background:var(--primary)"></i>kept for the prompt</span><span><i style="background:var(--bad)"></i>holds the April 2026 figure</span></div></div>
+  <div class="card rk" style="top:170px;height:234px" data-b="1"><div class="label" style="margin-bottom:6px">All passages, ranked · no filter</div>
+    <div class="rr" id="r3a"><span class="n">1</span><span class="id">ueu-2023-12 · p. 17</span><span class="ed">edition <b>December 2023</b></span><span class="sc">0.760</span></div>
+    <div class="rr" id="r3b"><span class="n">2</span><span class="id">ueu-2025-02 · p. 23</span><span class="ed">edition <b>February 2025</b></span><span class="sc">0.756</span></div>
+    <div class="cut" id="cut3"><span>kept for the prompt</span></div>
+    <div class="gap" id="gap3" style="padding:6px 0 2px 46px">… ranks 3 to 18</div>
+    <div class="rr" id="r3c"><span class="n">19</span><span class="id">ueu-2026-06 · p. 20</span><span class="ed">edition <b>June 2026</b></span><span class="sc">0.693</span></div></div>
+  <div class="card md3" id="md3" data-b="2"><div class="label" style="color:var(--primary);margin-bottom:4px">One passage and its metadata</div>
+    <div class="row"><span>Text</span><span class="txt">… Headline year-on-year inflation stood at 3.0 percent in April 2026 …</span></div>
+    <div class="row"><span>Report</span><span>Uganda Economic Update, 27th Edition</span></div>
+    <div class="row" id="md3d"><span>Date</span><span class="mono">2026-06</span></div>
+    <div class="row"><span>Page</span><span class="mono">20</span></div></div>
+  <span class="tag bad" id="tg3">rank 19</span>
+</section>
+
+<!-- 4 a filter on the edition date -->
+<section class="scene src-on" id="s4">
+  <div class="eyebrow">Filter on the edition date</div>
+  <h2>A filter keeps the newest editions</h2>
+  <div class="card arc" data-b="1"><div class="label" style="color:#0d6e5f">Archive · <span id="ct4">3,440</span> passages</div><div id="g4"></div>
+    <div class="key"><span><i style="background:var(--ok)"></i>holds the April 2026 figure</span><span><i style="background:var(--primary)"></i>kept for the prompt</span></div></div>
+  <div class="card fl4" data-b="1"><div class="label">Filter</div><span class="chip on">date ≥ 2026-01</span><svg id="tl4"></svg></div>
+  <div class="card rk" style="top:376px;height:250px" data-b="2"><div class="label" style="margin-bottom:6px">Passages of the filtered editions, ranked</div>
+    <div class="rr" id="r4a"><span class="n">1</span><span class="id">ueu-2026-06 · p. 20</span><span class="ed">edition <b>June 2026</b></span><span class="sc">0.722</span></div>
+    <div class="rr" id="r4b"><span class="n">2</span><span class="id">ueu-2026-06 · p. 20</span><span class="ed">edition <b>June 2026</b></span><span class="sc">0.693</span></div>
+    <div class="cut" id="cut4"><span>kept for the prompt</span></div>
+    <div class="gap" id="gap4" style="padding:22px 0 0 6px"><div class="label" style="margin-bottom:8px">Passage with the April 2026 figure</div><span class="fig bad">no filter · rank 19</span> <span class="fig ok">date ≥ 2026-01 · rank 2</span></div></div>
+  <span class="tag ok" id="tg4">rank 2</span>
+</section>
+
+<!-- 5 the answer from the newest edition -->
+<section class="scene src-on" id="s5">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">In the application</div>
+  <h2>The answer cites the June 2026 edition</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:456px">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">What is the latest inflation rate in Uganda?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a5"></div></div>
+    </div>
+  </div>
+  <div class="pop doc5" id="pp5" style="left:800px;top:170px"><div class="h">ueu-2026-06 · p. 20</div>
+    <div class="r"><span>Report</span><span>Uganda Economic Update, 27th Edition, June 2026</span></div>
+    <div class="r"><span>Passage</span><span>… Headline year-on-year inflation stood at <mark>3.0 percent in April 2026</mark>, below the BoU's 5 percent target …</span></div>
+    <div class="r"><span>Date</span><span class="mono">2026-06</span></div></div>
+  <div class="card cmp5" data-b="1"><div class="label">Recorded answers</div>
+    <div class="ln"><span>No filter</span><span><span class="fig bad">2.6% · November 2023</span></span></div>
+    <div class="ln"><span class="mono">date ≥ 2026-01</span><span><span class="fig ok stampin" id="fg5">3.0% · April 2026</span></span></div></div>
+  <svg class="ptr" id="ptr5" style="left:640px;top:760px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 6 end screen -->
+<section class="scene dark" id="s6">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>Questions outside the archive</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+
+  // The 13 reports in store order: id, edition date, PDF pages, passages (store_summary.json).
+  const REPORTS = [
+    ['keu-2022-12', '2022-12', 54, 225], ['keu-2023-06', '2023-06', 66, 288], ['keu-2024-06', '2024-06', 56, 229],
+    ['keu-2024-12', '2024-12', 68, 349], ['keu-2025-05', '2025-05', 68, 302], ['keu-2025-11', '2025-11', 44, 251],
+    ['keu-2026-07', '2026-07', 27, 103], ['ueu-2023-06', '2023-06', 82, 322], ['ueu-2023-12', '2023-12', 52, 218],
+    ['ueu-2025-02', '2025-02', 66, 301], ['ueu-2025-09', '2025-09', 78, 364], ['ueu-2025-12', '2025-12', 58, 248],
+    ['ueu-2026-06', '2026-06', 50, 240]];
+  // Position of a passage within its report, in the order of chunks.jsonl.
+  const POS = { old1: ['ueu-2023-12', 51], old2: ['ueu-2025-02', 67], new1: ['ueu-2026-06', 59], fig: ['ueu-2026-06', 60] };
+  const SINCE = '2026-01';
+  const cellsHTML = (id, n) => Array.from({ length: n }, (_, i) => `<i data-k="${id}|${i}"></i>`).join('');
+  const cellOf = (root, key) => root.querySelector(`i[data-k="${POS[key][0]}|${POS[key][1]}"]`);
+  const cit = (s, id) => `<span class="cit"${id ? ` id="${id}"` : ''}>${s}</span>`;
+  const month = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + m - 1; };
+
+  function seg(svg, x1, y1, x2, y2, color, ms = 600, width = 2, dash = '') {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(p);
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = dash || L; p.style.strokeDashoffset = dash ? 0 : L;
+    if (!dash) { p.getBoundingClientRect(); p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0; }
+    else { p.style.opacity = 0; p.style.transition = `opacity ${ms}ms`; p.getBoundingClientRect(); p.style.opacity = 1; }
+    return p;
+  }
+  function svgText(svg, x, y, text, opts = {}) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = text;
+    t.setAttribute('font-family', opts.mono ? 'JetBrains Mono, monospace' : 'Inter, sans-serif');
+    t.setAttribute('font-size', opts.size || 13); t.setAttribute('font-weight', opts.weight || 500);
+    t.setAttribute('fill', opts.color || '#565f68'); t.setAttribute('text-anchor', opts.anchor || 'start');
+    if (!opts.instant) { t.style.opacity = 0; t.style.transition = 'opacity .4s'; }
+    svg.appendChild(t); t.getBoundingClientRect(); t.style.opacity = 1;
+    return t;
+  }
+  function svgDot(svg, x, y, r, color, opts = {}) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r); c.setAttribute('fill', color);
+    if (opts.stroke) { c.setAttribute('stroke', opts.stroke); c.setAttribute('stroke-width', opts.sw || 2); }
+    c.style.transformOrigin = `${x}px ${y}px`; c.style.transform = 'scale(0)'; c.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1)';
+    svg.appendChild(c); c.getBoundingClientRect(); c.style.transform = 'none';
+    return c;
+  }
+  function countDown(el, from, to, ms) {
+    const t0 = performance.now(), e = epoch;
+    (function tick(now) {
+      if (e !== epoch) return;
+      const f = Math.min(1, (now - t0) / ms);
+      el.textContent = Math.round(from + (to - from) * f).toLocaleString('en-US');
+      if (f < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  // A label placed beside a square of a grid.
+  function tagAt(tag, cell, dx = 12, dy = -9) {
+    const a = rectOf(cell), sb = current.getBoundingClientRect();
+    $(tag).style.left = (a.right - sb.left + dx) + 'px'; $(tag).style.top = (a.top - sb.top + dy) + 'px';
+    $(tag).classList.add('in2');
+  }
+
+  // 2: the Uganda editions on a time axis; the editions of the two passages are marked.
+  const UE = REPORTS.filter(([id]) => id.startsWith('ueu'));
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const X2 = (d) => 30 + (month(d) - month('2023-03')) / (month('2026-09') - month('2023-03')) * 380;
+  const dots2 = {};
+  function drawEditions() {
+    const s = $('tl2'), y = 92;
+    seg(s, 22, y, 418, y, '#c9d3e3', 500, 1.4);
+    ['2024', '2025', '2026'].forEach((yr) => { seg(s, X2(yr + '-01'), y + 4, X2(yr + '-01'), y + 10, '#8a929a', 200, 1.2); svgText(s, X2(yr + '-01'), y + 28, yr, { mono: true, size: 12, anchor: 'middle', color: '#8a929a' }); });
+    UE.forEach(([id, d], i) => later(200 + i * 90, () => { dots2[id] = svgDot(s, X2(d), y, 6, '#d5dbe3'); }));
+  }
+
+  // 4: all 13 editions on a time axis; the filter shades January 2026 onwards.
+  function drawFilter() {
+    const s = $('tl4'), x0 = 90, x1 = 560, m0 = month('2022-10'), m1 = month('2026-09');
+    const X = (d) => x0 + (month(d) - m0) / (m1 - m0) * (x1 - x0);
+    const rows = [['keu', 'Kenya', 86], ['ueu', 'Uganda', 132]];
+    const band = document.createElementNS(NS, 'rect');
+    band.setAttribute('x', X(SINCE)); band.setAttribute('y', 50); band.setAttribute('width', 0); band.setAttribute('height', 106); band.setAttribute('rx', 6);
+    band.setAttribute('fill', '#e6f4ec'); band.setAttribute('stroke', '#1f7a4d'); band.setAttribute('stroke-dasharray', '5 4');
+    band.style.transition = 'width .9s ease'; s.appendChild(band);
+    rows.forEach(([p, name, y]) => { svgText(s, 18, y - 6, name, { size: 12, weight: 700, instant: true }); seg(s, x0 - 6, y, x1 + 6, y, '#e2e5e8', 1, 1.2); });
+    ['2023', '2024', '2025', '2026'].forEach((yr) => svgText(s, X(yr + '-01'), 176, yr, { mono: true, size: 12, anchor: 'middle', color: '#8a929a', instant: true }));
+    const docs = REPORTS.map(([id, d]) => {
+      const y = rows.find((r) => id.startsWith(r[0]))[2];
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', X(d) - 7); r.setAttribute('y', y - 22); r.setAttribute('width', 14); r.setAttribute('height', 22); r.setAttribute('rx', 2);
+      r.setAttribute('fill', id.startsWith('keu') ? '#e3f5f1' : '#eaf0fd'); r.setAttribute('stroke', id.startsWith('keu') ? '#12a08a' : '#1558d6'); r.setAttribute('stroke-width', 1.4);
+      r.setAttribute('class', 'doc'); s.appendChild(r); return [d, r];
+    });
+    return { band, docs, X, x1 };
+  }
+  let F4 = null;
+
+  // 2: the recorded answer without a filter (latest_no_filter), shortened where marked.
+  const A2 = [...words('The latest Uganda inflation figure in the passages is '), '<b>2.6 percent in November 2023</b>', ' … ', cit('[ueu-2023-12 · p. 17]'), '.<br>',
+    ...words('The passages do not give a more recent Uganda figure. … '), '<span class="hl" id="hl2">So the 2.6 percent figure may be out of date.</span>'];
+  // 5: the recorded answer with the filter date >= 2026-01 (latest_filtered), unchanged.
+  const A5 = [...words("Uganda's headline year-on-year inflation was "), '<b>3.0 percent in April 2026</b> ', cit('[ueu-2026-06 · p. 20]', 'c5'), '. ',
+    ...words("The passages give this as the most recent figure, so I can't confirm whether a later reading exists.")];
+
+  const HOOKS = {
+    2: {
+      1: () => typeText($('q2'), 'What is the latest inflation rate in Uganda?', 30),
+      2: () => {
+        drawEditions();
+        ['p2a', 'p2b'].forEach((id, i) => later(300 + i * 400, () => $(id).classList.add('in2')));
+        [['ueu-2023-12', 1300], ['ueu-2025-02', 1700]].forEach(([id, t]) => later(t, () => {
+          const d = dots2[id]; if (!d) return;
+          d.setAttribute('fill', '#b42318'); d.setAttribute('r', 8);
+          const [, dt] = REPORTS.find((r) => r[0] === id);
+          svgText($('tl2'), X2(dt), 66, MONTHS[Number(dt.slice(5)) - 1].slice(0, 3) + ' ' + dt.slice(0, 4), { size: 12.5, weight: 700, anchor: 'middle', color: '#b42318' });
+        }));
+      },
+      3: () => {
+        const d = dots2['ueu-2026-06']; if (!d) return;
+        d.setAttribute('fill', '#fff'); d.setAttribute('stroke', '#1f7a4d'); d.setAttribute('stroke-width', 3); d.setAttribute('r', 8);
+        later(300, () => svgText($('tl2'), X2('2026-06'), 66, 'Jun 2026', { size: 12.5, weight: 700, anchor: 'middle', color: '#1f7a4d' }));
+        later(600, () => svgText($('tl2'), X2('2026-06') + 12, 140, 'newest edition · not among the passages', { size: 12.5, weight: 600, anchor: 'end', color: '#1f7a4d' }));
+      },
+      4: () => stream($('a2'), A2, 80, null, () => $('fg2').classList.add('in2')),
+      5: () => { if ($('hl2')) $('hl2').classList.add('on'); },
+    },
+    3: {
+      1: () => {
+        const root = $('g3');
+        ['r3a', 'r3b'].forEach((id, i) => later(500 + i * 300, () => $(id).classList.add('in2')));
+        later(1100, () => $('cut3').classList.add('in2'));
+        later(1300, () => { $('r3a').classList.add('sel'); $('r3b').classList.add('sel'); cellOf(root, 'old1').classList.add('pick'); cellOf(root, 'old2').classList.add('pick');
+          ['r3a', 'r3b'].forEach((id) => $(id).querySelector('.ed b').classList.add('old')); });
+        later(1900, () => { $('gap3').classList.add('in2'); $('r3c').classList.add('in2'); });
+        later(2400, () => { $('r3c').classList.add('lost'); cellOf(root, 'fig').classList.add('lost'); tagAt('tg3', cellOf(root, 'fig')); });
+      },
+      2: () => {
+        later(200, () => fly(cellOf($('g3'), 'fig'), $('md3'), 'ueu-2026-06 · p. 20', 900));
+        later(1300, () => $('md3d').classList.add('on'));
+      },
+    },
+    4: {
+      1: () => {
+        F4 = drawFilter();
+        later(300, () => F4.band.setAttribute('width', F4.x1 + 14 - F4.X(SINCE)));
+        const oldOnes = REPORTS.filter(([, d]) => d < SINCE);
+        later(1100, () => F4.docs.forEach(([d, r]) => { if (d < SINCE) { r.style.opacity = 0.25; } }));
+        document.querySelectorAll('#g4 .blk').forEach((b, i) => later(1100 + i * 70, () => { if (REPORTS[i][1] < SINCE) b.classList.add('off'); }));
+        later(1100, () => countDown($('ct4'), 3440, REPORTS.filter(([, d]) => d >= SINCE).reduce((a, r) => a + r[3], 0), 1100));
+        later(2300, () => { $('ct4').textContent = '343'; });
+        return oldOnes;
+      },
+      2: () => {
+        ['r4a', 'r4b'].forEach((id, i) => later(300 + i * 300, () => { $(id).classList.add('in2'); $(id).querySelector('.ed b').classList.add('new'); }));
+        later(1000, () => { $('cut4').classList.add('in2'); $('r4a').classList.add('sel'); $('r4b').classList.add('sel');
+          cellOf($('g4'), 'new1').classList.add('pick'); cellOf($('g4'), 'fig').classList.add('pick'); });
+      },
+      3: () => {
+        $('r4b').classList.remove('sel'); $('r4b').classList.add('got');
+        const c = cellOf($('g4'), 'fig'); c.classList.remove('pick'); c.classList.add('got');
+        later(200, () => tagAt('tg4', c));
+        later(600, () => $('gap4').classList.add('in2'));
+      },
+    },
+    5: {
+      1: () => later(300, () => stream($('a5'), A5, 85, null, () => $('fg5').classList.add('in2'))),
+      2: () => {
+        if (!$('c5')) return;
+        const b = $('c5').getBoundingClientRect();
+        $('ptr5').style.left = b.left + b.width / 2 + 'px'; $('ptr5').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => { $('c5').classList.add('on'); $('pp5').classList.add('in2'); });
+      },
+    },
+  };
+
+  // Static content built once.
+  $('g3').innerHTML = REPORTS.map(([id, , , n]) => `<div class="blk"><span>${id}</span><div class="cells">${cellsHTML(id, n)}</div></div>`).join('');
+  $('g4').innerHTML = $('g3').innerHTML;
+
+  go(1, 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Questions outside the archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css.
+     All values on screen come from examples/rag-public (retrieval_runs.json: runs.outside, runs.cutoff; answers.json: outside). */
+  .ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary) !important; }
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .stampin { opacity: 0; } .stampin.in2 { animation: stamp .45s ease both; }
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .cells { display: grid; }
+  .cells i { display: block; background: #d5dbe3; transition: background .3s, box-shadow .3s; }
+  .cells i.pick { background: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .mover { position: absolute; border-radius: 3px; background: var(--primary-subtle); border: 1px solid var(--primary); pointer-events: none; z-index: 4; }
+
+  /* 2: the archive and the question */
+  .arc2 { position: absolute; left: 80px; top: 170px; width: 720px; height: 300px; padding: 14px 18px; border-top: 4px solid var(--teal); }
+  .arc2 svg { position: absolute; left: 0; top: 0; width: 720px; height: 300px; overflow: visible; }
+  .arc2 .stats { position: absolute; left: 18px; right: 18px; bottom: 14px; border-top: 1px solid var(--surface-2); padding-top: 10px; display: flex; gap: 26px; align-items: baseline; font-size: 15px; color: var(--muted); }
+  .arc2 .stats b { font: 700 19px var(--mono); color: var(--ink); margin-right: 5px; }
+  .doc2 { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .doc2.in2 { transform: none; }
+  .co2 { position: absolute; left: 830px; top: 170px; width: 370px; height: 300px; padding: 14px 20px; }
+  .c2 { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 14px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .c2.in2 { opacity: 1; transform: none; }
+  .c2:first-of-type { border-top: 0; margin-top: 4px; }
+  .c2 .n { font-size: 21px; font-weight: 700; } .c2 small { display: block; font-size: 14px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .c2 .verdict { margin-top: 0; font-size: 14px; }
+  .qw2 { left: 80px; top: 490px; width: 1120px; height: 136px; }
+  .qw2 .body { padding: 18px 26px; }
+  .qw2 .uq { font-size: 20px; min-height: 30px; }
+
+  /* 3: the search */
+  .st3 { position: absolute; left: 80px; top: 170px; width: 560px; height: 456px; padding: 14px 16px; border-top: 4px solid var(--teal); overflow: hidden; }
+  .blk { display: grid; grid-template-columns: 96px 1fr; align-items: start; margin-top: 8px; position: relative; }
+  .blk > span { font: 500 11.5px/14px var(--mono); color: var(--muted); }
+  .blk .cells { grid-template-columns: repeat(84, 4px); gap: 1px; min-height: 14px; align-content: start; }
+  .blk .cells i { width: 4px; height: 4px; }
+  #g3 { position: relative; }
+  .sweep3 { position: absolute; left: 96px; right: 0; height: 30px; top: -34px; background: linear-gradient(180deg, rgba(21,88,214,0), rgba(21,88,214,.28), rgba(21,88,214,0)); pointer-events: none; }
+  .st3 .key { position: absolute; left: 16px; right: 16px; bottom: 12px; font-size: 13px; color: var(--muted); }
+  .rk3 { position: absolute; left: 670px; top: 170px; width: 530px; height: 456px; padding: 14px 20px; }
+  .rk3 .q { font-size: 17px; font-weight: 600; margin: 6px 0 14px; }
+  .r3 { display: grid; grid-template-columns: 22px 1fr 58px; gap: 10px; align-items: start; padding: 11px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateY(8px); transition: all .4s; }
+  .r3.in2 { opacity: 1; transform: none; }
+  .r3 .n { font: 600 13px var(--mono); color: var(--subtle); padding-top: 2px; }
+  .r3 .ds { display: block; font-size: 15px; color: var(--ink); margin-top: 6px; line-height: 1.35; opacity: 0; transition: opacity .4s; }
+  .r3 .ds.in2 { opacity: 1; }
+  .r3 .sc { font: 600 15px var(--mono); text-align: right; padding-top: 1px; }
+  .more3 { font-size: 13.5px; color: var(--subtle); margin-top: 10px; opacity: 0; transition: opacity .4s; } .more3.in2 { opacity: 1; }
+  .rk3 .foot { position: absolute; left: 20px; right: 20px; bottom: 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--surface-2); padding-top: 12px; font-size: 15px; color: var(--muted); }
+  .rk3 .foot .verdict { margin-top: 0; font-size: 14px; }
+
+  /* 4: the prompt and the answer */
+  .pr4 { position: absolute; left: 80px; top: 170px; width: 520px; height: 456px; padding: 14px 18px; border: 1.5px dashed var(--primary-light); background: #fff; border-radius: 10px; }
+  .pr4 > .label { color: var(--primary); }
+  .pr4 .k { display: block; font: 700 12px var(--mono); color: var(--muted); margin-top: 12px; letter-spacing: .04em; }
+  .rule { display: block; font: 13px/1.55 var(--mono); border-radius: 4px; padding: 1px 4px; margin-left: -4px; color: var(--subtle); transition: background .4s, color .4s, box-shadow .4s; }
+  .rule.on { background: var(--primary-subtle); color: var(--ink); box-shadow: 0 0 0 2px var(--primary-subtle); }
+  .slot4 { margin-top: 6px; border-radius: 7px; border: 1px dashed #c9d3e3; padding: 6px 9px; min-height: 52px; transition: all .4s; }
+  .slot4.full { border: 1px solid var(--teal); background: var(--teal-subtle); }
+  .slot4 .cit { opacity: 0; transition: opacity .4s; font-size: 12px; background: #fff; } .slot4.full .cit { opacity: 1; }
+  .slot4 div { font-size: 13px; line-height: 1.35; color: var(--muted); margin-top: 3px; opacity: 0; transition: opacity .4s; } .slot4.full div { opacity: 1; }
+  .qf4 { display: block; margin-top: 6px; border-radius: 6px; padding: 6px 9px; font: 13px/1.45 var(--mono); background: var(--surface-1); color: var(--subtle); min-height: 30px; transition: background .4s, color .4s; }
+  .qf4.q { background: var(--surface-2); color: var(--ink); }
+  #s4 .win .body { padding: 20px 24px; }
+  #s4 .uq { font-size: 17px; }
+  #s4 .ua .tx { font-size: 17px; line-height: 1.55; }
+  #s4 .cit { font-size: 12.5px; }
+
+  /* 5: a minimum score */
+  .ax5 { position: absolute; left: 80px; top: 170px; width: 720px; height: 456px; padding: 14px 18px; }
+  .ax5 svg { position: absolute; left: 0; top: 0; width: 720px; height: 456px; overflow: visible; }
+  .ax5 .foot { position: absolute; left: 18px; right: 18px; bottom: 14px; border-top: 1px solid var(--surface-2); padding-top: 10px; display: flex; gap: 30px; font-size: 15px; color: var(--muted); opacity: 0; transition: opacity .4s; }
+  .ax5 .foot.in2 { opacity: 1; }
+  .ax5 .foot b { font: 700 18px var(--mono); color: var(--ink); margin-right: 6px; }
+  .ab5 { position: absolute; left: 830px; top: 170px; width: 370px; height: 214px; padding: 14px 20px; border-top: 4px solid var(--bad); }
+  .ab5 > .label { color: var(--bad); }
+  .q5 { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .q5.in2 { opacity: 1; transform: none; }
+  .q5:first-of-type { border-top: 0; margin-top: 4px; }
+  .q5 .w { font-size: 16px; line-height: 1.35; } .q5 .sc { font: 700 16px var(--mono); color: var(--bad); margin-left: 12px; }
+  .in5 { position: absolute; left: 830px; top: 404px; width: 370px; height: 222px; padding: 14px 20px; border-top: 4px solid var(--primary); }
+  .in5 > .label { color: var(--primary); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card; silent -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Questions outside the archive</h1>
+  <div class="part">Part 3 · Answering from an archive · 4 of 5</div>
+</section>
+
+<!-- 2 the archive and a question it cannot answer -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>An archive of reports on Kenya and Uganda</h2>
+  <div class="card arc2" data-b="1"><div class="label" style="color:#0d6e5f">Archive · World Bank economic updates</div>
+    <svg id="tl2"></svg>
+    <div class="stats"><span><b>13</b>reports</span><span><b>2</b>countries</span><span><b id="ct2">0</b>passages</span></div></div>
+  <div class="card co2" data-b="1"><div class="label">Country reports in the archive</div>
+    <div class="c2" id="c2k"><span class="n">Kenya<small>Kenya Economic Update</small></span><span class="verdict ok">7 editions</span></div>
+    <div class="c2" id="c2u"><span class="n">Uganda<small>Uganda Economic Update</small></span><span class="verdict ok">6 editions</span></div>
+    <div class="c2" id="c2r"><span class="n">Rwanda<small>no series in the archive</small></span><span class="verdict bad stampin" id="v2r">no report</span></div></div>
+  <div class="win qw2" data-b="2">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body"><div class="uq" id="q2"></div></div>
+  </div>
+</section>
+
+<!-- 3 the search returns passages for any question -->
+<section class="scene src-on" id="s3">
+  <div class="eyebrow">The search</div>
+  <h2>The search returns the closest passages</h2>
+  <div class="card st3" data-b="1"><div class="label" style="color:#0d6e5f">Archive · 3,440 passages by report</div>
+    <div id="g3"><span class="sweep3" id="sw3"></span></div>
+    <div class="key">One square per passage; blue squares are the three closest to the question.</div></div>
+  <div class="card rk3" data-b="1"><div class="label">Question</div>
+    <div class="q">How much did Rwanda's economy grow in 2025?</div>
+    <div class="label">Closest passages · score</div>
+    <div class="r3" id="r3a"><span class="n">1</span><span><span class="cit">[ueu-2025-12 · p. 37]</span><span class="ds">Chart: agriculture value added in Kenya, Rwanda, Tanzania and Uganda</span></span><span class="sc">0.631</span></div>
+    <div class="r3" id="r3b"><span class="n">2</span><span><span class="cit">[keu-2023-06 · p. 14]</span><span class="ds">Growth in sub-Saharan Africa and the East African Community</span></span><span class="sc">0.630</span></div>
+    <div class="r3" id="r3c"><span class="n">3</span><span><span class="cit">[keu-2024-06 · p. 13]</span><span class="ds">Kenya's real GDP growth in 2023</span></span><span class="sc">0.625</span></div>
+    <div class="more3" id="mo3">… 3,437 more passages with lower scores</div>
+    <div class="foot"><span>Rwanda's growth in 2025 in these passages</span><span class="verdict bad stampin" id="v3">none</span></div></div>
+</section>
+
+<!-- 4 the instruction in the prompt, and the answer -->
+<section class="scene src-on" id="s4">
+  <div class="eyebrow">In the prompt</div>
+  <h2>An instruction for passages that lack the answer</h2>
+  <svg class="wires" id="w4"></svg>
+  <div class="pr4" id="pr4" data-b="1"><div class="label">Prompt</div>
+    <span class="k">INSTRUCTIONS</span>
+    <span class="rule">You are a research assistant for development data.</span>
+    <span class="rule">Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given.</span>
+    <span class="rule" id="r4">If the passages do not contain what is needed, say so.</span>
+    <span class="k">PASSAGES</span>
+    <div class="slot4" id="sl4a"><span class="cit">[ueu-2025-12 · p. 37]</span><div>Kenya Rwanda Tanzania Uganda · Agriculture Value Added (Billions USD) …</div></div>
+    <div class="slot4" id="sl4b"><span class="cit">[keu-2023-06 · p. 14]</span><div>Economic growth in sub-Saharan Africa continues to weaken …</div></div>
+    <div class="slot4" id="sl4c"><span class="cit">[keu-2024-06 · p. 13]</span><div>Real GDP expanded by 5.6 percent in 2023 …</div></div>
+    <span class="k">QUESTION</span>
+    <span class="qf4" id="qf4">{question}</span></div>
+  <div class="win" id="w4w" style="left:660px;top:170px;width:540px;height:456px" data-b="3">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How much did Rwanda's economy grow in 2025?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a4"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 a minimum score, and the questions above it -->
+<section class="scene src-on" id="s5">
+  <div class="eyebrow">A minimum score</div>
+  <h2>A minimum score stops some questions</h2>
+  <svg class="wires" id="w5"></svg>
+  <div class="card ax5" data-b="1"><div class="label">Best score of 17 labelled questions</div><svg id="ax5"></svg>
+    <div class="foot" id="ft5"><span><b>7 of 9</b>outside the archive stopped</span><span><b>1 of 8</b>answerable questions stopped</span></div></div>
+  <div class="card ab5" id="ab5" data-b="3"><div class="label">Outside, above the minimum</div>
+    <div class="q5" id="q5a"><span class="w">What was Tanzania's GDP growth in 2025?</span><span class="sc">0.712</span></div>
+    <div class="q5" id="q5b"><span class="w">How much coffee does Ethiopia export?</span><span class="sc">0.729</span></div></div>
+  <div class="card in5" id="in5" data-b="3"><div class="label">Instructions in the prompt</div>
+    <span class="rule">Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given.</span>
+    <span class="rule" id="r5">If the passages do not contain what is needed, say so.</span></div>
+</section>
+
+<!-- 6 end screen; silent -->
+<section class="scene dark" id="s6">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>Testing the search and checking answers</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+
+  // The 13 reports in store order: id, edition date, PDF pages, chunks (store_summary.json).
+  const REPORTS = [
+    ['keu-2022-12', '2022-12', 54, 225], ['keu-2023-06', '2023-06', 66, 288], ['keu-2024-06', '2024-06', 56, 229],
+    ['keu-2024-12', '2024-12', 68, 349], ['keu-2025-05', '2025-05', 68, 302], ['keu-2025-11', '2025-11', 44, 251],
+    ['keu-2026-07', '2026-07', 27, 103], ['ueu-2023-06', '2023-06', 82, 322], ['ueu-2023-12', '2023-12', 52, 218],
+    ['ueu-2025-02', '2025-02', 66, 301], ['ueu-2025-09', '2025-09', 78, 364], ['ueu-2025-12', '2025-12', 58, 248],
+    ['ueu-2026-06', '2026-06', 50, 240]];
+  // Position within its report, in the order of chunks.jsonl, of the three passages of runs.outside.
+  const POS = [['ueu-2025-12', 157, 'r3a'], ['keu-2023-06', 32, 'r3b'], ['keu-2024-06', 29, 'r3c']];
+  const cellsHTML = (id, n) => Array.from({ length: n }, (_, i) => `<i data-k="${id}|${i}"></i>`).join('');
+  const cit = (s, id) => `<span class="cit"${id ? ` id="${id}"` : ''}>${s}</span>`;
+  const month = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + m - 1; };
+
+  function moveClone(from, to, ms) {
+    const a = rectOf(from), b = rectOf(to), sb = current.getBoundingClientRect();
+    const m = document.createElement('div'); m.className = 'mover';
+    Object.assign(m.style, { left: a.left - sb.left + 'px', top: a.top - sb.top + 'px', width: a.width + 'px', height: a.height + 'px' });
+    current.appendChild(m);
+    m.animate([{ transform: 'none', opacity: 1 },
+               { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(${b.width / a.width}, ${b.height / a.height})`, opacity: .9 }],
+              { duration: ms, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => m.remove();
+  }
+  function seg(svg, x1, y1, x2, y2, color, ms = 600, width = 2, dash = '') {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(p);
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = dash || L; p.style.strokeDashoffset = dash ? 0 : L;
+    if (!dash) { p.getBoundingClientRect(); p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0; }
+    else { p.style.opacity = 0; p.style.transition = `opacity ${ms}ms`; p.getBoundingClientRect(); p.style.opacity = 1; }
+    return p;
+  }
+  function svgText(svg, x, y, text, opts = {}) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = text;
+    t.setAttribute('font-family', opts.mono ? 'JetBrains Mono, monospace' : 'Inter, sans-serif');
+    t.setAttribute('font-size', opts.size || 13); t.setAttribute('font-weight', opts.weight || 500);
+    t.setAttribute('fill', opts.color || '#565f68'); t.setAttribute('text-anchor', opts.anchor || 'start');
+    if (!opts.instant) { t.style.opacity = 0; t.style.transition = 'opacity .4s'; }
+    svg.appendChild(t); t.getBoundingClientRect(); t.style.opacity = 1;
+    return t;
+  }
+  function svgDot(svg, x, y, r, color) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r); c.setAttribute('fill', color);
+    c.style.transformOrigin = `${x}px ${y}px`; c.style.transform = 'scale(0)'; c.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1), opacity .4s, fill .4s';
+    svg.appendChild(c); c.getBoundingClientRect(); c.style.transform = 'none';
+    return c;
+  }
+  function countUp(el, to, ms) {
+    const t0 = performance.now(), e = epoch;
+    (function tick(now) {
+      if (e !== epoch) return;
+      const f = Math.min(1, (now - t0) / ms);
+      el.textContent = Math.round(to * f).toLocaleString('en-US');
+      if (f < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  // 2: the editions on a time axis, one document per report, height by PDF pages.
+  function drawArchive() {
+    const s = $('tl2'), x0 = 40, x1 = 680, m0 = month('2022-10'), m1 = month('2026-09');
+    const X = (d) => x0 + (month(d) - m0) / (m1 - m0) * (x1 - x0);
+    const rows = [['keu', 'Kenya Economic Update · 7 editions', 108], ['ueu', 'Uganda Economic Update · 6 editions', 190]];
+    rows.forEach(([, name, base]) => {
+      svgText(s, 18, base - 48, name, { size: 12.5, weight: 700, color: '#565f68', instant: true });
+      seg(s, x0 - 6, base, x1, base, '#e2e5e8', 1, 1.2);
+    });
+    REPORTS.forEach(([id, d, pages], i) => {
+      const base = rows.find((r) => id.startsWith(r[0]))[2], h = 12 + pages * 0.3, x = X(d) - 10;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', x); r.setAttribute('y', base - h); r.setAttribute('width', 20); r.setAttribute('height', h); r.setAttribute('rx', 2);
+      r.setAttribute('fill', id.startsWith('keu') ? '#e3f5f1' : '#eaf0fd'); r.setAttribute('stroke', id.startsWith('keu') ? '#12a08a' : '#1558d6'); r.setAttribute('stroke-width', 1.4);
+      r.setAttribute('class', 'doc2'); r.dataset.i = i; s.appendChild(r);
+    });
+    ['2023', '2024', '2025', '2026'].forEach((y) => { const x = X(y + '-01'); seg(s, x, 196, x, 202, '#8a929a', 1, 1.2); svgText(s, x, 218, y, { mono: true, size: 12, anchor: 'middle', instant: true }); });
+  }
+
+  // 4: the recorded answer (answers.json, outside), shortened where marked.
+  const A4 = [...words("The passages don't contain Rwanda's 2025 economic growth figure."), '<br><br>',
+    ...words('The only passage that mentions Rwanda is the Uganda Economic Update, December 2025 '), cit('[ueu-2025-12 · p. 37]', 'c4'), '. ',
+    ...words('It contains a chart titled "Agriculture Value Added (Billions USD)" covering Kenya, Rwanda, Tanzania, and Uganda, but the extracted text gives no values and no growth rates. …')];
+
+  // 5: best score of each labelled question (runs.cutoff); minimum 0.6632.
+  const CUT = [['in', 0.7962], ['in', 0.7184], ['in', 0.6632], ['in', 0.8002], ['in', 0.632], ['in', 0.8103], ['in', 0.7915], ['in', 0.7604],
+    ['out', 0.6307, 'rw'], ['out', 0.6439], ['out', 0.6058], ['out', 0.7115, 'tz'], ['out', 0.6499], ['out', 0.5794], ['out', 0.7291, 'et'], ['out', 0.5235], ['out', 0.4817]];
+  const MIN = 0.6632, X5 = (v) => 40 + (v - 0.45) / (0.85 - 0.45) * (680 - 40), YA = 120, YB = 250, AX = 320;
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        [...document.querySelectorAll('#tl2 .doc2')].sort((p, q) => REPORTS[p.dataset.i][1].localeCompare(REPORTS[q.dataset.i][1]))
+          .forEach((r, i) => later(200 + i * 110, () => r.classList.add('in2')));
+        later(700, () => countUp($('ct2'), 3440, 1500));
+        ['c2k', 'c2u'].forEach((id, i) => later(600 + i * 500, () => $(id).classList.add('in2')));
+      },
+      2: () => {
+        $('c2r').classList.add('in2');
+        later(500, () => $('v2r').classList.add('in2'));
+        later(900, () => typeText($('q2'), "How much did Rwanda's economy grow in 2025?", 26));
+      },
+    },
+    3: {
+      1: () => {
+        const g = $('g3');
+        $('sw3').animate([{ top: '-34px', opacity: 1 }, { top: (g.offsetHeight - 4) + 'px', opacity: 1 }, { top: g.offsetHeight + 'px', opacity: 0 }],
+          { duration: 2600, easing: 'linear', fill: 'forwards' });
+      },
+      2: () => {
+        POS.forEach(([id, i, row], j) => later(200 + j * 500, () => {
+          const c = $('g3').querySelector(`i[data-k="${id}|${i}"]`); c.classList.add('pick');
+          moveClone(c, $(row), 700);
+          later(650, () => $(row).classList.add('in2'));
+        }));
+        later(2000, () => $('mo3').classList.add('in2'));
+      },
+      3: () => {
+        document.querySelectorAll('#s3 .ds').forEach((d, i) => later(200 + i * 700, () => d.classList.add('in2')));
+        later(2500, () => $('v3').classList.add('in2'));
+      },
+    },
+    4: {
+      1: () => {
+        ['sl4a', 'sl4b', 'sl4c'].forEach((id, i) => later(300 + i * 450, () => $(id).classList.add('full')));
+        later(1800, () => { $('qf4').textContent = "How much did Rwanda's economy grow in 2025?"; $('qf4').classList.add('q'); });
+      },
+      2: () => later(300, () => $('r4').classList.add('on')),
+      3: () => {
+        later(300, () => { const p = wire($('w4'), $('pr4'), $('w4w'), { color: '#1558d6', ms: 500 }); later(500, () => flow($('w4'), p, '#1558d6', 1300, 2, 4.5)); });
+        later(900, () => stream($('a4'), A4, 85));
+      },
+      4: () => {
+        const c = $('c4'); if (!c) return;
+        c.classList.add('on');
+        later(300, () => fly(c, $('sl4a'), 'p. 37', 900));
+        later(1200, () => $('sl4a').classList.add('ring'));
+      },
+    },
+    5: {
+      1: () => {
+        const s = $('ax5');
+        seg(s, 40, AX, 680, AX, '#8a929a', 500, 1.4);
+        [0.5, 0.6, 0.7, 0.8].forEach((v) => { seg(s, X5(v), AX - 4, X5(v), AX + 4, '#8a929a', 200, 1.4); svgText(s, X5(v), AX + 20, v.toFixed(1), { mono: true, size: 12.5, anchor: 'middle' }); });
+        svgText(s, 680, AX + 42, 'score of the closest passage', { size: 12.5, anchor: 'end', color: '#8a929a' });
+        svgText(s, 40, YA - 40, 'answerable from the archive · 8', { size: 13.5, color: '#1f7a4d', weight: 700 });
+        svgText(s, 40, YB - 40, 'outside the archive · 9', { size: 13.5, color: '#b42318', weight: 700 });
+        // Close scores are set apart vertically so that every dot stays visible.
+        const placed = { in: [], out: [] };
+        CUT.forEach(([lab, v, tag], i) => later(300 + i * 70, () => {
+          const x = X5(v), base = lab === 'in' ? YA : YB, near = placed[lab].filter((p) => Math.abs(p - x) < 13).length;
+          placed[lab].push(x);
+          const dy = near === 0 ? 0 : (near % 2 ? -13 : 13) * Math.ceil(near / 2);
+          const d = svgDot(s, x, base + dy, 6.5, lab === 'in' ? '#1f7a4d' : '#b42318');
+          d.dataset.v = v; d.dataset.lab = lab; if (tag) d.id = 'd5' + tag;
+        }));
+        later(1700, () => {
+          const cx = X5(MIN);
+          seg(s, cx, 64, cx, AX - 8, '#1558d6', 500, 2, '6 5');
+          svgText(s, cx + 8, 62, 'minimum score 0.663', { size: 13, color: '#1558d6', weight: 700 });
+        });
+      },
+      2: () => {
+        const s = $('ax5'), cx = X5(MIN);
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', 40); r.setAttribute('y', 96); r.setAttribute('width', cx - 40); r.setAttribute('height', AX - 104); r.setAttribute('rx', 6);
+        r.setAttribute('fill', '#f1f3f5'); r.style.opacity = 0; r.style.transition = 'opacity .5s'; s.insertBefore(r, s.firstChild);
+        r.getBoundingClientRect(); r.style.opacity = 1;
+        later(200, () => svgText(s, 52, AX - 20, 'stopped before the model', { size: 13, color: '#565f68', weight: 700 }));
+        [...s.querySelectorAll('circle')].forEach((c) => { if (Number(c.dataset.v) < MIN) c.style.opacity = 0.4; });
+        later(500, () => $('ft5').classList.add('in2'));
+      },
+      3: () => {
+        const s = $('ax5');
+        ['q5a', 'q5b'].forEach((id, i) => later(300 + i * 400, () => $(id).classList.add('in2')));
+        later(300, () => { $('d5tz').setAttribute('stroke', '#16191d'); $('d5tz').setAttribute('stroke-width', 2); svgText(s, X5(0.7115), YB + 30, 'Tanzania growth', { size: 12.5, color: '#b42318', weight: 600, anchor: 'middle' }); });
+        later(700, () => { $('d5et').setAttribute('stroke', '#16191d'); $('d5et').setAttribute('stroke-width', 2); svgText(s, X5(0.7291) + 6, YB - 18, 'Ethiopia coffee', { size: 12.5, color: '#b42318', weight: 600 }); });
+      },
+      4: () => {
+        const p = wire($('w5'), $('ab5'), $('in5'), { from: 'bottom', to: 'top', hot: true, ms: 400 });
+        later(400, () => carry(p, 'to the model', '#b42318', 900, null, () => $('r5').classList.add('on')));
+        later(800, () => $('in5').classList.add('ring'));
+      },
+    },
+  };
+
+  drawArchive();
+  $('g3').insertAdjacentHTML('beforeend', REPORTS.map(([id, , , n]) => `<div class="blk"><span>${id}</span><div class="cells">${cellsHTML(id, n)}</div></div>`).join(''));
+  go(1, 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Answering from a document archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css.
+     Values on screen come from examples/rag-public (retrieval_runs.json run "inside", answers.json case "inside", sources.json). */
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary) !important; }
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .rag { position: absolute; top: -14px; right: 18px; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: #fff;
+    font: 700 16px Inter, sans-serif; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0); transition: all .4s cubic-bezier(.2,.8,.2,1); z-index: 3; }
+  .rag.in2 { opacity: 1; transform: none; }
+  .mover { position: absolute; border-radius: 3px; background: var(--primary-subtle); border: 1px solid var(--primary); pointer-events: none; z-index: 4; }
+
+  /* 2: the archive and the question */
+  .arc2 { position: absolute; left: 80px; top: 170px; width: 720px; height: 456px; padding: 14px 18px; border-top: 4px solid var(--teal); }
+  .arc2 svg { position: absolute; left: 0; top: 0; width: 720px; height: 456px; overflow: visible; }
+  .arc2 .stats { position: absolute; left: 18px; right: 18px; bottom: 14px; border-top: 1px solid var(--surface-2); padding-top: 10px; display: flex; gap: 26px; align-items: baseline; font-size: 15px; color: var(--muted); }
+  .arc2 .stats b { font: 700 19px var(--mono); color: var(--ink); margin-right: 5px; }
+  .doc2 { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .45s cubic-bezier(.2,.8,.2,1), stroke-width .3s; }
+  .doc2.in2 { transform: none; }
+  #s2 .uq { font-size: 18px; max-width: 300px; }
+  #s2 .uq:empty { visibility: hidden; }
+  .stat2 { margin-top: 18px; display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--muted); opacity: 0; transition: opacity .4s; }
+  .stat2.in2 { opacity: 1; }
+  .spin { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid var(--primary-subtle); border-top-color: var(--primary); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 3: the search and the prompt */
+  .g3 { position: absolute; left: 80px; top: 170px; width: 460px; height: 456px; padding: 14px 16px; border-top: 4px solid var(--teal); }
+  .g3 .q { margin-top: 8px; font-size: 16px; font-weight: 600; background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 8px; padding: 6px 10px; }
+  .g3 .q small { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); margin-right: 8px; }
+  .blk { display: grid; grid-template-columns: 82px 1fr; align-items: start; margin-top: 4px; }
+  .blk > span { font: 500 11.5px/14px var(--mono); color: var(--muted); }
+  .cells { display: grid; grid-template-columns: repeat(70, 4px); gap: 1px; min-height: 14px; align-content: start; }
+  .cells i { display: block; width: 4px; height: 4px; background: #d5dbe3; transition: background .25s, box-shadow .3s, transform .3s; }
+  .blk.scan .cells i { background: #b9cdf3; }
+  .cells i.pick { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); transform: scale(1.6); position: relative; z-index: 2; }
+  #g3 { margin-top: 6px; }
+  .g3 .key { position: absolute; left: 16px; right: 16px; bottom: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 18px; }
+  .g3 .key i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; }
+  .pr3 { position: absolute; left: 566px; top: 170px; width: 370px; height: 456px; padding: 14px 16px; border: 1.5px dashed var(--primary-light); background: #fff; border-radius: 10px; }
+  .pr3 > .label { color: var(--primary); }
+  .pr3 .sl { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); margin-top: 9px; }
+  .ins3 { margin-top: 4px; border-radius: 8px; border: 1px dashed #c9d3e3; padding: 5px 8px; transition: all .4s; }
+  .ins3 .rule { display: block; font: 12px/1.4 var(--mono); color: var(--muted); border-radius: 4px; padding: 0 4px; margin-left: -4px; opacity: 0; transition: opacity .4s, background .4s, color .4s; }
+  .ins3.full { border: 1px solid var(--primary); background: #fff; }
+  .ins3.full .rule { opacity: 1; }
+  .ins3 .rule.on { background: var(--primary-subtle); color: var(--ink); box-shadow: 0 0 0 2px var(--primary-subtle); }
+  .slot3 { height: 56px; margin-top: 5px; border-radius: 8px; border: 1px dashed #c9d3e3; padding: 6px 9px; transition: all .4s; }
+  .slot3.full { border: 1px solid var(--teal); background: var(--teal-subtle); }
+  .slot3 .cit { opacity: 0; transition: opacity .4s; font-size: 12px; background: #fff; } .slot3.full .cit { opacity: 1; }
+  .slot3 div { font-size: 12.5px; line-height: 1.35; color: var(--muted); margin-top: 4px; opacity: 0; transition: opacity .4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot3.full div { opacity: 1; }
+  .qs3 { margin-top: 4px; border-radius: 8px; border: 1px dashed #c9d3e3; padding: 6px 9px; height: 34px; font: 600 13px Inter, sans-serif; white-space: nowrap; color: var(--ink); transition: all .4s; }
+  .qs3.full { border: 1px solid var(--hairline); background: var(--surface-2); }
+  #md3 { left: 996px; top: 186px; }
+  .rg3 { position: absolute; left: 960px; top: 400px; width: 240px; height: 226px; padding: 14px 16px; border-top: 4px solid var(--ink); }
+  .rg3 .t { font-size: 17px; font-weight: 700; line-height: 1.25; margin-top: 6px; }
+  .rg3 .ln { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: center; font-size: 14px; line-height: 1.3; margin-top: 10px; color: var(--muted); }
+  .rg3 .ln i { font-style: normal; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 12px Inter, sans-serif; display: flex; align-items: center; justify-content: center; }
+
+  /* 4: the answer and the report page */
+  #s4 .win .body { padding: 20px 24px; }
+  #s4 .uq { font-size: 19px; }
+  #s4 .ua { margin-top: 18px; }
+  #s4 .ua .tx { font-size: 20px; line-height: 1.65; }
+  #s4 .ua .tx b { border-radius: 4px; transition: background .4s, box-shadow .4s; }
+  #s4 .ua .tx b.hl { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .pl4 { position: absolute; left: 800px; top: 170px; width: 400px; height: 156px; padding: 12px 18px; }
+  .pl4 .row { display: grid; grid-template-columns: 186px 1fr; align-items: center; gap: 8px; padding: 7px 6px; margin: 0 -6px; border-top: 1px solid var(--surface-2); border-radius: 6px; font-size: 14px; color: var(--muted); transition: background .4s, box-shadow .4s; }
+  .pl4 .row:first-of-type { border-top: 0; margin-top: 4px; }
+  .pl4 .row .cit { justify-self: start; font-size: 12.5px; }
+  .pl4 .row.on { background: var(--primary-subtle); box-shadow: 0 0 0 2px var(--primary-subtle); }
+  .pg4 { position: absolute; left: 800px; top: 340px; width: 400px; height: 286px; padding: 14px 18px; border-top: 4px solid var(--teal);
+    opacity: 0; transform: translateY(14px) scale(.97); transition: opacity .5s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .pg4.in2 { opacity: 1; transform: none; }
+  .pg4 .h { font: 600 14px var(--mono); color: #0d6e5f; display: flex; justify-content: space-between; }
+  .pg4 .h small { font: 500 12.5px var(--mono); color: var(--subtle); }
+  .pg4 .ti { font-size: 14px; font-weight: 600; line-height: 1.35; margin-top: 6px; }
+  .pg4 .gl { height: 6px; border-radius: 3px; background: var(--surface-2); margin-top: 7px; }
+  .pg4 .tx { font-size: 15px; line-height: 1.5; margin-top: 8px; color: var(--ink); }
+  .pg4 mark { background: transparent; border-radius: 3px; transition: background .4s, box-shadow .4s; color: inherit; }
+  .pg4 mark.hl { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card: series, area, title; silent -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Answering from a document archive</h1>
+  <div class="part">Part 3 · Answering from an archive · 1 of 5</div>
+</section>
+
+<!-- 2 the archive and the question -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>An application that answers from an archive</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="card arc2" id="ar2" data-b="1"><div class="label" style="color:#0d6e5f">Archive · World Bank economic updates</div>
+    <svg id="tl2"></svg>
+    <div class="stats"><span><b>13</b>reports</span><span><b>769</b>pages</span><span><b>3,440</b>passages</span></div></div>
+  <div class="win" id="win2" style="left:830px;top:170px;width:370px;height:456px" data-b="1">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq" id="q2"></div>
+      <div class="stat2" id="st2"><span class="spin"></span>Searching the archive</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 the search and the prompt -->
+<section class="scene src-on" id="s3">
+  <div class="eyebrow">Search and prompt</div>
+  <h2>The search picks passages for the prompt</h2>
+  <svg class="wires" id="w3"></svg>
+  <div class="card g3" id="ga3" data-b="1"><span class="rag" id="b3r">R</span><div class="label" style="color:#0d6e5f">Archive · 3,440 passages by report</div>
+    <div class="q"><small>Question</small>How much did Uganda's economy grow in FY25?</div>
+    <div id="g3"></div>
+    <div class="key"><span><i style="background:#d5dbe3"></i>one square per passage</span><span><i style="background:var(--primary)"></i>picked by the search</span></div></div>
+  <div class="pr3" id="pr3" data-b="1"><span class="rag" id="b3a">A</span><div class="label">Prompt</div>
+    <div class="sl">Instructions</div>
+    <div class="ins3" id="in3">
+      <span class="rule">You are a research assistant for development data.</span>
+      <span class="rule" id="r3a">Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given.</span>
+      <span class="rule">If the passages do not contain what is needed, say so.</span></div>
+    <div class="sl">Passages</div>
+    <div class="slot3" id="sl3a"><span class="cit">[ueu-2025-12 · p. 12]</span><div>… GDP growth accelerated to 6.3 percent, up from 6.1 percent in FY24 …</div></div>
+    <div class="slot3" id="sl3b"><span class="cit">[ueu-2023-06 · p. 40]</span><div>2.1 Uganda's economic outlook has greatly improved …</div></div>
+    <div class="slot3" id="sl3c"><span class="cit">[ueu-2025-09 · p. 21]</span><div>… during 9M-FY25 grew by 6.8 percent, up from 6.1 percent …</div></div>
+    <div class="sl">Question</div>
+    <div class="qs3" id="qs3"></div></div>
+  <div class="model" id="md3" data-b="3"><span class="rag" id="b3g" style="right:-12px">G</span>Language model<small>writes the answer</small></div>
+  <div class="card rg3" data-b="5"><div class="label">The pattern</div>
+    <div class="t">Retrieval-augmented generation (RAG)</div>
+    <div class="ln"><i>R</i>retrieval of passages from the archive</div>
+    <div class="ln"><i>A</i>passages added to the prompt</div>
+    <div class="ln"><i>G</i>generation of the answer</div></div>
+</section>
+
+<!-- 4 the answer and the report page -->
+<section class="scene src-on" id="s4">
+  <div class="eyebrow">In the chat window</div>
+  <h2>Each figure cites a report and a page</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:456px" data-b="1">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How much did Uganda's economy grow in FY25?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a4"></div></div>
+    </div>
+  </div>
+  <div class="card pl4" data-b="1"><div class="label">Passages in the prompt</div>
+    <div class="row" id="p4a"><span class="cit">[ueu-2025-12 · p. 12]</span><span>December 2025 edition</span></div>
+    <div class="row" id="p4b"><span class="cit">[ueu-2023-06 · p. 40]</span><span>June 2023 edition</span></div>
+    <div class="row" id="p4c"><span class="cit">[ueu-2025-09 · p. 21]</span><span>September 2025 edition</span></div></div>
+  <div class="card pg4" id="pg4"><div class="h">ueu-2025-12<small>PDF page 12 of 58</small></div>
+    <div class="ti">Uganda Economic Update, December 2025: Cultivating Prosperity through Agro-Industrialization</div>
+    <div class="gl" style="width:92%"></div><div class="gl" style="width:78%"></div>
+    <div class="tx">Uganda's economic growth remained above 6 percent in FY25, outpacing regional and global averages. Real gross domestic product (GDP) growth <mark id="m4">accelerated to 6.3 percent</mark>, up from 6.1 percent in FY24. …</div>
+    <div class="gl" style="width:96%"></div><div class="gl" style="width:84%"></div></div>
+  <svg class="ptr" id="ptr4" style="left:640px;top:760px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 5 end screen; silent -->
+<section class="scene dark" id="s5">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>How the search ranks passages</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+
+  // The 13 reports in store order: id, edition date, PDF pages, chunks (as in rag-public-reports.html).
+  const REPORTS = [
+    ['keu-2022-12', '2022-12', 54, 225], ['keu-2023-06', '2023-06', 66, 288], ['keu-2024-06', '2024-06', 56, 229],
+    ['keu-2024-12', '2024-12', 68, 349], ['keu-2025-05', '2025-05', 68, 302], ['keu-2025-11', '2025-11', 44, 251],
+    ['keu-2026-07', '2026-07', 27, 103], ['ueu-2023-06', '2023-06', 82, 322], ['ueu-2023-12', '2023-12', 52, 218],
+    ['ueu-2025-02', '2025-02', 66, 301], ['ueu-2025-09', '2025-09', 78, 364], ['ueu-2025-12', '2025-12', 58, 248],
+    ['ueu-2026-06', '2026-06', 50, 240]];
+  // The three passages of run "inside" (k = 3), as positions within their report in chunks.jsonl, and their prompt slots.
+  const PICKS = [['ueu-2025-12', 9, 'sl3a'], ['ueu-2023-06', 144, 'sl3b'], ['ueu-2025-09', 72, 'sl3c']];
+  const cellsHTML = (id, n) => Array.from({ length: n }, (_, i) => `<i data-k="${id}|${i}"></i>`).join('');
+  const cellAt = (id, i) => document.querySelector(`#g3 i[data-k="${id}|${i}"]`);
+  const month = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + m - 1; };
+  const cit = (s, id) => `<span class="cit"${id ? ` id="${id}"` : ''}>${s}</span>`;
+
+  function moveClone(from, to, ms, cls = 'mover') {
+    const a = rectOf(from), b = rectOf(to), sb = current.getBoundingClientRect();
+    const m = document.createElement('div'); m.className = cls;
+    Object.assign(m.style, { left: a.left - sb.left + 'px', top: a.top - sb.top + 'px', width: a.width + 'px', height: a.height + 'px' });
+    current.appendChild(m);
+    m.animate([{ transform: 'none', opacity: 1 },
+               { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(${b.width / a.width}, ${b.height / a.height})`, opacity: .9 }],
+              { duration: ms, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => m.remove();
+  }
+  function seg(svg, x1, y1, x2, y2, color, ms = 600, width = 2) {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(p);
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+    p.getBoundingClientRect(); p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0;
+    return p;
+  }
+  function svgText(svg, x, y, text, opts = {}) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = text;
+    t.setAttribute('font-family', opts.mono ? 'JetBrains Mono, monospace' : 'Inter, sans-serif');
+    t.setAttribute('font-size', opts.size || 13); t.setAttribute('font-weight', opts.weight || 500);
+    t.setAttribute('fill', opts.color || '#565f68'); t.setAttribute('text-anchor', opts.anchor || 'start');
+    if (!opts.instant) { t.style.opacity = 0; t.style.transition = 'opacity .4s'; }
+    svg.appendChild(t); t.getBoundingClientRect(); t.style.opacity = 1;
+    return t;
+  }
+
+  // 2: the editions on a time axis, one document per report, height by PDF pages.
+  const X2 = (d) => 50 + (month(d) - month('2022-10')) / (month('2026-09') - month('2022-10')) * (680 - 50);
+  function drawArchive() {
+    const s = $('tl2');
+    const rows = [['keu', 'Kenya Economic Update · 7 editions', 172], ['ueu', 'Uganda Economic Update · 6 editions', 300]];
+    rows.forEach(([p, name, base]) => {
+      svgText(s, 18, base - 82, name, { size: 13, weight: 700, instant: true });
+      seg(s, 36, base, 690, base, '#e2e5e8', 1, 1.2);
+    });
+    REPORTS.forEach(([id, d, pages], i) => {
+      const base = id.startsWith('keu') ? 172 : 300, h = 12 + pages * 0.7, x = X2(d) - 11;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', x); r.setAttribute('y', base - h); r.setAttribute('width', 22); r.setAttribute('height', h); r.setAttribute('rx', 2);
+      r.setAttribute('fill', id.startsWith('keu') ? '#e3f5f1' : '#eaf0fd'); r.setAttribute('stroke', id.startsWith('keu') ? '#12a08a' : '#1558d6'); r.setAttribute('stroke-width', 1.4);
+      r.setAttribute('class', 'doc2'); r.id = 'd2-' + id; r.dataset.i = i; s.appendChild(r);
+    });
+    ['2023', '2024', '2025', '2026'].forEach((y) => { const x = X2(y + '-01'); seg(s, x, 304, x, 310, '#8a929a', 1, 1.2); svgText(s, x, 326, y, { mono: true, size: 12, anchor: 'middle', instant: true }); });
+  }
+
+  // 4: the recorded answer of case "inside" (answers.json), shortened where marked; figures and citations unchanged.
+  const A4 = [...words("Uganda's real GDP grew by "), '<b id="f4">6.3 percent in FY25</b>', ...words(', up from 6.1 percent in FY24 '), cit('[ueu-2025-12 · p. 12]', 'c4a'), '.<br><br>',
+    ...words('The September 2025 update reports 6.8 percent growth for the first nine months of FY25 (9M-FY25) '), cit('[ueu-2025-09 · p. 21]', 'c4b'), '. … ',
+    ...words("The June 2023 update's FY25 figure of 6.7 percent is a projection made in 2023, not an outturn "), cit('[ueu-2023-06 · p. 40]', 'c4c'), ' …'];
+
+  const HOOKS = {
+    2: {
+      1: () => [...document.querySelectorAll('#tl2 .doc2')].sort((p, q) => REPORTS[p.dataset.i][1].localeCompare(REPORTS[q.dataset.i][1]))
+        .forEach((r, i) => later(400 + i * 120, () => r.classList.add('in2'))),
+      2: () => {
+        const s = $('tl2'), a = X2('2022-12'), b = X2('2026-07'), y = 352;
+        ['d2-keu-2022-12', 'd2-keu-2026-07'].forEach((id) => { $(id).style.strokeWidth = 3; });
+        seg(s, a, y - 6, a, y + 6, '#1558d6', 200, 2);
+        later(150, () => seg(s, a, y, b, y, '#1558d6', 1000, 2));
+        later(1150, () => seg(s, b, y - 6, b, y + 6, '#1558d6', 200, 2));
+        later(300, () => svgText(s, a - 6, y + 22, 'December 2022', { mono: true, size: 12.5, color: '#1558d6', weight: 600 }));
+        later(1200, () => svgText(s, b + 6, y + 22, 'July 2026', { mono: true, size: 12.5, color: '#1558d6', weight: 600, anchor: 'end' }));
+      },
+      3: () => typeText($('q2'), "How much did Uganda's economy grow in FY25?", 30, () => {
+        $('st2').classList.add('in2');
+        const s = $('w2'), w = rectOf($('win2')), ar = rectOf($('ar2')), so = s.getBoundingClientRect(), y = rectOf($('st2')).top + 10 - so.top;
+        const p = seg(s, w.left - so.left - 4, y, ar.right - so.left + 4, y, '#1558d6', 400, 2);
+        later(400, () => flow(s, p, '#1558d6', 1100, 3, 4.5));
+      }),
+    },
+    3: {
+      1: () => document.querySelectorAll('#g3 .blk').forEach((b, i) => later(150 + i * 110, () => {
+        b.classList.add('scan'); later(260, () => b.classList.remove('scan'));
+      })),
+      2: () => PICKS.forEach(([id, i], j) => later(250 + j * 450, () => cellAt(id, i).classList.add('pick'))),
+      3: () => {
+        $('in3').classList.add('full');
+        PICKS.forEach(([id, i, slot], j) => later(300 + j * 450, () => {
+          moveClone(cellAt(id, i), $(slot), 700);
+          later(700, () => $(slot).classList.add('full'));
+        }));
+        later(1900, () => { $('qs3').textContent = "How much did Uganda's economy grow in FY25?"; $('qs3').classList.add('full'); });
+      },
+      4: () => later(200, () => $('r3a').classList.add('on')),
+      5: () => {
+        const s = $('w3');
+        later(100, () => { const p = wire(s, $('pr3'), $('md3'), { hot: true, ms: 500 }); later(500, () => flow(s, p, '#1558d6', 1300, 3, 4.5)); });
+        later(600, () => $('md3').classList.add('busy'));
+        ['b3r', 'b3a', 'b3g'].forEach((id, i) => later(1400 + i * 350, () => $(id).classList.add('in2')));
+      },
+    },
+    4: {
+      1: () => later(300, () => stream($('a4'), A4, 65)),
+      2: () => later(200, () => { if ($('f4')) $('f4').classList.add('hl'); }),
+      3: () => {
+        if ($('f4')) $('f4').classList.remove('hl');
+        [['c4a', 'p4a'], ['c4b', 'p4c'], ['c4c', 'p4b']].forEach(([c, r], i) => later(200 + i * 500, () => {
+          if (!$(c)) return;
+          $(c).classList.add('on'); $(r).classList.add('on');
+          later(450, () => { $(c).classList.remove('on'); $(r).classList.remove('on'); });
+        }));
+      },
+      4: () => {
+        if (!$('c4a')) return;
+        const b = $('c4a').getBoundingClientRect();
+        $('ptr4').style.left = b.left + b.width / 2 + 'px'; $('ptr4').style.top = b.top + b.height / 2 + 'px';
+        later(850, () => { $('c4a').classList.add('on'); $('p4a').classList.add('on'); $('pg4').classList.add('in2'); });
+      },
+      5: () => {
+        if (!$('f4')) return;
+        $('f4').classList.add('hl');
+        later(300, () => fly($('f4'), $('m4'), '6.3', 1000));
+        later(1300, () => $('m4').classList.add('hl'));
+      },
+    },
+  };
+
+  drawArchive();
+  $('g3').innerHTML = REPORTS.map(([id, , , n]) => `<div class="blk"><span>${id}</span><div class="cells">${cellsHTML(id, n)}</div></div>`).join('');
+  go(1, 0);
+</script>
+</body>
+</html>

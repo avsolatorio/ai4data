@@ -1,0 +1,23 @@
+{
+  "title": "How the search ranks passages",
+  "series": "ai-applications",
+  "next": "dates-in-the-search",
+  "steps": [
+    {"do": "goto", "url": "stages/how-search-ranks-passages.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "The application finds passages in a document archive, and the model answers from them.", "min": 3.0, "settle": 0.9, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "A user asks how the conflict in the Middle East affected Uganda, and how much poverty fell.", "min": 4.5, "pause": 0.7},
+    {"do": "eval", "js": "go(3,1)", "say": "The search gives every passage in the archive a score for its closeness in meaning to the question.", "min": 2.5, "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "The passages are ranked by that score, and the four closest go into the prompt.", "min": 3.5, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "All four of those passages are about poverty.", "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,4)", "say": "The first passage on the conflict ranks fifth, one place below the cut.", "min": 1.5, "pause": 0.7},
+    {"do": "eval", "js": "go(4,1)", "say": "The model reads only the passages in its prompt.", "min": 3.2, "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "Its answer gives the fall in poverty and states that the passages do not mention the conflict.", "min": 4.0, "pause": 0.7},
+    {"do": "eval", "js": "go(5,1)", "say": "The fix divides the question into its two parts and runs one search for each part.", "min": 3.8, "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "The application merges the two sets of results, so the prompt holds passages on the conflict and on poverty.", "min": 3.4, "pause": 0.7},
+    {"do": "eval", "js": "go(6,1)", "say": "With the merged passages, the answer covers both parts, with a citation after each figure.", "min": 7.5, "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(6,2)", "say": "The answer reports that global energy prices are projected to rise by 24 percent in 2026.", "speak": "The answer reports that global energy prices are projected to rise by twenty-four percent in twenty twenty-six.", "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(6,3)", "say": "The citation leads to page 22 of the June 2026 edition of the Uganda Economic Update.", "speak": "The citation leads to page twenty-two of the June twenty twenty-six edition of the Uganda Economic Update.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(7,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

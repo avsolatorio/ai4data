@@ -1,0 +1,22 @@
+{
+  "title": "Testing the search and checking answers",
+  "series": "ai-applications",
+  "next": "text-search-and-data-tool",
+  "steps": [
+    {"do": "goto", "url": "stages/testing-search-and-answers.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "The search of an application can be tested without the language model.", "settle": 0.9, "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "Each test question lists the reports expected among its passages.", "pause": 0.35},
+    {"do": "eval", "js": "go(2,3)", "say": "This test passes because the expected report is among the four passages found.", "min": 2.8, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "The test set holds eight questions, each with its expected report.", "settle": 0.8, "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "Without a filter on the edition date, four of the eight tests pass. In the failed tests, passages from older editions take the place of the newest report.", "min": 3.2, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "With the filter, all eight tests pass. The tests make no call to the model and can run again after each change to the search.", "min": 3.2, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "In the chatbot, each figure of the answer carries a citation to a report and a page.", "settle": 0.8, "min": 7.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "The citation of the poverty figure leads to page 23 of the June 2026 edition.", "speak": "The citation of the poverty figure leads to page twenty-three of the June twenty twenty-six edition.", "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "The answer notes that its passage does not name the poverty line.", "min": 1.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,4)", "say": "The sentence begins on page 22, which names the USD 3.00-per-day line.", "speak": "The sentence begins on page twenty-two, which names the three dollar per day line.", "min": 2.2, "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "The tests check that the search finds the expected reports.", "settle": 0.8, "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "The reader uses the cited page to judge whether a figure answers the question. The page shows the measure and the period of the figure.", "min": 3.4, "pause": 0.35},
+    {"do": "eval", "js": "go(6,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

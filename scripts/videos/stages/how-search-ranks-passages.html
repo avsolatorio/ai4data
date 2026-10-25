@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How the search ranks passages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css.
+     All values on screen come from examples/rag-public (retrieval_runs.json, answers.json). */
+  #s1 h1 { font-size: 72px; max-width: 1000px; }
+  .ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary) !important; }
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .tag { display: inline-block; font: 600 11.5px Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; white-space: nowrap; transition: all .4s; }
+  .tag.pov { background: var(--primary-subtle); color: var(--primary); }
+  .tag.con { background: var(--teal-subtle); color: #0d6e5f; }
+  .tag.oth { background: var(--surface-2); color: var(--muted); }
+  .tag.big { box-shadow: inset 0 0 0 1.5px currentColor; }
+
+  /* passage grids: one square per chunk of the store */
+  .cells { display: grid; }
+  .cells i { display: block; background: #d5dbe3; transition: background .3s, box-shadow .3s; }
+  .cells i.lit { background: #b9c6da; }
+  .cells i.pick { background: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .cells i.conp { background: var(--teal); box-shadow: 0 0 0 2px #9fdccf; }
+  .cells i.lost { background: var(--bad); box-shadow: 0 0 0 2px #f2c2bd; }
+  .mover { position: absolute; border-radius: 3px; background: var(--primary-subtle); border: 1px solid var(--primary); pointer-events: none; z-index: 4; }
+
+  /* 2: context */
+  #s2 .uq { font-size: 19px; max-width: 500px; }
+  .arc2 { position: absolute; left: 730px; top: 170px; width: 470px; height: 456px; padding: 14px 18px; border-top: 4px solid var(--teal); }
+  .arc2 svg { display: block; width: 434px; height: 170px; margin-top: 6px; overflow: visible; }
+  .arc2 .stats { display: flex; gap: 22px; align-items: baseline; font-size: 15px; color: var(--muted); border-top: 1px solid var(--surface-2); padding-top: 10px; margin-top: 4px; }
+  .arc2 .stats b { font: 700 19px var(--mono); color: var(--ink); margin-right: 5px; }
+  #g2 { grid-template-columns: repeat(108, 3px); gap: 1px; margin-top: 14px; }
+  #g2 i { width: 3px; height: 3px; opacity: 0; transition: opacity .3s, background .3s; }
+  #g2 i.on { opacity: 1; }
+  .arc2 .sm { font-size: 12.5px; color: var(--subtle); margin-top: 8px; }
+  .doc2 { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .doc2.in2 { transform: none; }
+  .hint2 { position: absolute; left: 26px; right: 26px; bottom: 22px; font-size: 15px; color: var(--subtle); display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--surface-2); padding-top: 14px; }
+
+  /* 3: scores and ranks */
+  .st3 { position: absolute; left: 80px; top: 170px; width: 440px; height: 456px; padding: 14px 16px; border-top: 4px solid var(--teal); overflow: hidden; }
+  .blk { display: grid; grid-template-columns: 88px 1fr; align-items: start; margin-top: 6px; position: relative; }
+  .blk > span { font: 500 11.5px/14px var(--mono); color: var(--muted); }
+  .blk .cells { grid-template-columns: repeat(64, 4px); gap: 1px; min-height: 14px; align-content: start; }
+  .blk .cells i { width: 4px; height: 4px; }
+  .sweep { position: absolute; left: 0; right: 0; height: 34px; top: -40px; background: linear-gradient(180deg, rgba(21,88,214,0), rgba(21,88,214,.22), rgba(21,88,214,0)); pointer-events: none; }
+  .st3 .key { position: absolute; left: 16px; right: 16px; bottom: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 16px; background: #fff; }
+  .st3 .key i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; }
+  .rk3 { position: absolute; left: 545px; top: 170px; width: 655px; height: 456px; padding: 14px 18px; }
+  #rows3 { position: absolute; left: 18px; right: 18px; top: 46px; }
+  .r3 { position: absolute; left: 0; right: 0; display: grid; grid-template-columns: 20px 176px 74px 1fr 64px 50px; gap: 8px; align-items: center; height: 40px; border-radius: 6px; padding: 0 6px;
+    opacity: 0; transform: translateX(10px); transition: opacity .4s, transform .4s, background .4s, box-shadow .4s; }
+  .r3.in2 { opacity: 1; transform: none; }
+  .r3 .n { font: 600 13px var(--mono); color: var(--subtle); }
+  .r3 .id { font: 500 12.5px var(--mono); color: #0d6e5f; white-space: nowrap; }
+  .r3 .sec { font-size: 13.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r3 .tag { justify-self: start; }
+  .r3 .bar { display: block; height: 12px; border-radius: 3px; width: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); }
+  .r3 .sc { font: 600 14px var(--mono); text-align: right; }
+  .r3.sel { background: var(--primary-subtle); }
+  .r3.hl { box-shadow: 0 0 0 2px var(--teal); background: var(--teal-subtle); }
+  .cut3 { position: absolute; left: 18px; right: 18px; height: 0; border-top: 2px dashed var(--primary); opacity: 0; transition: opacity .4s; }
+  .cut3.in2 { opacity: 1; }
+  .cut3 span { position: absolute; right: 8px; top: -1px; transform: translateY(-50%); font: 700 12.5px Inter, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--primary); background: #fff; padding: 0 6px; }
+  .more3 { position: absolute; left: 24px; font-size: 13.5px; color: var(--subtle); opacity: 0; transition: opacity .4s; } .more3.in2 { opacity: 1; }
+  .note3 { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; gap: 10px; align-items: center; font-size: 15px; color: var(--muted); border-top: 1px solid var(--surface-2); padding-top: 12px; opacity: 0; transition: opacity .4s; }
+  .note3.in2 { opacity: 1; }
+  .note3 .chip { font-size: 14px; padding: 5px 10px; }
+  .chip.bad2 { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  .flag3 { position: absolute; left: 24px; transform: translateY(-50%); font: 700 12.5px Inter, sans-serif; color: var(--bad); background: var(--bad-bg); border-radius: 999px; padding: 3px 10px; opacity: 0; transition: opacity .4s; white-space: nowrap; }
+  .flag3.in2 { opacity: 1; }
+
+  /* 4: the answer from four passages */
+  #s4 .uq { font-size: 16px; max-width: 560px; }
+  #s4 .ua .tx { font-size: 17px; line-height: 1.55; }
+  #a4 .ncw, #a4 b.nc { border-radius: 3px; transition: background .4s, box-shadow .4s; }
+  #a4 .hl { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; }
+  .psg { position: absolute; left: 810px; top: 170px; width: 390px; height: 456px; padding: 14px 18px; }
+  .prow { padding: 10px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .prow.in2 { opacity: 1; transform: none; }
+  .prow:first-of-type { border-top: 0; }
+  .prow .ds { font-size: 14.5px; color: var(--ink); margin-top: 5px; }
+  .prow .tp { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+  .prow .sc { font: 600 14px var(--mono); color: var(--ink); }
+  .topics { position: absolute; left: 18px; right: 18px; bottom: 16px; }
+  .topics .chip { display: inline-block; font-size: 14px; padding: 5px 10px; margin: 6px 6px 0 0; }
+
+  /* 5: one search for each part */
+  .q5 { position: absolute; left: 80px; top: 170px; width: 300px; height: 456px; padding: 14px 18px; }
+  .q5 .tx { font-size: 21px; font-weight: 600; line-height: 1.4; margin-top: 8px; }
+  .q5 .tx mark { background: none; border-radius: 3px; transition: background .4s, box-shadow .4s; color: inherit; }
+  .q5 .tx mark.c { background: var(--teal-subtle); box-shadow: 0 0 0 2px var(--teal-subtle); }
+  .q5 .tx mark.p { background: var(--primary-subtle); box-shadow: 0 0 0 2px var(--primary-subtle); }
+  .q5 .old { position: absolute; left: 18px; right: 18px; bottom: 16px; border-top: 1px solid var(--surface-2); padding-top: 12px; }
+  .q5 .old .row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .q5 .old .chip { font-size: 13.5px; padding: 4px 9px; }
+  .se5 { position: absolute; left: 420px; width: 400px; height: 218px; padding: 12px 18px; }
+  .se5.c { border-top: 4px solid var(--teal); } .se5.c > .label { color: #0d6e5f; }
+  .se5.p { border-top: 4px solid var(--primary); } .se5.p > .label { color: var(--primary); }
+  .se5 .tx { font-size: 16px; font-weight: 600; margin: 5px 0 6px; min-height: 22px; }
+  .r5 { display: grid; grid-template-columns: 1fr 56px; align-items: center; padding: 5px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(-8px); transition: all .4s; }
+  .r5.in2 { opacity: 1; transform: none; }
+  .r5 .cit { font-size: 12.5px; justify-self: start; } .r5 .sc { font: 600 14px var(--mono); text-align: right; }
+  .mg5 { position: absolute; left: 860px; top: 170px; width: 340px; height: 456px; padding: 14px 18px; border-top: 4px solid var(--ok); }
+  .mg5 > .label { color: var(--ok); }
+  .m5 { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: center; height: 38px; border-top: 1px solid var(--surface-2); opacity: 0; transition: opacity .4s; }
+  .m5:first-of-type { margin-top: 8px; border-top: 0; }
+  .m5.in2 { opacity: 1; }
+  .m5 i { width: 10px; height: 10px; border-radius: 3px; }
+  .m5 .cit { font-size: 12.5px; justify-self: start; }
+  .m5 small { font-size: 12px; color: var(--subtle); }
+  .mg5 .sum { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; opacity: 0; transition: opacity .4s; }
+  .mg5 .sum.in2 { opacity: 1; }
+  .mg5 .sum .chip { font-size: 13.5px; padding: 5px 10px; }
+  .chip.okc { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); }
+
+  /* 6: in the chatbot */
+  #s6 .uq { font-size: 15.5px; max-width: 540px; }
+  #s6 .win .body { padding: 20px 24px; }
+  #s6 .ua { margin-top: 16px; }
+  #s6 .ua .tx { font-size: 16px; line-height: 1.55; }
+  #s6 .cit { font-size: 12px; }
+  #a6 .en { border-radius: 3px; transition: background .4s, box-shadow .4s; }
+  #a6 .en.hl { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; }
+  .pop.doc { border-top-color: var(--teal); width: 400px; }
+  .pop.doc .h { color: #0d6e5f; font-family: var(--mono); font-size: 15px; }
+  .pop.doc .r { grid-template-columns: 92px 1fr; font-size: 14.5px; line-height: 1.4; }
+  .pop.doc mark { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; border-radius: 3px; }
+  .pl6 { position: absolute; left: 800px; top: 452px; width: 400px; height: 174px; padding: 12px 18px; }
+  .pl6 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .pl6 .cols small { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); margin-bottom: 2px; }
+  .pl6 .ln { font: 12px/1.65 var(--mono); color: var(--muted); border-radius: 4px; padding: 0 4px; margin-left: -4px; transition: background .4s, color .4s; white-space: nowrap; }
+  .pl6 .ln.on { background: var(--primary-subtle); color: var(--primary); }
+  .wait6 { position: absolute; left: 800px; top: 170px; width: 400px; height: 262px; padding: 14px 18px; border: 1.5px dashed #c9d3e3; border-radius: 10px; background: #fff;
+    display: flex; align-items: center; justify-content: center; text-align: center; font-size: 15px; color: var(--subtle); transition: opacity .4s; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card: silent -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="floaters">
+    <span style="left:720px;top:620px;animation-delay:-2s">1  0.676  [ueu-2026-06 · p. 23]</span>
+    <span style="left:960px;top:660px;animation-delay:-9s">5  0.633  [ueu-2026-06 · p. 22]</span>
+    <span style="left:580px;top:680px;animation-delay:-5s">rank · score · passage</span>
+  </div>
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>How the search ranks passages</h1>
+  <div class="part">Part 3 · Answering from an archive · 2 of 5</div>
+</section>
+
+<!-- 2 context: a two-part question to the archive -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A two-part question to an archive of reports</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="win" id="win2" style="left:80px;top:170px;width:620px;height:456px" data-b="1">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body"><div class="uq" id="q2" style="min-height:10px;opacity:0;transition:opacity .3s"></div></div>
+    <div class="hint2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg>
+      The application searches the archive for passages, and the model answers from them.</div>
+  </div>
+  <div class="card arc2" id="ar2" data-b="1"><div class="label" style="color:#0d6e5f">Archive · prepared beforehand</div>
+    <svg id="tl2"></svg>
+    <div class="stats"><span><b>13</b>reports</span><span><b id="ct2">0</b>passages</span></div>
+    <div class="cells" id="g2"></div>
+    <div class="sm">one square per passage</div></div>
+</section>
+
+<!-- 3 every passage gets a score and a rank -->
+<section class="scene src-on" id="s3">
+  <div class="eyebrow">The search</div>
+  <h2>Every passage gets a score and a rank</h2>
+  <div class="card st3" data-b="1"><div class="label" style="color:#0d6e5f">Archive · 3,440 passages by report</div>
+    <div id="g3" style="position:relative"><span class="sweep" id="sw3"></span></div>
+    <div class="key"><span><i style="background:var(--primary)"></i>in the prompt</span><span><i style="background:var(--bad)"></i>conflict passage left out</span></div></div>
+  <div class="card rk3" data-b="1"><div class="label">Passages ranked by closeness in meaning to the question</div>
+    <div id="rows3"></div>
+    <div class="cut3" id="cut3"><span>kept for the prompt · 4</span><b class="flag3" id="fl3">rank 5 · one place below the cut</b></div>
+    <div class="note3" id="nt3"><span>Topics of the four kept passages</span><span class="chip">poverty · 4</span><span class="chip" id="ec3">Middle East conflict · 0</span></div>
+  </div>
+</section>
+
+<!-- 4 the answer from the four passages -->
+<section class="scene src-on" id="s4">
+  <div class="eyebrow">The answer</div>
+  <h2>The answer leaves out the conflict</h2>
+  <svg class="wires" id="w4"></svg>
+  <div class="win" id="win4" style="left:80px;top:170px;width:700px;height:456px">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How did the conflict in the Middle East affect Uganda, and how much did poverty fall?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a4"></div></div>
+    </div>
+  </div>
+  <div class="card psg" id="ps4" data-b="1"><div class="label" style="margin-bottom:2px">Passages in the prompt</div>
+    <div class="prow"><span class="cit">[ueu-2026-06 · p. 23]</span><div class="ds">Box 3: multidimensional poverty index</div><div class="tp"><span class="tag pov">poverty</span><span class="sc">0.676</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2026-06 · p. 23]</span><div class="ds">Poverty 51.5% in FY25, from 52.9% in FY24</div><div class="tp"><span class="tag pov">poverty</span><span class="sc">0.675</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2025-09 · p. 13]</span><div class="ds">Poverty 30.1% in 2019/20, 26.4% in 2023/24</div><div class="tp"><span class="tag pov">poverty</span><span class="sc">0.656</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2025-12 · p. 26]</span><div class="ds">Box 2: revisions to the poverty line</div><div class="tp"><span class="tag pov">poverty</span><span class="sc">0.653</span></div></div>
+    <div class="topics"><div class="label">Topics among the passages</div>
+      <span class="chip">poverty · 4</span><span class="chip" id="ec4">Middle East conflict · 0</span></div>
+  </div>
+</section>
+
+<!-- 5 the fix: one search for each part, results merged -->
+<section class="scene src-on" id="s5">
+  <div class="eyebrow">The fix</div>
+  <h2>One search for each part of the question</h2>
+  <svg class="wires" id="w5"></svg>
+  <div class="card q5" id="q5" data-b="1"><div class="label">Question</div>
+    <div class="tx"><mark id="m5c">How did the conflict in the Middle East affect Uganda,</mark> <mark id="m5p">and how much did poverty fall?</mark></div>
+    <div class="old"><div class="label">One search for the whole question</div>
+      <div class="row"><span class="chip">poverty · 4</span><span class="chip bad2">conflict · 0</span></div></div></div>
+  <div class="card se5 c" id="se5a" style="top:170px" data-b="1"><div class="label">Search 1 · the conflict</div>
+    <div class="tx" id="t5a"></div>
+    <div class="r5"><span class="cit">[ueu-2026-06 · p. 22]</span><span class="sc">0.683</span></div>
+    <div class="r5"><span class="cit">[ueu-2025-02 · p. 39]</span><span class="sc">0.626</span></div>
+    <div class="r5"><span class="cit">[ueu-2026-06 · p. 22]</span><span class="sc">0.580</span></div>
+    <div class="r5"><span class="cit">[ueu-2025-12 · p. 28]</span><span class="sc">0.537</span></div></div>
+  <div class="card se5 p" id="se5b" style="top:408px" data-b="1"><div class="label">Search 2 · poverty</div>
+    <div class="tx" id="t5b"></div>
+    <div class="r5"><span class="cit">[ueu-2026-06 · p. 23]</span><span class="sc">0.820</span></div>
+    <div class="r5"><span class="cit">[ueu-2026-06 · p. 23]</span><span class="sc">0.797</span></div>
+    <div class="r5"><span class="cit">[ueu-2025-12 · p. 26]</span><span class="sc">0.791</span></div>
+    <div class="r5"><span class="cit">[ueu-2025-09 · p. 13]</span><span class="sc">0.790</span></div></div>
+  <div class="card mg5" id="mg5" data-b="2"><div class="label">Prompt · merged passages</div>
+    <div class="m5"><i style="background:var(--teal)"></i><span class="cit">[ueu-2026-06 · p. 22]</span><small>search 1</small></div>
+    <div class="m5"><i style="background:var(--teal)"></i><span class="cit">[ueu-2025-02 · p. 39]</span><small>search 1</small></div>
+    <div class="m5"><i style="background:var(--teal)"></i><span class="cit">[ueu-2026-06 · p. 22]</span><small>search 1</small></div>
+    <div class="m5"><i style="background:var(--teal)"></i><span class="cit">[ueu-2025-12 · p. 28]</span><small>search 1</small></div>
+    <div class="m5"><i style="background:var(--primary)"></i><span class="cit">[ueu-2026-06 · p. 23]</span><small>search 2</small></div>
+    <div class="m5"><i style="background:var(--primary)"></i><span class="cit">[ueu-2026-06 · p. 23]</span><small>search 2</small></div>
+    <div class="m5"><i style="background:var(--primary)"></i><span class="cit">[ueu-2025-12 · p. 26]</span><small>search 2</small></div>
+    <div class="m5"><i style="background:var(--primary)"></i><span class="cit">[ueu-2025-09 · p. 13]</span><small>search 2</small></div>
+    <div class="sum" id="sum5"><span class="chip okc">search 1 · 4</span><span class="chip okc">search 2 · 4</span><span class="chip">8 passages</span></div></div>
+</section>
+
+<!-- 6 in the chatbot: the merged answer and a citation to its page -->
+<section class="scene src-on" id="s6">
+  <div class="eyebrow">In the chatbot</div>
+  <h2>The answer covers both parts</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:456px">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How did the conflict in the Middle East affect Uganda, and how much did poverty fall?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a6"></div></div>
+    </div>
+  </div>
+  <div class="wait6" id="wt6">The cited page opens here.</div>
+  <div class="pop doc" id="pp6" style="left:800px;top:170px"><div class="h">ueu-2026-06 · p. 22</div>
+    <div class="r"><span>Report</span><span>Uganda Economic Update, 27th Edition, June 2026</span></div>
+    <div class="r"><span>Passage</span><span>The Conflict in the Middle East represents the most significant external shock … Global energy prices are projected to <mark>rise by 24 percent in 2026</mark>.</span></div>
+    <div class="r"><span>Date</span><span class="mono">2026-06</span></div></div>
+  <div class="card pl6"><div class="label">Passages · two searches, merged</div>
+    <div class="cols"><div><small>search 1 · conflict</small>
+      <div class="ln">[ueu-2026-06 · p. 22]</div><div class="ln">[ueu-2025-02 · p. 39]</div><div class="ln" id="pl6e">[ueu-2026-06 · p. 22]</div><div class="ln">[ueu-2025-12 · p. 28]</div></div>
+      <div><small>search 2 · poverty</small>
+      <div class="ln">[ueu-2026-06 · p. 23]</div><div class="ln">[ueu-2026-06 · p. 23]</div><div class="ln">[ueu-2025-12 · p. 26]</div><div class="ln">[ueu-2025-09 · p. 13]</div></div></div></div>
+  <svg class="ptr" id="ptr6" style="left:640px;top:760px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 7 end screen: silent -->
+<section class="scene dark" id="s7">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>Dates in the search</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+
+  // The 13 reports in store order: id, edition date, PDF pages, chunks (store_summary.json).
+  const REPORTS = [
+    ['keu-2022-12', '2022-12', 54, 225], ['keu-2023-06', '2023-06', 66, 288], ['keu-2024-06', '2024-06', 56, 229],
+    ['keu-2024-12', '2024-12', 68, 349], ['keu-2025-05', '2025-05', 68, 302], ['keu-2025-11', '2025-11', 44, 251],
+    ['keu-2026-07', '2026-07', 27, 103], ['ueu-2023-06', '2023-06', 82, 322], ['ueu-2023-12', '2023-12', 52, 218],
+    ['ueu-2025-02', '2025-02', 66, 301], ['ueu-2025-09', '2025-09', 78, 364], ['ueu-2025-12', '2025-12', 58, 248],
+    ['ueu-2026-06', '2026-06', 50, 240]];
+  // Position of a chunk within its report, in the order of chunks.jsonl (local/rag-public).
+  const POS = { mpi: ['ueu-2026-06', 79], pov: ['ueu-2026-06', 75], pov2: ['ueu-2025-09', 15], ipl: ['ueu-2025-12', 94],
+    imports: ['ueu-2026-06', 73], pov12: ['ueu-2026-06', 20], risk: ['ueu-2025-02', 155] };
+  const cellsHTML = (id, n) => Array.from({ length: n }, (_, i) => `<i data-k="${id}|${i}"></i>`).join('');
+  const cellOf = (root, key) => root.querySelector(`i[data-k="${POS[key][0]}|${POS[key][1]}"]`);
+  const cit = (s) => `<span class="cit">${s}</span>`;
+  const month = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + m - 1; };
+
+  // A copy of an element that moves to another element and is removed on arrival.
+  function moveClone(from, to, ms, cls = 'mover') {
+    const a = rectOf(from), b = rectOf(to), sb = current.getBoundingClientRect();
+    const m = document.createElement('div'); m.className = cls;
+    Object.assign(m.style, { left: a.left - sb.left + 'px', top: a.top - sb.top + 'px', width: a.width + 'px', height: a.height + 'px' });
+    current.appendChild(m);
+    m.animate([{ transform: 'none', opacity: 1 },
+               { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(${b.width / a.width}, ${b.height / a.height})`, opacity: .9 }],
+              { duration: ms, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => m.remove();
+  }
+  function seg(svg, x1, y1, x2, y2, color, ms = 600, width = 2) {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', width);
+    svg.appendChild(p);
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0;
+    return p;
+  }
+  function svgText(svg, x, y, text, opts = {}) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = text;
+    t.setAttribute('font-family', opts.mono ? 'JetBrains Mono, monospace' : 'Inter, sans-serif');
+    t.setAttribute('font-size', opts.size || 13); t.setAttribute('font-weight', opts.weight || 500);
+    t.setAttribute('fill', opts.color || '#565f68'); t.setAttribute('text-anchor', opts.anchor || 'start');
+    svg.appendChild(t);
+    return t;
+  }
+  function countUp(el, to, ms) {
+    const t0 = performance.now(), e = epoch;
+    (function tick(now) {
+      if (e !== epoch) return;
+      const f = Math.min(1, (now - t0) / ms);
+      el.textContent = Math.round(to * f).toLocaleString('en-US');
+      if (f < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  // 2: the editions on a time axis, one document per report, height by PDF pages.
+  function drawArchive() {
+    const s = $('tl2'), x0 = 24, x1 = 420, m0 = month('2022-10'), m1 = month('2026-09');
+    const X = (d) => x0 + (month(d) - m0) / (m1 - m0) * (x1 - x0);
+    const rows = [['keu', 'Kenya Economic Update · 7 editions', 70], ['ueu', 'Uganda Economic Update · 6 editions', 140]];
+    rows.forEach(([, name, base]) => {
+      svgText(s, 0, base - 46, name, { size: 12.5, weight: 700 });
+      const l = document.createElementNS(NS, 'path'); l.setAttribute('d', `M${x0 - 10},${base} L${x1 + 10},${base}`); l.setAttribute('stroke', '#e2e5e8'); l.setAttribute('stroke-width', 1.2); s.appendChild(l);
+    });
+    REPORTS.forEach(([id, d, pages], i) => {
+      const base = id.startsWith('keu') ? 70 : 140, h = 10 + pages * 0.3, x = X(d) - 8;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', x); r.setAttribute('y', base - h); r.setAttribute('width', 16); r.setAttribute('height', h); r.setAttribute('rx', 2);
+      r.setAttribute('fill', id.startsWith('keu') ? '#e3f5f1' : '#eaf0fd'); r.setAttribute('stroke', id.startsWith('keu') ? '#12a08a' : '#1558d6'); r.setAttribute('stroke-width', 1.4);
+      r.setAttribute('class', 'doc2'); r.dataset.i = i; s.appendChild(r);
+    });
+    ['2023', '2024', '2025', '2026'].forEach((y) => svgText(s, X(y + '-01'), 164, y, { mono: true, size: 12, anchor: 'middle' }));
+  }
+
+  // 3: the closest passages for the two-part question (main_ranking, first seven).
+  const RANK3 = [[1, '[ueu-2026-06 · p. 23]', 'Multidimensional poverty', 0.676, 'pov', 'mpi'],
+    [2, '[ueu-2026-06 · p. 23]', 'Poverty, FY24 to FY25', 0.675, 'pov', 'pov'],
+    [3, '[ueu-2025-09 · p. 13]', 'Poverty, 2019/20 to 2023/24', 0.656, 'pov', 'pov2'],
+    [4, '[ueu-2025-12 · p. 26]', 'Poverty line revisions', 0.653, 'pov', 'ipl'],
+    [5, '[ueu-2026-06 · p. 22]', 'Middle East: trade', 0.633, 'con', 'imports'],
+    [6, '[ueu-2026-06 · p. 12]', 'Poverty, FY25', 0.621, 'pov', 'pov12'],
+    [7, '[ueu-2025-02 · p. 39]', 'Middle East: risk', 0.618, 'con', 'risk']];
+  const COL = { pov: '#1558d6', con: '#12a08a', oth: '#8a929a' };
+  const TOPIC = { pov: 'poverty', con: 'conflict', oth: 'other' };
+  const ROW3 = 42;
+
+  // 4: the recorded answer with one search (main_one_search), shortened where marked.
+  const ncw = (s) => words(s).map((w) => `<span class="ncw">${w}</span>`);
+  const A4 = ['<b class="nc">Middle East conflict:</b> ',
+    ...ncw("The passages do not mention any conflict in the Middle East or its effects on Uganda, so I can't answer that part."),
+    '<br><b>Poverty reduction:</b><br>',
+    ...words('Monetary poverty, FY24 to FY25: … fell to 51.5 percent in FY25, down from 52.9 percent in FY24, a decline of 1.4 percentage points. … '), cit('[ueu-2026-06 · p. 23]'), '.<br>',
+    ...words('Poverty, 2019/20 to 2023/24: Poverty fell from 30.1 percent in 2019/20 to 26.4 percent in 2023/24 … '), cit('[ueu-2025-09 · p. 13]'), '.'];
+  // 6: the recorded answer with one search for each part (main_merged), shortened where marked.
+  const enw = (s) => words(s).map((w) => `<span class="en">${w}</span>`);
+  const A6 = ['<b>Effects of the Middle East conflict on Uganda</b><br>',
+    ...words('… '), ...enw('Global energy prices are projected to rise by 24 percent in 2026 '), '<span class="cit" id="c6e">[ueu-2026-06 · p. 22]</span>', '.<br>',
+    ...words("… The Middle East accounts for about one-third of Uganda's exports, mainly gold, and 15 percent of its imports. … "), cit('[ueu-2026-06 · p. 22]'), '.<br>',
+    '<b>How much poverty fell</b><br>',
+    ...words('FY24 to FY25: Monetary poverty fell to 51.5 percent in FY25, down from 52.9 percent in FY24, a drop of 1.4 percentage points. … '), cit('[ueu-2026-06 · p. 23]'), '. ',
+    ...words('The excerpt does not name the poverty line used for this figure.'), '<br>…'];
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        [...document.querySelectorAll('#tl2 .doc2')].sort((p, q) => REPORTS[p.dataset.i][1].localeCompare(REPORTS[q.dataset.i][1]))
+          .forEach((r, i) => later(300 + i * 100, () => r.classList.add('in2')));
+        const cells = [...document.querySelectorAll('#g2 i')], per = 172;
+        for (let k = 0; k < 20; k++) later(700 + k * 80, () => cells.slice(k * per, (k + 1) * per).forEach((c) => c.classList.add('on')));
+        later(700, () => countUp($('ct2'), 3440, 1600));
+      },
+      2: () => {
+        $('q2').style.opacity = 1;
+        typeText($('q2'), 'How did the conflict in the Middle East affect Uganda, and how much did poverty fall?', 40, () => {
+          const s = $('w2'), p = wire(s, $('win2'), $('ar2'), { hot: true, ms: 500 });
+          later(500, () => flow(s, p, '#1558d6', 1400, 3, 4.5));
+          later(600, () => { [...document.querySelectorAll('#g2 i')].forEach((c, i) => { if (i % 3 === 0) c.classList.add('lit'); }); });
+        });
+      },
+    },
+    3: {
+      1: () => {
+        const cells = [...document.querySelectorAll('#g3 i')];
+        $('sw3').animate([{ top: '-40px' }, { top: '420px' }], { duration: 1800, easing: 'linear', fill: 'forwards' });
+        // Cells light up in the wake of the sweep: each one receives a score.
+        const g = $('g3').getBoundingClientRect();
+        cells.forEach((c) => { const y = c.getBoundingClientRect().top - g.top; later(80 + y * 4, () => c.classList.add('lit')); });
+      },
+      2: () => {
+        $('rows3').innerHTML = RANK3.map(([n, c, d, v, tp]) => `<div class="r3" id="r3${n}" style="top:${(n - 1) * ROW3 + (n > 4 ? 30 : 0)}px"><span class="n">${n}</span><span class="id">${c}</span>
+          <span class="tag ${tp}">${TOPIC[tp]}</span><span class="sec">${d}</span><span><span class="bar" style="background:${COL[tp]}" data-w="${Math.round((v - 0.59) / (0.68 - 0.59) * 100)}"></span></span><span class="sc">${v.toFixed(3)}</span></div>`).join('')
+          + `<div class="more3" id="mo3" style="top:${7 * ROW3 + 38}px">… 3,433 more passages with lower scores</div>`;
+        $('cut3').style.top = (46 + 4 * ROW3 + 15) + 'px';
+        RANK3.forEach(([n, , , , , k], i) => later(150 + i * 230, () => {
+          const c = cellOf($('g3'), k); c.classList.remove('lit');
+          moveClone(c, $('r3' + n), 600);
+          later(450, () => { $('r3' + n).classList.add('in2'); const b = $('r3' + n).querySelector('.bar'); b.style.width = b.dataset.w + '%'; });
+        }));
+        later(1900, () => $('mo3').classList.add('in2'));
+        later(2200, () => {
+          $('cut3').classList.add('in2');
+          [1, 2, 3, 4].forEach((n, i) => later(i * 150, () => { $('r3' + n).classList.add('sel'); cellOf($('g3'), RANK3[n - 1][5]).classList.add('pick'); }));
+        });
+      },
+      3: () => {
+        [1, 2, 3, 4].forEach((n, i) => later(100 + i * 200, () => $('r3' + n).querySelector('.tag').classList.add('big')));
+        later(900, () => $('nt3').classList.add('in2'));
+        later(1400, () => $('ec3').classList.add('bad2'));
+      },
+      4: () => {
+        $('r35').classList.add('hl');
+        later(400, () => { $('fl3').classList.add('in2'); cellOf($('g3'), 'imports').classList.add('lost'); });
+      },
+    },
+    4: {
+      1: () => {
+        const s = $('w4');
+        document.querySelectorAll('#s4 .prow').forEach((r, i) => later(200 + i * 250, () => r.classList.add('in2')));
+        later(1200, () => { const p = wire(s, $('win4'), $('ps4'), { hot: true, ms: 500 }); });
+        later(1500, () => stream($('a4'), A4, 60));
+      },
+      2: () => {
+        later(300, () => document.querySelectorAll('#a4 .ncw, #a4 b.nc').forEach((w) => w.classList.add('hl')));
+        later(900, () => $('ec4').classList.add('bad2'));
+      },
+    },
+    5: {
+      1: () => {
+        const s = $('w5');
+        later(200, () => $('m5c').classList.add('c'));
+        later(500, () => $('m5p').classList.add('p'));
+        later(700, () => { const p = wire(s, $('q5'), $('se5a'), { color: '#12a08a', ms: 500 }); later(500, () => carry(p, 'part 1', '#12a08a', 700)); });
+        later(900, () => { const p = wire(s, $('q5'), $('se5b'), { color: '#1558d6', ms: 500 }); later(500, () => carry(p, 'part 2', '#1558d6', 700)); });
+        later(1400, () => typeText($('t5a'), 'How did the conflict in the Middle East affect Uganda?', 50));
+        later(1600, () => typeText($('t5b'), 'How much did poverty fall in Uganda?', 50));
+        document.querySelectorAll('#se5a .r5').forEach((r, i) => later(2300 + i * 150, () => r.classList.add('in2')));
+        document.querySelectorAll('#se5b .r5').forEach((r, i) => later(2400 + i * 150, () => r.classList.add('in2')));
+      },
+      2: () => {
+        const s = $('w5'), rows = [...document.querySelectorAll('#s5 .r5')], dst = [...document.querySelectorAll('#s5 .m5')];
+        later(200, () => { const p = wire(s, $('se5a'), $('mg5'), { color: '#12a08a', ms: 500 }); later(500, () => flow(s, p, '#12a08a', 1400, 2, 4.5)); });
+        later(300, () => { const p = wire(s, $('se5b'), $('mg5'), { color: '#1558d6', ms: 500 }); later(500, () => flow(s, p, '#1558d6', 1400, 2, 4.5)); });
+        rows.forEach((r, i) => later(700 + i * 220, () => { moveClone(r, dst[i], 600); later(550, () => dst[i].classList.add('in2')); }));
+        later(2700, () => $('sum5').classList.add('in2'));
+      },
+    },
+    6: {
+      1: () => later(300, () => stream($('a6'), A6, 50)),
+      2: () => {
+        later(200, () => document.querySelectorAll('#a6 .en').forEach((w) => w.classList.add('hl')));
+        later(700, () => { if ($('c6e')) $('c6e').classList.add('on'); });
+      },
+      3: () => {
+        if (!$('c6e')) return;
+        const b = $('c6e').getBoundingClientRect();
+        $('ptr6').style.left = b.left + b.width / 2 + 'px'; $('ptr6').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => { $('wt6').style.opacity = 0; $('pp6').classList.add('in2'); $('pl6e').classList.add('on'); });
+      },
+    },
+  };
+
+  // Static content built once.
+  drawArchive();
+  $('g2').innerHTML = REPORTS.map(([id, , , n]) => cellsHTML(id, n)).join('');
+  $('g3').insertAdjacentHTML('beforeend', REPORTS.map(([id, , , n]) => `<div class="blk"><span>${id}</span><div class="cells">${cellsHTML(id, n)}</div></div>`).join(''));
+
+  go(1, 0);
+</script>
+</body>
+</html>

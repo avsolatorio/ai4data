@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Testing the search and checking answers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css.
+     All values on screen come from examples/rag-public (retrieval_runs.json: runs.tests; answers.json: main_merged;
+     page text from the chunks of ueu-2026-06, pages 22 and 23). */
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .stampin { opacity: 0; } .stampin.in2 { animation: stamp .45s ease both; }
+
+  /* 2: one retrieval test */
+  .q2 { position: absolute; left: 80px; top: 176px; width: 340px; height: 270px; padding: 16px 20px; border-top: 4px solid var(--primary); }
+  .q2 .tx { font-size: 19px; font-weight: 600; line-height: 1.4; margin-top: 8px; }
+  .q2 .ex { position: absolute; left: 20px; right: 20px; bottom: 16px; }
+  .q2 .ex .chip { display: inline-block; font-size: 16px; margin-top: 8px; }
+  #s2 .node { left: 452px; top: 186px; width: 230px; }
+  .off { position: absolute; left: 482px; top: 366px; width: 170px; height: 80px; border: 1.5px dashed #c9d3e3; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--subtle); font-size: 16px; font-weight: 600; background: #fff; }
+  .off small { font-size: 13px; font-weight: 500; margin-top: 3px; }
+  .p2 { position: absolute; left: 740px; top: 176px; width: 460px; height: 270px; padding: 14px 18px; border-top: 4px solid var(--teal); }
+  .pr2 { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 6px; height: 52px; border-top: 1px solid var(--surface-2);
+    opacity: 0; transform: translateX(10px); transition: opacity .4s, transform .4s, background .4s, box-shadow .4s; border-radius: 6px; padding: 0 6px; }
+  .pr2:first-of-type { border-top: 0; margin-top: 6px; }
+  .pr2.in2 { opacity: 1; transform: none; }
+  .pr2 .n { font: 600 13px var(--mono); color: var(--subtle); }
+  .pr2 .cit { font-size: 14px; justify-self: start; }
+  .pr2 small { display: block; font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .pr2.hit { background: var(--ok-bg); box-shadow: 0 0 0 2px #b5dcc6; }
+  .ck2 { position: absolute; left: 80px; top: 470px; width: 1120px; height: 156px; padding: 16px 24px; border-top: 4px solid var(--ok); }
+  .ck2 .label { color: var(--ok); }
+  .ck2 .rule { font-size: 19px; margin-top: 10px; }
+  .ck2 .row { display: flex; align-items: center; gap: 22px; margin-top: 16px; }
+  .ck2 .chip { font-size: 16px; }
+  .ck2 .cnt { font: 700 19px var(--mono); }
+  .ck2 .cnt small { font: 500 15px Inter, sans-serif; color: var(--muted); margin-left: 6px; }
+  .ck2 .verdict { margin-top: 0; font-size: 18px; padding: 6px 16px; }
+
+  /* 3: eight test questions */
+  #t3 { position: absolute; left: 80px; top: 166px; width: 1120px; font-size: 15px; }
+  #t3 td { padding: 7px 14px; } #t3 th { padding: 8px 14px; font-size: 11.5px; }
+  #t3 td.mono { font-size: 13px; white-space: nowrap; }
+  #t3 td .verdict { margin-top: 0; font-size: 13px; padding: 2px 10px; opacity: 0; white-space: nowrap; }
+  #t3 td .verdict.in2 { animation: stamp .45s ease both; }
+  #t3 th.f, #t3 td.f { width: 150px; }
+  #t3 tr.old td.e { color: var(--bad); }
+  .bt3 { position: absolute; left: 80px; top: 522px; width: 1120px; height: 104px; padding: 14px 22px; display: grid; grid-template-columns: 250px 1fr 90px; row-gap: 12px; column-gap: 16px; align-items: center; font-size: 15.5px; }
+  .bt3 .bar { height: 16px; border-radius: 8px; background: var(--surface-2); overflow: hidden; }
+  .bt3 .bar i { display: block; height: 100%; width: 0; border-radius: 8px; transition: width 1s ease; }
+  .bt3 b { font: 700 17px var(--mono); text-align: right; }
+  .bt3 .nm { font-size: 13px; color: var(--muted); grid-column: 1 / -1; margin-top: -4px; opacity: 0; transition: opacity .4s; }
+  .bt3 .nm.in2 { opacity: 1; }
+
+  /* 4: a citation leads to the page */
+  #s4 .win .body { padding: 18px 22px; }
+  #s4 .uq { font-size: 15.5px; max-width: 520px; }
+  #s4 .ua { margin-top: 14px; }
+  #s4 .ua .tx { font-size: 17px; line-height: 1.6; }
+  #s4 .cit { font-size: 12px; }
+  #a4 .nl { border-radius: 4px; transition: background .4s, box-shadow .4s; }
+  #a4 .nl.hl { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .pg { position: absolute; left: 800px; top: 170px; width: 400px; height: 456px; padding: 14px 20px; border-top: 4px solid var(--teal);
+    opacity: 0; transform: translateX(24px); transition: opacity .5s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .pg.in2 { opacity: 1; transform: none; }
+  .pg.out { opacity: 0; transform: translateX(-30px) rotateY(18deg); }
+  .pg .h { font: 600 15px var(--mono); color: #0d6e5f; }
+  .pg .ti { font-size: 12.5px; color: var(--subtle); margin-top: 3px; }
+  .pg .tx { font-size: 15px; line-height: 1.5; color: var(--ink); }
+  .pg .tx .lead { color: var(--muted); }
+  .pg mark { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; border-radius: 3px; color: inherit; transition: background .4s, box-shadow .4s; }
+  .pg mark.ok { background: var(--ok-bg); box-shadow: 0 0 0 2px #b5dcc6; }
+  .pg .st { border-radius: 3px; transition: background .4s, box-shadow .4s; }
+  .pg .st.hl { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .pg .lines i { display: block; height: 7px; border-radius: 3px; background: var(--surface-2); margin-top: 9px; }
+  .pg .fig13 { height: 120px; border-radius: 6px; background: var(--surface-1); border: 1px solid var(--hairline); margin-top: 12px; position: relative; }
+  .pg .fig13 span { position: absolute; left: 10px; top: 8px; font-size: 11.5px; color: var(--subtle); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+  .pg .fig13 svg { position: absolute; left: 10px; right: 10px; bottom: 10px; width: 336px; height: 80px; }
+  .pg .il { position: absolute; left: 20px; right: 20px; bottom: 12px; font-size: 11.5px; color: var(--subtle); }
+  .pg .hd2 { font-size: 15px; font-weight: 700; margin-top: 14px; }
+
+  /* 5: scope */
+  .tc5 { position: absolute; left: 80px; top: 176px; width: 480px; height: 450px; padding: 16px 22px; border-top: 4px solid var(--primary); }
+  .tc5 .label { color: var(--primary); }
+  .tc5 .jt, .rc5 .jt { font-size: 19px; line-height: 1.45; margin-top: 8px; }
+  .tk5 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 28px; }
+  .tk5 span { font: 600 17px var(--mono); border: 1px solid var(--hairline); border-radius: 10px; padding: 30px 0; text-align: center; background: var(--surface-1); color: var(--subtle); transition: all .4s; }
+  .tk5 span.ok { background: var(--ok-bg); border-color: #b5dcc6; color: var(--ok); }
+  .tc5 .sum { position: absolute; left: 22px; right: 22px; bottom: 18px; font-size: 15px; color: var(--muted); }
+  .tc5 .sum b { font: 700 18px var(--mono); color: var(--ok); margin-right: 6px; }
+  .rc5 { position: absolute; left: 590px; top: 176px; width: 610px; height: 450px; padding: 16px 22px; border-top: 4px solid var(--ink); }
+  .rc5 .who { position: absolute; right: 22px; top: 14px; }
+  .jr5 { position: absolute; left: 22px; right: 22px; }
+  .jr5 .chip { font-size: 15px; line-height: 1.4; padding: 10px 14px; display: block; }
+  .jr5 .chip .cit { font-size: 12.5px; }
+  .jr5 .chip.pg5 { font-family: Inter, sans-serif; font-size: 16px; }
+  .ms5 { display: grid; grid-template-columns: 120px 1fr; row-gap: 10px; font-size: 16.5px; }
+  .ms5 span:nth-child(odd) { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle); padding-top: 2px; }
+  .ms5 > * { opacity: 0; transition: opacity .4s; } .ms5 > .in2 { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card: series, area, title; silent -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Testing the search and checking answers</h1>
+  <div class="part">Part 3 · Answering from an archive · 5 of 5</div>
+</section>
+
+<!-- 2 one retrieval test without the model -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Testing the search</div>
+  <h2>A retrieval test without the model</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="card q2" id="q2" data-b="1"><div class="label" style="color:var(--primary)">Test question · t4</div>
+    <div class="tx">How did the conflict in the Middle East affect fuel prices in Kenya?</div>
+    <div class="ex" data-b="2"><div class="label">Expected report</div><span class="chip" id="ex2">keu-2026-07</span></div></div>
+  <div class="node" id="n2" data-b="1">
+    <div class="ic pri"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg></div>
+    <div class="lb">Search</div><div class="sm">the four closest passages</div></div>
+  <div class="off" id="m2" data-b="1">Language model<small>not called</small></div>
+  <div class="card p2" id="p2" data-b="1"><div class="label" style="color:#0d6e5f">Passages found</div>
+    <div class="pr2" id="pr2a"><span class="n">1</span><span><span class="cit">[keu-2026-07 · p. 12]</span><small>Kenya Economic Update, July 2026</small></span></div>
+    <div class="pr2" id="pr2b"><span class="n">2</span><span><span class="cit">[keu-2026-07 · p. 13]</span><small>Kenya Economic Update, July 2026</small></span></div>
+    <div class="pr2" id="pr2c"><span class="n">3</span><span><span class="cit">[keu-2026-07 · p. 21]</span><small>Kenya Economic Update, July 2026</small></span></div>
+    <div class="pr2" id="pr2d"><span class="n">4</span><span><span class="cit">[ueu-2026-06 · p. 22]</span><small>Uganda Economic Update, June 2026</small></span></div></div>
+  <div class="card ck2" data-b="3"><div class="label">Check</div>
+    <div class="rule">The test passes when an expected report is among the passages.</div>
+    <div class="row"><span class="chip" id="cx2">keu-2026-07</span><span class="cnt" id="cn2">0 of 4<small>passages</small></span>
+      <span class="verdict ok stampin" id="v2">✓ pass</span></div></div>
+</section>
+
+<!-- 3 eight test questions, without and with the date filter -->
+<section class="scene src-on" id="s3">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Testing the search</div>
+  <h2>Eight test questions without and with the date filter</h2>
+  <table class="data" id="t3">
+    <tr><th>Test question</th><th>Expected report</th><th class="f">No filter</th><th class="f">Date ≥ 2026-01</th></tr>
+  </table>
+  <div class="card bt3" data-b="2">
+    <span>No filter · four passages</span><span class="bar"><i id="b3a" style="background:var(--bad)"></i></span><b id="n3a" style="color:var(--bad)">0 of 8</b>
+    <span>Date ≥ 2026-01 · four passages</span><span class="bar"><i id="b3b" style="background:var(--ok)"></i></span><b id="n3b" style="color:var(--ok)"></b></div>
+</section>
+
+<!-- 4 a citation leads to the page -->
+<section class="scene src-on" id="s4">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Checking an answer</div>
+  <h2>A citation leads to the page</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:456px" data-b="1">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How did the conflict in the Middle East affect Uganda, and how much did poverty fall?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a4"></div></div>
+    </div>
+  </div>
+  <div class="card pg" id="pg23"><div class="h">ueu-2026-06 · page 23</div>
+    <div class="ti">Uganda Economic Update, 27th Edition, June 2026</div>
+    <div class="fig13" style="height:100px"><span>Figure 14</span>
+      <svg viewBox="0 0 336 60"><path d="M0,10 C60,14 110,22 160,30 S270,46 336,52" fill="none" stroke="#7ba7f2" stroke-width="2"/></svg></div>
+    <div class="tx" style="margin-top:12px"><span class="lead">Source: Uganda Macro Poverty Outlook April 2026.</span><br>
+      <span class="st" id="st23">fallen to</span> <mark id="mk23">51.5 percent in FY25, down from 52.9 percent in FY24</mark> (Figure 14). This decline reflects two mutually reinforcing dynamics …</div>
+    <div class="lines"><i style="width:96%"></i><i style="width:88%"></i></div>
+    <div class="il">Page layout drawn for illustration; text from the report</div></div>
+  <div class="card pg" id="pg22"><div class="h">ueu-2026-06 · page 22</div>
+    <div class="ti">Uganda Economic Update, 27th Edition, June 2026</div>
+    <div class="lines"><i style="width:94%"></i><i style="width:90%"></i><i style="width:72%"></i></div>
+    <div class="fig13"><span>Figure 13</span>
+      <svg viewBox="0 0 336 80"><path d="M0,60 L50,52 L100,46 L150,40 L200,34 L250,40 L300,52 L336,58" fill="none" stroke="#7ba7f2" stroke-width="2"/></svg></div>
+    <div class="hd2">1.5. Poverty is Declining, but Structural Deprivations Remain Acute</div>
+    <div class="tx" style="margin-top:6px">Poverty continued to decline in 2025, supported by strong economic growth and a sustained low-inflation environment. The share of Ugandans living below the <mark id="mk22">USD 3.00-per-day line</mark> is estimated to have <span style="color:var(--subtle)">→ p. 23</span></div>
+    <div class="il">Page layout drawn for illustration; text from the report</div></div>
+  <svg class="ptr" id="ptr4" style="left:640px;top:760px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 5 scope: tests and the reader -->
+<section class="scene src-on" id="s5">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Scope of the tests</div>
+  <h2>The reader judges whether a figure answers the question</h2>
+  <div class="card tc5" data-b="1"><div class="label">Checked by the tests</div>
+    <div class="jt">The passages: an expected report among them for each test question.</div>
+    <div class="tk5" id="tk5"><span>t1</span><span>t2</span><span>t3</span><span>t4</span><span>t5</span><span>t6</span><span>t7</span><span>t8</span></div>
+    <div class="sum stampin" id="sm5"><b>8 of 8</b>with the filter on the edition date</div></div>
+  <div class="card rc5" data-b="2"><div class="label" style="color:var(--ink)">Judged by the reader</div>
+    <svg class="who" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#12a08a" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    <div class="jt">Whether the figure fits the question: its measure and its period.</div>
+    <div class="jr5" style="top:116px"><span class="chip" id="j5a">51.5% in FY25 <span class="cit">[ueu-2026-06 · p. 23]</span><small>figure in the answer</small></span></div>
+    <div class="jr5" style="top:222px"><span class="chip pg5" id="j5b">below the USD 3.00-per-day line<small>report text, page 22</small></span></div>
+    <div class="jr5 ms5" id="ms5" style="top:320px">
+      <span>Measures</span><span>share of Ugandans below USD 3.00 a day</span>
+      <span>Period</span><span>FY24 to FY25, from the June 2026 edition</span>
+      <span>Question</span><span>how much did poverty fall</span></div></div>
+  <svg class="wires" id="w5"></svg>
+</section>
+
+<!-- 6 end screen; silent -->
+<section class="scene dark" id="s6">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>Text search and a data tool</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+  const cit = (s, id) => `<span class="cit"${id ? ` id="${id}"` : ''}>${s}</span>`;
+
+  // 3: the eight test questions (runs.tests), retrieval check without and with the date filter.
+  const TESTS = [['How did the conflict in the Middle East affect Uganda, and how much …', 'ueu-2026-06', 1],
+    ['What is the latest inflation rate in Uganda?', 'ueu-2026-06', 0],
+    ["What was Kenya's real GDP growth in 2025?", 'keu-2026-07', 0],
+    ['How did the conflict in the Middle East affect fuel prices in Kenya?', 'keu-2026-07', 1],
+    ["What is Kenya's GDP growth projection for 2026?", 'keu-2026-07', 0],
+    ['What share of bank loans in Kenya are non-performing?', 'keu-2026-07', 0],
+    ["How much did Uganda's economy grow in FY25?", 'ueu-2025-12 or -2026-06', 1],
+    ["How much did Rwanda's economy grow in 2025?", 'none · outside the archive', 1]];
+
+  // 4: the recorded answer with one search for each part (main_merged), shortened where marked.
+  const A4 = ['<b>Effects of the Middle East conflict on Uganda</b><br>',
+    ...words('… Global energy prices are projected to rise by 24 percent in 2026 '), cit('[ueu-2026-06 · p. 22]'), '. …<br>',
+    '<b>How much poverty fell</b><br>',
+    ...words('FY24 to FY25: Monetary poverty fell to 51.5 percent in FY25, down from 52.9 percent in FY24, a drop of 1.4 percentage points. … '), cit('[ueu-2026-06 · p. 23]', 'c4'), '. ',
+    '<span class="nl" id="nl4">The excerpt does not name the poverty line used for this figure.</span>', '<br>',
+    ...words('2019/20 to 2023/24: Poverty fell from 30.1 percent to 26.4 percent, a drop of 3.7 percentage points. … '), cit('[ueu-2025-09 · p. 13]'), '.<br>…'];
+
+  function countUp(el, to, ms, fmt) {
+    const t0 = performance.now(), e = epoch;
+    (function tick(now) {
+      if (e !== epoch) return;
+      const f = Math.min(1, (now - t0) / ms);
+      el.textContent = fmt(Math.round(to * f));
+      if (f < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  const pointAt = (el) => { const b = el.getBoundingClientRect(); $('ptr4').style.left = b.left + b.width / 2 + 'px'; $('ptr4').style.top = b.bottom - 3 + 'px'; };
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        const s = $('w2'), ic = $('n2').querySelector('.ic');
+        later(300, () => { const p = wire(s, $('q2'), ic, { hot: true }); later(600, () => flow(s, p, '#1558d6', 1500, 2, 4.5)); });
+        later(900, () => { const p = wire(s, ic, $('p2'), { color: '#12a08a' }); later(600, () => flow(s, p, '#12a08a', 1500, 2, 4.5)); });
+        ['pr2a', 'pr2b', 'pr2c', 'pr2d'].forEach((id, i) => later(1500 + i * 250, () => $(id).classList.add('in2')));
+      },
+      2: () => later(300, () => $('ex2').classList.add('on')),
+      3: () => {
+        ['pr2a', 'pr2b', 'pr2c'].forEach((id, i) => later(300 + i * 450, () => {
+          fly($('ex2'), $(id).querySelector('.cit'), 'keu-2026-07', 650);
+          later(650, () => { $(id).classList.add('hit'); $('cn2').firstChild.textContent = `${i + 1} of 4`; });
+        }));
+        later(2000, () => $('v2').classList.add('in2'));
+      },
+    },
+    3: {
+      1: () => document.querySelectorAll('#t3 tr.r').forEach((r, i) => later(150 + i * 170, () => r.classList.add('in2'))),
+      2: () => {
+        document.querySelectorAll('#t3 tr.r').forEach((r, i) => later(200 + i * 200, () => r.cells[2].querySelector('.verdict').classList.add('in2')));
+        later(1900, () => { $('b3a').style.width = '50%'; countUp($('n3a'), 4, 900, (n) => `${n} of 8`); });
+      },
+      3: () => {
+        document.querySelectorAll('#t3 tr.r').forEach((r, i) => later(200 + i * 200, () => r.cells[3].querySelector('.verdict').classList.add('in2')));
+        later(1900, () => { $('b3b').style.width = '100%'; countUp($('n3b'), 8, 900, (n) => `${n} of 8`); });
+      },
+    },
+    4: {
+      1: () => later(300, () => stream($('a4'), A4, 55)),
+      2: () => {
+        if (!$('c4')) return;
+        pointAt($('c4'));
+        later(800, () => { $('c4').classList.add('on'); $('pg23').classList.add('in2'); });
+      },
+      3: () => {
+        if ($('nl4')) $('nl4').classList.add('hl');
+        later(700, () => { $('st23').classList.add('hl'); pointAt($('st23')); });
+      },
+      4: () => {
+        $('pg23').classList.add('out');
+        later(450, () => $('pg22').classList.add('in2'));
+        later(1200, () => { $('mk22').classList.add('ok'); pointAt($('mk22')); });
+      },
+    },
+    5: {
+      1: () => {
+        document.querySelectorAll('#tk5 span').forEach((t, i) => later(200 + i * 150, () => { t.classList.add('ok'); t.textContent += ' ✓'; }));
+        later(1500, () => $('sm5').classList.add('in2'));
+      },
+      2: () => {
+        const s = $('w5');
+        later(500, () => $('j5a').classList.add('ask'));
+        later(800, () => { const p = wire(s, $('j5a'), $('j5b'), { from: 'bottom', to: 'top', hot: true, ms: 400 }); later(400, () => carry(p, 'p. 22', '#1558d6', 800, null, () => $('j5b').classList.add('on'))); });
+        [...$('ms5').children].forEach((c, i) => later(2200 + Math.floor(i / 2) * 400, () => c.classList.add('in2')));
+      },
+    },
+  };
+
+  // Static content built once.
+  $('t3').insertAdjacentHTML('beforeend', TESTS.map(([q, exp, hit]) => `<tr class="r${hit ? '' : ' old'}"><td>${q}</td><td class="mono">${exp}</td>
+    <td class="f"><span class="verdict ${hit ? 'ok' : 'bad'}">${hit ? '✓ pass' : '✗ miss'}</span></td><td class="f"><span class="verdict ok">✓ pass</span></td></tr>`).join(''));
+
+  go(1, 0);
+</script>
+</body>
+</html>

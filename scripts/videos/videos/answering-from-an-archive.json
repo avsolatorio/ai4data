@@ -1,0 +1,23 @@
+{
+  "title": "Answering from a document archive",
+  "series": "ai-applications",
+  "next": "how-search-ranks-passages",
+  "steps": [
+    {"do": "goto", "url": "stages/answering-from-an-archive.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "An application answers questions from an archive of 13 World Bank economic updates on Kenya and Uganda.", "speak": "An application answers questions from an archive of thirteen World Bank economic updates on Kenya and Uganda.", "min": 3.0, "settle": 0.9, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "The editions on the timeline run from December 2022 to July 2026.", "speak": "The editions on the timeline run from December twenty twenty-two to July twenty twenty-six.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(2,3)", "say": "A user asks how much Uganda's economy grew in FY25.", "speak": "A user asks how much Uganda's economy grew in F Y twenty-five.", "min": 3.2, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "The archive holds each report as short passages, drawn here as one square per passage.", "min": 2.5, "settle": 0.9, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "For this question, the search picks the three passages closest in meaning.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "The application places these passages in a prompt, between the instructions and the question.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,4)", "say": "The instructions tell the model to answer only from the passages, with a citation after each figure.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(3,5)", "say": "The prompt then goes to a language model. This pattern is called retrieval-augmented generation, or RAG.", "speak": "The prompt then goes to a language model. This pattern is called retrieval-augmented generation, or rag.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "The model writes its answer from the prompt.", "min": 4.0, "settle": 0.9, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "The answer gives growth of 6.3 percent in FY25.", "speak": "The answer gives growth of six point three percent in F Y twenty-five.", "min": 3.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "Each figure in the answer carries a citation with the report and the page.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,4)", "say": "The first citation opens page 12 of the December 2025 Uganda Economic Update.", "speak": "The first citation opens page twelve of the December twenty twenty-five Uganda Economic Update.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(4,5)", "say": "A reader can compare the figure with the text of the report.", "min": 2.5, "pause": 0.5},
+    {"do": "eval", "js": "go(5,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

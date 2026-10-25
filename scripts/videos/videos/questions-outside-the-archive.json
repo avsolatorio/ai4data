@@ -1,0 +1,23 @@
+{
+  "title": "Questions outside the archive",
+  "series": "ai-applications",
+  "next": "testing-search-and-answers",
+  "steps": [
+    {"do": "goto", "url": "stages/questions-outside-the-archive.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "This archive holds World Bank economic updates on Kenya and Uganda.", "settle": 0.9, "min": 2.6, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "It holds no report on Rwanda. A user asks how much Rwanda's economy grew in 2025.", "speak": "It holds no report on Rwanda. A user asks how much Rwanda's economy grew in twenty twenty-five.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "The search compares the question with every passage in the archive.", "settle": 0.9, "min": 2.8, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "It returns the closest passages for every question, including a question from outside the archive.", "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "Here they are a chart of farm output and two passages on growth in East Africa.", "min": 2.8, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "The application places these passages in the prompt, together with the instructions and the question.", "settle": 0.9, "min": 2.2, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "One line of the instructions asks the model to say so when the passages do not contain what is needed.", "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "The model answers that the passages do not contain Rwanda's growth figure for 2025.", "speak": "The model answers that the passages do not contain Rwanda's growth figure for twenty twenty-five.", "min": 5.0, "pause": 0.35},
+    {"do": "eval", "js": "go(4,4)", "say": "The answer cites the only passage in the prompt that mentions Rwanda, a chart with no values in its text.", "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "An application can also stop a question when its closest passage scores below a minimum.", "settle": 0.9, "min": 2.6, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "On labelled test questions, the minimum score stops seven questions from outside the archive.", "min": 1.2, "pause": 0.35},
+    {"do": "eval", "js": "go(5,3)", "say": "Two others, on growth in Tanzania and on coffee exports from Ethiopia, score above it.", "min": 1.4, "pause": 0.35},
+    {"do": "eval", "js": "go(5,4)", "say": "These two questions reach the model, and the instruction on missing answers remains the safeguard.", "min": 1.6, "pause": 0.35},
+    {"do": "eval", "js": "go(6,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

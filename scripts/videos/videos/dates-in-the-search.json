@@ -1,0 +1,22 @@
+{
+  "title": "Dates in the search",
+  "series": "ai-applications",
+  "next": "questions-outside-the-archive",
+  "steps": [
+    {"do": "goto", "url": "stages/dates-in-the-search.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "The search returns the passages closest in meaning to a question. A user asks the application for the latest inflation rate in Uganda.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "The two passages for the prompt come from older editions of the report.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(2,3)", "say": "The newest edition in the archive dates from June 2026.", "speak": "The newest edition in the archive dates from June twenty twenty-six.", "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(2,4)", "say": "The answer from these passages gives 2.6 percent, for November 2023.", "speak": "The answer from these passages gives two point six percent, for November twenty twenty-three.", "min": 4.5, "pause": 0.35},
+    {"do": "eval", "js": "go(2,5)", "say": "The model adds that this figure may be out of date.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "The search ranks every passage by meaning alone. The passage with the newest figure ranks nineteenth.", "settle": 0.8, "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "Each passage also carries metadata from the preparation of the archive, including the edition date.", "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "A filter on the edition date keeps editions from January 2026 or later.", "speak": "A filter on the edition date keeps editions from January twenty twenty-six or later.", "settle": 0.8, "min": 2.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "The search then ranks the passages of the two remaining editions.", "min": 1.5, "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "The passage with the newest figure ranks second and enters the prompt.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "With the filter, the model answers 3.0 percent, for April 2026.", "speak": "With the filter, the model answers three point zero percent, for April twenty twenty-six.", "settle": 0.8, "min": 4.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "The citation leads to page 20 of the June 2026 edition.", "speak": "The citation leads to page twenty of the June twenty twenty-six edition.", "min": 3.5, "pause": 0.35},
+    {"do": "eval", "js": "go(6,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}
