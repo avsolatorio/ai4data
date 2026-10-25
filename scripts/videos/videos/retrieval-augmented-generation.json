@@ -1,0 +1,311 @@
+{
+  "title": "Retrieval-augmented generation",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "stages/retrieval-augmented-generation.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "say": "This video explains retrieval-augmented generation: an application retrieves passages for each question, and a language model answers from them.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "A language model answers from its prompt. For a large collection, the application selects passages for each question.",
+      "min": 3.5,
+      "settle": 1.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The passages come from a vector store, prepared beforehand from the documents as chunks with metadata and vectors.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,3)",
+      "say": "This pattern is called retrieval-augmented generation, or RAG.",
+      "speak": "This pattern is called retrieval-augmented generation, or rag.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',1)",
+      "say": "In this example, a user asks how internet access and economic development have evolved in Rwanda and Kenya.",
+      "min": 5.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',2)",
+      "say": "The search returns four passages. The answer draws on them and cites a passage after each figure.",
+      "min": 7.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',3)",
+      "say": "Its opening line states that the passages contain no economic indicators.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "A correct answer needs four figures for 2024, and the store holds all four.",
+      "speak": "A correct answer needs four figures for twenty twenty-four, and the store holds all four.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "The four passages in the prompt hold the two figures on internet use.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "The model reads only its prompt, so the figures on GDP per capita cannot appear in the answer.",
+      "speak": "The model reads only its prompt, so the figures on G D P per capita cannot appear in the answer.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "The embedding model of the store turns the question into a vector of 384 numbers.",
+      "speak": "The embedding model of the store turns the question into a vector of three hundred eighty-four numbers.",
+      "min": 3.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "Cosine similarity compares two vectors by the angle between them. A score of 1 means identical meaning, and 0 means unrelated.",
+      "speak": "Cosine similarity compares two vectors by the angle between them. A score of one means identical meaning, and zero means unrelated.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,3)",
+      "say": "Every one of the 21 chunks in the store receives a score, and the chunks are ranked by it.",
+      "speak": "Every one of the twenty-one chunks in the store receives a score, and the chunks are ranked by it.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,4)",
+      "say": "The search returns the top k, here four, as the passages for the prompt.",
+      "speak": "The search returns the top kay, here four, as the passages for the prompt.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "Each passage enters the prompt under a citation built from its metadata: the document, the section, and the year.",
+      "min": 4.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "The passages and the question form the user message. The grounded instructions form the system message.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,3)",
+      "say": "The model writes from these two messages and places a citation after each figure.",
+      "min": 7.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "For the two-part question, three internet chunks and a note on mobile money take the four places.",
+      "min": 4.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "The first economy chunk is fifth, at 0.570 against 0.591 for the fourth. The section on GDP per capita in Kenya is ninth.",
+      "speak": "The first economy chunk is fifth, at zero point five seven zero against zero point five nine one for the fourth. The section on G D P per capita in Kenya is ninth.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "A k of nine would include it, with the note on coffee in seventh place. Each added passage costs tokens in every call.",
+      "speak": "A kay of nine would include it, with the note on coffee in seventh place. Each added passage costs tokens in every call.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,4)",
+      "say": "The fix runs one search for each part and merges the results. The eight merged passages hold all four needed figures.",
+      "min": 7.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "A vector holds nothing about the date of its text. A second question asks for the latest available figures, with k set to two.",
+      "speak": "A vector holds nothing about the date of its text. A second question asks for the latest available figures, with kay set to two.",
+      "min": 4.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "The 2016 summary ranks first at 0.816, because its text uses the same phrase. The Kenya brief misses the cut-off, so the answer gives 16.6 percent, for 2015.",
+      "speak": "The twenty sixteen summary ranks first at zero point eight one six, because its text uses the same phrase. The Kenya brief misses the cut-off, so the answer gives sixteen point six percent, for twenty fifteen.",
+      "min": 5.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,3)",
+      "say": "Rewording the question in the vocabulary of the newer briefs raised the score of the summary to 0.871. The summary stayed first.",
+      "speak": "Rewording the question in the vocabulary of the newer briefs raised the score of the summary to zero point eight seven one. The summary stayed first.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,4)",
+      "say": "A filter on the date in the metadata keeps documents from 2020 or later. Both country briefs are then returned, and the answer gives 35.0 percent for Kenya in 2024.",
+      "speak": "A filter on the date in the metadata keeps documents from twenty twenty or later. Both country briefs are then returned, and the answer gives thirty-five point zero percent for Kenya in twenty twenty-four.",
+      "min": 6.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "A search always returns k chunks. For the population of Rwanda, the section on population ranks first at 0.739.",
+      "speak": "A search always returns kay chunks. For the population of Rwanda, the section on population ranks first at zero point seven three nine.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "The collection holds nothing on inflation in Uganda. The search still returns three sections on GDP per capita, the best at 0.534.",
+      "speak": "The collection holds nothing on inflation in Uganda. The search still returns three sections on G D P per capita, the best at zero point five three four.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "A cut-off on the score between the two would stop the weak passages. Its value depends on the embedding model and is set from examples.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,4)",
+      "say": "The grounded instructions add a second safeguard: the model says when the passages do not answer.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,1)",
+      "say": "With one search for each part, the answer covers internet use and GDP per capita, with a citation after each figure.",
+      "speak": "With one search for each part, the answer covers internet use and G D P per capita, with a citation after each figure.",
+      "min": 8.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,2)",
+      "say": "The citation of the Kenya figure for GDP per capita leads to its section, which states 2,133 US dollars for 2024.",
+      "speak": "The citation of the Kenya figure for G D P per capita leads to its section, which states two thousand one hundred thirty-three U S dollars for twenty twenty-four.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,1)",
+      "say": "Retrieval can be tested without the model. Each test question lists the documents and numbers that a correct answer needs.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,2)",
+      "say": "With four passages per question, an expected document is among the passages for all eight questions.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,3)",
+      "say": "The main question finds two of its four needed numbers, with no call to the model.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,4)",
+      "say": "When both checks pass and an answer is still wrong, the fault lies in generation.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,1)",
+      "say": "Tests check the passages, and the grounded instructions make the model cite them and report gaps.",
+      "min": 3.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,2)",
+      "say": "Whether a passage fits the question remains a judgement for the builders of the application and for the reader.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,3)",
+      "say": "The citation helps that judgement. Its year shows at once that the regional summary dates from 2016.",
+      "speak": "The citation helps that judgement. Its year shows at once that the regional summary dates from twenty sixteen.",
+      "min": 4.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(12,0)",
+      "min": 4.0,
+      "settle": 0.9,
+      "pause": 2.0
+    }
+  ]
+}
