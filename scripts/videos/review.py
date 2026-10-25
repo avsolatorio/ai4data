@@ -69,11 +69,15 @@ def stage(spec, work, tmp, wait):
 def video(name, work, tmp):
     vtt = (HERE / "out" / f"{name}.vtt").read_text()
     ends = re.findall(r"--> (\d\d):(\d\d):(\d\d\.\d+)", vtt)
+    mp4 = HERE / "out" / f"{name}.mp4"
+    # The last cue can end at the last frame; a seek there returns no frame.
+    duration = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(mp4)],
+                                    capture_output=True, text=True, check=True).stdout)
     frames = []
     for i, (h, m, s) in enumerate(ends):
-        t = int(h) * 3600 + int(m) * 60 + float(s) - 0.2
+        t = min(int(h) * 3600 + int(m) * 60 + float(s) - 0.2, duration - 0.5)
         frames.append(f"{tmp}/v{i:03d}.png")
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", str(HERE / "out" / f"{name}.mp4"),
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", str(mp4),
                         "-frames:v", "1", frames[-1]], check=True)
     return sheets(frames, work / "review-video")
 

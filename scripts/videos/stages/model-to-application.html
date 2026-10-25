@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Instructions and context in a prompt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this explainer only; shared styles are in kit/stage.css. */
+  #s1 h1 { font-size: 70px; max-width: 1000px; }
+  .purple { color: #6d4bd8; }
+
+  /* 2: two sources */
+  .src { position: absolute; left: 80px; width: 400px; padding: 16px 20px 16px 76px; }
+  .src .ic { position: absolute; left: 18px; top: 18px; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .src b { display: block; font-size: 21px; }
+  .src span { font-size: 16px; color: var(--muted); line-height: 1.4; display: block; margin-top: 3px; }
+  #m2 { left: 600px; top: 330px; }
+
+  /* 2b: an answer from training */
+  #s2b .win .tx { font-size: 17px; line-height: 1.5; }
+  #s2b .uq { font-size: 18px; max-width: 560px; }
+  .mrow { display: grid; grid-template-columns: 150px 170px 170px; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--surface-2); font-size: 15px; }
+  .mrow:first-of-type { margin-top: 10px; }
+  .mrow span:first-child { color: var(--muted); }
+  .mrow .v { font-family: var(--mono); font-size: 14px; }
+  .pcard { position: absolute; left: 880px; top: 170px; width: 320px; padding: 14px 18px; font-size: 16px; line-height: 1.45; }
+  .pcard .row { display: grid; grid-template-columns: 98px 1fr; gap: 8px; padding: 6px 0; border-top: 1px solid var(--surface-2); }
+  .pcard .row:first-of-type { border-top: 0; }
+  .pcard .row > span:first-child { font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); padding-top: 3px; }
+  .pcard .none { font-family: var(--mono); font-size: 15px; background: #fff7d6; border-radius: 4px; padding: 0 4px; }
+  .tags2 { position: absolute; left: 880px; top: 474px; width: 320px; }
+  .tags2 .label { margin-bottom: 10px; }
+  .tags2 .chip { display: block; margin-bottom: 10px; font-size: 16px; opacity: 0; transform: translateX(12px); transition: all .4s; }
+  .tags2 .chip.in2 { opacity: 1; transform: none; }
+
+  /* 3: claims against the data */
+  #t3 { position: absolute; left: 80px; top: 176px; width: 1120px; font-size: 17px; }
+  #t3 td { padding: 10px 16px; }
+  #t3 th { padding: 11px 16px; }
+  #t3 td.ans { color: #6d4bd8; font-family: var(--mono); font-size: 15px; }
+  #t3 td.wdi { color: #0d6e5f; font-family: var(--mono); font-size: 15px; }
+  #t3 td.vd { width: 150px; }
+  #t3 .verdict { margin-top: 0; opacity: 0; }
+  #t3 .verdict.in2 { animation: stamp .45s ease both; }
+  #t3 tr.offrow td { background: var(--bad-bg); }
+  .stats { position: absolute; left: 80px; top: 548px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 20px; }
+  .stat { padding: 14px 20px; display: flex; align-items: baseline; gap: 14px; font-size: 18px; }
+  .stat b { font: 700 38px var(--mono); }
+  .stat.ok { border-top: 4px solid var(--ok); } .stat.ok b { color: var(--ok); }
+  .stat.bad { border-top: 4px solid var(--bad); } .stat.bad b { color: var(--bad); }
+  .stat.zero { border-top: 4px solid #6d4bd8; } .stat.zero b { color: #6d4bd8; }
+
+  /* 4: the three slots */
+  .slot { position: absolute; left: 80px; width: 400px; padding: 12px 16px; font-size: 15px; line-height: 1.45; transition: box-shadow .4s, border-color .4s; }
+  .slot .label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .slot .label em { font-style: normal; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 13px; color: var(--muted); }
+  .slot .mono { font-size: 13.5px; display: block; }
+  .slot.ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary); }
+  .slot.i { border-top: 4px solid var(--primary); } .slot.i .label span { color: var(--primary); }
+  .slot.c { border-top: 4px solid var(--teal); } .slot.c .label span { color: var(--teal); }
+  .slot.q { border-top: 4px solid var(--subtle); }
+  .msg { position: absolute; left: 540px; width: 420px; padding: 12px 16px; font-size: 14px; line-height: 1.5; }
+  .msg .label { margin-bottom: 4px; color: var(--ink); }
+  .msg .tplc { font: 12.5px var(--mono); color: var(--subtle); display: block; margin-bottom: 8px; }
+  .msg .k { font: 700 13px var(--mono); color: var(--muted); display: block; margin-top: 6px; }
+  .msg .fillv { display: block; border-radius: 5px; padding: 4px 8px; font: 13px/1.5 var(--mono); background: var(--surface-1); color: var(--subtle); transition: background .4s, color .4s; }
+  .msg .fillv.i { background: var(--primary-subtle); color: var(--ink); }
+  .msg .fillv.c { background: var(--teal-subtle); color: var(--ink); }
+  .msg .fillv.q { background: var(--surface-2); color: var(--ink); }
+  #m4 { left: 1030px; top: 296px; }
+
+  /* 5: context and a cited answer */
+  .ctxbox { position: absolute; left: 70px; top: 172px; width: 470px; height: 252px; border: 1.5px dashed #9fd3c8; border-radius: 14px; }
+  .ctxbox > .label { position: absolute; left: 14px; top: -10px; background: var(--canvas); padding: 0 8px; color: var(--teal); }
+  .bgrid { position: absolute; left: 14px; top: 22px; right: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .brief { padding: 10px 14px; height: 96px; transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
+  .brief b { display: block; font: 600 15px var(--mono); color: #0d6e5f; }
+  .brief span { display: block; font-size: 14.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+  .brief.hit { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-subtle); }
+  .gi { position: absolute; left: 70px; top: 444px; width: 470px; padding: 12px 16px; font-size: 15.5px; line-height: 1.45; border-top: 4px solid var(--primary); }
+  .gi .label { color: var(--primary); margin-bottom: 4px; }
+  .gi .rule { display: block; border-radius: 4px; padding: 1px 4px; margin-left: -4px; transition: background .4s, box-shadow .4s; }
+  .gi .rule.on { background: var(--primary-subtle); box-shadow: 0 0 0 2px var(--primary-subtle); }
+  #m5 { left: 585px; top: 290px; width: 160px; height: 160px; }
+  #o5 { left: 790px; top: 172px; width: 410px; height: 450px; }
+  #o5t { white-space: pre; font-size: 14.5px; line-height: 1.75; }
+  .t-cit { color: #8ee0d0; border-radius: 4px; transition: background .4s, box-shadow .4s, color .4s; }
+  .t-cit.on { background: rgba(18,160,138,.3); box-shadow: 0 0 0 2px #12a08a; color: #fff; }
+  .t-h { color: var(--block-soft); }
+
+  /* 6: missing information */
+  #s6 .win .tx, #s9 .win .tx { font-size: 18px; line-height: 1.55; }
+  #s6 .uq { font-size: 18px; max-width: 520px; }
+  .bc { position: absolute; left: 770px; top: 170px; width: 430px; height: 316px; padding: 14px 18px; }
+  .bc .label b { color: #0d6e5f; font-family: var(--mono); letter-spacing: 0; text-transform: none; font-size: 14px; }
+  .bars6 { position: absolute; left: 24px; right: 18px; bottom: 44px; height: 200px; display: flex; align-items: flex-end; gap: 14px; }
+  .bars6 .b { flex: 1; position: relative; height: 0; background: var(--teal-subtle); border: 1.5px solid var(--teal); border-bottom: 0; border-radius: 5px 5px 0 0;
+    transition: height .8s cubic-bezier(.2,.8,.2,1), background .4s, border-color .4s; }
+  .bars6 .b.hit { background: var(--primary-subtle); border-color: var(--primary); }
+  .bars6 .b span { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); font: 600 13.5px var(--mono); white-space: nowrap; }
+  .bars6 .b em { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font: 13px var(--mono); font-style: normal; color: var(--muted); }
+  .bars6 .b.miss { height: 172px; background: transparent; border: 2px dashed #e0b100; border-bottom: 0; opacity: 0; transition: opacity .5s; }
+  .bars6 .b.miss.in2 { opacity: 1; }
+  .bars6 .b.miss span { top: 70px; font-size: 26px; color: #8a6400; }
+  .bars6 .b.miss em { color: #8a6400; font-weight: 700; }
+  .base6 { position: absolute; left: 18px; right: 18px; bottom: 44px; height: 1.5px; background: var(--hairline); }
+  .ins6 { position: absolute; left: 80px; top: 516px; width: 1120px; padding: 14px 22px; font-size: 19px; line-height: 1.5; border-top: 4px solid var(--primary); }
+  .ins6 .label { color: var(--primary); margin-bottom: 4px; }
+  .ins6 .dim { color: var(--subtle); }
+  .ins6 .rule { border-radius: 4px; padding: 1px 4px; transition: background .4s, box-shadow .4s; }
+  .ins6 .rule.on { background: var(--primary-subtle); box-shadow: 0 0 0 3px var(--primary-subtle); }
+  .cite6 { font-family: var(--mono); font-size: 14.5px; color: #0d6e5f; }
+
+  /* 7: an ambiguous question */
+  .q7 { position: absolute; left: 80px; top: 172px; width: 380px; height: 96px; padding: 14px 18px; }
+  .q7 .tx7 { font-size: 24px; font-weight: 600; margin-top: 6px; min-height: 30px; }
+  .rd7 { position: absolute; left: 490px; top: 172px; width: 710px; height: 96px; padding: 14px 18px; }
+  .rd7 .chips7 { display: flex; gap: 12px; margin-top: 8px; }
+  .rd7 .chip { font-size: 16px; padding: 6px 12px; }
+  .col7 { position: absolute; top: 290px; width: 548px; height: 336px; padding: 14px 18px; }
+  .col7.a { left: 80px; border-top: 4px solid var(--subtle); }
+  .col7.b { left: 652px; border-top: 4px solid var(--primary); }
+  .col7 .label { margin-bottom: 4px; }
+  .col7.b .label { color: var(--primary); }
+  .col7 .ins { font: 13px var(--mono); color: var(--muted); margin-bottom: 10px; line-height: 1.45; }
+  .col7 .ins .add { color: var(--primary); background: var(--primary-subtle); border-radius: 3px; }
+  .col7 .tx { font-size: 16px; line-height: 1.5; }
+  .col7 .tx .xtra { background: #fff7d6; border-radius: 3px; box-shadow: 0 0 0 2px #fff7d6; transition: background .4s; }
+  .col7 .ask { display: inline-block; margin-top: 8px; font-weight: 700; color: var(--primary); }
+
+  /* 8: the context window */
+  .coll { position: absolute; left: 80px; top: 176px; width: 430px; height: 340px; padding: 14px 18px; }
+  .coll .tiles8 { margin-top: 10px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
+  .coll .tiles8 i { height: 18px; border-radius: 3px; background: #fff; border: 1px solid #d5dbe3; border-top: 3px solid var(--teal); transition: background .3s, border-color .3s, opacity .3s; }
+  .coll .tiles8 i.pick { background: var(--primary-subtle); border-color: var(--primary); border-top-color: var(--primary); }
+  .coll .more { margin-top: 12px; font-size: 15px; color: var(--muted); }
+  .sel8 { position: absolute; left: 560px; top: 292px; width: 190px; text-align: center; }
+  .sel8 .ic { width: 84px; height: 84px; margin: 0 auto; border-radius: 18px; background: var(--primary); display: flex; align-items: center; justify-content: center; }
+  .sel8 .lb { margin-top: 10px; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  .win8 { position: absolute; left: 800px; top: 176px; width: 400px; height: 340px; border: 2px solid var(--primary); border-radius: 14px; background: #fff; transition: border-color .4s, box-shadow .4s; }
+  .win8.over { border-color: var(--bad); box-shadow: 0 0 0 4px var(--bad-bg); }
+  .win8 > .label { position: absolute; left: 16px; top: 14px; color: var(--primary); }
+  .win8.over > .label { color: var(--bad); }
+  .win8 .fillarea { position: absolute; left: 16px; right: 16px; bottom: 16px; top: 44px; }
+  .blk8 { position: absolute; left: 0; width: 100%; height: 30px; border-radius: 6px; background: var(--teal-subtle); border: 1.5px solid var(--teal);
+    font: 600 13px var(--mono); color: #0d6e5f; padding: 5px 10px; opacity: 0; transform: translateY(-30px); transition: opacity .4s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .blk8.in2 { opacity: 1; transform: none; }
+  .blk8.sel { background: var(--primary-subtle); border-color: var(--primary); color: var(--primary); }
+  .flood { position: absolute; width: 22px; height: 16px; border-radius: 3px; background: #fff; border: 1px solid #d5dbe3; border-top: 3px solid var(--teal); pointer-events: none; }
+  .tok8 { position: absolute; right: 16px; top: 12px; font: 700 14px var(--mono); color: var(--muted); }
+  .win8.over .tok8 { color: var(--bad); }
+  .calc8 { position: absolute; left: 80px; top: 548px; width: 1120px; height: 76px; padding: 12px 22px; display: flex; align-items: center; gap: 26px; font-size: 18px; }
+  .calc8 .k { font-family: var(--mono); font-size: 17px; }
+  .calc8 .sep { width: 1px; height: 40px; background: var(--hairline); }
+  .price { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .price .track { flex: 1; height: 14px; background: var(--surface-2); border-radius: 7px; overflow: hidden; }
+  .price .track i { display: block; height: 100%; width: 0; background: var(--bad); border-radius: 7px; transition: width 1.6s ease, background .4s; }
+
+  /* 9: in the application */
+  .cit { font: 600 14px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .pop.doc { border-top-color: var(--teal); width: 400px; }
+  .pop.doc .h { color: #0d6e5f; font-family: var(--mono); }
+  .pop.doc .r { grid-template-columns: 96px 1fr; }
+  .pop.doc mark { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; border-radius: 3px; }
+
+  /* 10: scope */
+  .two { position: absolute; left: 80px; top: 192px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .two .card { padding: 20px 26px; font-size: 21px; line-height: 1.45; min-height: 170px; }
+  .two .card b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .two .n { border-top: 4px solid var(--primary); } .two .n b { color: var(--primary); }
+  .two .g { border-top: 4px solid var(--teal); } .two .g b { color: var(--teal); }
+  .judge { position: absolute; left: 80px; top: 396px; width: 1120px; height: 234px; padding: 18px 26px; border-top: 4px solid var(--ink); }
+  .judge .jt { font-size: 21px; line-height: 1.45; }
+  .judge .row10 { position: absolute; left: 26px; right: 26px; top: 120px; display: flex; align-items: center; justify-content: space-between; }
+  .judge .chip { font-size: 17px; }
+  .judge .pass { font-size: 17px; font-family: Inter, sans-serif; max-width: 520px; line-height: 1.4; }
+  .judge .verdict { margin-top: 0; opacity: 0; }
+  .judge .verdict.in2 { animation: stamp .45s ease both; }
+</style>
+</head>
+<body>
+
+<!-- 1 title -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="floaters">
+    <span style="left:700px;top:620px;animation-delay:-2s">("system", "{instructions}")</span>
+    <span style="left:980px;top:660px;animation-delay:-9s">35.0 [kenya-digital]</span>
+    <span style="left:560px;top:680px;animation-delay:-5s">4,098 characters ≈ 1,024 tokens</span>
+    <span style="left:900px;top:600px;animation-delay:-13s">CONTEXT: … QUESTION: …</span>
+  </div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Instructions and context<br>in a prompt</h1>
+  <div class="sub">How the parts of a prompt determine where the figures in a language model's answer come from</div>
+</section>
+
+<!-- 2 context: two sources of a model's answer -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A language model writes from two sources</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="card src" id="o2a" style="top:240px" data-b="1">
+    <div class="ic" style="background:var(--teal-subtle)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#12a08a" stroke-width="2"><path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v4h4"/><path d="M8.5 11h7M8.5 14h7M8.5 17h4.5"/></svg></div>
+    <b>The prompt</b><span>text sent with this call: instructions, context, and the question</span></div>
+  <div class="card src" id="o2b" style="top:478px" data-b="2">
+    <div class="ic" style="background:#f1ecfd"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d4bd8" stroke-width="2"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 3 5 3 3 0 0 0 5 1V5a3 3 0 0 0-3-1z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-3 5 3 3 0 0 1-5 1"/></svg></div>
+    <b class="purple">Training</b><span>patterns of text compressed into the parameters, with no records</span></div>
+  <div class="model" id="m2" data-b="1">Language model<small>writes the answer</small></div>
+  <div class="node" id="n2c" style="left:950px;top:330px" data-b="1">
+    <div class="ic"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.6"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
+    <div class="lb">Answer</div><div class="sm">text with figures</div></div>
+</section>
+
+<!-- 2b an answer from training alone -->
+<section class="scene" id="s2b">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>An answer without context</h2>
+  <div class="win" style="left:80px;top:170px;width:770px;height:470px">
+    <div class="bar"><span class="dot live"></span>Research assistant</div>
+    <div class="body">
+      <div class="uq" id="q2"></div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a2"></div></div>
+    </div>
+  </div>
+  <div class="card pcard" data-b="1"><div class="label" style="margin-bottom:6px">The prompt of this call</div>
+    <div class="row"><span>Instructions</span><span>You are a research assistant. Answer the question.</span></div>
+    <div class="row"><span>Context</span><span><span class="none">(none)</span></span></div>
+    <div class="row"><span>Question</span><span>How have internet access and economic development evolved …</span></div></div>
+  <div class="tags2"><div class="label" style="opacity:0;transition:opacity .4s" id="tg2l">In the answer</div>
+    <span class="chip" id="tg2a">rounded ranges</span><span class="chip" id="tg2b">most figures without a year</span><span class="chip ask" id="tg2c">no citation</span></div>
+</section>
+
+<!-- 3 the problem: figures reconstructed from training -->
+<section class="scene" id="s3">
+  <div class="eyebrow">The problem</div>
+  <h2>Figures reconstructed from training</h2>
+  <table class="data" id="t3">
+    <tr><th>Figure</th><th class="purple">In the answer</th><th style="color:#0d6e5f">World Development Indicators</th><th>Verdict</th></tr>
+    <tr class="r" id="r3a"><td>Kenya · internet use</td><td class="ans">roughly 40%</td><td class="wdi">35.0% in 2024</td><td class="vd"><span class="verdict bad">off</span></td></tr>
+    <tr class="r"><td>Rwanda · internet use</td><td class="ans">roughly 30–40%</td><td class="wdi">31.7% in 2024</td><td class="vd"><span class="verdict ok">close</span></td></tr>
+    <tr class="r"><td>Kenya · GDP per capita</td><td class="ans">~$2,000–2,200</td><td class="wdi">2,133 US$ in 2024</td><td class="vd"><span class="verdict ok">close</span></td></tr>
+    <tr class="r"><td>Rwanda · GDP per capita</td><td class="ans">~$950–1,050</td><td class="wdi">1,060 US$ in 2024</td><td class="vd"><span class="verdict ok">close</span></td></tr>
+    <tr class="r"><td>Kenya · GDP growth</td><td class="ans">~5% (2023), ~4–5% (2024)</td><td class="wdi">5.7% (2023), 4.7% (2024)</td><td class="vd"><span class="verdict ok">close</span></td></tr>
+    <tr class="r" id="r3f"><td>Rwanda · GDP growth</td><td class="ans">~8% (2023), ~9–10% (2024)</td><td class="wdi">8.6% (2023), 7.2% (2024)</td><td class="vd"><span class="verdict bad">2024 off</span></td></tr>
+  </table>
+  <div class="stats">
+    <div class="card stat ok" data-b="2"><b id="c3a">0</b>close to the data</div>
+    <div class="card stat bad" data-b="3"><b id="c3b">0</b>off</div>
+    <div class="card stat zero" data-b="4"><b>0</b>traceable to a record</div>
+  </div>
+</section>
+
+<!-- 4 step 1: the three parts of a prompt -->
+<section class="scene" id="s4">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i></i><i></i><i></i><i></i></span>Step 1 of 5 · The prompt</div>
+  <h2>A prompt has three parts in separate slots</h2>
+  <svg class="wires" id="w4"></svg>
+  <div class="card slot i" id="p4i" style="top:176px" data-b="1"><div class="label"><span>Instructions</span><em>written by the builders</em></div>
+    <span class="mono">You are a research assistant for development data. Answer only from the supplied context. Cite the document id …</span></div>
+  <div class="card slot c" id="p4c" style="top:332px" data-b="1"><div class="label"><span>Context</span><em>selected by the application</em></div>
+    <span class="mono">[kenya-digital] The share of individuals using the internet in Kenya rose from 7.2 percent …</span></div>
+  <div class="card slot q" id="p4q" style="top:488px" data-b="1"><div class="label"><span>Question</span><em>written by the user</em></div>
+    <span class="mono">How have internet access and economic development evolved in Rwanda and Kenya? …</span></div>
+  <div class="card msg" id="g4s" style="top:176px;border-top:4px solid var(--primary)" data-b="3"><div class="label">System message</div>
+    <span class="tplc">("system", "{instructions}")</span>
+    <span class="fillv" id="f4i">{instructions}</span></div>
+  <div class="card msg" id="g4u" style="top:332px;border-top:4px solid var(--teal)" data-b="4"><div class="label">User message</div>
+    <span class="tplc">("human", "CONTEXT:\n{context}\n\nQUESTION: {question}")</span>
+    <span class="k">CONTEXT:</span><span class="fillv" id="f4c">{context}</span>
+    <span class="k">QUESTION:</span><span class="fillv" id="f4q">{question}</span></div>
+  <div class="model" id="m4" data-b="5">Language model<small>reads both messages</small></div>
+</section>
+
+<!-- 5 step 2: the context -->
+<section class="scene" id="s5">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span>Step 2 of 5 · The context</div>
+  <h2>Documents in the context, cited in the answer</h2>
+  <svg class="wires" id="w5"></svg>
+  <div class="ctxbox" id="cb5" data-b="1"><span class="label">Context · four briefs · 4,098 characters</span>
+    <div class="bgrid">
+      <div class="card brief" id="b5a"><b>[kenya-digital]</b><span>Kenya: internet use and mobile subscriptions</span></div>
+      <div class="card brief" id="b5b"><b>[rwanda-digital]</b><span>Rwanda: internet use and mobile subscriptions</span></div>
+      <div class="card brief" id="b5c"><b>[kenya-economy]</b><span>Kenya: GDP per capita and growth</span></div>
+      <div class="card brief" id="b5d"><b>[rwanda-economy]</b><span>Rwanda: GDP per capita and growth</span></div>
+    </div></div>
+  <div class="card gi" id="gi5" data-b="2"><div class="label">Grounded instructions</div>
+    <span class="rule" id="r5a">Answer only from the supplied context.</span>
+    <span class="rule" id="r5b">Cite the document id in square brackets after each figure.</span>
+    <span class="rule" id="r5c">If the context does not contain what is needed, say so and give the closest available information.</span></div>
+  <div class="model" id="m5" data-b="2">Language model<small>writes from the context</small></div>
+  <div class="term" id="o5" data-b="3"><div class="head"><span class="dot"></span>Response as it streams</div><div id="o5t"></div></div>
+</section>
+
+<!-- 6 step 3: missing information -->
+<section class="scene" id="s6">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>Step 3 of 5 · Missing information</div>
+  <h2>An instruction for data the context lacks</h2>
+  <svg class="wires" id="w6"></svg>
+  <div class="win" id="win6" style="left:80px;top:170px;width:660px;height:316px">
+    <div class="bar"><span class="dot live"></span>Research assistant</div>
+    <div class="body">
+      <div class="uq" id="q6"></div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a6"></div></div>
+    </div>
+  </div>
+  <div class="card bc" data-b="1"><div class="label">The only brief in the context · <b>[kenya-digital]</b></div>
+    <div style="font-size:14px;color:var(--muted);margin-top:4px">Individuals using the internet, % of population</div>
+    <div class="base6"></div>
+    <div class="bars6" id="bars6">
+      <div class="b" data-v="7.2"><span>7.2</span><em>2010</em></div>
+      <div class="b" data-v="16.6"><span>16.6</span><em>2015</em></div>
+      <div class="b" data-v="24.7"><span>24.7</span><em>2020</em></div>
+      <div class="b" data-v="29.4"><span>29.4</span><em>2022</em></div>
+      <div class="b" data-v="32.1"><span>32.1</span><em>2023</em></div>
+      <div class="b" id="b6k" data-v="35.0"><span>35.0</span><em>2024</em></div>
+      <div class="b miss" id="b6m"><span>?</span><em>2025</em></div>
+    </div></div>
+  <div class="card ins6" id="ins6" data-b="1"><div class="label">Grounded instructions</div>
+    <span class="dim">Answer only from the supplied context. Cite the document id in square brackets after each figure.</span>
+    <span class="rule" id="r6">If the context does not contain what is needed, say so and give the closest available information.</span></div>
+</section>
+
+<!-- 7 step 4: an ambiguous question -->
+<section class="scene" id="s7">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>Step 4 of 5 · Ambiguous questions</div>
+  <h2>An instruction to ask when a question is ambiguous</h2>
+  <div class="card q7" data-b="1"><div class="label">Question</div><div class="tx7" id="q7t"></div></div>
+  <div class="card rd7" data-b="1"><div class="label">Possible readings</div>
+    <div class="chips7"><span class="chip" id="k7a">internet use</span><span class="chip" id="k7b">mobile subscriptions</span><span class="chip" id="k7c">broadband coverage</span></div></div>
+  <div class="card col7 a" data-b="2"><div class="label">Basic instructions</div>
+    <div class="ins">You are a research assistant. Answer the question.</div>
+    <div class="tx" id="a7"></div></div>
+  <div class="card col7 b" data-b="3"><div class="label">With a rule to clarify</div>
+    <div class="ins">… <span class="add">If the question is ambiguous, say which readings are possible and ask which one is meant before answering.</span></div>
+    <div class="tx" id="b7"></div></div>
+</section>
+
+<!-- 8 step 5: the context window -->
+<section class="scene" id="s8">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Step 5 of 5 · The context window</div>
+  <h2>The context window limits what one call reads</h2>
+  <svg class="wires" id="w8"></svg>
+  <div class="card coll" id="cl8" data-b="3"><div class="label">A collection of thousands of documents</div>
+    <div class="tiles8" id="tl8"></div>
+    <div class="more">… and thousands more · tiles and sizes drawn for illustration</div></div>
+  <div class="sel8" id="sl8" data-b="4"><div class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg></div>
+    <div class="lb">Selection for<br>each question</div></div>
+  <div class="win8" id="wn8" data-b="1"><span class="label" id="wl8">Context window of one call</span><span class="tok8" id="tk8">0 tokens</span>
+    <div class="fillarea" id="fa8">
+      <div class="blk8" id="k8a" style="bottom:0">[kenya-digital]</div>
+      <div class="blk8" id="k8b" style="bottom:36px">[rwanda-digital]</div>
+      <div class="blk8" id="k8c" style="bottom:72px">[kenya-economy]</div>
+      <div class="blk8" id="k8d" style="bottom:108px">[rwanda-economy]</div>
+      <div class="blk8 sel" id="k8e" style="bottom:0">passage 1 · selected</div>
+      <div class="blk8 sel" id="k8f" style="bottom:36px">passage 2 · selected</div>
+      <div class="blk8 sel" id="k8g" style="bottom:72px">passage 3 · selected</div>
+    </div></div>
+  <div class="card calc8" data-b="2"><span>1 token ≈ 4 characters of English</span><span class="sep"></span>
+    <span class="k">4 briefs: 4,098 characters ≈ 1,024 tokens</span><span class="sep" id="sp8" style="opacity:0"></span>
+    <span class="price" id="pr8" style="opacity:0;transition:opacity .4s"><span>Price of a call</span><span class="track"><i id="pb8"></i></span></span></div>
+</section>
+
+<!-- 9 in the application -->
+<section class="scene" id="s9">
+  <div class="eyebrow">In the application</div>
+  <h2>Each figure carries the identifier of its brief</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:450px" data-b="1">
+    <div class="bar"><span class="dot"></span>Research assistant</div>
+    <div class="body">
+      <div class="uq" style="font-size:17px;max-width:520px">How have internet access and economic development evolved in Rwanda and Kenya? …</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx"><b>Internet use.</b> Kenya rose from 7.2% in 2010 to 35.0% in 2024 <span class="cit" id="c9a">[kenya-digital]</span>. Rwanda rose from 8.0% to 31.7% over the same period <span class="cit" id="c9b">[rwanda-digital]</span>.<br>
+          <b>Economic development.</b> Kenya's GDP per capita is roughly double Rwanda's in 2024: 2,133 against 1,060 <span class="cit">[kenya-economy; rwanda-economy]</span>.</div></div>
+    </div>
+  </div>
+  <div class="pop doc" id="pp9a" style="left:800px;top:170px"><div class="h">kenya-digital</div>
+    <div class="r"><span>Title</span><span>Kenya: internet use and mobile subscriptions, 2010 to 2024</span></div>
+    <div class="r"><span>Passage</span><span>… 32.1 percent in 2023, and <mark>35.0 percent in 2024</mark>, the latest year available.</span></div>
+    <div class="r"><span>Source</span><span>World Development Indicators</span></div></div>
+  <div class="pop doc" id="pp9b" style="left:800px;top:418px"><div class="h">rwanda-digital</div>
+    <div class="r"><span>Title</span><span>Rwanda: internet use and mobile subscriptions, 2010 to 2024</span></div>
+    <div class="r"><span>Passage</span><span>… 28.8 percent in 2023, and <mark>31.7 percent in 2024</mark>, the latest year available.</span></div></div>
+  <svg class="ptr" id="ptr9" style="left:640px;top:640px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 10 scope and judgement -->
+<section class="scene" id="s10">
+  <div class="eyebrow">Scope of the prompt</div>
+  <h2>People judge the evidence behind the answer</h2>
+  <div class="two">
+    <div class="card n" data-b="1"><b>Set by the instructions</b>The behaviour of the model: cite each figure, report missing information, ask about an ambiguous question.</div>
+    <div class="card g" data-b="2"><b>Supplied by the context</b>The data: every figure in a grounded answer, with the document it comes from.</div>
+  </div>
+  <div class="card judge" data-b="3"><div class="label" style="margin-bottom:6px">Judged by the builders and the reader</div>
+    <div class="jt">Whether the evidence in the context fits the question.</div>
+    <svg class="wires" id="w10" style="left:-80px;top:-396px"></svg>
+    <div class="row10">
+      <span class="chip" id="j10a">35.0 <span style="color:#0d6e5f">[kenya-digital]</span><small>figure in the answer</small></span>
+      <span class="chip pass" id="j10b">… and <b>35.0 percent in 2024</b>, the latest year available.<small>passage in the cited brief</small></span>
+      <span class="verdict ok" id="j10c">✓ found in the brief</span>
+    </div></div>
+</section>
+
+<!-- 11 closing -->
+<section class="scene dark" id="s11">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1 style="font-size:60px">Instructions and context in a prompt</h1>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+</section>
+
+<script>
+  const pulse = (el) => { el.classList.remove('ring'); void el.offsetWidth; el.classList.add('ring'); };
+
+  // 2b: the answer recorded without context, opening sentences and part of its table.
+  const A2 = [...words("I can't access live databases, so the figures below come from my training data. They are approximate and may be outdated."),
+    '<div class="mrow"><span></span><b>Kenya</b><b>Rwanda</b></div>',
+    '<div class="mrow"><span>Internet users</span><span class="v">roughly 40%</span><span class="v">roughly 30–40%</span></div>',
+    '<div class="mrow"><span>GDP per capita</span><span class="v">~$2,000–2,200</span><span class="v">~$950–1,050</span></div>',
+    '<div class="mrow"><span>Real GDP growth</span><span class="v">~4–5% (2024)</span><span class="v">~9–10% (2024)</span></div>'];
+
+  // 5: the answer recorded with the four briefs, as it streams.
+  const cit = (id) => `<span class="t-cit" data-id="${id}">[${id}]</span>`;
+  const A5 = ['<span class="t-h">Latest comparison (2024)</span>\n',
+    '<span class="t-h">Internet use, % of population</span>\n', '  Kenya   35.0 ', cit('kenya-digital'), '\n', '  Rwanda  31.7 ', cit('rwanda-digital'), '\n',
+    '<span class="t-h">GDP per capita, current US$</span>\n', '  Kenya   2,133 ', cit('kenya-economy'), '\n', '  Rwanda  1,060 ', cit('rwanda-economy'), '\n',
+    '<span class="t-h">Real GDP growth</span>\n', '  Kenya   4.7% ', cit('kenya-economy'), '\n', '  Rwanda  7.2% ', cit('rwanda-economy'), '\n\n',
+    ...words('Internet use. Kenya rose from'), '\n', ...words('7.2% in 2010 to 35.0% in 2024'), '\n', cit('kenya-digital'), ' …'];
+
+  const A6 = [...words('The supplied context does not include a 2025 figure. It states that 2024 is the latest year available. The closest figure is '),
+    '<b id="v6">35.0 percent</b> ', ...words('of the population using the internet in 2024 '),
+    '<span class="cite6">[Kenya: internet use and mobile subscriptions, 2010 to 2024]</span>.'];
+
+  const A7 = [...words('Kenya is partly connected. Internet use reaches a little over a third of the population, while mobile subscriptions are numerous enough to exceed the population.'),
+    '<br>• <b>Internet use:</b> ', ...words('35.0% of people in 2024, up from 7.2% in 2010.'),
+    '<br>• <b>Mobile subscriptions:</b> ', ...words('126.5 per 100 people in 2024.'),
+    '<br>• <span class="xtra"><b>Growth:</b> the share of internet users has risen steadily …</span>'];
+  const B7 = [...words('"Connected" could mean a few different things here, so which do you mean?'),
+    '<br>1. <b>Internet use</b>', '<br>2. <b>Mobile subscriptions</b>', '<br>3. <b>Both together</b>',
+    '<br><span class="ask">Which one would you like me to answer?</span>'];
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        const s = $('w2');
+        later(400, () => { const p = wire(s, $('o2a'), $('m2'), { color: '#12a08a' }); later(700, () => flow(s, p, '#12a08a')); });
+        later(900, () => { const p = wire(s, $('m2'), $('n2c').querySelector('.ic'), { hot: true }); later(700, () => flow(s, p, '#1558d6')); });
+        later(1100, () => $('m2').classList.add('busy'));
+      },
+      2: () => {
+        const s = $('w2');
+        later(400, () => { const p = wire(s, $('o2b'), $('m2'), { color: '#6d4bd8' }); later(700, () => flow(s, p, '#6d4bd8')); });
+      },
+    },
+    '2b': {
+      1: () => typeText($('q2'), 'How have internet access and economic development evolved in Rwanda and Kenya? Compare the recent available data, summarize the main patterns, and cite the sources.', 40),
+      2: () => {
+        stream($('a2'), A2, 150, null, () => {
+          $('tg2l').style.opacity = 1;
+          ['tg2a', 'tg2b', 'tg2c'].forEach((id, i) => later(200 + i * 450, () => $(id).classList.add('in2')));
+        });
+      },
+    },
+    3: {
+      1: () => document.querySelectorAll('#t3 tr.r').forEach((r, i) => later(150 + i * 200, () => r.classList.add('in2'))),
+      2: () => {
+        let n = 0;
+        document.querySelectorAll('#t3 .verdict.ok').forEach((v, i) => later(200 + i * 350, () => { v.classList.add('in2'); $('c3a').textContent = ++n; }));
+      },
+      3: () => {
+        let n = 0;
+        ['r3a', 'r3f'].forEach((id, i) => later(200 + i * 900, () => {
+          $(id).classList.add('offrow'); $(id).querySelector('.verdict').classList.add('in2'); $('c3b').textContent = ++n;
+        }));
+      },
+    },
+    4: {
+      2: () => ['p4i', 'p4c', 'p4q'].forEach((id, i) => later(i * 700, () => {
+        ['p4i', 'p4c', 'p4q'].forEach((x) => $(x).classList.remove('ring')); pulse($(id));
+      })),
+      3: () => {
+        ['p4c', 'p4q'].forEach((x) => $(x).classList.remove('ring')); pulse($('p4i'));
+        later(500, () => fly($('p4i'), $('f4i'), 'instructions', 900));
+        later(1400, () => { $('f4i').textContent = 'You are a research assistant for development data. Answer only from the supplied context. …'; $('f4i').classList.add('i'); });
+      },
+      4: () => {
+        $('p4i').classList.remove('ring');
+        later(500, () => fly($('p4c'), $('f4c'), 'context', 900));
+        later(1000, () => fly($('p4q'), $('f4q'), 'question', 900));
+        later(1400, () => { $('f4c').textContent = '[kenya-digital] The share of individuals using the internet …'; $('f4c').classList.add('c'); });
+        later(1900, () => { $('f4q').textContent = 'How have internet access and economic development evolved …'; $('f4q').classList.add('q'); });
+      },
+      5: () => {
+        const s = $('w4');
+        later(300, () => { const p = wire(s, $('g4s'), $('m4'), { color: '#1558d6' }); later(600, () => flow(s, p, '#1558d6', 1300, 2, 4.5)); });
+        later(500, () => { const p = wire(s, $('g4u'), $('m4'), { color: '#12a08a' }); later(600, () => flow(s, p, '#12a08a', 1300, 2, 4.5)); });
+        later(1100, () => $('m4').classList.add('busy'));
+      },
+    },
+    5: {
+      1: () => ['b5a', 'b5b', 'b5c', 'b5d'].forEach((id, i) => {
+        const el = $(id); el.style.opacity = 0; el.style.transform = 'translateY(14px)';
+        later(250 + i * 250, () => { el.style.opacity = 1; el.style.transform = 'none'; });
+      }),
+      2: () => {
+        ['r5a', 'r5b', 'r5c'].forEach((id, i) => later(300 + i * 900, () => $(id).classList.add('on')));
+        const s = $('w5');
+        later(500, () => { const p = wire(s, $('cb5'), $('m5'), { color: '#12a08a' }); later(600, () => flow(s, p, '#12a08a', 1300, 2, 4.5)); });
+        later(700, () => { const p = wire(s, $('gi5'), $('m5'), { color: '#1558d6' }); later(600, () => flow(s, p, '#1558d6', 1300, 2, 4.5)); });
+        later(1300, () => $('m5').classList.add('busy'));
+      },
+      3: () => {
+        const s = $('w5');
+        const p = wire(s, $('m5'), $('o5'), { hot: true, ms: 500 }); later(500, () => flow(s, p, '#1558d6', 1100, 3, 4.5));
+        later(400, () => stream($('o5t'), A5, 110, null, () => $('m5').classList.remove('busy')));
+      },
+      4: () => {
+        const map = { 'kenya-digital': 'b5a', 'rwanda-digital': 'b5b', 'kenya-economy': 'b5c', 'rwanda-economy': 'b5d' };
+        const cits = [...document.querySelectorAll('#o5t .t-cit')].slice(0, 6);
+        cits.forEach((c, i) => later(200 + i * 600, () => {
+          document.querySelectorAll('#o5t .t-cit').forEach((x) => x.classList.remove('on'));
+          document.querySelectorAll('#s5 .brief').forEach((x) => x.classList.remove('hit'));
+          c.classList.add('on'); $(map[c.dataset.id]).classList.add('hit');
+        }));
+        later(200 + 6 * 600, () => {
+          document.querySelectorAll('#o5t .t-cit').forEach((x) => x.classList.remove('on'));
+          document.querySelectorAll('#s5 .brief').forEach((x) => x.classList.remove('hit'));
+          const k = cits[0]; k.classList.add('on'); $('b5a').classList.add('hit');
+          fly($('b5a'), k, '35.0', 1000);
+        });
+      },
+    },
+    6: {
+      1: () => {
+        typeText($('q6'), "What share of Kenya's population used the internet in 2025?", 34);
+        document.querySelectorAll('#bars6 .b[data-v]').forEach((b, i) => later(300 + i * 160, () => { b.style.height = (Number(b.dataset.v) / 35 * 165) + 'px'; }));
+        later(1600, () => $('b6m').classList.add('in2'));
+      },
+      2: () => stream($('a6'), A6, 140, (i) => { if (A6[i].includes('id="v6"')) $('b6k').classList.add('hit'); }),
+      3: () => {
+        $('r6').classList.add('on');
+        later(400, () => wire($('w6'), $('a6'), $('r6'), { from: 'bottom', to: 'top', hot: true, ms: 700 }));
+      },
+    },
+    7: {
+      1: () => typeText($('q7t'), 'How connected is Kenya?', 22, () => {
+        ['k7a', 'k7b', 'k7c'].forEach((id, i) => later(200 + i * 300, () => $(id).classList.add('ask')));
+      }),
+      2: () => {
+        ['k7a', 'k7b', 'k7c'].forEach((id) => $(id).classList.remove('ask'));
+        stream($('a7'), A7, 120, (i) => {
+          if (A7[i].includes('Internet use:')) $('k7a').classList.add('on');
+          if (A7[i].includes('Mobile subscriptions:')) $('k7b').classList.add('on');
+        });
+      },
+      3: () => {
+        ['k7a', 'k7b', 'k7c'].forEach((id) => $(id).classList.remove('on'));
+        stream($('b7'), B7, 180, null, () => ['k7a', 'k7b', 'k7c'].forEach((id) => $(id).classList.add('ask')));
+      },
+    },
+    8: {
+      2: () => {
+        ['k8a', 'k8b', 'k8c', 'k8d'].forEach((id, i) => later(200 + i * 300, () => { $(id).classList.add('in2'); $('tk8').textContent = '≈ ' + Math.round(1024 * (i + 1) / 4).toLocaleString('en') + ' tokens'; }));
+        later(1500, () => { $('tk8').textContent = '≈ 1,024 tokens'; });
+      },
+      3: () => {
+        const box = $('wn8'), wb = rectOf(box), tiles = [...document.querySelectorAll('#tl8 i')];
+        const sb = current.getBoundingClientRect();
+        $('sp8').style.opacity = 1; $('pr8').style.opacity = 1;
+        later(300, () => { $('pb8').style.width = '92%'; });
+        for (let k = 0; k < 90; k++) later(200 + k * 24, () => {
+          const t = tiles[(k * 7) % tiles.length], a = rectOf(t);
+          const f = document.createElement('div'); f.className = 'flood';
+          f.style.left = (a.left - sb.left) + 'px'; f.style.top = (a.top - sb.top) + 'px';
+          current.appendChild(f);
+          const col = k % 15, row = Math.floor(k / 15);
+          const x = wb.left - sb.left + 18 + col * 25, y = wb.top - sb.top + 46 + row * 20;
+          f.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${x - (a.left - sb.left)}px, ${y - (a.top - sb.top)}px)` }],
+            { duration: 700, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
+        });
+        later(1900, () => { box.classList.add('over'); $('wl8').textContent = 'Exceeds the context window'; $('tk8').textContent = ''; });
+      },
+      4: () => {
+        current.querySelectorAll('.flood').forEach((f) => f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }));
+        ['k8a', 'k8b', 'k8c', 'k8d'].forEach((id) => $(id).classList.remove('in2'));
+        $('pb8').style.width = '14%'; $('pb8').style.background = 'var(--primary)';
+        const s = $('w8');
+        later(300, () => { box8reset(); wire(s, $('cl8'), $('sl8').querySelector('.ic'), { hot: true }); });
+        later(600, () => wire(s, $('sl8').querySelector('.ic'), $('wn8'), { hot: true }));
+        const tiles = [...document.querySelectorAll('#tl8 i')], picks = [17, 52, 89];
+        picks.forEach((p, i) => later(900 + i * 700, () => {
+          tiles[p].classList.add('pick');
+          fly(tiles[p], $('sl8').querySelector('.ic'), 'passage', 600);
+          later(600, () => { $(['k8e', 'k8f', 'k8g'][i]).classList.add('in2'); });
+        }));
+        later(3200, () => { $('wl8').textContent = 'Passages selected for this question'; });
+      },
+    },
+    9: {
+      2: () => {
+        const b = $('c9a').getBoundingClientRect();
+        $('ptr9').style.left = b.left + b.width / 2 + 'px'; $('ptr9').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => { $('c9a').classList.add('on'); $('pp9a').classList.add('in2'); });
+      },
+      3: () => {
+        $('c9a').classList.remove('on');
+        const b = $('c9b').getBoundingClientRect();
+        $('ptr9').style.left = b.left + b.width / 2 + 'px'; $('ptr9').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => { $('c9b').classList.add('on'); $('pp9b').classList.add('in2'); });
+      },
+    },
+    10: {
+      4: () => {
+        const s = $('w10');
+        $('j10a').classList.add('on');
+        later(300, () => { const p = wire(s, $('j10a'), $('j10b'), { hot: true, ms: 700 }); later(700, () => carry(p, '35.0', '#1558d6', 1300, null, () => $('j10b').classList.add('on'))); });
+        later(2600, () => { const p = wire(s, $('j10b'), $('j10c'), { hot: true, ms: 500 }); later(500, () => $('j10c').classList.add('in2')); });
+      },
+    },
+  };
+
+  function box8reset() { $('wn8').classList.remove('over'); $('wl8').textContent = 'Context window of one call'; $('tk8').textContent = ''; }
+
+  // Tiles of the collection in scene 8.
+  $('tl8').innerHTML = Array.from({ length: 120 }, () => '<i></i>').join('');
+
+  go(1, 0);
+</script>
+</body>
+</html>
