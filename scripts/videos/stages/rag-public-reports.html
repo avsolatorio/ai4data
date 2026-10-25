@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Retrieval-augmented generation over economic updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this explainer only; shared styles are in kit/stage.css.
+     All values on screen come from examples/rag-public (retrieval_runs.json, answers.json). */
+  #s1 h1 { font-size: 72px; max-width: 1000px; }
+  #s1 .sub { max-width: 900px; }
+  .ring { box-shadow: 0 0 0 3px var(--primary-subtle); border-color: var(--primary) !important; }
+  .cit { font: 500 13px var(--mono); color: #0d6e5f; background: var(--teal-subtle); border-radius: 4px; padding: 1px 5px; white-space: nowrap; transition: box-shadow .4s, background .4s, color .4s; }
+  .cit.on { box-shadow: 0 0 0 3px var(--primary-subtle); background: var(--primary-subtle); color: var(--primary); }
+  .stampin { opacity: 0; } .stampin.in2 { animation: stamp .45s ease both; }
+  .fig { display: inline-block; font: 600 14px var(--mono); border-radius: 6px; padding: 3px 8px; margin: 4px 6px 0 0; background: var(--surface-1); border: 1px solid var(--hairline); color: var(--muted); transition: all .4s; white-space: nowrap; }
+  .fig.ok { background: var(--ok-bg); border-color: #b5dcc6; color: var(--ok); }
+  .fig.bad { background: var(--bad-bg); border-color: #f2c2bd; color: var(--bad); }
+  .src { position: absolute; left: 80px; right: 80px; top: 650px; font-size: 12px; color: var(--subtle); line-height: 1.4; }
+  .dark .src { color: var(--block-soft); top: auto; bottom: 46px; font-size: 13px; }
+
+  /* passage grids: one square per chunk of the store */
+  .cells { display: grid; }
+  .cells i { display: block; background: #d5dbe3; transition: background .3s, box-shadow .3s, transform .3s; }
+  .cells i.need { background: #e0b100; box-shadow: 0 0 0 2px #fff4cc; }
+  .cells i.pick { background: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .cells i.lost { background: var(--bad); box-shadow: 0 0 0 2px var(--bad-bg); }
+  .mover { position: absolute; border-radius: 3px; background: var(--primary-subtle); border: 1px solid var(--primary); pointer-events: none; z-index: 4; }
+
+  /* 2: context */
+  #s2 .node { width: 210px; top: 170px; }
+  .rag { position: absolute; top: -10px; right: 34px; width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #fff;
+    font: 700 17px Inter, sans-serif; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0); transition: all .4s cubic-bezier(.2,.8,.2,1); }
+  .rag.in2 { opacity: 1; transform: none; }
+  .arc2 { position: absolute; left: 80px; top: 384px; width: 720px; height: 242px; padding: 14px 18px; border-top: 4px solid var(--teal); }
+  .arc2 svg { position: absolute; left: 0; top: 0; width: 720px; height: 242px; overflow: visible; }
+  .arc2 .stats { position: absolute; left: 18px; right: 18px; bottom: 14px; border-top: 1px solid var(--surface-2); padding-top: 10px; display: flex; gap: 22px; align-items: baseline; font-size: 15px; color: var(--muted); }
+  .arc2 .stats b { font: 700 19px var(--mono); color: var(--ink); margin-right: 5px; }
+  .ragc { position: absolute; left: 830px; top: 384px; width: 370px; height: 242px; padding: 14px 20px; border-top: 4px solid var(--ink); }
+  .ragc .t { font-size: 21px; font-weight: 700; margin-top: 6px; line-height: 1.25; }
+  .ragc .ln { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: center; font-size: 16px; margin-top: 10px; color: var(--muted); }
+  .ragc .ln i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 13px Inter, sans-serif; display: flex; align-items: center; justify-content: center; }
+  .doc2 { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .doc2.in2 { transform: none; }
+
+  /* 2b: an answer from four passages */
+  #s2b .uq { font-size: 16px; max-width: 560px; }
+  #s2b .ua .tx { font-size: 17px; line-height: 1.55; }
+  #a2b b.nc { border-radius: 4px; transition: background .4s, box-shadow .4s; }
+  #a2b b.nc.hl { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .psg { position: absolute; left: 810px; top: 170px; width: 390px; height: 456px; padding: 14px 18px; }
+  .prow { padding: 10px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .prow.in2 { opacity: 1; transform: none; }
+  .prow:first-of-type { border-top: 0; }
+  .prow .ds { font-size: 14.5px; color: var(--ink); margin-top: 5px; }
+  .prow .tp { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--subtle); margin-top: 4px; letter-spacing: .04em; text-transform: uppercase; font-weight: 600; }
+  .prow .sc { font: 600 14px var(--mono); text-transform: none; color: var(--ink); }
+  .topics { position: absolute; left: 18px; right: 18px; bottom: 16px; }
+  .topics .chip { display: inline-block; font-size: 14px; padding: 5px 10px; margin: 6px 6px 0 0; }
+  .chip.bad2 { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+
+  /* 3: the problem */
+  .st3 { position: absolute; left: 80px; top: 170px; width: 500px; height: 456px; padding: 14px 16px; border-top: 4px solid var(--teal); }
+  .blk { display: grid; grid-template-columns: 88px 1fr; align-items: start; margin-top: 8px; }
+  .blk > span { font: 500 11.5px/14px var(--mono); color: var(--muted); }
+  .blk .cells { grid-template-columns: repeat(76, 4px); gap: 1px; min-height: 14px; align-content: start; }
+  .blk .cells i { width: 4px; height: 4px; }
+  .st3 .key { position: absolute; left: 16px; right: 16px; bottom: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 16px; }
+  .st3 .key i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: 0; }
+  .pr3 { position: absolute; left: 600px; top: 170px; width: 280px; height: 456px; padding: 14px 16px; border: 1.5px dashed var(--primary-light); background: #fff; border-radius: 10px; }
+  .pr3 > .label { color: var(--primary); }
+  .slot3 { height: 92px; margin-top: 12px; border-radius: 8px; border: 1px dashed #c9d3e3; padding: 8px 10px; transition: all .4s; }
+  .slot3.full { border: 1px solid var(--primary); background: var(--primary-subtle); }
+  .slot3 .cit { opacity: 0; transition: opacity .4s; font-size: 12px; } .slot3.full .cit { opacity: 1; }
+  .slot3 div { font-size: 13.5px; line-height: 1.4; color: var(--muted); margin-top: 6px; opacity: 0; transition: opacity .4s; } .slot3.full div { opacity: 1; }
+  .ck3 { position: absolute; left: 900px; top: 170px; width: 300px; height: 456px; padding: 14px 16px; }
+  .need3 { padding: 11px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(10px); transition: all .4s; display: grid; grid-template-columns: 1fr auto; row-gap: 5px; align-items: center; }
+  .need3.in2 { opacity: 1; transform: none; }
+  .need3:first-of-type { border-top: 0; margin-top: 6px; }
+  .need3 .w { font-size: 15px; font-weight: 600; line-height: 1.3; } .need3 small { font-size: 11.5px; color: var(--subtle); font-family: var(--mono); white-space: nowrap; }
+  .need3 .v { font: 700 20px var(--mono); text-align: right; }
+  .need3 .verdict { margin-top: 0; font-size: 12.5px; padding: 2px 9px; justify-self: end; white-space: nowrap; }
+
+  /* 4: step 1, retrieval */
+  .q4 { position: absolute; left: 80px; top: 170px; width: 380px; height: 128px; padding: 12px 16px; font-size: 16px; line-height: 1.45; }
+  .v4 { position: absolute; left: 80px; top: 312px; width: 380px; height: 120px; padding: 12px 16px; border-top: 4px solid var(--primary); }
+  .v4 .bars { display: flex; align-items: center; gap: 3px; height: 50px; margin-top: 8px; }
+  .v4 .bars i { flex: 1; background: var(--primary-light); border-radius: 1px; height: 2px; transition: height .5s ease; }
+  .v4 .sm { font-size: 12.5px; color: var(--subtle); margin-top: 4px; }
+  .s4 { position: absolute; left: 80px; top: 446px; width: 380px; height: 180px; padding: 12px 16px; border-top: 4px solid var(--teal); }
+  .s4 .cells { grid-template-columns: repeat(116, 2px); gap: 1px; margin-top: 10px; position: relative; }
+  .s4 .cells i { width: 2px; height: 2px; }
+  .s4 .cells i.pick { box-shadow: 0 0 0 3px var(--primary); }
+  .sweep { position: absolute; top: -3px; bottom: -3px; width: 36px; left: -40px; background: linear-gradient(90deg, rgba(21,88,214,0), rgba(21,88,214,.35), rgba(21,88,214,0)); pointer-events: none; }
+  .s4 .sm { font-size: 12.5px; color: var(--subtle); margin-top: 8px; }
+  .ang { position: absolute; left: 490px; top: 170px; width: 356px; height: 456px; padding: 12px 16px; }
+  .ang svg { position: absolute; left: 0; top: 0; width: 356px; height: 456px; overflow: visible; }
+  .ang .lgd { position: absolute; left: 16px; right: 16px; bottom: 14px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+  .ang .lgd .mono { font-size: 13px; color: var(--ink); }
+  .ang .lgd small { display: block; font-size: 12px; color: var(--subtle); margin-top: 4px; }
+  .rk4 { position: absolute; left: 870px; top: 170px; width: 330px; height: 456px; padding: 12px 16px; }
+  .r4 { display: grid; grid-template-columns: 20px 1fr 52px; gap: 8px; align-items: center; height: 60px; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateY(8px); transition: all .4s; border-radius: 6px; padding: 0 4px; }
+  .r4.in2 { opacity: 1; transform: none; }
+  .r4 .n { font: 600 13px var(--mono); color: var(--subtle); }
+  .r4 .id { font: 600 12.5px var(--mono); display: block; } .r4 .sec { font-size: 12.5px; color: var(--muted); display: block; margin-top: 3px; }
+  .r4 .sc { font: 600 15px var(--mono); text-align: right; }
+  .r4.sel { background: var(--primary-subtle); }
+  .r4.below { opacity: .45; }
+  .cut4 { height: 0; border-top: 2px dashed var(--primary); margin: 8px 0; position: relative; opacity: 0; transition: opacity .4s; }
+  .cut4.in2 { opacity: 1; }
+  .cut4 span { position: absolute; right: 0; top: 4px; font: 700 12.5px var(--mono); color: var(--primary); background: #fff; padding: 0 4px; }
+  .more4 { font-size: 13.5px; color: var(--subtle); margin-top: 14px; opacity: 0; transition: opacity .4s; } .more4.in2 { opacity: 1; }
+
+  /* 5: step 2, the prompt */
+  .p5 { position: absolute; left: 80px; width: 400px; height: 104px; padding: 9px 14px; transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
+  .p5 .hd { font: 500 12.5px var(--mono); color: #0d6e5f; white-space: nowrap; }
+  .p5 .hd span { border-radius: 3px; transition: background .3s, box-shadow .3s; }
+  .p5 .hd span.on { background: var(--primary-subtle); box-shadow: 0 0 0 2px var(--primary-subtle); color: var(--primary); }
+  .p5 .ti { font-size: 12.5px; color: var(--subtle); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p5 .bd { font-size: 13.5px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+  .tg5 { position: absolute; font: 700 11.5px Inter, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--primary); opacity: 0; transition: opacity .3s; white-space: nowrap; }
+  .tg5.in2 { opacity: 1; }
+  .m5 { position: absolute; left: 510px; width: 370px; padding: 12px 16px; font-size: 14px; line-height: 1.5; }
+  .m5 .label { margin-bottom: 4px; color: var(--ink); }
+  .m5 .tplc { font: 12px var(--mono); color: var(--subtle); display: block; margin-bottom: 6px; }
+  .m5 .k { font: 700 12.5px var(--mono); color: var(--muted); display: block; margin-top: 6px; }
+  .m5 .fillv { display: block; border-radius: 5px; padding: 4px 8px; font: 12.5px/1.5 var(--mono); background: var(--surface-1); color: var(--subtle); transition: background .4s, color .4s; }
+  .m5 .fillv.c { background: var(--teal-subtle); color: var(--ink); }
+  .m5 .fillv.q { background: var(--surface-2); color: var(--ink); }
+  .m5 .rule { display: block; font: 12.5px/1.5 var(--mono); border-radius: 4px; padding: 1px 4px; margin-left: -4px; transition: background .4s; }
+  .m5 .rule.on { background: var(--primary-subtle); }
+  #md5 { left: 975px; top: 176px; width: 150px; height: 150px; }
+  #o5 { left: 910px; top: 346px; width: 290px; height: 280px; }
+  #o5t { font-size: 13px; line-height: 1.6; }
+  .term .head small { font: 500 11.5px var(--mono); letter-spacing: 0; text-transform: none; color: #7d8794; margin-left: 6px; }
+  .t-cit { color: #8ee0d0; border-radius: 4px; transition: background .4s, box-shadow .4s, color .4s; }
+  .t-cit.on { background: rgba(18,160,138,.3); box-shadow: 0 0 0 2px #12a08a; color: #fff; }
+
+  /* 6: step 3, two-part question */
+  .ch6 { position: absolute; left: 80px; top: 170px; width: 660px; height: 456px; padding: 12px 18px; }
+  .ch6 .lg { position: absolute; right: 18px; top: 12px; display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+  .ch6 .lg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  #rows6 { position: absolute; left: 18px; right: 18px; top: 44px; }
+  .r6 { position: absolute; left: 0; right: 0; display: grid; grid-template-columns: 24px 168px 250px 1fr 48px; gap: 8px; align-items: center; height: 33px; border-radius: 6px; padding: 0 4px; transition: background .4s, opacity .4s, box-shadow .4s; }
+  .r6 .n { font: 600 12.5px var(--mono); color: var(--subtle); }
+  .r6 .id { font: 500 12.5px var(--mono); white-space: nowrap; color: #0d6e5f; } .r6 .sec { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r6 .bar { display: block; height: 13px; border-radius: 3px; width: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); }
+  .r6 .sc { font: 600 13.5px var(--mono); text-align: right; }
+  .r6.sel { background: var(--primary-subtle); }
+  .r6.hl { box-shadow: 0 0 0 2px var(--teal); background: var(--teal-subtle); }
+  .r6.far { opacity: 0; transition: opacity .5s, background .4s, box-shadow .4s; } .r6.far.in2 { opacity: 1; }
+  .gap6 { position: absolute; left: 34px; font-size: 13px; color: var(--subtle); opacity: 0; transition: opacity .4s; } .gap6.in2 { opacity: 1; }
+  .cut6 { position: absolute; left: 18px; right: 18px; height: 0; border-top: 2px dashed var(--primary); transition: top .9s cubic-bezier(.4,0,.2,1), opacity .4s; opacity: 0; }
+  .cut6.in2 { opacity: 1; }
+  .cut6 span { position: absolute; right: 62px; top: -1px; font: 700 12.5px var(--mono); color: var(--primary); background: #fff; padding: 0 6px; transform: translateY(-50%); }
+  .k6 { position: absolute; left: 770px; top: 170px; width: 430px; height: 160px; padding: 12px 18px; }
+  .k6 .big { font: 700 32px var(--mono); margin-top: 6px; }
+  .k6 .big small { font: 500 15px Inter, sans-serif; color: var(--muted); margin-left: 10px; }
+  .k6 .track { height: 12px; border-radius: 6px; background: var(--surface-2); margin-top: 10px; overflow: hidden; }
+  .k6 .track i { display: block; height: 100%; width: 0; background: var(--primary); border-radius: 6px; transition: width 1.2s ease, background .4s; }
+  .k6 .sm { font-size: 13px; color: var(--subtle); margin-top: 8px; }
+  .k6 .sm b { font-family: var(--mono); color: var(--ink); }
+  .fx6 { position: absolute; left: 770px; top: 346px; width: 430px; height: 280px; padding: 12px 18px; border-top: 4px solid var(--ok); }
+  .fx6 .label { color: var(--ok); }
+  .sq6 { display: grid; grid-template-columns: 1fr 96px; gap: 8px; align-items: center; margin-top: 10px; opacity: 0; transform: translateX(10px); transition: all .4s; }
+  .sq6.in2 { opacity: 1; transform: none; }
+  .sq6 .chip { font-size: 14px; padding: 8px 12px; line-height: 1.4; }
+  .sq6 .n { font: 600 13.5px var(--mono); color: var(--muted); white-space: nowrap; }
+  .mg6 { margin-top: 18px; font-size: 17px; line-height: 1.6; opacity: 0; transition: opacity .4s; } .mg6.in2 { opacity: 1; }
+  .mg6 b { font-family: var(--mono); }
+
+  /* 7: step 4, dates */
+  .qb7 { position: absolute; left: 80px; top: 170px; width: 1120px; height: 62px; padding: 10px 18px; display: flex; align-items: center; gap: 16px; }
+  .qb7 .tx { font-size: 19px; font-weight: 600; flex: 1; min-height: 26px; }
+  .qb7 .chip { font-size: 16px; padding: 5px 12px; }
+  .col7 { position: absolute; top: 248px; width: 360px; height: 378px; padding: 12px 16px; }
+  .col7.bad { border-top: 4px solid var(--bad); } .col7.bad > .label { color: var(--bad); }
+  .col7.good { border-top: 4px solid var(--ok); } .col7.good > .label { color: var(--ok); }
+  .col7 .qy { font: 12.5px/1.45 var(--mono); color: var(--muted); background: var(--surface-1); border-radius: 6px; padding: 6px 8px; margin-top: 8px; height: 46px; }
+  .r7 { display: grid; grid-template-columns: 1fr 52px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--surface-2); opacity: 0; transform: translateX(-8px); transition: all .4s; }
+  .r7.in2 { opacity: 1; transform: none; }
+  .r7 .id { font: 600 13px var(--mono); display: block; } .r7 .sec { font-size: 12.5px; color: var(--muted); display: block; margin-top: 2px; }
+  .r7 .sec b { font-weight: 700; }
+  .bad .r7 .sec b { color: var(--bad); } .good .r7 .sec b { color: var(--ok); }
+  .r7 .sc { font: 600 15px var(--mono); text-align: right; }
+  .tl7 { display: block; width: 328px; height: 40px; margin-top: 6px; overflow: visible; }
+  .rk7 { font-size: 13.5px; color: var(--muted); opacity: 0; transition: opacity .4s; margin-top: 2px; } .rk7.in2 { opacity: 1; }
+  .rk7 b { font: 700 15px var(--mono); color: var(--ink); }
+  .bad .rk7 b { color: var(--bad); } .good .rk7 b { color: var(--ok); }
+  .out7 { margin-top: 8px; font-size: 14px; line-height: 1.5; min-height: 64px; }
+  .out7 .cit { font-size: 12px; }
+  .col7 .figs { position: absolute; left: 16px; right: 16px; bottom: 12px; }
+
+  /* 8: step 5, outside the archive */
+  .qc8 { position: absolute; left: 80px; width: 548px; height: 218px; padding: 12px 18px; }
+  .qc8 .tx { font-size: 18px; font-weight: 600; margin: 6px 0 4px; }
+  .r8 { display: grid; grid-template-columns: 1fr 56px; align-items: center; padding: 5px 0; border-top: 1px solid var(--surface-2); opacity: 0; transform: translateX(-8px); transition: all .4s; }
+  .r8.in2 { opacity: 1; transform: none; }
+  .r8 .cit { font-size: 12px; justify-self: start; } .r8 .sc { font: 600 14.5px var(--mono); text-align: right; }
+  .r8.best .sc { color: var(--primary); }
+  .an8 { font-size: 14px; line-height: 1.45; margin-top: 6px; min-height: 40px; }
+  .an8 .cit { font-size: 12px; }
+  .ax8 { position: absolute; left: 652px; top: 170px; width: 548px; height: 278px; padding: 12px 18px; }
+  .ax8 svg { position: absolute; left: 0; top: 0; width: 548px; height: 278px; overflow: visible; }
+  .in8 { position: absolute; left: 652px; top: 462px; width: 548px; height: 164px; padding: 12px 18px; border-top: 4px solid var(--primary); }
+  .in8 .label { color: var(--primary); margin-bottom: 6px; }
+  .in8 .rule { display: block; font: 13px/1.55 var(--mono); border-radius: 4px; padding: 1px 4px; margin-left: -4px; color: var(--subtle); transition: background .4s, color .4s, box-shadow .4s; }
+  .in8 .rule.on { background: var(--primary-subtle); color: var(--ink); box-shadow: 0 0 0 2px var(--primary-subtle); }
+
+  /* 9: in the chatbot */
+  #s9 .uq { font-size: 15.5px; max-width: 540px; }
+  #s9 .win .body { padding: 20px 24px; }
+  #s9 .ua { margin-top: 16px; }
+  #s9 .ua .tx { font-size: 16px; line-height: 1.55; }
+  #s9 .cit { font-size: 12px; }
+  .pop.doc { border-top-color: var(--teal); width: 400px; }
+  .pop.doc .h { color: #0d6e5f; font-family: var(--mono); font-size: 15px; }
+  .pop.doc .r { grid-template-columns: 92px 1fr; font-size: 14.5px; line-height: 1.4; }
+  .pop.doc mark { background: #fff4cc; box-shadow: 0 0 0 2px #fff4cc; border-radius: 3px; }
+  .pl9 { position: absolute; left: 800px; top: 452px; width: 400px; height: 174px; padding: 12px 18px; }
+  .pl9 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .pl9 .cols small { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--subtle); margin-bottom: 2px; }
+  .pl9 .ln { font: 12px/1.65 var(--mono); color: var(--muted); border-radius: 4px; padding: 0 4px; margin-left: -4px; transition: background .4s, color .4s; white-space: nowrap; }
+  .pl9 .ln.on { background: var(--primary-subtle); color: var(--primary); }
+
+  /* 10: testing retrieval */
+  #t10 { position: absolute; left: 80px; top: 166px; width: 1120px; font-size: 14px; }
+  #t10 td { padding: 6px 12px; } #t10 th { padding: 8px 12px; font-size: 11.5px; }
+  #t10 td.mono { font-size: 12.5px; white-space: nowrap; }
+  #t10 td .verdict { margin-top: 0; font-size: 13px; padding: 2px 10px; opacity: 0; }
+  #t10 td .verdict.in2 { animation: stamp .45s ease both; }
+  .bt10 { position: absolute; left: 80px; top: 522px; width: 1120px; height: 104px; padding: 14px 22px; display: grid; grid-template-columns: 210px 1fr 90px; row-gap: 12px; column-gap: 16px; align-items: center; font-size: 15.5px; }
+  .bt10 .bar { height: 16px; border-radius: 8px; background: var(--surface-2); overflow: hidden; }
+  .bt10 .bar i { display: block; height: 100%; width: 0; border-radius: 8px; transition: width 1s ease; }
+  .bt10 b { font: 700 17px var(--mono); text-align: right; }
+
+  /* 11: scope */
+  .two { position: absolute; left: 80px; top: 176px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .two .card { padding: 18px 24px; font-size: 19px; line-height: 1.45; min-height: 150px; }
+  .two .card b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .two .n { border-top: 4px solid var(--primary); } .two .n b { color: var(--primary); }
+  .two .g { border-top: 4px solid var(--teal); } .two .g b { color: var(--teal); }
+  .judge { position: absolute; left: 80px; top: 350px; width: 1120px; height: 276px; padding: 16px 24px; border-top: 4px solid var(--ink); }
+  .judge .jt { font-size: 19px; line-height: 1.45; }
+  .row11 { position: absolute; left: 24px; right: 24px; display: grid; grid-template-columns: 440px 310px 1fr; gap: 56px; align-items: center; opacity: 0; transition: opacity .4s; }
+  .row11.in2 { opacity: 1; }
+  .row11 .chip { font-size: 16px; line-height: 1.4; padding: 10px 14px; }
+  .row11 .chip .cit { font-size: 12.5px; }
+  .row11 .pass { font-family: Inter, sans-serif; font-size: 17px; }
+  .row11 .verdict { margin-top: 0; opacity: 0; font-size: 15px; justify-self: start; white-space: nowrap; }
+  .row11 .verdict.in2 { animation: stamp .45s ease both; }
+</style>
+</head>
+<body>
+
+<!-- 1 title -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="floaters">
+    <span style="left:700px;top:620px;animation-delay:-2s">similarity_search(question, k=4)</span>
+    <span style="left:960px;top:660px;animation-delay:-9s">0.676 [ueu-2026-06 · p. 23]</span>
+    <span style="left:560px;top:680px;animation-delay:-5s">PASSAGES: … QUESTION: …</span>
+    <span style="left:930px;top:600px;animation-delay:-13s">filter: date ≥ 2026-01</span>
+  </div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Retrieval-augmented<br>generation</h1>
+  <div class="sub">A chatbot retrieves passages from 13 World Bank economic updates for each question, and a language model answers from them with citations</div>
+</section>
+
+<!-- 2 context: the chatbot and its archive -->
+<section class="scene src-on" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A chatbot answers from an archive of economic updates</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="node" id="n2a" style="left:80px" data-b="1">
+    <div class="ic"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+    <div class="lb">Question</div><div class="sm">from the user</div></div>
+  <div class="node" id="n2b" style="left:383px" data-b="1">
+    <div class="ic pri"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg></div>
+    <span class="rag" id="g2r">R</span>
+    <div class="lb">Retrieval</div><div class="sm">search of the archive</div></div>
+  <div class="node" id="n2c" style="left:686px" data-b="1">
+    <div class="ic"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#12a08a" stroke-width="1.6"><path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v4h4"/><path d="M8.5 11h7M8.5 14h7M8.5 17h4.5"/></svg></div>
+    <span class="rag" id="g2a">A</span>
+    <div class="lb">Prompt</div><div class="sm">instructions, passages, question</div></div>
+  <div class="node" id="n2d" style="left:990px" data-b="1">
+    <div class="ic" style="background:var(--block);border-color:var(--block)"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
+    <span class="rag" id="g2g">G</span>
+    <div class="lb">Language model</div><div class="sm">answer with citations</div></div>
+  <div class="card arc2" id="ar2" data-b="2"><div class="label" style="color:#0d6e5f">Archive · prepared beforehand</div>
+    <svg id="tl2"></svg>
+    <div class="stats"><span><b>13</b>reports</span><span><b>769</b>pages</span><span><b id="ct2">0</b>passages</span><span style="font-size:13.5px">each with report, edition date, page and vector</span></div></div>
+  <div class="card ragc" data-b="3"><div class="label">The pattern</div>
+    <div class="t">Retrieval-augmented generation (RAG)</div>
+    <div class="ln"><i>R</i>retrieval returns passages from the archive</div>
+    <div class="ln"><i>A</i>the passages augment the prompt</div>
+    <div class="ln"><i>G</i>generation: the model writes the answer</div></div>
+</section>
+
+<!-- 2b context example: an answer from four passages -->
+<section class="scene src-on" id="s2b">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>An answer from four retrieved passages</h2>
+  <div class="win" style="left:80px;top:170px;width:700px;height:456px">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq" id="q2b"></div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a2b"></div></div>
+    </div>
+  </div>
+  <div class="card psg" data-b="2"><div class="label" style="margin-bottom:2px">Passages for this question · k = 4</div>
+    <div class="prow"><span class="cit">[ueu-2026-06 · p. 23]</span><div class="ds">Box 3: multidimensional poverty index</div><div class="tp"><span>poverty</span><span class="sc">0.676</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2026-06 · p. 23]</span><div class="ds">Poverty 51.5% in FY25, from 52.9% in FY24</div><div class="tp"><span>poverty</span><span class="sc">0.675</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2025-09 · p. 13]</span><div class="ds">Poverty 30.1% in 2019/20, 26.4% in 2023/24</div><div class="tp"><span>poverty</span><span class="sc">0.656</span></div></div>
+    <div class="prow"><span class="cit">[ueu-2025-12 · p. 26]</span><div class="ds">Box 2: revisions to the poverty line</div><div class="tp"><span>poverty</span><span class="sc">0.653</span></div></div>
+    <div class="topics"><div class="label">Topics among the passages</div>
+      <span class="chip">poverty · 4</span><span class="chip" id="ec2b">Middle East conflict · 0</span></div>
+  </div>
+</section>
+
+<!-- 3 the problem -->
+<section class="scene src-on" id="s3">
+  <div class="eyebrow">The problem</div>
+  <h2>The conflict figures stay in the archive</h2>
+  <div class="card st3" data-b="1"><div class="label" style="color:#0d6e5f">Archive · 3,440 passages by report</div><div id="g3"></div>
+    <div class="key"><span><i style="background:#e0b100"></i>holds a needed figure</span><span><i style="background:var(--primary)"></i>in the prompt</span><span><i style="background:var(--bad)"></i>needed and left out</span></div></div>
+  <div class="pr3" data-b="1"><div class="label">Prompt · four passages</div>
+    <div class="slot3" id="sl3a"><span class="cit">[ueu-2026-06 · p. 23]</span><div>Box 3: share of Ugandans deprived across each indicator …</div></div>
+    <div class="slot3" id="sl3b"><span class="cit">[ueu-2026-06 · p. 23]</span><div>… fallen to 51.5 percent in FY25, down from 52.9 percent in FY24 …</div></div>
+    <div class="slot3" id="sl3c"><span class="cit">[ueu-2025-09 · p. 13]</span><div>… declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24 …</div></div>
+    <div class="slot3" id="sl3d"><span class="cit">[ueu-2025-12 · p. 26]</span><div>Box 2: revisions to the international poverty line …</div></div></div>
+  <div class="card ck3" data-b="1"><div class="label">Figures a correct answer needs</div>
+    <div class="need3"><span class="w">Poverty rate, FY25</span><span class="v">51.5%</span><small>ueu-2026-06 · p. 23</small><span class="verdict ok stampin" id="v3a">✓ in the prompt</span></div>
+    <div class="need3"><span class="w">Poverty rate, FY24</span><span class="v">52.9%</span><small>ueu-2026-06 · p. 23</small><span class="verdict ok stampin" id="v3b">✓ in the prompt</span></div>
+    <div class="need3"><span class="w">Middle East share of imports</span><span class="v">15%</span><small>ueu-2026-06 · p. 22</small><span class="verdict bad stampin" id="v3c">✗ rank 5</span></div>
+    <div class="need3"><span class="w">Energy prices, 2026 projection</span><span class="v">+24%</span><small>ueu-2026-06 · p. 22</small><span class="verdict bad stampin" id="v3d">✗ rank 15</span></div></div>
+</section>
+
+<!-- 4 step 1: retrieval -->
+<section class="scene src-on" id="s4">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i></i><i></i><i></i><i></i></span>Step 1 of 5 · Retrieval</div>
+  <h2>Retrieval ranks the passages by cosine similarity</h2>
+  <svg class="wires" id="w4"></svg>
+  <div class="card q4" id="q4" data-b="1"><div class="label" style="margin-bottom:4px">Question</div>How did the conflict in the Middle East affect Uganda, and how much did poverty fall?</div>
+  <div class="card v4" id="v4" data-b="1"><div class="label" style="color:var(--primary)">Question vector · 384 numbers</div>
+    <div class="bars" id="vb4"></div><div class="sm">values drawn for illustration</div></div>
+  <div class="card s4" id="sc4" data-b="3"><div class="label" style="color:#0d6e5f">Archive · 3,440 passage vectors</div><div class="cells" id="g4"><span class="sweep" id="sw4"></span></div>
+    <div class="sm">one square per passage</div></div>
+  <div class="card ang" data-b="2"><div class="label">Cosine similarity</div>
+    <svg id="ag4"></svg>
+    <div class="lgd"><span class="mono">cos θ = (q · c) / (|q| |c|)</span><br>1.0 identical meaning · 0 unrelated
+      <small>Angles to the question to scale; directions drawn for illustration</small></div></div>
+  <div class="card rk4" data-b="3"><div class="label" style="margin-bottom:6px">All passages, ranked by score</div>
+    <div class="r4" id="r4a"><span class="n">1</span><span><span class="id">ueu-2026-06 · p. 23</span><span class="sec">Box 3: multidimensional poverty</span></span><span class="sc">0.676</span></div>
+    <div class="r4" id="r4b"><span class="n">2</span><span><span class="id">ueu-2026-06 · p. 23</span><span class="sec">Poverty 51.5% in FY25</span></span><span class="sc">0.675</span></div>
+    <div class="r4" id="r4c"><span class="n">3</span><span><span class="id">ueu-2025-09 · p. 13</span><span class="sec">Poverty 2019/20 to 2023/24</span></span><span class="sc">0.656</span></div>
+    <div class="r4" id="r4d"><span class="n">4</span><span><span class="id">ueu-2025-12 · p. 26</span><span class="sec">Box 2: the poverty line</span></span><span class="sc">0.653</span></div>
+    <div class="cut4" id="cut4"><span>k = 4 · passages</span></div>
+    <div class="r4" id="r4e"><span class="n">5</span><span><span class="id">ueu-2026-06 · p. 22</span><span class="sec">Middle East: exports and imports</span></span><span class="sc">0.633</span></div>
+    <div class="more4" id="mo4">… 3,435 more passages with lower scores</div></div>
+</section>
+
+<!-- 5 step 2: the prompt -->
+<section class="scene src-on" id="s5">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span>Step 2 of 5 · The prompt</div>
+  <h2>Passages enter the prompt with citations</h2>
+  <svg class="wires" id="w5"></svg>
+  <div class="card p5" id="p5a" style="top:170px;padding-top:24px;height:112px" data-b="1"><div class="hd">[<span id="h5i">ueu-2026-06</span> · <span id="h5p">p. 23</span>]</div>
+    <div class="ti">Uganda Economic Update, 27th Edition, June 2026: Building on …</div>
+    <div class="bd">BOX 3: MULTIDIMENSIONAL POVERTY INDEX (MPI) FIGURE B3.1 • Share of Ugandans Deprived …</div></div>
+  <div class="card p5" id="p5b" style="top:292px" data-b="1"><div class="hd">[ueu-2026-06 · p. 23]</div>
+    <div class="ti">Uganda Economic Update, 27th Edition, June 2026: Building on …</div>
+    <div class="bd">… fallen to 51.5 percent in FY25, down from 52.9 percent in FY24 (Figure 14) …</div></div>
+  <div class="card p5" id="p5c" style="top:406px" data-b="1"><div class="hd">[ueu-2025-09 · p. 13]</div>
+    <div class="ti">Uganda Economic Update, 25th Edition, September 2025: Increasing …</div>
+    <div class="bd">… Poverty in Uganda declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24 …</div></div>
+  <div class="card p5" id="p5d" style="top:520px" data-b="1"><div class="hd">[ueu-2025-12 · p. 26]</div>
+    <div class="ti">Uganda Economic Update, December 2025: Cultivating Prosperity …</div>
+    <div class="bd">BOX 2: REVISIONS TO THE INTERNATIONAL POVERTY LINE (IPL) AND IMPACT ON UGANDA …</div></div>
+  <span class="tg5" id="t5i">report id: series · edition month</span><span class="tg5" id="t5p">← PDF page</span>
+  <div class="card m5" id="g5s" style="top:170px;height:186px;border-top:4px solid var(--primary)" data-b="2"><div class="label">System message · grounded instructions</div>
+    <span class="rule" id="r5a">You are a research assistant for development data.</span>
+    <span class="rule" id="r5b">Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given.</span>
+    <span class="rule" id="r5c">If the passages do not contain what is needed, say so.</span></div>
+  <div class="card m5" id="g5u" style="top:370px;height:256px;border-top:4px solid var(--teal)" data-b="2"><div class="label">User message</div>
+    <span class="tplc">"PASSAGES:\n{context}\n\nQUESTION: {question}"</span>
+    <span class="k">PASSAGES:</span><span class="fillv" id="f5c">{context}</span>
+    <span class="k">QUESTION:</span><span class="fillv" id="f5q">{question}</span></div>
+  <div class="model" id="md5" data-b="3">Language model<small>generation</small></div>
+  <div class="term" id="o5" data-b="3"><div class="head"><span class="dot"></span>Response<small>recorded</small></div><div id="o5t"></div></div>
+</section>
+
+<!-- 6 step 3: a question with two parts -->
+<section class="scene src-on" id="s6">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>Step 3 of 5 · Two-part questions</div>
+  <h2>A two-part question matches one of its parts</h2>
+  <div class="card ch6" data-b="1"><div class="label">Closest passages</div>
+    <div class="lg"><span><i style="background:var(--primary)"></i>poverty</span><span><i style="background:var(--teal)"></i>Middle East conflict</span><span><i style="background:var(--subtle)"></i>other topics</span></div>
+    <div id="rows6"></div>
+    <div class="cut6" id="cut6"><span id="cut6l">k = 4</span></div></div>
+  <div class="card k6" data-b="1"><div class="label">Passages in the prompt</div>
+    <div class="big" id="k6v">k = 4<small id="k6s">conflict passages: 0</small></div>
+    <div class="track"><i id="k6t"></i></div><div class="sm" id="k6m">Prompt tokens of the recorded call: <b>1,487</b></div></div>
+  <div class="card fx6" data-b="4"><div class="label">Fix · one search for each part, results merged</div>
+    <div class="sq6" id="sq6a"><span class="chip">How did the conflict in the Middle East affect Uganda?</span><span class="n">4 passages</span></div>
+    <div class="sq6" id="sq6b"><span class="chip">How much did poverty fall in Uganda?</span><span class="n">4 passages</span></div>
+    <div class="mg6" id="mg6">Merged without duplicates: <b>8 passages</b><br>
+      <span class="fig" id="f6a">energy prices +24%</span><span class="fig" id="f6b">imports 15%</span><span class="fig" id="f6c">FY25 51.5%</span><span class="fig" id="f6d">FY24 52.9%</span></div></div>
+</section>
+
+<!-- 7 step 4: dates -->
+<section class="scene src-on" id="s7">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>Step 4 of 5 · Dates</div>
+  <h2>A vector holds no date</h2>
+  <div class="card qb7" data-b="1"><span class="label">Question</span><span class="tx" id="q7"></span><span class="chip">k = 2</span></div>
+  <div class="card col7 bad" style="left:80px" data-b="1"><div class="label">No filter</div>
+    <div class="qy">the question as asked</div>
+    <div class="r7" id="r7a"><span><span class="id">ueu-2023-12 · p. 17</span><span class="sec">edition <b>December 2023</b></span></span><span class="sc">0.760</span></div>
+    <div class="r7" id="r7b"><span><span class="id">ueu-2025-02 · p. 23</span><span class="sec">edition <b>February 2025</b></span></span><span class="sc">0.756</span></div>
+    <svg class="tl7" id="tl7a"></svg>
+    <div class="rk7" id="rk7a">April 2026 figure: rank <b>19</b></div>
+    <div class="out7" id="o7a"></div>
+    <div class="figs stampin" id="fg7a"><span class="fig bad">2.6% · November 2023 ✗</span></div></div>
+  <div class="card col7 bad" style="left:460px" data-b="3"><div class="label">Reworded question</div>
+    <div class="qy">Uganda headline inflation April 2026, percent year-on-year</div>
+    <div class="r7" id="r7c"><span><span class="id">ueu-2025-02 · p. 23</span><span class="sec">edition <b>February 2025</b></span></span><span class="sc">0.798</span></div>
+    <div class="r7" id="r7d"><span><span class="id">ueu-2023-12 · p. 17</span><span class="sec">edition <b>December 2023</b></span></span><span class="sc">0.788</span></div>
+    <svg class="tl7" id="tl7b"></svg>
+    <div class="rk7" id="rk7b">April 2026 figure: rank <b>11</b> · score 0.749</div>
+    <div class="out7" style="color:var(--muted)">The older passages score higher than before.</div>
+    <div class="figs stampin" id="fg7b"><span class="fig bad">April 2026 passage not retrieved</span></div></div>
+  <div class="card col7 good" style="left:840px" data-b="4"><div class="label">Filter on the edition date</div>
+    <div class="qy">metadata filter: date ≥ "2026-01", applied before the ranking</div>
+    <div class="r7" id="r7e"><span><span class="id">ueu-2026-06 · p. 20</span><span class="sec">edition <b>June 2026</b></span></span><span class="sc">0.722</span></div>
+    <div class="r7" id="r7f"><span><span class="id">ueu-2026-06 · p. 20</span><span class="sec">edition <b>June 2026</b></span></span><span class="sc">0.693</span></div>
+    <svg class="tl7" id="tl7c"></svg>
+    <div class="rk7" id="rk7c">April 2026 figure: rank <b>2</b></div>
+    <div class="out7" id="o7c"></div>
+    <div class="figs stampin" id="fg7c"><span class="fig ok">3.0% · April 2026 ✓</span></div></div>
+</section>
+
+<!-- 8 step 5: questions outside the archive -->
+<section class="scene src-on" id="s8">
+  <div class="eyebrow"><span class="steps4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Step 5 of 5 · Questions outside the archive</div>
+  <h2>A search returns k passages for any question</h2>
+  <div class="card qc8" style="top:170px" data-b="1"><div class="label" style="color:var(--ok)">In the archive</div>
+    <div class="tx">How much did Uganda's economy grow in FY25?</div>
+    <div class="r8 best" id="r8a"><span class="cit">[ueu-2025-12 · p. 12]</span><span class="sc">0.792</span></div>
+    <div class="r8" id="r8b"><span class="cit">[ueu-2023-06 · p. 40]</span><span class="sc">0.778</span></div>
+    <div class="r8" id="r8c"><span class="cit">[ueu-2025-09 · p. 21]</span><span class="sc">0.776</span></div>
+    <div class="an8" id="an8a"></div></div>
+  <div class="card qc8" style="top:408px" data-b="2"><div class="label" style="color:var(--bad)">Outside the archive</div>
+    <div class="tx">How much did Rwanda's economy grow in 2025?</div>
+    <div class="r8 best" id="r8d"><span class="cit">[ueu-2025-12 · p. 37]</span><span class="sc">0.631</span></div>
+    <div class="r8" id="r8e"><span class="cit">[keu-2023-06 · p. 14]</span><span class="sc">0.630</span></div>
+    <div class="r8" id="r8f"><span class="cit">[keu-2024-06 · p. 13]</span><span class="sc">0.625</span></div>
+    <div class="an8" id="an8b"></div></div>
+  <div class="card ax8" data-b="3"><div class="label">Best score of 17 labelled questions</div><svg id="ax8"></svg></div>
+  <div class="card in8" data-b="4"><div class="label">Grounded instructions</div>
+    <span class="rule">You are a research assistant for development data.</span>
+    <span class="rule">Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given.</span>
+    <span class="rule" id="r8r">If the passages do not contain what is needed, say so.</span></div>
+</section>
+
+<!-- 9 in the chatbot -->
+<section class="scene src-on" id="s9">
+  <div class="eyebrow">In the chatbot</div>
+  <h2>Each figure cites a report and a page</h2>
+  <div class="win" style="left:80px;top:170px;width:690px;height:456px" data-b="1">
+    <div class="bar"><span class="dot live"></span>Economic updates assistant</div>
+    <div class="body">
+      <div class="uq">How did the conflict in the Middle East affect Uganda, and how much did poverty fall?</div>
+      <div class="ua"><div class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx" id="a9"></div></div>
+    </div>
+  </div>
+  <div class="pop doc" id="pp9" style="left:800px;top:170px"><div class="h">ueu-2026-06 · p. 22</div>
+    <div class="r"><span>Report</span><span>Uganda Economic Update, 27th Edition, June 2026</span></div>
+    <div class="r"><span>Passage</span><span>The Conflict in the Middle East represents the most significant external shock … Global energy prices are projected to <mark>rise by 24 percent in 2026</mark>.</span></div>
+    <div class="r"><span>Date</span><span class="mono">2026-06</span></div></div>
+  <div class="card pl9" data-b="1"><div class="label">Passages · two searches, merged</div>
+    <div class="cols"><div><small>conflict</small>
+      <div class="ln">[ueu-2026-06 · p. 22]</div><div class="ln">[ueu-2025-02 · p. 39]</div><div class="ln" id="pl9e">[ueu-2026-06 · p. 22]</div><div class="ln">[ueu-2025-12 · p. 28]</div></div>
+      <div><small>poverty</small>
+      <div class="ln">[ueu-2026-06 · p. 23]</div><div class="ln">[ueu-2026-06 · p. 23]</div><div class="ln">[ueu-2025-12 · p. 26]</div><div class="ln">[ueu-2025-09 · p. 13]</div></div></div></div>
+  <svg class="ptr" id="ptr9" style="left:640px;top:760px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</section>
+
+<!-- 10 testing retrieval -->
+<section class="scene src-on" id="s10">
+  <div class="eyebrow">Testing retrieval</div>
+  <h2>Retrieval tested without the model</h2>
+  <table class="data" id="t10">
+    <tr><th>Id</th><th>Test question</th><th>Category</th><th>Expected report</th><th>No filter</th><th>Date ≥ 2026-01</th></tr>
+  </table>
+  <div class="card bt10" data-b="2">
+    <span>No filter · k = 4</span><span class="bar"><i id="b10a" style="background:var(--bad)"></i></span><b id="n10a" style="color:var(--bad)"></b>
+    <span>Date ≥ 2026-01 · k = 4</span><span class="bar"><i id="b10b" style="background:var(--ok)"></i></span><b id="n10b" style="color:var(--ok)"></b></div>
+</section>
+
+<!-- 11 scope and judgement -->
+<section class="scene src-on" id="s11">
+  <div class="eyebrow">Scope of retrieval</div>
+  <h2>People judge whether a figure answers the question</h2>
+  <div class="two">
+    <div class="card n" data-b="1"><b>Checked by tests</b>The passages: an expected report among them for each test question.</div>
+    <div class="card g" data-b="1"><b>Set by the grounded instructions</b>The answer: a citation after each figure, and a statement when the passages lack what is needed.</div>
+  </div>
+  <div class="card judge" data-b="2"><div class="label" style="margin-bottom:6px">Judged by the builders and the reader</div>
+    <div class="jt">Whether a figure fits the question, in what it measures and in its date.</div>
+    <svg class="wires" id="w11" style="left:-80px;top:-350px"></svg>
+    <div class="row11" id="j11a" style="top:94px">
+      <span class="chip" id="j11a1">51.5% in FY25 <span class="cit">[ueu-2026-06 · p. 23]</span><small>answer: the excerpt does not name the poverty line</small></span>
+      <span class="chip pass" id="j11a2">below the USD 3.00-per-day line<small>report text, page 22</small></span>
+      <span class="verdict ok" id="j11a3">line named on page 22</span></div>
+    <div class="row11" id="j11b" style="top:180px">
+      <span class="chip" id="j11b1">2.6% in November 2023 <span class="cit">[ueu-2023-12 · p. 17]</span><small>citation in the answer</small></span>
+      <span class="chip pass" id="j11b2">edition of December 2023<small>report id ueu-2023-12</small></span>
+      <span class="verdict bad" id="j11b3">newer edition: June 2026</span></div>
+  </div>
+</section>
+
+<!-- 12 closing -->
+<section class="scene dark" id="s12">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1 style="font-size:60px">Retrieval-augmented generation</h1>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="src">Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.<br>Answers recorded with anthropic/claude-haiku-5.5 at temperature 0.</div>
+</section>
+
+<script>
+  const SRC = 'Source: World Bank, Kenya Economic Update and Uganda Economic Update, 2022–2026, Open Knowledge Repository. CC BY-NC 3.0 IGO / CC BY 3.0 IGO.';
+  document.querySelectorAll('section.src-on').forEach((s) => s.insertAdjacentHTML('beforeend', `<div class="src">${SRC}</div>`));
+
+  // The 13 reports in store order: id, edition date, PDF pages, chunks (store_summary.json).
+  const REPORTS = [
+    ['keu-2022-12', '2022-12', 54, 225], ['keu-2023-06', '2023-06', 66, 288], ['keu-2024-06', '2024-06', 56, 229],
+    ['keu-2024-12', '2024-12', 68, 349], ['keu-2025-05', '2025-05', 68, 302], ['keu-2025-11', '2025-11', 44, 251],
+    ['keu-2026-07', '2026-07', 27, 103], ['ueu-2023-06', '2023-06', 82, 322], ['ueu-2023-12', '2023-12', 52, 218],
+    ['ueu-2025-02', '2025-02', 66, 301], ['ueu-2025-09', '2025-09', 78, 364], ['ueu-2025-12', '2025-12', 58, 248],
+    ['ueu-2026-06', '2026-06', 50, 240]];
+  // Position of a chunk within its report, in the order of chunks.jsonl.
+  const POS = { mpi: ['ueu-2026-06', 79], pov: ['ueu-2026-06', 75], pov2: ['ueu-2025-09', 15], ipl: ['ueu-2025-12', 94],
+    imports: ['ueu-2026-06', 73], energy: ['ueu-2026-06', 70] };
+  const cellsHTML = (id, n) => Array.from({ length: n }, (_, i) => `<i data-k="${id}|${i}"></i>`).join('');
+  const cellOf = (root, key) => root.querySelector(`i[data-k="${POS[key][0]}|${POS[key][1]}"]`);
+  const cit = (s) => `<span class="cit">${s}</span>`;
+  const tcit = (s) => `<span class="t-cit">${s}</span>`;
+  const month = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + m - 1; };
+
+  // A copy of an element that moves to another element and is removed on arrival.
+  function moveClone(from, to, ms, cls = 'mover') {
+    const a = rectOf(from), b = rectOf(to), sb = current.getBoundingClientRect();
+    const m = document.createElement('div'); m.className = cls;
+    Object.assign(m.style, { left: a.left - sb.left + 'px', top: a.top - sb.top + 'px', width: a.width + 'px', height: a.height + 'px' });
+    current.appendChild(m);
+    m.animate([{ transform: 'none', opacity: 1 },
+               { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(${b.width / a.width}, ${b.height / a.height})`, opacity: .9 }],
+              { duration: ms, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => m.remove();
+  }
+  function seg(svg, x1, y1, x2, y2, color, ms = 600, width = 2, dash = '') {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(p);
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = dash || L; p.style.strokeDashoffset = dash ? 0 : L;
+    if (!dash) { p.getBoundingClientRect(); p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0; }
+    else { p.style.opacity = 0; p.style.transition = `opacity ${ms}ms`; p.getBoundingClientRect(); p.style.opacity = 1; }
+    return p;
+  }
+  function svgText(svg, x, y, text, opts = {}) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = text;
+    t.setAttribute('font-family', opts.mono ? 'JetBrains Mono, monospace' : 'Inter, sans-serif');
+    t.setAttribute('font-size', opts.size || 13); t.setAttribute('font-weight', opts.weight || 500);
+    t.setAttribute('fill', opts.color || '#565f68'); t.setAttribute('text-anchor', opts.anchor || 'start');
+    if (!opts.instant) { t.style.opacity = 0; t.style.transition = 'opacity .4s'; }
+    svg.appendChild(t); t.getBoundingClientRect(); t.style.opacity = 1;
+    return t;
+  }
+  function svgDot(svg, x, y, r, color, opts = {}) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r); c.setAttribute('fill', color);
+    if (opts.stroke) { c.setAttribute('stroke', opts.stroke); c.setAttribute('stroke-width', opts.sw || 2); }
+    c.style.transformOrigin = `${x}px ${y}px`; c.style.transform = opts.instant ? 'none' : 'scale(0)'; c.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1), opacity .4s';
+    svg.appendChild(c); c.getBoundingClientRect(); c.style.transform = 'none';
+    return c;
+  }
+  function countUp(el, to, ms) {
+    const t0 = performance.now(), e = epoch;
+    (function tick(now) {
+      if (e !== epoch) return;
+      const f = Math.min(1, (now - t0) / ms);
+      el.textContent = Math.round(to * f).toLocaleString('en-US');
+      if (f < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  // 2: the editions on a time axis, one document per report, height by PDF pages.
+  function drawArchive() {
+    const s = $('tl2'), x0 = 40, x1 = 680, m0 = month('2022-10'), m1 = month('2026-09');
+    const X = (d) => x0 + (month(d) - m0) / (m1 - m0) * (x1 - x0);
+    const rows = [['keu', 'Kenya Economic Update · 7 editions', 96], ['ueu', 'Uganda Economic Update · 6 editions', 160]];
+    rows.forEach(([p, name, base]) => {
+      svgText(s, 18, base - 50, name, { size: 12.5, weight: 700, color: '#565f68', instant: true });
+      seg(s, x0 - 6, base, x1, base, '#e2e5e8', 1, 1.2);
+    });
+    REPORTS.forEach(([id, d, pages], i) => {
+      const [, , base] = rows.find((r) => id.startsWith(r[0])), h = 12 + pages * 0.3, x = X(d) - 10;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', x); r.setAttribute('y', base - h); r.setAttribute('width', 20); r.setAttribute('height', h); r.setAttribute('rx', 2);
+      r.setAttribute('fill', id.startsWith('keu') ? '#e3f5f1' : '#eaf0fd'); r.setAttribute('stroke', id.startsWith('keu') ? '#12a08a' : '#1558d6'); r.setAttribute('stroke-width', 1.4);
+      r.setAttribute('class', 'doc2'); r.dataset.i = i; s.appendChild(r);
+    });
+    ['2023', '2024', '2025', '2026'].forEach((y) => { const x = X(y + '-01'); seg(s, x, 164, x, 170, '#8a929a', 1, 1.2); svgText(s, x, 184, y, { mono: true, size: 12, anchor: 'middle', instant: true }); });
+  }
+
+  // 2b and 5: the recorded answer to the two-part question with one search (main_one_search), shortened where marked.
+  const A2 = ['<b class="nc" id="nc2">Middle East conflict:</b> ',
+    ...words("The passages do not mention any conflict in the Middle East or its effects on Uganda, so I can't answer that part."),
+    '<br><b>Poverty reduction:</b><br>',
+    ...words('Monetary poverty, FY24 to FY25: … fell to 51.5 percent in FY25, down from 52.9 percent in FY24, a decline of 1.4 percentage points. … '), cit('[ueu-2026-06 · p. 23]'), '.<br>',
+    ...words('Poverty, 2019/20 to 2023/24: Poverty fell from 30.1 percent in 2019/20 to 26.4 percent in 2023/24, a decline of 3.7 percentage points. … '), cit('[ueu-2025-09 · p. 13]'), '.'];
+  const A5 = [...words('Monetary poverty, FY24 to FY25: … fell to 51.5 percent in FY25, down from 52.9 percent in FY24 … '), tcit('[ueu-2026-06 · p. 23]'), '.<br>',
+    ...words('Poverty fell from 30.1 percent in 2019/20 to 26.4 percent in 2023/24 … '), tcit('[ueu-2025-09 · p. 13]'), '.'];
+  // 9: the recorded answer with one search for each part (main_merged), shortened where marked.
+  const A9 = ['<b>Effects of the Middle East conflict on Uganda</b><br>',
+    ...words('… Global energy prices are projected to rise by 24 percent in 2026 '), '<span class="cit" id="c9e">[ueu-2026-06 · p. 22]</span>', '.<br>',
+    ...words("… The Middle East accounts for about one-third of Uganda's exports, mainly gold, and 15 percent of its imports. … "), cit('[ueu-2026-06 · p. 22]'), '.<br>',
+    '<b>How much poverty fell</b><br>',
+    ...words('FY24 to FY25: Monetary poverty fell to 51.5 percent in FY25, down from 52.9 percent in FY24, a drop of 1.4 percentage points. … '), cit('[ueu-2026-06 · p. 23]'), '. ',
+    ...words('The excerpt does not name the poverty line used for this figure.'), '<br>…'];
+
+  // 6: the closest passages for the two-part question (main_ranking), and rank 15 (main_needed_ranks).
+  const RANK6 = [[1, '[ueu-2026-06 · p. 23]', 'Box 3: multidimensional poverty index', 0.676, 'pov'],
+    [2, '[ueu-2026-06 · p. 23]', 'Poverty 51.5% in FY25, from 52.9%', 0.675, 'pov'],
+    [3, '[ueu-2025-09 · p. 13]', 'Poverty 30.1% to 26.4%, to 2023/24', 0.656, 'pov'],
+    [4, '[ueu-2025-12 · p. 26]', 'Box 2: revisions to the poverty line', 0.653, 'pov'],
+    [5, '[ueu-2026-06 · p. 22]', 'Middle East: exports, 15% of imports', 0.633, 'con'],
+    [6, '[ueu-2026-06 · p. 12]', 'Poverty 51.5% in FY25', 0.621, 'pov'],
+    [7, '[ueu-2025-02 · p. 39]', 'Conflict risk: 26% of exports', 0.618, 'con'],
+    [8, '[ueu-2023-06 · p. 6]', 'Foreword: global environment', 0.618, 'oth'],
+    [9, '[ueu-2025-09 · p. 23]', 'Core inflation 3.9% in FY25', 0.617, 'oth'],
+    [10, '[ueu-2025-12 · p. 13]', 'Agro-industrialization potential', 0.612, 'oth'],
+    [15, '[ueu-2026-06 · p. 22]', 'Energy prices to rise 24% in 2026', 0.597, 'con']];
+  const COL = { pov: '#1558d6', con: '#12a08a', oth: '#8a929a' };
+  const ROW6 = 33, TOP6 = 44, Y6 = (slot) => slot * ROW6;
+  const cutAt6 = (slots) => { $('cut6').style.top = (TOP6 + slots * ROW6 + 1) + 'px'; };
+
+  // 7: the Uganda editions on a small time axis; marked editions are those of the passages.
+  function editions(svg, marks, color, from) {
+    const ue = REPORTS.filter(([id]) => id.startsWith('ueu')), x0 = 10, x1 = 318, m0 = month('2023-04'), m1 = month('2026-08');
+    const X = (d) => x0 + (month(d) - m0) / (m1 - m0) * (x1 - x0), y = 16;
+    if (from) {
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', X(from)); r.setAttribute('y', 2); r.setAttribute('width', x1 - X(from) + 6); r.setAttribute('height', 28); r.setAttribute('rx', 4);
+      r.setAttribute('fill', '#e6f4ec'); svg.appendChild(r);
+    }
+    seg(svg, x0 - 6, y, x1 + 6, y, '#c9d3e3', 400, 1.4);
+    ue.forEach(([id, d], i) => later(150 + i * 80, () => {
+      const on = marks.includes(id);
+      svgDot(svg, X(d), y, on ? 6 : 4, on ? color : '#d5dbe3');
+    }));
+    ['2024', '2025', '2026'].forEach((yr) => svgText(svg, X(yr + '-01'), 38, yr, { mono: true, size: 11.5, anchor: 'middle', color: '#8a929a' }));
+    later(700, () => svgText(svg, x1 + 6, -2, 'Uganda editions', { size: 11.5, anchor: 'end', color: '#8a929a', weight: 600 }));
+  }
+
+  // 8: best score of each labelled question (cutoff run); cut-off 0.6632, 14 of 17 correct.
+  const CUT = [['in', 0.7962], ['in', 0.7184], ['in', 0.6632], ['in', 0.8002], ['in', 0.632, 'Uganda petroleum share'], ['in', 0.8103], ['in', 0.7915], ['in', 0.7604],
+    ['out', 0.6307], ['out', 0.6439], ['out', 0.6058], ['out', 0.7115, 'Tanzania growth'], ['out', 0.6499], ['out', 0.5794], ['out', 0.7291, 'Ethiopia coffee'], ['out', 0.5235], ['out', 0.4817]];
+
+  // 10: the eight test questions (tests run), without and with the date filter.
+  const TESTS = [['t1', 'How did the conflict in the Middle East affect Uganda, and how much …', 'two parts', 'ueu-2026-06', 1],
+    ['t2', 'What is the latest inflation rate in Uganda?', 'latest figure', 'ueu-2026-06', 0],
+    ['t3', "What was Kenya's real GDP growth in 2025?", 'latest figure', 'keu-2026-07', 0],
+    ['t4', 'How did the conflict in the Middle East affect fuel prices in Kenya?', 'single topic', 'keu-2026-07', 1],
+    ['t5', "What is Kenya's GDP growth projection for 2026?", 'projection', 'keu-2026-07', 0],
+    ['t6', 'What share of bank loans in Kenya are non-performing?', 'single topic', 'keu-2026-07', 0],
+    ['t7', "How much did Uganda's economy grow in FY25?", 'single topic', 'ueu-2025-12 or -2026-06', 1],
+    ['t8', "How much did Rwanda's economy grow in 2025?", 'outside the archive', 'none', 1]];
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        const s = $('w2'), ic = (id) => $(id).querySelector('.ic');
+        [['n2a', 'n2b'], ['n2b', 'n2c'], ['n2c', 'n2d']].forEach(([a, b], i) => later(300 + i * 450, () => {
+          const p = wire(s, ic(a), ic(b), { hot: true }); later(700, () => flow(s, p, '#1558d6', 1500, 2, 4.5));
+        }));
+        later(1700, () => $('n2d').querySelector('.ic').classList.add('ring'));
+      },
+      2: () => {
+        const s = $('w2'), so = s.getBoundingClientRect(), a = rectOf($('ar2')), b = rectOf($('n2b'));
+        const x = b.left + b.width / 2 - so.left;
+        [...document.querySelectorAll('#tl2 .doc2')].sort((p, q) => REPORTS[p.dataset.i][1].localeCompare(REPORTS[q.dataset.i][1]))
+          .forEach((r, i) => later(300 + i * 110, () => r.classList.add('in2')));
+        later(900, () => countUp($('ct2'), 3440, 1600));
+        later(1900, () => {
+          const p = seg(s, x, a.top - so.top, x, b.bottom - so.top + 4, '#12a08a', 400);
+          later(400, () => flow(s, p, '#12a08a', 1100, 2, 4.5));
+        });
+      },
+      3: () => ['g2r', 'g2a', 'g2g'].forEach((id, i) => later(200 + i * 350, () => $(id).classList.add('in2'))),
+    },
+    '2b': {
+      1: () => typeText($('q2b'), 'How did the conflict in the Middle East affect Uganda, and how much did poverty fall?', 40),
+      2: () => {
+        document.querySelectorAll('#s2b .prow').forEach((r, i) => later(200 + i * 300, () => r.classList.add('in2')));
+        later(1300, () => stream($('a2b'), A2, 75));
+      },
+      3: () => { if ($('nc2')) $('nc2').classList.add('hl'); later(500, () => $('ec2b').classList.add('bad2')); },
+    },
+    3: {
+      1: () => {
+        const root = $('g3');
+        document.querySelectorAll('#s3 .need3').forEach((r, i) => later(200 + i * 350, () => r.classList.add('in2')));
+        ['pov', 'imports', 'energy'].forEach((k, i) => later(500 + i * 400, () => cellOf(root, k).classList.add('need')));
+      },
+      2: () => {
+        const root = $('g3');
+        [['mpi', 'sl3a'], ['pov', 'sl3b'], ['pov2', 'sl3c'], ['ipl', 'sl3d']].forEach(([k, slot], i) => later(200 + i * 450, () => {
+          const c = cellOf(root, k); c.classList.remove('need'); c.classList.add('pick');
+          moveClone(c, $(slot), 700);
+          later(700, () => $(slot).classList.add('full'));
+        }));
+        later(2300, () => $('v3a').classList.add('in2'));
+        later(2600, () => $('v3b').classList.add('in2'));
+      },
+      3: () => {
+        const root = $('g3');
+        [['imports', 'v3c'], ['energy', 'v3d']].forEach(([k, v], i) => later(200 + i * 600, () => {
+          const c = cellOf(root, k); c.classList.remove('need'); c.classList.add('lost'); $(v).classList.add('in2');
+        }));
+      },
+    },
+    4: {
+      1: () => {
+        const bars = [...document.querySelectorAll('#vb4 i')];
+        bars.forEach((b, i) => later(300 + i * 25, () => { b.style.height = b.dataset.h + 'px'; }));
+        later(200, () => wire($('w4'), $('q4'), $('v4'), { from: 'bottom', to: 'top', hot: true, ms: 400 }));
+      },
+      2: () => {
+        const s = $('ag4'), ox = 110, oy = 318, L = 170, rad = (d) => d * Math.PI / 180;
+        const tip = (deg, l = L) => [ox + l * Math.cos(rad(deg)), oy - l * Math.sin(rad(deg))];
+        const arc = (d1, d2, r, color) => {
+          const [x1, y1] = tip(d1, r), [x2, y2] = tip(d2, r);
+          const p = document.createElementNS(NS, 'path');
+          p.setAttribute('d', `M${x1},${y1} A${r},${r} 0 0 0 ${x2},${y2}`);
+          p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', 1.6);
+          s.appendChild(p); const len = p.getTotalLength();
+          p.style.strokeDasharray = len; p.style.strokeDashoffset = len; p.getBoundingClientRect();
+          p.style.transition = 'stroke-dashoffset .6s ease'; p.style.strokeDashoffset = 0;
+        };
+        // Angles from the scores: acos(0.6764) = 47.4 degrees, acos(0.6328) = 50.7 degrees.
+        const QD = 52, ID = QD - 47.4, ED = QD + 50.7;
+        svgDot(s, ox, oy, 4, '#16191d');
+        later(100, () => { const [x, y] = tip(QD); seg(s, ox, oy, x, y, '#1558d6', 600, 3); later(500, () => { svgDot(s, x, y, 5, '#1558d6'); svgText(s, x + 10, y - 2, 'question', { color: '#1558d6', weight: 700 }); }); });
+        later(900, () => { const [x, y] = tip(ID); seg(s, ox, oy, x, y, '#1558d6', 600, 2.2); later(500, () => { svgDot(s, x, y, 5, '#1558d6'); svgText(s, x - 20, y + 28, 'Poverty · p. 23', { anchor: 'middle', size: 12.5 }); }); });
+        later(1600, () => { const [x, y] = tip(ED); seg(s, ox, oy, x, y, '#12a08a', 600, 2.2); later(500, () => { svgDot(s, x, y, 5, '#12a08a'); svgText(s, x + 4, y - 12, 'Middle East · p. 22', { anchor: 'middle', size: 12.5 }); }); });
+        later(2300, () => { arc(ID, QD, 66, '#1558d6'); const [x, y] = tip((ID + QD) / 2 + 4, 100); svgText(s, x, y + 5, '0.676', { mono: true, weight: 700, color: '#1558d6', size: 14, anchor: 'middle' }); });
+        later(2900, () => { arc(QD, ED, 104, '#12a08a'); const [x, y] = tip((QD + ED) / 2, 126); svgText(s, x, y + 5, '0.633', { mono: true, weight: 700, color: '#0d6e5f', size: 14, anchor: 'middle' }); });
+      },
+      3: () => {
+        $('sw4').animate([{ left: '-40px', opacity: 1 }, { left: '330px', opacity: 1 }, { left: '352px', opacity: 0 }], { duration: 1500, easing: 'linear', iterations: 1, fill: 'forwards' });
+        ['r4a', 'r4b', 'r4c', 'r4d', 'r4e'].forEach((id, i) => later(1500 + i * 300, () => $(id).classList.add('in2')));
+        later(3100, () => $('mo4').classList.add('in2'));
+      },
+      4: () => {
+        $('cut4').classList.add('in2'); $('r4e').classList.add('below');
+        [['mpi', 'r4a'], ['pov', 'r4b'], ['pov2', 'r4c'], ['ipl', 'r4d']].forEach(([k, r], i) => later(300 + i * 300, () => {
+          $(r).classList.add('sel'); cellOf($('g4'), k).classList.add('pick');
+        }));
+      },
+    },
+    5: {
+      1: () => {
+        const tag = (span, tg, side) => { const a = rectOf($(span)), sb = current.getBoundingClientRect(), t = $(tg);
+          t.style.left = (side ? a.right - sb.left + 26 : a.left - sb.left) + 'px'; t.style.top = (a.top - sb.top + (side ? 2 : -16)) + 'px'; };
+        [['h5i', 't5i', 0], ['h5p', 't5p', 1]].forEach(([h, tg, side], i) => later(700 + i * 900, () => {
+          tag(h, tg, side); $(h).classList.add('on'); $(tg).classList.add('in2');
+        }));
+      },
+      2: () => {
+        ['h5i', 'h5p'].forEach((h) => $(h).classList.remove('on')); ['t5i', 't5p'].forEach((t) => $(t).classList.remove('in2'));
+        ['p5a', 'p5b', 'p5c', 'p5d'].forEach((id, i) => later(300 + i * 200, () => moveClone($(id), $('f5c'), 700)));
+        later(1100, () => { $('f5c').innerHTML = '[ueu-2026-06 · p. 23] Uganda Economic …<br>[ueu-2026-06 · p. 23] … [ueu-2025-09 · p. 13] …<br>[ueu-2025-12 · p. 26] …'; $('f5c').classList.add('c'); });
+        later(1500, () => { $('f5q').textContent = 'How did the conflict in the Middle East affect Uganda, and how much did poverty fall?'; $('f5q').classList.add('q'); });
+        ['r5b', 'r5c'].forEach((id, i) => later(2000 + i * 600, () => $(id).classList.add('on')));
+      },
+      3: () => {
+        const s = $('w5');
+        later(100, () => { const p = wire(s, $('g5s'), $('md5'), { color: '#1558d6' }); later(600, () => flow(s, p, '#1558d6', 1300, 2, 4.5)); });
+        later(300, () => { const p = wire(s, $('g5u'), $('md5'), { color: '#12a08a' }); later(600, () => flow(s, p, '#12a08a', 1300, 2, 4.5)); });
+        later(700, () => $('md5').classList.add('busy'));
+        later(1200, () => stream($('o5t'), A5, 85, null, () => {
+          $('md5').classList.remove('busy');
+          const c = $('o5t').querySelector('.t-cit'); c.classList.add('on'); $('p5b').classList.add('ring');
+          fly($('p5b'), c, '51.5', 900);
+        }));
+      },
+    },
+    6: {
+      1: () => {
+        $('rows6').innerHTML = RANK6.map(([n, c, d, v, tp], i) => {
+          const slot = n === 15 ? 11 : i, far = n === 15 ? ' far' : '';
+          return `<div class="r6${far}" id="r6${i}" style="top:${Y6(slot)}px"><span class="n">${n}</span><span class="id">${c}</span><span class="sec">${d}</span>
+          <span><span class="bar" style="background:${COL[tp]}" data-w="${Math.round((v - 0.585) / (0.68 - 0.585) * 100)}"></span></span><span class="sc">${v.toFixed(3)}</span></div>`;
+        }).join('') + `<div class="gap6" id="gap6" style="top:${Y6(10) + 8}px">… ranks 11 to 14</div>`;
+        document.querySelectorAll('#rows6 .r6:not(.far) .bar').forEach((b, i) => later(200 + i * 110, () => { b.style.width = b.dataset.w + '%'; }));
+        cutAt6(4);
+        later(1500, () => { $('cut6').classList.add('in2'); [0, 1, 2, 3].forEach((i) => $('r6' + i).classList.add('sel')); });
+        later(1700, () => { $('k6t').style.width = '22%'; });
+      },
+      2: () => later(200, () => $('r64').classList.add('hl')),
+      3: () => {
+        $('gap6').classList.add('in2'); $('r610').classList.add('in2');
+        later(300, () => { const b = $('r610').querySelector('.bar'); b.style.width = b.dataset.w + '%'; });
+        later(600, () => { $('r610').classList.add('hl'); });
+        cutAt6(12); $('cut6l').textContent = 'k = 15';
+        [4, 5, 6, 7, 8, 9, 10].forEach((i, j) => later(900 + j * 120, () => $('r6' + i).classList.add('sel')));
+        $('k6v').firstChild.textContent = 'k = 15'; $('k6s').textContent = 'reaches rank 15';
+        $('k6t').style.width = '82%'; $('k6t').style.background = 'var(--bad)';
+        $('k6m').innerHTML = 'Every added passage adds tokens to each call';
+      },
+      4: () => {
+        cutAt6(4); $('cut6l').textContent = 'k = 4 per search';
+        [4, 5, 6, 7, 8, 9, 10].forEach((i) => { $('r6' + i).classList.remove('sel'); $('r6' + i).classList.remove('hl'); });
+        $('k6v').firstChild.textContent = 'k = 4'; $('k6s').textContent = 'per search · two searches';
+        $('k6t').style.width = '44%'; $('k6t').style.background = 'var(--primary)';
+        $('k6m').innerHTML = 'Prompt tokens of the recorded call: <b>2,307</b>';
+        later(400, () => $('sq6a').classList.add('in2'));
+        later(1100, () => $('sq6b').classList.add('in2'));
+        later(1900, () => $('mg6').classList.add('in2'));
+        ['f6a', 'f6b', 'f6c', 'f6d'].forEach((id, i) => later(2400 + i * 350, () => { $(id).classList.add('ok'); $(id).textContent += ' ✓'; }));
+        [4, 6, 10].forEach((i, j) => later(2400 + j * 250, () => $('r6' + i).classList.add('hl')));
+      },
+    },
+    7: {
+      1: () => {
+        typeText($('q7'), 'What is the latest inflation rate in Uganda?', 30);
+        later(1900, () => $('r7a').classList.add('in2'));
+        later(2200, () => $('r7b').classList.add('in2'));
+      },
+      2: () => {
+        editions($('tl7a'), ['ueu-2023-12', 'ueu-2025-02'], '#b42318');
+        later(900, () => $('rk7a').classList.add('in2'));
+        later(1400, () => stream($('o7a'), [...words('The latest Uganda inflation figure in the passages is 2.6 percent in November 2023 … '), cit('[ueu-2023-12 · p. 17]')], 110, null,
+          () => $('fg7a').classList.add('in2')));
+      },
+      3: () => {
+        later(300, () => $('r7c').classList.add('in2'));
+        later(600, () => $('r7d').classList.add('in2'));
+        later(900, () => editions($('tl7b'), ['ueu-2023-12', 'ueu-2025-02'], '#b42318'));
+        later(1700, () => $('rk7b').classList.add('in2'));
+        later(2300, () => $('fg7b').classList.add('in2'));
+      },
+      4: () => {
+        editions($('tl7c'), ['ueu-2026-06'], '#1f7a4d', '2026-01');
+        later(600, () => $('r7e').classList.add('in2'));
+        later(900, () => $('r7f').classList.add('in2'));
+        later(1300, () => $('rk7c').classList.add('in2'));
+        later(1700, () => stream($('o7c'), [...words("Uganda's headline year-on-year inflation was 3.0 percent in April 2026 "), cit('[ueu-2026-06 · p. 20]')], 110, null,
+          () => $('fg7c').classList.add('in2')));
+      },
+    },
+    8: {
+      1: () => {
+        ['r8a', 'r8b', 'r8c'].forEach((id, i) => later(200 + i * 300, () => $(id).classList.add('in2')));
+        later(1200, () => stream($('an8a'), [...words("Uganda's real GDP grew by 6.3 percent in FY25, up from 6.1 percent in FY24 "), cit('[ueu-2025-12 · p. 12]'), '. …'], 100));
+      },
+      2: () => {
+        ['r8d', 'r8e', 'r8f'].forEach((id, i) => later(200 + i * 300, () => $(id).classList.add('in2')));
+        later(1200, () => stream($('an8b'), [...words("The passages don't contain Rwanda's 2025 economic growth figure."), ' …'], 110));
+      },
+      3: () => {
+        const s = $('ax8'), x0 = 30, x1 = 520, v2x = (v) => x0 + (v - 0.45) / (0.85 - 0.45) * (x1 - x0), ya = 96, yb = 168, ax = 222;
+        seg(s, x0, ax, x1, ax, '#8a929a', 500, 1.4);
+        [0.5, 0.6, 0.7, 0.8].forEach((v) => { seg(s, v2x(v), ax - 4, v2x(v), ax + 4, '#8a929a', 200, 1.4); svgText(s, v2x(v), ax + 20, v.toFixed(1), { mono: true, size: 12.5, anchor: 'middle' }); });
+        svgText(s, x0, ya - 22, 'answerable from the archive · 8', { size: 13, color: '#1f7a4d', weight: 600 });
+        svgText(s, x0, yb - 22, 'outside the archive · 9', { size: 13, color: '#b42318', weight: 600 });
+        // Close scores are set apart vertically so that every dot stays visible.
+        const placed = { in: [], out: [] };
+        CUT.forEach(([lab, v], i) => later(300 + i * 70, () => {
+          const x = v2x(v), base = lab === 'in' ? ya : yb, near = placed[lab].filter((p) => Math.abs(p - x) < 11).length;
+          placed[lab].push(x);
+          const dy = near === 0 ? 0 : (near % 2 ? -11 : 11) * Math.ceil(near / 2);
+          const d = svgDot(s, x, base + dy, 6, lab === 'in' ? '#1f7a4d' : '#b42318');
+          d.dataset.v = v; d.dataset.lab = lab;
+        }));
+        later(1800, () => {
+          const cx = v2x(0.6632);
+          seg(s, cx, 50, cx, ax - 6, '#1558d6', 500, 2, '6 5');
+          svgText(s, cx + 8, 48, 'cut-off 0.663', { size: 12.5, color: '#1558d6', weight: 700 });
+        });
+        later(2500, () => svgText(s, x1, 260, '14 of 17 classified correctly', { size: 13, color: '#16191d', weight: 700, anchor: 'end' }));
+      },
+      4: () => {
+        const s = $('ax8'), x0 = 30, x1 = 520, v2x = (v) => x0 + (v - 0.45) / (0.85 - 0.45) * (x1 - x0);
+        [...s.querySelectorAll('circle')].forEach((c) => {
+          const v = Number(c.dataset.v), wrong = (c.dataset.lab === 'in') !== (v >= 0.6632);
+          if (wrong) { c.setAttribute('stroke', '#16191d'); c.setAttribute('stroke-width', 2); } else c.style.opacity = 0.35;
+        });
+        later(300, () => svgText(s, v2x(0.7291) + 10, 146, 'Ethiopia coffee 0.729', { size: 12, color: '#b42318', weight: 600 }));
+        later(600, () => svgText(s, v2x(0.7115) - 4, 194, 'Tanzania growth 0.712', { size: 12, color: '#b42318', weight: 600 }));
+        later(900, () => svgText(s, v2x(0.632) - 8, 118, 'Uganda petroleum share 0.632', { size: 12, color: '#1f7a4d', weight: 600, anchor: 'end' }));
+        later(1300, () => $('r8r').classList.add('on'));
+      },
+    },
+    9: {
+      1: () => later(300, () => stream($('a9'), A9, 55)),
+      2: () => {
+        if (!$('c9e')) return;
+        const b = $('c9e').getBoundingClientRect();
+        $('ptr9').style.left = b.left + b.width / 2 + 'px'; $('ptr9').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => { $('c9e').classList.add('on'); $('pp9').classList.add('in2'); $('pl9e').classList.add('on'); });
+      },
+    },
+    10: {
+      1: () => document.querySelectorAll('#t10 tr.r').forEach((r, i) => later(150 + i * 170, () => r.classList.add('in2'))),
+      2: () => {
+        document.querySelectorAll('#t10 tr.r').forEach((r, i) => later(200 + i * 200, () => r.cells[4].querySelector('.verdict').classList.add('in2')));
+        later(1900, () => { $('b10a').style.width = '50%'; countUp($('n10a'), 4, 900); later(950, () => { $('n10a').textContent = '4 of 8'; }); });
+      },
+      3: () => {
+        document.querySelectorAll('#t10 tr.r').forEach((r, i) => later(200 + i * 200, () => r.cells[5].querySelector('.verdict').classList.add('in2')));
+        later(1900, () => { $('b10b').style.width = '100%'; countUp($('n10b'), 8, 900); later(950, () => { $('n10b').textContent = '8 of 8'; }); });
+      },
+    },
+    11: {
+      3: () => {
+        const s = $('w11');
+        $('j11a').classList.add('in2'); $('j11a1').classList.add('ask');
+        later(400, () => { const p = wire(s, $('j11a1'), $('j11a2'), { hot: true, ms: 500 }); later(500, () => carry(p, 'p. 22', '#1558d6', 800, null, () => $('j11a2').classList.add('on'))); });
+        later(1900, () => { wire(s, $('j11a2'), $('j11a3'), { hot: true, ms: 400 }); later(400, () => $('j11a3').classList.add('in2')); });
+      },
+      4: () => {
+        const s = $('w11');
+        $('j11b').classList.add('in2'); $('j11b1').classList.add('ask');
+        later(400, () => { const p = wire(s, $('j11b1'), $('j11b2'), { hot: true, ms: 500 }); later(500, () => carry(p, '2023-12', '#b42318', 800, null, () => $('j11b2').classList.add('on'))); });
+        later(1900, () => { wire(s, $('j11b2'), $('j11b3'), { hot: true, ms: 400 }); later(400, () => $('j11b3').classList.add('in2')); });
+      },
+    },
+  };
+
+  // Static content built once.
+  drawArchive();
+  $('g3').innerHTML = REPORTS.map(([id, , , n]) => `<div class="blk"><span>${id}</span><div class="cells">${cellsHTML(id, n)}</div></div>`).join('');
+  $('g4').insertAdjacentHTML('beforeend', REPORTS.map(([id, , , n]) => cellsHTML(id, n)).join(''));
+  $('t10').insertAdjacentHTML('beforeend', TESTS.map(([id, q, cat, exp, hit]) => `<tr class="r"><td class="mono">${id}</td><td>${q}</td><td>${cat}</td><td class="mono">${exp}</td>
+    <td><span class="verdict ${hit ? 'ok' : 'bad'}">${hit ? 'pass' : 'miss'}</span></td><td><span class="verdict ok">pass</span></td></tr>`).join(''));
+  // Bar heights of the illustrative question vector (a fixed pseudo-random pattern).
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  $('vb4').innerHTML = Array.from({ length: 64 }, () => `<i data-h="${Math.round(4 + rnd() * 44)}"></i>`).join('');
+
+  go(1, 0);
+</script>
+</body>
+</html>

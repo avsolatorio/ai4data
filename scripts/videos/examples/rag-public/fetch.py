@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import json
 import sys
 import time
@@ -44,7 +45,7 @@ def download(url: str, target: Path) -> None:
                     fh.write(block)
             tmp.replace(target)
             return
-        except Exception as exc:  # network errors: retry twice
+        except (OSError, http.client.HTTPException) as exc:  # network errors: retry twice
             print(f"  attempt {attempt + 1} failed: {exc}")
             time.sleep(3)
     raise SystemExit(f"could not download {url}")

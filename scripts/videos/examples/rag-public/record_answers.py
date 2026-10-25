@@ -30,7 +30,14 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 import common as c
-from runs import LATEST_QUESTION, MAIN_QUESTION, OUTSIDE_QUESTION, INSIDE_QUESTION, SINCE, SUB_QUERIES
+from runs import (
+    INSIDE_QUESTION,
+    LATEST_QUESTION,
+    MAIN_QUESTION,
+    OUTSIDE_QUESTION,
+    SINCE,
+    SUB_QUERIES,
+)
 
 # name: (concept, question, k, date filter or None, how the passages are chosen)
 CASES = {
@@ -44,7 +51,7 @@ CASES = {
 
 
 def passages_for(store, name: str):
-    concept, question, k, since, how = CASES[name]
+    _concept, question, k, since, how = CASES[name]
     where = c.since(since) if since else None
     if how == "one search":
         return [(d, s) for d, s in c.hits(store, question, k=k, where=where)]
@@ -64,12 +71,12 @@ def network_date(base_url: str | None) -> tuple[str, str]:
             date = resp.headers.get("Date")
     except urllib.error.HTTPError as err:  # an error status still carries the Date header
         date = err.headers.get("Date")
-    except Exception:
+    except OSError:  # no network: fall back to the local clock
         date = None
     if date:
         host = urllib.parse.urlparse(url).netloc
-        return parsedate_to_datetime(date).astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), f"HTTP Date header of {host}"
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), "local clock, unverified"
+        return parsedate_to_datetime(date).astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), f"HTTP Date header of {host}"  # noqa: UP017 (Python 3.10)
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), "local clock, unverified"  # noqa: UP017 (Python 3.10)
 
 
 def main() -> int:
@@ -143,8 +150,8 @@ def main() -> int:
     for r in results:
         r["date"] = date
     try:
-        commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=c.HERE, capture_output=True, text=True).stdout.strip()
-    except Exception:
+        commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=c.HERE, capture_output=True, text=True, check=False).stdout.strip()
+    except OSError:
         commit = ""
     out = {"model": model_name, "base_url_host": urllib.parse.urlparse(base_url).netloc if base_url else None,
            "temperature": 0.0, "date": date, "date_source": date_source, "git_commit": commit,

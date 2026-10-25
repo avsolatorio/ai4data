@@ -19,9 +19,8 @@ import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
-from langchain_core.documents import Document
-
 import common as c
+from langchain_core.documents import Document
 
 # ----------------------------------------------------------------------------
 # The cases
@@ -207,8 +206,8 @@ def check_figures(chunks: list[dict]) -> tuple[dict, str]:
 
 def git_commit() -> str:
     try:
-        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=c.HERE, capture_output=True, text=True).stdout.strip()
-    except Exception:
+        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=c.HERE, capture_output=True, text=True, check=False).stdout.strip()
+    except OSError:
         return ""
 
 
@@ -303,10 +302,10 @@ def main() -> int:
 
     checks, server_date = check_figures(chunks)
     try:
-        run_date = parsedate_to_datetime(server_date).astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        run_date = parsedate_to_datetime(server_date).astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")  # noqa: UP017 (Python 3.10)
         date_source = "HTTP Date header of api.worldbank.org"
-    except Exception:
-        run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    except (TypeError, ValueError):  # no Date header was received
+        run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")  # noqa: UP017 (Python 3.10)
         date_source = "local clock, unverified"
     out = {
         "description": "Retrieval runs of the public RAG example over World Bank country economic updates for Kenya and Uganda.",

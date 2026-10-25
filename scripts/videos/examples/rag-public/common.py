@@ -12,11 +12,13 @@ Markdown sections.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore
@@ -49,12 +51,10 @@ def make_embeddings():
     """The embedding model of the session notebooks."""
     from langchain_huggingface import HuggingFaceEmbeddings
 
-    try:
+    with contextlib.suppress(ImportError, AttributeError):
         import transformers.utils.logging as hf_logging
 
         hf_logging.disable_progress_bar()
-    except Exception:
-        pass
     return HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
 

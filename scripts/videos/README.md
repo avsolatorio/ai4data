@@ -46,12 +46,15 @@ scripts/videos/
   stages/preparing-knowledge.html   a second explainer, made from this guide alone
   stages/model-to-application.html  a third explainer (instructions and context in a prompt)
   stages/retrieval-augmented-generation.html  a fourth explainer (retrieval, the prompt, failure cases)
+  stages/rag-public-reports.html    the same method on 13 published World Bank reports
   videos/_template.json   starting point for a new step script
   videos/pcn-explainer.json
   videos/preparing-knowledge.json
   videos/model-to-application.json
   videos/retrieval-augmented-generation.json
+  videos/rag-public-reports.json
   videos/document-collection.json   a site walkthrough
+  examples/rag-public/    sources, retrieval runs and recorded answers behind rag-public-reports
   voices/                 Piper voices (*.onnx) and Kokoro model files (voices/kokoro/)
   out/<name>.mp4, .vtt    results; out/<name>/ holds narration clips and review sheets
 ```
@@ -224,6 +227,17 @@ are in `stages/kit/stage.css`; do not introduce new colours.
 - Values come from the source data. A visual that cannot be real, such as
   positions on a map of meaning drawn in two dimensions, carries a label on
   screen that says so ("positions drawn for illustration").
+- Published material from outside the program (report text, figures,
+  passages) carries a source line in 12 px at the bottom of every scene
+  that shows it, with the publisher, series, years, repository and
+  licence, and the closing repeats it under the addresses. Model answers
+  recorded for the video are named on the closing with the model and the
+  temperature. Logos and cover images of the source are not shown.
+  `rag-public-reports` adds the line from one constant in its script.
+- A store of thousands of chunks is drawn as one small square per chunk,
+  grouped by document in store order, so that the retrieved and the needed
+  chunks can be marked at their real positions (`rag-public-reports`,
+  3,440 squares). One tile per chunk with a label works up to a few dozen.
 - Empty space: early beats of a scene may leave part of the frame empty,
   because later beats fill it. In the final state of every scene, the
   content spans the frame; no half of the frame (left, right, top or
@@ -277,7 +291,10 @@ popover or pointer.
 
 Model output streams. When the method involves an AI system, show its answer
 arriving token by token, in the chat window for what a user sees and in a
-dark code panel for the raw response.
+dark code panel for the raw response. Use answers recorded from a real
+model where the method has one (`examples/rag-public/answers.json`). A long
+recorded answer may be shortened with "…" on screen; the figures and
+citations that remain are copied unchanged.
 
 ## 6. Narration rules
 
@@ -380,3 +397,4 @@ section 7 apply unchanged.
 | 2026-10-25 | A third explainer (instructions and context in a prompt) made from this guide; the agent found no location for the caption checker, no rule for a general method without a library, and a streamed table that broke apart | Checker location, closing rule for general methods, five-step progress bar, complete-HTML tokens for `stream()` |
 | 2026-10-25 | Reviewer saw no reason for a line saying that the addresses are on screen | Closing narration names the library only; Program-only closings are silent |
 | 2026-10-25 | A fourth explainer (retrieval-augmented generation) made from this guide; it needed a step per failure case, a scene for testing retrieval alone, and found a pointer hook that ran before the stream it pointed into had finished | Rules for failure steps and a test scene; timing note for hooks that use streamed elements |
+| 2026-10-25 | A second RAG explainer built on 13 published World Bank reports (`rag-public-reports`); the guide had no rule for attributing licensed report material, and one tile per chunk does not scale to 3,440 chunks | Source line on scenes with report material and on the closing; one square per chunk for a large store |

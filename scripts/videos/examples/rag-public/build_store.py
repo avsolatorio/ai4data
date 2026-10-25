@@ -24,11 +24,18 @@ import re
 import sys
 
 import pymupdf
+from common import (
+    CHUNKS_JSONL,
+    EMBEDDING_MODEL,
+    PDF_DIR,
+    STORE_JSON,
+    WORK,
+    make_embeddings,
+    sources,
+)
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from common import CHUNKS_JSONL, EMBEDDING_MODEL, PDF_DIR, STORE_JSON, WORK, make_embeddings, sources
 
 FRONT_MATTER = re.compile(
     r"^\s*(TABLE OF CONTENTS|CONTENTS|LIST OF (FIGURES|TABLES|BOXES|ABBREVIATIONS|ACRONYMS)|ABBREVIATIONS|ACRONYMS|"
@@ -96,7 +103,7 @@ def page_text(page, headers: set[str]) -> str:
         lines = [ln for ln in lines if ln and not DROP_LINE.match(ln)]
         if not lines or (len(lines) == 1 and PAGE_NUMBER.match(lines[0])):  # empty, or a page number
             continue
-        x0, y0, x1, y1 = block[:4]
+        x0, y0, _x1, y1 = block[:4]
         text = CONTROL.sub("", join_lines(lines))
         height = (y1 - y0) / len(lines)
         if paras:

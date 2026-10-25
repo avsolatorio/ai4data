@@ -1,0 +1,303 @@
+{
+  "title": "Retrieval-augmented generation over economic updates",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "stages/rag-public-reports.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "say": "This video explains retrieval-augmented generation with a chatbot that answers from World Bank economic updates.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "A chatbot answers questions from an archive of country economic updates. For each question, the application selects passages for a language model.",
+      "min": 3.5,
+      "settle": 1.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The archive holds 13 reports with 769 pages, prepared beforehand as 3,440 passages with metadata and vectors.",
+      "speak": "The archive holds thirteen reports with seven hundred sixty-nine pages, prepared beforehand as three thousand four hundred forty passages with metadata and vectors.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,3)",
+      "say": "This pattern is called retrieval-augmented generation, or RAG.",
+      "speak": "This pattern is called retrieval-augmented generation, or rag.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',1)",
+      "say": "In this example, a user asks how the conflict in the Middle East affected Uganda, and how much poverty fell.",
+      "min": 5.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',2)",
+      "say": "The search returns four passages from the Uganda reports. The answer cites a report and a page after each figure.",
+      "min": 7.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',3)",
+      "say": "Its first line states that the passages do not mention the conflict.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "A correct answer needs figures on both parts, and the archive holds them.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "The four passages in the prompt hold the poverty rates for FY24 and FY25.",
+      "speak": "The four passages in the prompt hold the poverty rates for F Y twenty-four and F Y twenty-five.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "The model reads only its prompt, so the conflict figures cannot appear in the answer.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "The embedding model turns the question into a vector of 384 numbers.",
+      "speak": "The embedding model turns the question into a vector of three hundred eighty-four numbers.",
+      "min": 3.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "Cosine similarity compares two vectors by the angle between them.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,3)",
+      "say": "Every passage in the archive receives a score, and the passages are ranked by it.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,4)",
+      "say": "The search returns the top k, here four, as the passages for the prompt.",
+      "speak": "The search returns the top kay, here four, as the passages for the prompt.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "Each passage enters the prompt under a citation. The report id names the series and the edition month.",
+      "speak": "Each passage enters the prompt under a citation. The report I D names the series and the edition month.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "The grounded instructions form the system message. The passages and the question form the user message.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,3)",
+      "say": "The model writes from these two messages and places a citation after each figure.",
+      "min": 5.3,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "For the two-part question, four passages on poverty take the four places.",
+      "min": 3.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "The first passage on the conflict is fifth, at 0.633 against 0.653 for the fourth.",
+      "speak": "The first passage on the conflict is fifth, at zero point six three three against zero point six five three for the fourth.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "The passage on energy prices ranks fifteenth, and a larger k costs tokens on every call.",
+      "speak": "The passage on energy prices ranks fifteenth, and a larger kay costs tokens on every call.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,4)",
+      "say": "The fix runs one search for each part and merges the results. The eight merged passages hold the figures for both parts.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "A vector holds nothing about the date of its text. A second question asks for the latest inflation rate in Uganda.",
+      "min": 3.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "The two passages come from editions of 2023 and 2025. The April 2026 figure ranks nineteenth, and the answer gives 2.6 percent, for November 2023.",
+      "speak": "The two passages come from editions of twenty twenty-three and twenty twenty-five. The April twenty twenty-six figure ranks nineteenth, and the answer gives two point six percent, for November twenty twenty-three.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,3)",
+      "say": "Rewording the question in the terms of the June 2026 edition moves that passage to eleventh, and the older passages score higher.",
+      "speak": "Rewording the question in the terms of the June twenty twenty-six edition moves that passage to eleventh, and the older passages score higher.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,4)",
+      "say": "A filter on the edition date keeps reports from January 2026 or later. The April 2026 passage then ranks second, and the answer gives 3.0 percent.",
+      "speak": "A filter on the edition date keeps reports from January twenty twenty-six or later. The April twenty twenty-six passage then ranks second, and the answer gives three point zero percent.",
+      "min": 5.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "For growth in Uganda in FY25, the best passage scores 0.792, and the answer gives 6.3 percent.",
+      "speak": "For growth in Uganda in F Y twenty-five, the best passage scores zero point seven nine two, and the answer gives six point three percent.",
+      "min": 5.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "The archive holds no report on Rwanda. For growth in Rwanda in 2025, the best passage scores 0.631, and the answer states that the figure is missing.",
+      "speak": "The archive holds no report on Rwanda. For growth in Rwanda in twenty twenty-five, the best passage scores zero point six three one, and the answer states that the figure is missing.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "A cut-off on the score, set from labelled examples, stops clearly unrelated questions. On 17 labelled questions, the best cut-off, 0.663, classifies 14 correctly.",
+      "speak": "A cut-off on the score, set from labelled examples, stops clearly unrelated questions. On seventeen labelled questions, the best cut-off, zero point six six three, classifies fourteen correctly.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,4)",
+      "say": "Growth in Tanzania and coffee exports from Ethiopia score above it. For such questions, the instruction to say when the passages do not answer is the safeguard.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,1)",
+      "say": "With one search for each part, the answer covers the conflict and the fall in poverty, with a citation after each figure.",
+      "min": 6.0,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,2)",
+      "say": "The citation of the energy figure leads to page 22 of the June 2026 edition.",
+      "speak": "The citation of the energy figure leads to page twenty-two of the June twenty twenty-six edition.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,1)",
+      "say": "Retrieval can be tested without the model. Each test question lists the reports expected among its passages.",
+      "min": 2.5,
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,2)",
+      "say": "With four passages per question and no filter, the retrieval check passes for four of the eight questions.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,3)",
+      "say": "With the filter on the edition date, it passes for all eight.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,2)",
+      "say": "Tests check the passages, and the grounded instructions shape the answer. Whether a figure answers the question remains a judgement for the builders and the reader.",
+      "min": 3.0,
+      "pause": 0.35,
+      "settle": 0.8
+    },
+    {
+      "do": "eval",
+      "js": "go(11,3)",
+      "say": "The answer notes that its passage does not name the poverty line for 51.5 percent. The sentence begins on page 22, which names the USD 3.00-per-day line.",
+      "speak": "The answer notes that its passage does not name the poverty line for fifty-one point five percent. The sentence begins on page twenty-two, which names the three dollar per day line.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,4)",
+      "say": "Each citation also names the edition. The inflation figure of 2.6 percent comes from the December 2023 edition.",
+      "speak": "Each citation also names the edition. The inflation figure of two point six percent comes from the December twenty twenty-three edition.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(12,0)",
+      "min": 4.0,
+      "settle": 0.9,
+      "pause": 2.0
+    }
+  ]
+}
