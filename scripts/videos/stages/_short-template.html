@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TITLE OF THE SHORT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of this short only; shared styles are in kit/stage.css. */
+  .a2 { position: absolute; left: 80px; top: 300px; width: 330px; padding: 18px 22px; font-size: 20px; }
+  .b2 { position: absolute; left: 870px; top: 300px; width: 330px; padding: 18px 22px; font-size: 20px; }
+</style>
+</head>
+<body>
+<!-- Copy this file to stages/<id>.html for a short in a series. See README.md, "Short explainers in a series". -->
+
+<!-- 1 title card: series, area, title; silent -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">SERIES TITLE</div>
+  <div class="kicker">AI for Data – Data for AI · AREA</div>
+  <h1>Title of the short</h1>
+  <div class="part">Part N · PART TITLE · K of M</div>
+</section>
+
+<!-- 2 to 4 or 5: three to five light scenes, one idea -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Context</div>
+  <h2>A heading that names what the scene shows</h2>
+  <svg class="wires" id="w2"></svg>
+  <div class="card a2" id="a2" data-b="1"><div class="label">Input</div>Text of the first card</div>
+  <div class="card b2" id="b2" data-b="2"><div class="label">Output</div>Text of the second card</div>
+</section>
+
+<!-- last: end screen; silent -->
+<section class="scene dark" id="s3">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">SERIES TITLE</div>
+  <div class="kicker">AI for Data – Data for AI · AREA</div>
+  <div class="next"><span>Next in the series</span><b>TITLE OF THE NEXT SHORT</b></div>
+  <div class="links">
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="source">SOURCE LINE, where the short shows published material</div>
+</section>
+
+<script>
+  const HOOKS = {
+    2: {
+      2: () => {
+        const p = wire($('w2'), $('a2'), $('b2'), { ms: 600, color: '#1558d6' });
+        later(650, () => carry(p, 'value', '#1558d6', 1800));
+      },
+    },
+  };
+  go(1, 0);
+</script>
+</body>
+</html>

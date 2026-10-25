@@ -149,3 +149,12 @@ tr.key td { background: #fff7d6 !important; }
 .dig { display: inline-block; }
 .dig.flip { animation: flip .5s ease; color: #ffd0cc; }
 @keyframes flip { 50% { transform: rotateX(90deg); } }
+
+/* short explainers in a series: title card and end screen */
+.dark .series { margin-top: 70px; font-size: 16px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--primary-light); }
+.dark .series + .kicker { margin-top: 10px; color: var(--block-soft); }
+.dark .part { margin-top: 26px; font-size: 20px; color: var(--block-soft); }
+.dark .next { margin-top: 48px; padding: 18px 24px; width: fit-content; max-width: 900px; border: 1px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); }
+.dark .next span { display: block; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--block-soft); }
+.dark .next b { display: block; margin-top: 6px; font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+.dark .source { position: absolute; left: 110px; right: 110px; bottom: 34px; font-size: 12px; color: var(--block-soft); line-height: 1.5; }

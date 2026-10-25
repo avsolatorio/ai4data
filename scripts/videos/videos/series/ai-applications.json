@@ -1,0 +1,76 @@
+{
+  "id": "ai-applications",
+  "title": "Building an AI application that answers from data",
+  "example": "An application that answers questions from published World Bank material on Kenya and Uganda: 13 country economic updates (parts 1 to 3) and World Bank indicator data (parts 4 to 6).",
+  "parts": [
+    {
+      "part": 1,
+      "title": "From a model to an application",
+      "area": "Implementation",
+      "shorts": [
+        {"id": "model-without-context", "title": "A language model with no context", "idea": "A model alone answers from its training data, with no source to check the figure against."},
+        {"id": "parts-of-a-prompt", "title": "The three parts of a prompt", "idea": "An application sends instructions, context and the question together as one prompt."},
+        {"id": "source-in-the-prompt", "title": "A source in the prompt", "idea": "With the source in the context, the model answers from it and cites it."},
+        {"id": "source-cannot-answer", "title": "Questions the source cannot answer", "idea": "The instructions tell the model to say when the context does not hold the answer."},
+        {"id": "instructions-for-ambiguous-questions", "title": "Instructions for an ambiguous question", "idea": "Two sets of instructions give two different answers to the same ambiguous question."}
+      ]
+    },
+    {
+      "part": 2,
+      "title": "Preparing documents",
+      "area": "Implementation",
+      "shorts": [
+        {"id": "collection-and-metadata", "title": "A document collection and its metadata", "idea": "Metadata records what the text does not say about itself, such as the edition date."},
+        {"id": "dividing-into-passages", "title": "Dividing documents into passages", "idea": "Passages that follow the sections of a document keep a figure with its context."},
+        {"id": "passages-as-vectors", "title": "Passages as vectors", "idea": "An embedding model turns each passage into a vector, and passages close in meaning get close vectors."},
+        {"id": "poor-preparation", "title": "Effects of poor preparation on answers", "idea": "Missing metadata and badly divided passages lead to wrong or undated answers."}
+      ]
+    },
+    {
+      "part": 3,
+      "title": "Answering from an archive",
+      "area": "Implementation",
+      "shorts": [
+        {"id": "answering-from-an-archive", "title": "Answering from a document archive", "idea": "The application finds passages for each question, and the model answers from them with a citation to each source."},
+        {"id": "how-search-ranks-passages", "title": "How the search ranks passages", "idea": "The search ranks passages by closeness in meaning, and a needed passage can fall just below the cut."},
+        {"id": "dates-in-the-search", "title": "Dates in the search", "idea": "The search does not know which report is the newest; a filter on the edition date does."},
+        {"id": "questions-outside-the-archive", "title": "Questions outside the archive", "idea": "The instructions tell the model to say when the passages do not hold the answer."},
+        {"id": "testing-search-and-answers", "title": "Testing the search and checking answers", "idea": "Test questions check the search without the model, and the citation lets a reader check the answer."}
+      ]
+    },
+    {
+      "part": 4,
+      "title": "Tools and structured outputs",
+      "area": "Implementation",
+      "shorts": [
+        {"id": "text-search-and-data-tool", "title": "Text search and a data tool", "idea": "A tool returns the figure from the data source, where text search returns passages that mention it."},
+        {"id": "tool-description", "title": "A tool as described to the model", "idea": "The model sees a name, a description and the parameters of each tool."},
+        {"id": "tool-calls", "title": "Tool calls run by the application", "idea": "The model asks for a call, and the application runs the tool and returns the result."},
+        {"id": "data-that-does-not-exist", "title": "Requests for data that does not exist", "idea": "A tool that returns no data lets the model say that the figure does not exist."},
+        {"id": "structured-output", "title": "Answers in a fixed format", "idea": "A schema fixes the fields of the answer so that code can read it."},
+        {"id": "tools-over-mcp", "title": "Tools over MCP", "idea": "The Model Context Protocol offers the same tool to any application that supports it."}
+      ]
+    },
+    {
+      "part": 5,
+      "title": "Workflows and agents",
+      "area": "Implementation",
+      "shorts": [
+        {"id": "workflows", "title": "A workflow with its order in code", "idea": "In a workflow, code fixes the order of the steps."},
+        {"id": "agents", "title": "An agent that chooses its steps", "idea": "In an agent, the model chooses which tool to call next."},
+        {"id": "agent-failures", "title": "Failures of an agent", "idea": "An agent needs limits for a question no tool answers, a call that fails and a loop that does not end."},
+        {"id": "workflow-or-agent", "title": "Choosing a workflow or an agent", "idea": "A fixed task suits a workflow, and an open task suits an agent with limits."}
+      ]
+    },
+    {
+      "part": 6,
+      "title": "Verifying figures",
+      "area": "Verification",
+      "shorts": [
+        {"id": "claim-tags", "title": "Claim tags on figures", "idea": "The model tags each figure with the id of the data it came from."},
+        {"id": "flagged-and-untagged-figures", "title": "Flagged and untagged figures", "idea": "The verifier flags a tagged figure that differs from the data and marks a figure with no tag."},
+        {"id": "scope-of-the-figure-check", "title": "Scope of the figure check", "idea": "The check confirms each figure against the data, and the reader judges whether it answers the question."}
+      ]
+    }
+  ]
+}

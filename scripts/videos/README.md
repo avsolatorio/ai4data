@@ -36,18 +36,22 @@ scripts/videos/
   requirements.txt        Python packages
   record.py               plays a step script, records the browser, adds voice and music
   captions.py             divides the narration into subtitle cues for the .vtt file
+  series.py               checks the shorts of a series against its plan
   review.py               contact sheets of the stage (before recording) and of the video (after)
   music.py                synthesises the background track (no licence needed)
   overlay.js              pointer, ring, caption and title cards for site walkthroughs
   stages/kit/stage.css    theme and shared components for every stage
   stages/kit/stage.js     go(), later(), wire(), flow(), carry(), fly(), typeText(), stream()
   stages/_template.html   starting point for a new stage
+  stages/_short-template.html  starting point for a short in a series
   stages/pcn.html         the reference stage
   stages/preparing-knowledge.html   a second explainer, made from this guide alone
   stages/model-to-application.html  a third explainer (instructions and context in a prompt)
   stages/retrieval-augmented-generation.html  a fourth explainer (retrieval, the prompt, failure cases)
   stages/rag-public-reports.html    the same method on 13 published World Bank reports
   videos/_template.json   starting point for a new step script
+  videos/_short-template.json  starting point for the step script of a short
+  videos/series/          plans of series of shorts (parts, shorts, ideas, order)
   videos/pcn-explainer.json
   videos/preparing-knowledge.json
   videos/model-to-application.json
@@ -185,6 +189,51 @@ Rules that came from review feedback on PCN:
 - A method that can be tested on its own (retrieval without the model) may
   add one scene between the result scene and the scope scene, with the
   eyebrow naming the test ("Testing retrieval").
+
+### Short explainers in a series
+
+A long explainer covers a method in 3 to 5 minutes. A reviewer found the
+long version of retrieval-augmented generation on published reports too
+dense: 664 words, about 40 spoken figures, and five ideas. A series divides
+a topic into shorts of 60 to 90 seconds, each with one idea, in an order
+where each short builds on the one before it. The plan of a series is a
+file in `videos/series/`. `videos/series/ai-applications.json` lists 27
+shorts in six parts, from a model with no context to the verification of
+figures, all on one example: published World Bank material on Kenya and
+Uganda.
+
+A short follows the rules of this guide, with these changes:
+
+| Item | Long explainer | Short in a series |
+|---|---|---|
+| Length | 3 to 5 minutes | 60 to 90 seconds, 150 to 230 words |
+| Ideas | One method with its steps and failure cases | The one idea in the plan entry |
+| Title | Dark title scene with a narrated first line | Dark title card with the series title, the area, the title of the short and its place in the part; silent, `"min": 3.0` |
+| Scenes | The sequence in the table above | Three to five light scenes: the example, the mechanism or failure, the result; a scope or judgement scene where the idea needs one |
+| Figures | Where the method needs them | At most one spoken figure per narration line. Scores, ranks and counts stay on screen when they are not the idea of the short |
+| Terms | The method's own terms | Plain words: "closest in meaning" for similarity scores, "the passages kept for the prompt" for top k. A technical term is named only when the short is about it |
+| Closing | Addresses, with one line naming a program library | Silent end screen, `"min": 4.0`: series title, area, "Next in the series" with the title of the next short, the Program address, and the source line |
+
+A short stands on its own, because the site embeds it on the page about its
+idea. The narration does not refer to an earlier or a later video. The
+first scene may open with one sentence that states the idea of the previous
+short as a fact ("The search returns the passages closest in meaning to the
+question.").
+
+Every short in a series uses the same example material, so that a viewer
+of several shorts sees one application grow. The shorts on documents use
+the archive of `examples/rag-public/`; its runs and recorded answers are
+the source of every figure on screen.
+
+Files: copy `stages/_short-template.html` and `videos/_short-template.json`.
+The step script is `videos/<short id>.json` with the id, the title, and
+the next id of the plan (`"next": null` for the last short of the series).
+`series.py` checks every short of a plan: the fields, the end screen, the
+word count, and lines that speak more than one figure.
+
+```
+.venv/bin/python series.py videos/series/ai-applications.json
+```
 
 ## 5. Visual rules
 
@@ -367,7 +416,8 @@ Before sending a video, confirm each item:
 - [ ] Narration passes the greps of the global `CLAUDE.md` (antithesis,
       second person, hedges, cadence shapes); run them on the `say` fields.
 - [ ] Every figure and claim matches the source.
-- [ ] Length 3–5 minutes; voice and music levels as in section 7.
+- [ ] Length 3–5 minutes (a short: 60–90 seconds, and `series.py` reports no
+      errors); voice and music levels as in section 7.
 - [ ] The MP4 and the VTT are sent together.
 
 ## 9. Site walkthroughs
@@ -398,3 +448,4 @@ section 7 apply unchanged.
 | 2026-10-25 | Reviewer saw no reason for a line saying that the addresses are on screen | Closing narration names the library only; Program-only closings are silent |
 | 2026-10-25 | A fourth explainer (retrieval-augmented generation) made from this guide; it needed a step per failure case, a scene for testing retrieval alone, and found a pointer hook that ran before the stream it pointed into had finished | Rules for failure steps and a test scene; timing note for hooks that use streamed elements |
 | 2026-10-25 | A second RAG explainer built on 13 published World Bank reports (`rag-public-reports`); the guide had no rule for attributing licensed report material, and one tile per chunk does not scale to 3,440 chunks | Source line on scenes with report material and on the closing; one square per chunk for a large store |
+| 2026-10-25 | Reviewer found the long RAG explainer on published reports too technical and dense | Series of shorts of 60 to 90 seconds with one idea each; plan in `videos/series/`, templates for shorts, `series.py` |

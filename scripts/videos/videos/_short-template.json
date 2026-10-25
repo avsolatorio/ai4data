@@ -1,0 +1,12 @@
+{
+  "title": "Title of the short",
+  "series": "ai-applications",
+  "next": "id-of-the-next-short",
+  "steps": [
+    {"do": "goto", "url": "stages/_short-template.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "One sentence that sets up the example, with a named subject.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "What the second beat shows, with at most one figure: 6.3 percent.", "speak": "What the second beat shows, with at most one figure: six point three percent.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}
