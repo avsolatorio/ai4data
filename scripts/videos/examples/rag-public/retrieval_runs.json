@@ -1,0 +1,1415 @@
+{
+  "description": "Retrieval runs of the public RAG example over World Bank country economic updates for Kenya and Uganda.",
+  "run_date": "2026-10-25 18:18 UTC",
+  "run_date_source": "HTTP Date header of api.worldbank.org",
+  "git_commit": "8488b19",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "score": "cosine similarity (InMemoryVectorStore)",
+  "store": {
+    "documents": 13,
+    "pdf_pages": 769,
+    "pages_with_chunks": 595,
+    "chunks": 3440,
+    "characters": 1906358,
+    "tokens_embedding_model": 433267,
+    "embedding_max_tokens": 256,
+    "chunks_over_max_tokens": 197
+  },
+  "citation_form": "[report id · p. PDF page]; the report id names the series (keu: Kenya Economic Update, ueu: Uganda Economic Update) and the edition month",
+  "runs": {
+    "main_one_search": {
+      "name": "main_one_search",
+      "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+      "k": 4,
+      "filter": null,
+      "note": "The passages that make_rag(k=4) puts in the prompt.",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.6764,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 5,
+          "text": "BOX 3: MULTIDIMENSIONAL POVERTY INDEX (MPI)\nFIGURE B3.1 • Share of Ugandans Deprived\n\nAcross Each Indicator of the MPI\n20.1 21.4 1.9 52.6 29.3 45 20.3 51.6 42.4 26.2 39.3 4.3 5.2\n\n0 10 20 30 40 50 60 School attendance Years of schooling Death in the household\nHealth insurance Access to improved drinking water\n\nAccess to improved toilet facilities\nSource of energy for lightning\n\nCooking fuel and technology\nHousing materials\n\nOvercrowding Asset ownership\nUnemployment Financial services\n\nEducation Health Basic services Living standards\nSource: National Population and Housing Census 2024 Monograph Multidimensional Poverty Index, Uganda Bureau of Statistics. Available here: https://www.ubos.org/wp-content/uploads/publications/04_2026MPI_2024__ Final_Monograph_Report.pdf."
+        },
+        {
+          "rank": 2,
+          "score": 0.6748,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 1,
+          "text": "Source: Uganda Macro Poverty Outlook April 2026.\n\nfallen to 51.5 percent in FY25, down from 52.9 percent in FY24 (Figure 14). This decline reflects two mutually rein-forcing dynamics: stronger economic activity particularly in agriculture, services, and construction supported household incomes, while low inflation preserved the purchasing power of poor households, particularly those in rural areas dependent on food markets8. Monetary poverty has declined, but Uganda’s latest Mul-tidimensional Poverty Index reveals that 53.1 percent of Ugandans remain deprived across dimensions of health, education, and living standards that income measures alone do not capture, as discussed in Box 3."
+        },
+        {
+          "rank": 3,
+          "score": 0.6559,
+          "citation": "[ueu-2025-09 · p. 13]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 13,
+          "chunk": 2,
+          "text": ". Poverty in Uganda declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24, slightly below the pre-COVID level of 27.0 percent.8 This decline reflected the country’s economic recovery from the adverse effects of the COVID-19 pandemic. Despite the recent decline, significant disparities in poverty rates persist across geographic localities. In 2023/24, poverty in rural areas remained considerably higher at 30.2 percent, compared to 19.8 percent in urban areas. Regionally, the eastern and northern parts of the country registered the highest poverty rates, at 39.2 percent and 34.3 percent respectively, almost triple the poverty rate (12.8 percent) in the central region"
+        },
+        {
+          "rank": 4,
+          "score": 0.6534,
+          "citation": "[ueu-2025-12 · p. 26]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 26,
+          "chunk": 4,
+          "text": "BOX 2: REVISIONS TO THE INTERNATIONAL POVERTY LINE (IPL) AND IMPACT ON UGANDA\nFIGURE B2.1 • Uganda: International poverty rate (USD 2.15 2017 PPP vs USD 3 2021 PPP)\n\n$2021 PPP 3/day $2017 PPP 2.15/day\n10% 20% 30% 40% 50% 60% 70% 80% 90% 100% 0%\n\nBased on national household consumption\n66.0% 57.3% 45.9% 37.5% 42.9% 42.1%\n\n78.6% 72.4% 63.5% 56.2% 60.1% 59.8%\n2002 2005 2009 2012 2016 2019\n\nSource: Uganda Macro-Poverty Outlook (0ctober 2025)."
+        }
+      ]
+    },
+    "main_ranking": {
+      "name": "main_ranking",
+      "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+      "k": 10,
+      "filter": null,
+      "note": "The ten closest chunks; the prompt receives the first four.",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.6764,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 5,
+          "text": "BOX 3: MULTIDIMENSIONAL POVERTY INDEX (MPI)\nFIGURE B3.1 • Share of Ugandans Deprived\n\nAcross Each Indicator of the MPI\n20.1 21.4 1.9 52.6 29.3 45 20.3 51.6 42.4 26.2 39.3 4.3 5.2\n\n0 10 20 30 40 50 60 School attendance Years of schooling Death in the household\nHealth insurance Access to improved drinking water\n\nAccess to improved toilet facilities\nSource of energy for lightning\n\nCooking fuel and technology\nHousing materials\n\nOvercrowding Asset ownership\nUnemployment Financial services\n\nEducation Health Basic services Living standards\nSource: National Population and Housing Census 2024 Monograph Multidimensional Poverty Index, Uganda Bureau of Statistics. Available here: https://www.ubos.org/wp-content/uploads/publications/04_2026MPI_2024__ Final_Monograph_Report.pdf.",
+          "topic": "poverty"
+        },
+        {
+          "rank": 2,
+          "score": 0.6748,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 1,
+          "text": "Source: Uganda Macro Poverty Outlook April 2026.\n\nfallen to 51.5 percent in FY25, down from 52.9 percent in FY24 (Figure 14). This decline reflects two mutually rein-forcing dynamics: stronger economic activity particularly in agriculture, services, and construction supported household incomes, while low inflation preserved the purchasing power of poor households, particularly those in rural areas dependent on food markets8. Monetary poverty has declined, but Uganda’s latest Mul-tidimensional Poverty Index reveals that 53.1 percent of Ugandans remain deprived across dimensions of health, education, and living standards that income measures alone do not capture, as discussed in Box 3.",
+          "topic": "poverty"
+        },
+        {
+          "rank": 3,
+          "score": 0.6559,
+          "citation": "[ueu-2025-09 · p. 13]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 13,
+          "chunk": 2,
+          "text": ". Poverty in Uganda declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24, slightly below the pre-COVID level of 27.0 percent.8 This decline reflected the country’s economic recovery from the adverse effects of the COVID-19 pandemic. Despite the recent decline, significant disparities in poverty rates persist across geographic localities. In 2023/24, poverty in rural areas remained considerably higher at 30.2 percent, compared to 19.8 percent in urban areas. Regionally, the eastern and northern parts of the country registered the highest poverty rates, at 39.2 percent and 34.3 percent respectively, almost triple the poverty rate (12.8 percent) in the central region",
+          "topic": "poverty"
+        },
+        {
+          "rank": 4,
+          "score": 0.6534,
+          "citation": "[ueu-2025-12 · p. 26]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 26,
+          "chunk": 4,
+          "text": "BOX 2: REVISIONS TO THE INTERNATIONAL POVERTY LINE (IPL) AND IMPACT ON UGANDA\nFIGURE B2.1 • Uganda: International poverty rate (USD 2.15 2017 PPP vs USD 3 2021 PPP)\n\n$2021 PPP 3/day $2017 PPP 2.15/day\n10% 20% 30% 40% 50% 60% 70% 80% 90% 100% 0%\n\nBased on national household consumption\n66.0% 57.3% 45.9% 37.5% 42.9% 42.1%\n\n78.6% 72.4% 63.5% 56.2% 60.1% 59.8%\n2002 2005 2009 2012 2016 2019\n\nSource: Uganda Macro-Poverty Outlook (0ctober 2025).",
+          "topic": "poverty"
+        },
+        {
+          "rank": 5,
+          "score": 0.6328,
+          "citation": "[ueu-2026-06 · p. 22]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 22,
+          "chunk": 6,
+          "text": ". The Middle East is also an important trading partner, accounting for about one-third of Uganda’s exports—mainly gold, exports of which have recently doubled due to higher international prices and increased re-export volumes, largely destined for the UAE—and 15 percent of Uganda’s total imports. A prolonged conflict could therefore affect export earnings, trade flows, and logistics costs in addition to its direct effects on energy markets. These channels are manageable under the current baseline, but their combined effect would intensify materially under a prolonged or deeper conflict scenario.",
+          "topic": "conflict"
+        },
+        {
+          "rank": 6,
+          "score": 0.6206,
+          "citation": "[ueu-2026-06 · p. 12]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 12,
+          "chunk": 4,
+          "text": "Poverty continued to decline, supported by growth and low inflation, though structural deprivations remain pervasive. The share of Ugandans living below the USD 3.00-per-day line fell to 51.5 percent in FY25, down from 52.9 percent in FY24. Despite sustained GDP growth, the unem-ployment rate remained broadly unchanged since 2021, at 12.2 percent, with informality accounting for 92 percent of employment, and a large gender gap persisted, with the employment-to-population ratio at 53.1 percent for men compared to 37.4 percent for women. Uganda’s latest Multidimensional Poverty Index reveals that 53.1 percent of Ugandans remain deprived across dimensions of health, education, and living standards, dimensions that consumption-based welfare measures alone do not capture",
+          "topic": "poverty"
+        },
+        {
+          "rank": 7,
+          "score": 0.6182,
+          "citation": "[ueu-2025-02 · p. 39]",
+          "id": "ueu-2025-02",
+          "series": "Uganda Economic Update",
+          "edition": "February 2025",
+          "date": "2025-02",
+          "page": 39,
+          "chunk": 3,
+          "text": ". Addi-tionally, escalation of conflict in the Middle East— which accounts for almost 26 percent of Ugandan exports—could disrupt global demand and severely impact Uganda’s economic growth. Finally, fiscal risks associated with the 2026 election cycle may lead to increased spending and borrowing, undermining bud-get credibility and eroding investor confidence.",
+          "topic": "conflict"
+        },
+        {
+          "rank": 8,
+          "score": 0.6181,
+          "citation": "[ueu-2023-06 · p. 6]",
+          "id": "ueu-2023-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2023",
+          "date": "2023-06",
+          "page": 6,
+          "chunk": 0,
+          "text": "Foreword\nThe global economic environment remains challenging and uncertain, with almost every country in the world struggling to manage multiple crises in the wake of the devastating COVID-19 pandemic. Uganda’s economy has proven strikingly resilient to recent shocks; economic activity accelerated during 2022, and income levels started to rise as firms reopened and employment began to recover. Nevertheless, the country’s growth trajectory is fragile, and several risks could derail the current expansion. Moreover, poverty remains pervasive, and food insecurity poses a persistent threat to the welfare of vulnerable households",
+          "topic": "poverty"
+        },
+        {
+          "rank": 9,
+          "score": 0.6174,
+          "citation": "[ueu-2025-09 · p. 23]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 23,
+          "chunk": 1,
+          "text": ". In contrast to the moderation trend in food and energy prices, core inflation exhibited a modest upward trend, rising by 3.9 percent in FY25 compared to 3.0 percent in the same period last year (Figure 9). This was primarily helped drive poverty reduction. Since agriculture is the primary livelihood for 8 out of 10 poor households and the main sector of employment for 7 out of 10 Ugandans, Uganda’s poverty trajectory is strongly influenced by developments in this sector. As such, the sector’s post-COVID-19 recovery played a critical role in reducing poverty, complemented by broader shifts in employment patterns",
+          "topic": "poverty"
+        },
+        {
+          "rank": 10,
+          "score": 0.612,
+          "citation": "[ueu-2025-12 · p. 13]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 13,
+          "chunk": 2,
+          "text": "Uganda has significant untapped agro-industrialization potential, owing to its abundant natural resources, favorable climate, and exten-sive arable land. Primary agriculture drives Uganda’s economy, contributing 24 percent of GDP, 35 percent of export earnings, and employing 68 percent of the labor force; it has enormous potential to create better jobs by bridging the productivity gaps across agricultural value chains. Most poor households depend on sub-sistence farming, making sector transformation critical for poverty reduction and broad-based prosperity. With 80 percent arable land, favorable climate, and diverse agroecological zones, the country possesses natural advantages that surpass regional peers",
+          "topic": "poverty"
+        }
+      ]
+    },
+    "main_needed_ranks": {
+      "name": "main_needed_ranks",
+      "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+      "note": "Rank of the chunks that hold the needed figures, in the full ranking of the main question.",
+      "ranks": {
+        "rise by 24 percent in 2026": {
+          "rank": 15,
+          "score": 0.5972,
+          "citation": "[ueu-2026-06 · p. 22]"
+        },
+        "15 percent of Uganda’s total imports": {
+          "rank": 5,
+          "score": 0.6328,
+          "citation": "[ueu-2026-06 · p. 22]"
+        },
+        "87 percent of its petroleum": {
+          "rank": 381,
+          "score": 0.4414,
+          "citation": "[ueu-2026-06 · p. 22]"
+        },
+        "51.5 percent in FY25": {
+          "rank": 2,
+          "score": 0.6748,
+          "citation": "[ueu-2026-06 · p. 23]"
+        }
+      }
+    },
+    "main_part_1": {
+      "name": "main_part_1",
+      "question": "How did the conflict in the Middle East affect Uganda?",
+      "k": 4,
+      "filter": null,
+      "note": "One search for one part of the main question.",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.6832,
+          "citation": "[ueu-2026-06 · p. 22]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 22,
+          "chunk": 6,
+          "text": ". The Middle East is also an important trading partner, accounting for about one-third of Uganda’s exports—mainly gold, exports of which have recently doubled due to higher international prices and increased re-export volumes, largely destined for the UAE—and 15 percent of Uganda’s total imports. A prolonged conflict could therefore affect export earnings, trade flows, and logistics costs in addition to its direct effects on energy markets. These channels are manageable under the current baseline, but their combined effect would intensify materially under a prolonged or deeper conflict scenario."
+        },
+        {
+          "rank": 2,
+          "score": 0.6259,
+          "citation": "[ueu-2025-02 · p. 39]",
+          "id": "ueu-2025-02",
+          "series": "Uganda Economic Update",
+          "edition": "February 2025",
+          "date": "2025-02",
+          "page": 39,
+          "chunk": 3,
+          "text": ". Addi-tionally, escalation of conflict in the Middle East— which accounts for almost 26 percent of Ugandan exports—could disrupt global demand and severely impact Uganda’s economic growth. Finally, fiscal risks associated with the 2026 election cycle may lead to increased spending and borrowing, undermining bud-get credibility and eroding investor confidence."
+        },
+        {
+          "rank": 3,
+          "score": 0.5801,
+          "citation": "[ueu-2026-06 · p. 22]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 22,
+          "chunk": 3,
+          "text": "The Conflict in the Middle East represents the most significant external shock to Uganda’s macroeconomic outlook since the COVID-19 pandemic. Global energy prices are projected to rise by 24 percent in 2026. Uganda’s exposure is direct and multifaceted, reflecting its dependence on the Middle East for energy, fertilizer, and remittances, as well as its landlocked geography, which amplifies freight and logistics cost pressures. Energy prices are the leading and most quantifiable channel, with knock-on effects across transport and logistics costs"
+        },
+        {
+          "rank": 4,
+          "score": 0.537,
+          "citation": "[ueu-2025-12 · p. 28]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 28,
+          "chunk": 8,
+          "text": "Uganda remains exposed to heightened global economic and trade uncertainty, notably through commodity prices and external financing conditions, but could benefit from higher conces-sional financing. Slowing trade, growth and external demand from Uganda’s major trading partners amidst"
+        }
+      ]
+    },
+    "main_part_2": {
+      "name": "main_part_2",
+      "question": "How much did poverty fall in Uganda?",
+      "k": 4,
+      "filter": null,
+      "note": "One search for one part of the main question.",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.82,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 1,
+          "text": "Source: Uganda Macro Poverty Outlook April 2026.\n\nfallen to 51.5 percent in FY25, down from 52.9 percent in FY24 (Figure 14). This decline reflects two mutually rein-forcing dynamics: stronger economic activity particularly in agriculture, services, and construction supported household incomes, while low inflation preserved the purchasing power of poor households, particularly those in rural areas dependent on food markets8. Monetary poverty has declined, but Uganda’s latest Mul-tidimensional Poverty Index reveals that 53.1 percent of Ugandans remain deprived across dimensions of health, education, and living standards that income measures alone do not capture, as discussed in Box 3."
+        },
+        {
+          "rank": 2,
+          "score": 0.7965,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 5,
+          "text": "BOX 3: MULTIDIMENSIONAL POVERTY INDEX (MPI)\nFIGURE B3.1 • Share of Ugandans Deprived\n\nAcross Each Indicator of the MPI\n20.1 21.4 1.9 52.6 29.3 45 20.3 51.6 42.4 26.2 39.3 4.3 5.2\n\n0 10 20 30 40 50 60 School attendance Years of schooling Death in the household\nHealth insurance Access to improved drinking water\n\nAccess to improved toilet facilities\nSource of energy for lightning\n\nCooking fuel and technology\nHousing materials\n\nOvercrowding Asset ownership\nUnemployment Financial services\n\nEducation Health Basic services Living standards\nSource: National Population and Housing Census 2024 Monograph Multidimensional Poverty Index, Uganda Bureau of Statistics. Available here: https://www.ubos.org/wp-content/uploads/publications/04_2026MPI_2024__ Final_Monograph_Report.pdf."
+        },
+        {
+          "rank": 3,
+          "score": 0.7906,
+          "citation": "[ueu-2025-12 · p. 26]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 26,
+          "chunk": 4,
+          "text": "BOX 2: REVISIONS TO THE INTERNATIONAL POVERTY LINE (IPL) AND IMPACT ON UGANDA\nFIGURE B2.1 • Uganda: International poverty rate (USD 2.15 2017 PPP vs USD 3 2021 PPP)\n\n$2021 PPP 3/day $2017 PPP 2.15/day\n10% 20% 30% 40% 50% 60% 70% 80% 90% 100% 0%\n\nBased on national household consumption\n66.0% 57.3% 45.9% 37.5% 42.9% 42.1%\n\n78.6% 72.4% 63.5% 56.2% 60.1% 59.8%\n2002 2005 2009 2012 2016 2019\n\nSource: Uganda Macro-Poverty Outlook (0ctober 2025)."
+        },
+        {
+          "rank": 4,
+          "score": 0.7902,
+          "citation": "[ueu-2025-09 · p. 13]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 13,
+          "chunk": 2,
+          "text": ". Poverty in Uganda declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24, slightly below the pre-COVID level of 27.0 percent.8 This decline reflected the country’s economic recovery from the adverse effects of the COVID-19 pandemic. Despite the recent decline, significant disparities in poverty rates persist across geographic localities. In 2023/24, poverty in rural areas remained considerably higher at 30.2 percent, compared to 19.8 percent in urban areas. Regionally, the eastern and northern parts of the country registered the highest poverty rates, at 39.2 percent and 34.3 percent respectively, almost triple the poverty rate (12.8 percent) in the central region"
+        }
+      ]
+    },
+    "main_merged": {
+      "name": "main_merged",
+      "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+      "sub_queries": [
+        "How did the conflict in the Middle East affect Uganda?",
+        "How much did poverty fall in Uganda?"
+      ],
+      "k_per_query": 4,
+      "note": "The merged passages, in the order of the two searches.",
+      "passages": [
+        {
+          "rank": 1,
+          "citation": "[ueu-2026-06 · p. 22]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 22,
+          "chunk": 6,
+          "text": ". The Middle East is also an important trading partner, accounting for about one-third of Uganda’s exports—mainly gold, exports of which have recently doubled due to higher international prices and increased re-export volumes, largely destined for the UAE—and 15 percent of Uganda’s total imports. A prolonged conflict could therefore affect export earnings, trade flows, and logistics costs in addition to its direct effects on energy markets. These channels are manageable under the current baseline, but their combined effect would intensify materially under a prolonged or deeper conflict scenario."
+        },
+        {
+          "rank": 2,
+          "citation": "[ueu-2025-02 · p. 39]",
+          "id": "ueu-2025-02",
+          "series": "Uganda Economic Update",
+          "edition": "February 2025",
+          "date": "2025-02",
+          "page": 39,
+          "chunk": 3,
+          "text": ". Addi-tionally, escalation of conflict in the Middle East— which accounts for almost 26 percent of Ugandan exports—could disrupt global demand and severely impact Uganda’s economic growth. Finally, fiscal risks associated with the 2026 election cycle may lead to increased spending and borrowing, undermining bud-get credibility and eroding investor confidence."
+        },
+        {
+          "rank": 3,
+          "citation": "[ueu-2026-06 · p. 22]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 22,
+          "chunk": 3,
+          "text": "The Conflict in the Middle East represents the most significant external shock to Uganda’s macroeconomic outlook since the COVID-19 pandemic. Global energy prices are projected to rise by 24 percent in 2026. Uganda’s exposure is direct and multifaceted, reflecting its dependence on the Middle East for energy, fertilizer, and remittances, as well as its landlocked geography, which amplifies freight and logistics cost pressures. Energy prices are the leading and most quantifiable channel, with knock-on effects across transport and logistics costs"
+        },
+        {
+          "rank": 4,
+          "citation": "[ueu-2025-12 · p. 28]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 28,
+          "chunk": 8,
+          "text": "Uganda remains exposed to heightened global economic and trade uncertainty, notably through commodity prices and external financing conditions, but could benefit from higher conces-sional financing. Slowing trade, growth and external demand from Uganda’s major trading partners amidst"
+        },
+        {
+          "rank": 5,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 1,
+          "text": "Source: Uganda Macro Poverty Outlook April 2026.\n\nfallen to 51.5 percent in FY25, down from 52.9 percent in FY24 (Figure 14). This decline reflects two mutually rein-forcing dynamics: stronger economic activity particularly in agriculture, services, and construction supported household incomes, while low inflation preserved the purchasing power of poor households, particularly those in rural areas dependent on food markets8. Monetary poverty has declined, but Uganda’s latest Mul-tidimensional Poverty Index reveals that 53.1 percent of Ugandans remain deprived across dimensions of health, education, and living standards that income measures alone do not capture, as discussed in Box 3."
+        },
+        {
+          "rank": 6,
+          "citation": "[ueu-2026-06 · p. 23]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 23,
+          "chunk": 5,
+          "text": "BOX 3: MULTIDIMENSIONAL POVERTY INDEX (MPI)\nFIGURE B3.1 • Share of Ugandans Deprived\n\nAcross Each Indicator of the MPI\n20.1 21.4 1.9 52.6 29.3 45 20.3 51.6 42.4 26.2 39.3 4.3 5.2\n\n0 10 20 30 40 50 60 School attendance Years of schooling Death in the household\nHealth insurance Access to improved drinking water\n\nAccess to improved toilet facilities\nSource of energy for lightning\n\nCooking fuel and technology\nHousing materials\n\nOvercrowding Asset ownership\nUnemployment Financial services\n\nEducation Health Basic services Living standards\nSource: National Population and Housing Census 2024 Monograph Multidimensional Poverty Index, Uganda Bureau of Statistics. Available here: https://www.ubos.org/wp-content/uploads/publications/04_2026MPI_2024__ Final_Monograph_Report.pdf."
+        },
+        {
+          "rank": 7,
+          "citation": "[ueu-2025-12 · p. 26]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 26,
+          "chunk": 4,
+          "text": "BOX 2: REVISIONS TO THE INTERNATIONAL POVERTY LINE (IPL) AND IMPACT ON UGANDA\nFIGURE B2.1 • Uganda: International poverty rate (USD 2.15 2017 PPP vs USD 3 2021 PPP)\n\n$2021 PPP 3/day $2017 PPP 2.15/day\n10% 20% 30% 40% 50% 60% 70% 80% 90% 100% 0%\n\nBased on national household consumption\n66.0% 57.3% 45.9% 37.5% 42.9% 42.1%\n\n78.6% 72.4% 63.5% 56.2% 60.1% 59.8%\n2002 2005 2009 2012 2016 2019\n\nSource: Uganda Macro-Poverty Outlook (0ctober 2025)."
+        },
+        {
+          "rank": 8,
+          "citation": "[ueu-2025-09 · p. 13]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 13,
+          "chunk": 2,
+          "text": ". Poverty in Uganda declined from 30.1 percent in 2019/20 to 26.4 percent in 2023/24, slightly below the pre-COVID level of 27.0 percent.8 This decline reflected the country’s economic recovery from the adverse effects of the COVID-19 pandemic. Despite the recent decline, significant disparities in poverty rates persist across geographic localities. In 2023/24, poverty in rural areas remained considerably higher at 30.2 percent, compared to 19.8 percent in urban areas. Regionally, the eastern and northern parts of the country registered the highest poverty rates, at 39.2 percent and 34.3 percent respectively, almost triple the poverty rate (12.8 percent) in the central region"
+        }
+      ]
+    },
+    "latest_no_filter": {
+      "name": "latest_no_filter",
+      "question": "What is the latest inflation rate in Uganda?",
+      "k": 2,
+      "filter": null,
+      "note": "",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.7604,
+          "citation": "[ueu-2023-12 · p. 17]",
+          "id": "ueu-2023-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2023",
+          "date": "2023-12",
+          "page": 17,
+          "chunk": 2,
+          "text": "Monetary conditions in Uganda have eased in line with global developments\n9. Headline inflation increased to 8.8 percent in FY2023 but has since decelerated. The inflation rate began to decline in February and reached 2.6 percent in November, driven by falling energy prices and the normalization of global supply chains (Figure 3). In addition, the relatively stable Ugandan shilling (UGX), coupled with tight monetary and fiscal policies, helped moderate aggregate demand, contributing to disinflation. As headline inflation began to decline in February 2023, so did core inflation, which accounts for more than 80 percent of Uganda’s\n\nFigure 2: The PMI has improved since 2022."
+        },
+        {
+          "rank": 2,
+          "score": 0.7561,
+          "citation": "[ueu-2025-02 · p. 23]",
+          "id": "ueu-2025-02",
+          "series": "Uganda Economic Update",
+          "edition": "February 2025",
+          "date": "2025-02",
+          "page": 23,
+          "chunk": 3,
+          "text": "The tight monetary policy of the Bank of Uganda (BoU) has helped anchor inflation expec-tations and counter external sector pressures. The\n\nFIGURE 9 HEADLINE INFLATION IN UGANDA AND\nDRIVERS (% y/y change, contribution in ppts.)\n\n16 During the twelve months up to June 2024, average inflation in Kenya, Ethiopia, Rwanda, Tanzania, and Malawi was recorded at 6.2 percent, 26.6 percent, 7.2 percent, 3.1 percent, and 31.6 percent respectively.\n\nIndex of Economic Activity Overall Business Tendency Index\n2020 2021 2022 2023 2024\n\nPresent Business situation\nJ J J F MA A S O N D M J J J F MA A S O N D M J J J F MA A S O N D M J J J F MA A S O N D M J J J F MA A S O N M"
+        }
+      ]
+    },
+    "latest_reworded": {
+      "name": "latest_reworded",
+      "question": "Uganda headline inflation April 2026, percent year-on-year",
+      "k": 2,
+      "filter": null,
+      "note": "The question reworded with the date and the vocabulary of the June 2026 edition; no filter.",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.7975,
+          "citation": "[ueu-2025-02 · p. 23]",
+          "id": "ueu-2025-02",
+          "series": "Uganda Economic Update",
+          "edition": "February 2025",
+          "date": "2025-02",
+          "page": 23,
+          "chunk": 1,
+          "text": ". Furthermore, Uganda’s inflation was one of the lowest amongst the East African nations over the twelve months ending June 2024.16"
+        },
+        {
+          "rank": 2,
+          "score": 0.7877,
+          "citation": "[ueu-2023-12 · p. 17]",
+          "id": "ueu-2023-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2023",
+          "date": "2023-12",
+          "page": 17,
+          "chunk": 2,
+          "text": "Monetary conditions in Uganda have eased in line with global developments\n9. Headline inflation increased to 8.8 percent in FY2023 but has since decelerated. The inflation rate began to decline in February and reached 2.6 percent in November, driven by falling energy prices and the normalization of global supply chains (Figure 3). In addition, the relatively stable Ugandan shilling (UGX), coupled with tight monetary and fiscal policies, helped moderate aggregate demand, contributing to disinflation. As headline inflation began to decline in February 2023, so did core inflation, which accounts for more than 80 percent of Uganda’s\n\nFigure 2: The PMI has improved since 2022."
+        }
+      ]
+    },
+    "latest_filtered": {
+      "name": "latest_filtered",
+      "question": "What is the latest inflation rate in Uganda?",
+      "k": 2,
+      "filter": {
+        "field": "date",
+        "op": ">=",
+        "value": "2026-01",
+        "description": "reports dated 2026-01 or later"
+      },
+      "note": "",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.7219,
+          "citation": "[ueu-2026-06 · p. 20]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 20,
+          "chunk": 3,
+          "text": "Uganda (BoU) held the Central Bank Rate at 9.75 per-cent since October 2024, maintaining a tight stance to anchor inflation expectations amid external uncer-tainty. The 7-day interbank rate stood at 11.15 percent, reflecting orderly but tight liquidity conditions. High yields on government securities with the 364-day T-bill at 15.1 percent continued to crowd out private credit, keeping commercial lending rates elevated - with the BoU weighted average rate reported at 18.8 percent - and limiting private investment. (Figure 12). Headline inflation remained well below Uganda’s peers, though energy-driven pressures are building"
+        },
+        {
+          "rank": 2,
+          "score": 0.6931,
+          "citation": "[ueu-2026-06 · p. 20]",
+          "id": "ueu-2026-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2026",
+          "date": "2026-06",
+          "page": 20,
+          "chunk": 4,
+          "text": ". Headline year-on-year inflation stood at 3.0 percent in April 2026, below the BoU’s 5 percent target and notably lower than the SSA median of 5.8 percent, reflecting Uganda’s more favorable food price dynamics and exchange rate stability. The key emerging pressure was energy: Energy, Fuel and Utilities (EFU) inflation rose sharply to 6.1 percent year-on-year, from 4.1 percent, with petrol and diesel prices rising by 8.7 and 10.8 percent respectively, directly reflecting CME-driven global fuel price increases. (Box 2) Food crop inflation eased to 0.6 percent, providing a meaningful offset, though its durability depends on continued favorable weather conditions"
+        }
+      ]
+    },
+    "latest_needed_ranks": {
+      "name": "latest_needed_ranks",
+      "question": "What is the latest inflation rate in Uganda?",
+      "note": "Rank of the chunk with the April 2026 figure, without and with the date filter, and for the reworded question.",
+      "no_filter": {
+        "rank": 19,
+        "score": 0.6931,
+        "citation": "[ueu-2026-06 · p. 20]"
+      },
+      "filtered": {
+        "rank": 2,
+        "score": 0.6931,
+        "citation": "[ueu-2026-06 · p. 20]"
+      },
+      "reworded": {
+        "rank": 11,
+        "score": 0.7492,
+        "citation": "[ueu-2026-06 · p. 20]"
+      }
+    },
+    "inside": {
+      "name": "inside",
+      "question": "How much did Uganda's economy grow in FY25?",
+      "k": 3,
+      "filter": null,
+      "note": "",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.7915,
+          "citation": "[ueu-2025-12 · p. 12]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 12,
+          "chunk": 1,
+          "text": "Uganda’s economic growth remained above 6 percent in FY25, outpacing regional and global averages. Real gross domestic product (GDP) growth accelerated to 6.3 percent, up from 6.1 percent in FY24. Drivers included a recovery in household consumption, a steep acceleration in government spending, and con-tinued investment growth. Dynamic domestic demand and robust agricultural and tourism performance gen-erated broad-based growth across agriculture, industry, and services. As a result, poverty is projected to have declined in FY25. Advanced indicators of economic activity point to continued broad-based economic dynamism, although lower rainfall could constrain agricultural output in early FY26. Uganda’s external position improved, and foreign exchange reserves rose in FY25"
+        },
+        {
+          "rank": 2,
+          "score": 0.7775,
+          "citation": "[ueu-2023-06 · p. 40]",
+          "id": "ueu-2023-06",
+          "series": "Uganda Economic Update",
+          "edition": "June 2023",
+          "date": "2023-06",
+          "page": 40,
+          "chunk": 0,
+          "text": "2 ECONOMIC OUTLOOK, RISKS, AND POLICY ACTIONS 2.1 Uganda’s economic outlook has greatly improved\nFY22 FY23f FY24f FY25f\n\nReal GDP growth (baseline) 4.7 5.7 6.2 6.7\nPrivate consumption 3.4 5.0 5.3 5.6\n\nGovernment consumption -17.4 -0.6 2.2 2.5\nGross fixed capital investment 20.1 9.1 8.0 8.3\n\nExports of goods and services -18.6 18.0 16.7 15.3\nImports of goods and services -8.9 14.4 11.7 10.6\n\nAgriculture growth 4.4 4.2 4.0 4.3\nIndustry growth 5.4 6.3 7.9 8.1\n\nServices growth 4.4 6.1 6.3 7.0\nInflation (Consumer Price Index) 3.4 8.3 7.2 5.0\n\nCurrent account (% GDP) -7.9 -9.0 -10.6 -12.2\nNet FDI inflow (% GDP) 3.1 5.2 6.3 6.6\n\nFiscal balance (% GDP) -7.4 -5.1 -3.5 -3.4\nPublic debt (% GDP) 55.7 50.7 49.1 48.0"
+        },
+        {
+          "rank": 3,
+          "score": 0.7761,
+          "citation": "[ueu-2025-09 · p. 21]",
+          "id": "ueu-2025-09",
+          "series": "Uganda Economic Update",
+          "edition": "September 2025",
+          "date": "2025-09",
+          "page": 21,
+          "chunk": 4,
+          "text": "1. 1. 2 Uganda’s economic growth remains strong\nReal Gross Domestic Product (GDP) during 9M-FY25 grew by 6.8 percent, up from 6.1 percent a year earlier, mainly driven by improvement in the commodity-producing sectors. In agriculture, improved food crop production—particularly bananas, maize, and beans—was key to the sector’s performance. In the industrial sector, robust manufacturing growth was led by the pharmaceutical sector, followed by increased value addition in construction. In contrast to commodity-producing sectors, the services sector recorded a broad-based deceleration, with growth easing from 6.8 percent in 9M-FY24 to 5.3 percent in the current fiscal year"
+        }
+      ]
+    },
+    "outside": {
+      "name": "outside",
+      "question": "How much did Rwanda's economy grow in 2025?",
+      "k": 3,
+      "filter": null,
+      "note": "",
+      "passages": [
+        {
+          "rank": 1,
+          "score": 0.6307,
+          "citation": "[ueu-2025-12 · p. 37]",
+          "id": "ueu-2025-12",
+          "series": "Uganda Economic Update",
+          "edition": "December 2025",
+          "date": "2025-12",
+          "page": 37,
+          "chunk": 5,
+          "text": "Kenya Rwanda Tanzania Uganda\nAgriculture Value Added (Billions USD)\n\nSource: Constructed by authors using data from theglobaleconomy.com accessed December 2, 2025."
+        },
+        {
+          "rank": 2,
+          "score": 0.6303,
+          "citation": "[keu-2023-06 · p. 14]",
+          "id": "keu-2023-06",
+          "series": "Kenya Economic Update",
+          "edition": "June 2023",
+          "date": "2023-06",
+          "page": 14,
+          "chunk": 4,
+          "text": "Economic growth in sub-Saharan Africa continues to weaken. Economic activity in sub-Saharan Africa is estimated to have slowed to 3.6 percent in 2022 from 4.1 percent in 2021.2 However, this is 0.3 percentage point higher than the October 2022 forecast, supported by high commodity prices and buoyant domestic demand. Despite multifaceted challenges, the economies of the East Africa Community showed resilient performances. Ethiopia and Uganda maintained strong growth recovery, with real GDP growth estimated at about 6 percent for FY23 and projected to increase to above 6 percent in FY24. Tanzania’s economy expanded by 4.6 percent in 2022, up from 4.3 percent in 2021, and is projected to increase by 5.1 percent in 2023"
+        },
+        {
+          "rank": 3,
+          "score": 0.6246,
+          "citation": "[keu-2024-06 · p. 13]",
+          "id": "keu-2024-06",
+          "series": "Kenya Economic Update",
+          "edition": "June 2024",
+          "date": "2024-06",
+          "page": 13,
+          "chunk": 1,
+          "text": "1.3 Real economy\nKenya’s economic growth in 2023 experienced a cyclical rebound and accelerated despite the challenging environment. Real GDP expanded by 5.6 percent in 2023, an acceleration from the 4.9 percent from 2022. Two consecutive years of drought had dampened agricultural production which, in addition to the tight global fi nancial conditions, brought down overall growth. The 2023 fi gure brings headline growth above its pre-pandemic average (4.6 percent per year between 2011-2019) and well-above potential GDP growth. Had agricultural value-added grown at its average pre-drought rates since 2011, and not considering the sector’s large multipliers across the economy, real growth would have been closer to 5 percent, not far from its historical trend."
+        }
+      ]
+    },
+    "cutoff": {
+      "name": "cutoff",
+      "examples": [
+        {
+          "label": "in",
+          "question": "How much did Kenya's economy grow in 2025?",
+          "top_score": 0.7962,
+          "top_citation": "[keu-2024-12 · p. 10]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "What share of bank loans in Kenya are non-performing?",
+          "top_score": 0.7184,
+          "top_citation": "[keu-2024-06 · p. 9]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "What is Kenya's policy interest rate?",
+          "top_score": 0.6632,
+          "top_citation": "[keu-2025-11 · p. 9]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "What is Kenya's GDP growth projection for 2026?",
+          "top_score": 0.8002,
+          "top_citation": "[keu-2025-05 · p. 13]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "What share of Uganda's petroleum comes from the Middle East?",
+          "top_score": 0.632,
+          "top_citation": "[ueu-2025-02 · p. 37]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "in",
+          "question": "What is the poverty rate in Uganda?",
+          "top_score": 0.8103,
+          "top_citation": "[ueu-2025-09 · p. 13]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "How much did Uganda's economy grow in FY25?",
+          "top_score": 0.7915,
+          "top_citation": "[ueu-2025-12 · p. 12]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "in",
+          "question": "What is the latest inflation rate in Uganda?",
+          "top_score": 0.7604,
+          "top_citation": "[ueu-2023-12 · p. 17]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "out",
+          "question": "How much did Rwanda's economy grow in 2025?",
+          "top_score": 0.6307,
+          "top_citation": "[ueu-2025-12 · p. 37]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "What was inflation in Rwanda in 2025?",
+          "top_score": 0.6439,
+          "top_citation": "[ueu-2025-02 · p. 23]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "What is the unemployment rate in Rwanda?",
+          "top_score": 0.6058,
+          "top_citation": "[keu-2024-12 · p. 15]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "What was Tanzania's GDP growth in 2025?",
+          "top_score": 0.7115,
+          "top_citation": "[keu-2023-06 · p. 14]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "out",
+          "question": "What was inflation in Ethiopia in 2025?",
+          "top_score": 0.6499,
+          "top_citation": "[ueu-2025-02 · p. 23]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "What is the unemployment rate in Ghana?",
+          "top_score": 0.5794,
+          "top_citation": "[keu-2023-06 · p. 17]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "How much coffee does Ethiopia export?",
+          "top_score": 0.7291,
+          "top_citation": "[ueu-2025-12 · p. 37]",
+          "passes_cutoff": true
+        },
+        {
+          "label": "out",
+          "question": "What is the literacy rate in Peru?",
+          "top_score": 0.5235,
+          "top_citation": "[ueu-2023-12 · p. 44]",
+          "passes_cutoff": false
+        },
+        {
+          "label": "out",
+          "question": "How much rice does Thailand export?",
+          "top_score": 0.4817,
+          "top_citation": "[ueu-2025-12 · p. 47]",
+          "passes_cutoff": false
+        }
+      ],
+      "cutoff": 0.6632,
+      "correct": 14,
+      "total": 17,
+      "note": "The cut-off is the top score that classifies the most labelled examples correctly: a question passes when its best chunk scores at or above it."
+    },
+    "tests": {
+      "name": "tests",
+      "k": 4,
+      "rows": [
+        {
+          "id": "t1",
+          "category": "two parts",
+          "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "ueu-2026-06"
+          ],
+          "retrieval": "hit",
+          "numbers": "3/3",
+          "figures_as_percent": "2/3",
+          "passages": [
+            "[ueu-2026-06 · p. 23]",
+            "[ueu-2026-06 · p. 23]",
+            "[ueu-2025-09 · p. 13]",
+            "[ueu-2025-12 · p. 26]"
+          ]
+        },
+        {
+          "id": "t2",
+          "category": "latest figure",
+          "question": "What is the latest inflation rate in Uganda?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "ueu-2026-06"
+          ],
+          "retrieval": "miss",
+          "numbers": "1/1",
+          "figures_as_percent": "0/1",
+          "passages": [
+            "[ueu-2023-12 · p. 17]",
+            "[ueu-2025-02 · p. 23]",
+            "[ueu-2025-02 · p. 13]",
+            "[ueu-2023-06 · p. 41]"
+          ]
+        },
+        {
+          "id": "t3",
+          "category": "latest figure",
+          "question": "What was Kenya's real GDP growth in 2025?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "miss",
+          "numbers": "1/1",
+          "figures_as_percent": "1/1",
+          "passages": [
+            "[keu-2025-05 · p. 13]",
+            "[keu-2024-12 · p. 21]",
+            "[keu-2024-12 · p. 9]",
+            "[keu-2023-06 · p. 10]"
+          ]
+        },
+        {
+          "id": "t4",
+          "category": "single topic",
+          "question": "How did the conflict in the Middle East affect fuel prices in Kenya?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "hit",
+          "numbers": "0/2",
+          "figures_as_percent": "0/2",
+          "passages": [
+            "[keu-2026-07 · p. 12]",
+            "[keu-2026-07 · p. 13]",
+            "[keu-2026-07 · p. 21]",
+            "[ueu-2026-06 · p. 22]"
+          ]
+        },
+        {
+          "id": "t5",
+          "category": "projection",
+          "question": "What is Kenya's GDP growth projection for 2026?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "miss",
+          "numbers": "0/1",
+          "figures_as_percent": "0/1",
+          "passages": [
+            "[keu-2025-05 · p. 13]",
+            "[keu-2024-12 · p. 21]",
+            "[keu-2025-05 · p. 20]",
+            "[keu-2024-12 · p. 9]"
+          ]
+        },
+        {
+          "id": "t6",
+          "category": "single topic",
+          "question": "What share of bank loans in Kenya are non-performing?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "miss",
+          "numbers": "0/1",
+          "figures_as_percent": "0/1",
+          "passages": [
+            "[keu-2024-06 · p. 9]",
+            "[keu-2023-06 · p. 19]",
+            "[keu-2025-11 · p. 16]",
+            "[keu-2023-06 · p. 25]"
+          ]
+        },
+        {
+          "id": "t7",
+          "category": "single topic",
+          "question": "How much did Uganda's economy grow in FY25?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [
+            "ueu-2025-12",
+            "ueu-2026-06"
+          ],
+          "retrieval": "hit",
+          "numbers": "1/1",
+          "figures_as_percent": "1/1",
+          "passages": [
+            "[ueu-2025-12 · p. 12]",
+            "[ueu-2023-06 · p. 40]",
+            "[ueu-2025-09 · p. 21]",
+            "[ueu-2025-09 · p. 10]"
+          ]
+        },
+        {
+          "id": "t8",
+          "category": "outside the collection",
+          "question": "How much did Rwanda's economy grow in 2025?",
+          "k": 4,
+          "filter": null,
+          "expected_documents": [],
+          "retrieval": "hit",
+          "numbers": "none needed",
+          "figures_as_percent": "none needed",
+          "passages": [
+            "[ueu-2025-12 · p. 37]",
+            "[keu-2023-06 · p. 14]",
+            "[keu-2024-06 · p. 13]",
+            "[ueu-2025-12 · p. 35]"
+          ]
+        },
+        {
+          "id": "t1",
+          "category": "two parts",
+          "question": "How did the conflict in the Middle East affect Uganda, and how much did poverty fall?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "ueu-2026-06"
+          ],
+          "retrieval": "hit",
+          "numbers": "2/3",
+          "figures_as_percent": "2/3",
+          "passages": [
+            "[ueu-2026-06 · p. 23]",
+            "[ueu-2026-06 · p. 23]",
+            "[ueu-2026-06 · p. 22]",
+            "[ueu-2026-06 · p. 12]"
+          ]
+        },
+        {
+          "id": "t2",
+          "category": "latest figure",
+          "question": "What is the latest inflation rate in Uganda?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "ueu-2026-06"
+          ],
+          "retrieval": "hit",
+          "numbers": "1/1",
+          "figures_as_percent": "1/1",
+          "passages": [
+            "[ueu-2026-06 · p. 20]",
+            "[ueu-2026-06 · p. 20]",
+            "[ueu-2026-06 · p. 22]",
+            "[ueu-2026-06 · p. 11]"
+          ]
+        },
+        {
+          "id": "t3",
+          "category": "latest figure",
+          "question": "What was Kenya's real GDP growth in 2025?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "hit",
+          "numbers": "0/1",
+          "figures_as_percent": "0/1",
+          "passages": [
+            "[keu-2026-07 · p. 12]",
+            "[keu-2026-07 · p. 21]",
+            "[keu-2026-07 · p. 14]",
+            "[ueu-2026-06 · p. 26]"
+          ]
+        },
+        {
+          "id": "t4",
+          "category": "single topic",
+          "question": "How did the conflict in the Middle East affect fuel prices in Kenya?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "hit",
+          "numbers": "0/2",
+          "figures_as_percent": "0/2",
+          "passages": [
+            "[keu-2026-07 · p. 12]",
+            "[keu-2026-07 · p. 13]",
+            "[keu-2026-07 · p. 21]",
+            "[ueu-2026-06 · p. 22]"
+          ]
+        },
+        {
+          "id": "t5",
+          "category": "projection",
+          "question": "What is Kenya's GDP growth projection for 2026?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "hit",
+          "numbers": "1/1",
+          "figures_as_percent": "1/1",
+          "passages": [
+            "[keu-2026-07 · p. 21]",
+            "[keu-2026-07 · p. 12]",
+            "[keu-2026-07 · p. 24]",
+            "[keu-2026-07 · p. 9]"
+          ]
+        },
+        {
+          "id": "t6",
+          "category": "single topic",
+          "question": "What share of bank loans in Kenya are non-performing?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "keu-2026-07"
+          ],
+          "retrieval": "hit",
+          "numbers": "1/1",
+          "figures_as_percent": "1/1",
+          "passages": [
+            "[keu-2026-07 · p. 10]",
+            "[keu-2026-07 · p. 12]",
+            "[ueu-2026-06 · p. 21]",
+            "[keu-2026-07 · p. 18]"
+          ]
+        },
+        {
+          "id": "t7",
+          "category": "single topic",
+          "question": "How much did Uganda's economy grow in FY25?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [
+            "ueu-2025-12",
+            "ueu-2026-06"
+          ],
+          "retrieval": "hit",
+          "numbers": "0/1",
+          "figures_as_percent": "0/1",
+          "passages": [
+            "[ueu-2026-06 · p. 24]",
+            "[ueu-2026-06 · p. 26]",
+            "[ueu-2026-06 · p. 29]",
+            "[ueu-2026-06 · p. 24]"
+          ]
+        },
+        {
+          "id": "t8",
+          "category": "outside the collection",
+          "question": "How much did Rwanda's economy grow in 2025?",
+          "k": 4,
+          "filter": "date >= 2026-01",
+          "expected_documents": [],
+          "retrieval": "hit",
+          "numbers": "none needed",
+          "figures_as_percent": "none needed",
+          "passages": [
+            "[ueu-2026-06 · p. 26]",
+            "[ueu-2026-06 · p. 15]",
+            "[ueu-2026-06 · p. 29]",
+            "[ueu-2026-06 · p. 24]"
+          ]
+        }
+      ],
+      "note": "retrieval: an expected report is among the passages (retrieval_hit of notebook 03). numbers: needed values found by numbers_present of notebook 03, which accepts any number within its tolerance. figures_as_percent: needed values found written as a percentage (common.figure_present)."
+    }
+  },
+  "checks": {
+    "ueu_energy_24": {
+      "value": 24,
+      "doc": "ueu-2026-06",
+      "page": 22,
+      "quote": "Global energy prices are projected to rise by 24 percent in 2026",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p22/3"
+      ]
+    },
+    "ueu_imports_15": {
+      "value": 15,
+      "doc": "ueu-2026-06",
+      "page": 22,
+      "quote": "and 15 percent of Uganda’s total imports",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p22/6"
+      ]
+    },
+    "ueu_petroleum_87": {
+      "value": 87,
+      "doc": "ueu-2026-06",
+      "page": 22,
+      "quote": "Uganda sources approximately 87 percent of its petroleum from the Middle East",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p22/4"
+      ]
+    },
+    "ueu_fuel_petrol_diesel": {
+      "value": 10.8,
+      "doc": "ueu-2026-06",
+      "page": 20,
+      "quote": "with petrol and diesel prices rising by 8.7 and 10.8 percent respectively",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p20/4"
+      ]
+    },
+    "ueu_poverty_fy25": {
+      "value": 51.5,
+      "doc": "ueu-2026-06",
+      "page": 12,
+      "quote": "The share of Ugandans living below the USD 3.00-per-day line fell to 51.5 percent in FY25, down from 52.9 percent in FY24",
+      "wdi": {
+        "indicator": "SI.POV.DDAY",
+        "country": "UGA",
+        "note": "WDI holds survey years only; the report's FY24 and FY25 values are estimates from the Macro Poverty Outlook",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/UGA/indicator/SI.POV.DDAY?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2023": 54.4,
+          "2019": 59.8
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p12/4"
+      ]
+    },
+    "ueu_poverty_fy24": {
+      "value": 52.9,
+      "doc": "ueu-2026-06",
+      "page": 23,
+      "quote": "fallen to 51.5 percent in FY25, down from 52.9 percent in FY24",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p23/1"
+      ]
+    },
+    "ueu_poverty_2019_figure": {
+      "value": 59.8,
+      "doc": "ueu-2025-12",
+      "page": 26,
+      "quote": "56.2% 60.1% 59.8%",
+      "wdi": {
+        "indicator": "SI.POV.DDAY",
+        "country": "UGA",
+        "year": "2019",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/UGA/indicator/SI.POV.DDAY?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2023": 54.4,
+          "2019": 59.8
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2025-12/p26/4"
+      ]
+    },
+    "ueu_inflation_apr26": {
+      "value": 3.0,
+      "doc": "ueu-2026-06",
+      "page": 20,
+      "quote": "Headline year-on-year inflation stood at 3.0 percent in April 2026",
+      "wdi": {
+        "indicator": "FP.CPI.TOTL.ZG",
+        "country": "UGA",
+        "note": "WDI holds annual averages; the report gives a monthly year-on-year rate",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/UGA/indicator/FP.CPI.TOTL.ZG?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2025": 3.58,
+          "2024": 3.32,
+          "2023": 5.35,
+          "2022": 7.2,
+          "2021": 2.2,
+          "2020": 3.31,
+          "2019": 2.87
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2026-06/p20/4"
+      ]
+    },
+    "ueu_inflation_nov23": {
+      "value": 2.6,
+      "doc": "ueu-2023-12",
+      "page": 17,
+      "quote": "The inflation rate began to decline in February and reached 2.6 percent in November",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2023-12/p17/2"
+      ]
+    },
+    "ueu_inflation_fy23": {
+      "value": 8.8,
+      "doc": "ueu-2023-12",
+      "page": 17,
+      "quote": "Headline inflation increased to 8.8 percent in FY2023",
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2023-12/p17/2"
+      ]
+    },
+    "ueu_growth_fy25": {
+      "value": 6.3,
+      "doc": "ueu-2025-12",
+      "page": 12,
+      "quote": "Real gross domestic product (GDP) growth accelerated to 6.3 percent, up from 6.1 percent in FY24",
+      "wdi": {
+        "indicator": "NY.GDP.MKTP.KD.ZG",
+        "country": "UGA",
+        "year": "2025",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/UGA/indicator/NY.GDP.MKTP.KD.ZG?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2025": 6.33,
+          "2024": 6.06,
+          "2023": 5.34,
+          "2022": 4.59,
+          "2021": 3.54,
+          "2020": 2.95,
+          "2019": 6.44
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2025-12/p12/1"
+      ]
+    },
+    "keu_growth_2025": {
+      "value": 4.6,
+      "doc": "keu-2026-07",
+      "page": 13,
+      "quote": "Real GDP growth moderated to 4.6 percent in 2025, from 4.7 percent in 2024",
+      "wdi": {
+        "indicator": "NY.GDP.MKTP.KD.ZG",
+        "country": "KEN",
+        "year": "2025",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/KEN/indicator/NY.GDP.MKTP.KD.ZG?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2025": 4.63,
+          "2024": 4.66,
+          "2023": 5.72,
+          "2022": 4.86,
+          "2021": 7.59,
+          "2020": -0.27,
+          "2019": 5.11
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p13/1"
+      ]
+    },
+    "keu_growth_2025_projected_may25": {
+      "value": 4.5,
+      "doc": "keu-2025-05",
+      "page": 20,
+      "quote": "Real GDP growth is projected at 4.5 percent in 2025",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2025-05/p20/4"
+      ]
+    },
+    "keu_growth_2026f": {
+      "value": 4.3,
+      "doc": "keu-2026-07",
+      "page": 21,
+      "quote": "Growth is projected at 4.3 percent in 2026",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p21/5"
+      ]
+    },
+    "keu_diesel": {
+      "value": 17.9,
+      "doc": "keu-2026-07",
+      "page": 9,
+      "quote": "diesel prices increased sharply by 17.9 percent",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p9/1"
+      ]
+    },
+    "keu_petrol": {
+      "value": 10.8,
+      "doc": "keu-2026-07",
+      "page": 9,
+      "quote": "petrol prices by 10.8 percent",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p9/1"
+      ]
+    },
+    "keu_npl": {
+      "value": 15.6,
+      "doc": "keu-2026-07",
+      "page": 10,
+      "quote": "the gross non-performing loan to gross loans ratio reached 15.6 percent in March 2026",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p10/1"
+      ]
+    },
+    "keu_policy_rate": {
+      "value": 8.75,
+      "doc": "keu-2026-07",
+      "page": 9,
+      "quote": "reduce the policy rate from 11.25 percent in January 2025 to 8.75 percent in February 2026",
+      "found_in_text": true,
+      "chunks": [
+        "keu-2026-07/p9/2"
+      ]
+    },
+    "rwanda_growth_table": {
+      "value": 8.6,
+      "doc": "keu-2024-12",
+      "page": 51,
+      "quote": "Rwanda 8.5 9.4 -3.4 10.6 7.8 8.6",
+      "wdi": {
+        "indicator": "NY.GDP.MKTP.KD.ZG",
+        "country": "RWA",
+        "year": "2025",
+        "note": "The Kenya editions' tables of EAC growth rates end in 2023; the collection holds no Rwanda figure for 2025",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/RWA/indicator/NY.GDP.MKTP.KD.ZG?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2025": 9.38,
+          "2024": 7.23,
+          "2023": 8.56,
+          "2022": 9.82,
+          "2021": 8.41,
+          "2020": -2.78,
+          "2019": 9.29
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "keu-2024-12/p51/0"
+      ]
+    },
+    "rwanda_inflation_footnote": {
+      "value": 7.2,
+      "doc": "ueu-2025-02",
+      "page": 23,
+      "quote": "During the twelve months up to June 2024, average inflation in Kenya, Ethiopia, Rwanda, Tanzania, and Malawi was recorded at 6.2 percent, 26.6 percent, 7.2 percent, 3.1 percent, and 31.6 percent respectively",
+      "wdi": {
+        "indicator": "FP.CPI.TOTL.ZG",
+        "country": "RWA",
+        "year": "2025",
+        "note": "The collection holds no Rwanda report; this footnote is its only Rwanda inflation figure, for the twelve months to June 2024",
+        "lastupdated": "2026-10-08",
+        "url": "https://api.worldbank.org/v2/country/RWA/indicator/FP.CPI.TOTL.ZG?format=json&date=2015:2026&per_page=50",
+        "values": {
+          "2025": 5.91,
+          "2024": 1.77,
+          "2023": 19.79,
+          "2022": 17.69,
+          "2021": -0.39,
+          "2020": 9.85,
+          "2019": 3.35
+        }
+      },
+      "found_in_text": true,
+      "chunks": [
+        "ueu-2025-02/p23/3"
+      ]
+    }
+  }
+}

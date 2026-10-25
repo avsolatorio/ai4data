@@ -1,0 +1,7 @@
+# The public RAG example: the retrieval stack of the session 01 notebooks, plus PDF text extraction.
+langchain-core>=1.0
+langchain-openai>=1.0
+langchain-huggingface>=1.0
+langchain-text-splitters>=1.0
+sentence-transformers>=3.0
+pymupdf>=1.24
