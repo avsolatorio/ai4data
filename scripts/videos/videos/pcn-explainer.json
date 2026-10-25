@@ -238,8 +238,9 @@
     {
       "do": "eval",
       "js": "go(10,0)",
-      "say": "The PCN library implements this check. The addresses of the code, the paper, and the AI for Data program are on screen.",
-      "speak": "The P C N library implements this check. The addresses of the code, the paper, and the AI for Data program are on screen.",
+      "say": "The PCN library implements this check.",
+      "speak": "The P C N library implements this check.",
+      "min": 5.0,
       "settle": 0.9,
       "pause": 2.0
     }

@@ -44,9 +44,11 @@ scripts/videos/
   stages/_template.html   starting point for a new stage
   stages/pcn.html         the reference stage
   stages/preparing-knowledge.html   a second explainer, made from this guide alone
+  stages/model-to-application.html  a third explainer (instructions and context in a prompt)
   videos/_template.json   starting point for a new step script
   videos/pcn-explainer.json
   videos/preparing-knowledge.json
+  videos/model-to-application.json
   videos/document-collection.json   a site walkthrough
   voices/                 Piper voices (*.onnx) and Kokoro model files (voices/kokoro/)
   out/<name>.mp4, .vtt    results; out/<name>/ holds narration clips and review sheets
@@ -142,10 +144,15 @@ preparation of a document collection for retrieval is Implementation.
 
 The closing lists addresses that the program maintains. A method with its
 own program library and paper lists Code, Paper and Program, as PCN does.
-A topic built on general third-party tools (LangChain, an embedding model)
-shows the Program address only, and the closing line says that the address
-of the AI for Data program is on screen. Third-party projects can be named
-in the narration where the method uses them.
+A topic built on general third-party tools (LangChain, an embedding model),
+or a general method with no program library (the parts of a prompt), shows
+the Program address only. Third-party projects can be named in the
+narration where the method uses them.
+
+The narration does not read out or point to the addresses. A closing with a
+program library has one line that names the library; a closing with the
+Program address only has no narration and stays on screen for four seconds
+(`"min": 4.0`) under the music.
 
 Rules that came from review feedback on PCN:
 
@@ -237,6 +244,15 @@ positions. `stages/preparing-knowledge.html` moves clones of whole elements
 (tiles flying into a store) and draws straight dashed lines on a chart; a
 helper used by a second stage moves into the kit.
 
+The progress bar in the eyebrow (`.steps4`) takes one `<i>` per method
+step, so it works for any number of steps; `model-to-application` has five.
+
+`stream()` appends each token with `insertAdjacentHTML`, so every token must
+be complete HTML. A table streamed as an opening `<table>` token followed by
+row tokens is closed by the browser after the first token, and the rows land
+outside it as plain text. Stream rows as complete elements (for example one
+`<div>` grid row per token).
+
 Beats are driven from the step script: `go(scene, beat)` reveals elements
 with `data-b ≤ beat` and runs `HOOKS[scene][beat]`. Timers must use
 `later(ms, fn)` so that they stop when the scene changes. Keep each
@@ -263,8 +279,8 @@ writing rules of the project (the global and project `CLAUDE.md`):
   AI chatbots" was the framing requested in review for the context scene.
 - Describe what is on screen as it appears; the narration and the animation
   of a beat refer to the same thing.
-- No reference to a session or notebook. The closing line names the library
-  and the addresses on screen.
+- No reference to a session or notebook. The closing names the library, if
+  there is one, and says nothing about the addresses shown.
 
 Text for the voice: put the caption in `say` and, where it differs, the
 spoken form in `speak`. Write numbers out in words in `speak` ("thirty-four
@@ -295,7 +311,9 @@ words in 34 steps and lasts 4 min 40 s. Aim for 3–5 minutes.
   cues of at most two lines of 37 characters, and shares the time of the
   line and its pause between them. The result passes `check_captions.py` of
   the explainer videos cookbook (37 characters, two lines, 20 characters per
-  second). A `.vtt` file written before this change is rewrapped with
+  second). The checker lives on the cookbook branch; on a branch without it,
+  run `git show cookbook/explainer-videos:website/static/cookbook-files/explainer-videos/check_captions.py > <scratch>/check_captions.py`
+  and run that copy on `out/<name>.vtt`. A `.vtt` file written before this change is rewrapped with
   `python captions.py out/<name>.vtt out/<name>.vtt`.
 - Step timing fields: `settle` (seconds after the beat starts before the
   narration, default 0.4; use 0.8–1.0 on a new scene), `pause` (after the
@@ -343,3 +361,5 @@ section 7 apply unchanged.
 | 2026-10-24 | A second explainer (preparing documents for retrieval) made by an agent from this guide alone matched the reference; the agent listed gaps | Rules for scene ids, the kicker area, closing addresses, type sizes, illustrative visuals, empty space, stage-local motion, and the environment for checking values |
 | 2026-10-24 | Closing of that video listed third-party projects | Program address only for topics built on third-party tools |
 | 2026-10-24 | One cue per narration line exceeded the subtitle limits of the explainer videos cookbook | `captions.py` divides the lines into cues of two lines of 37 characters |
+| 2026-10-25 | A third explainer (instructions and context in a prompt) made from this guide; the agent found no location for the caption checker, no rule for a general method without a library, and a streamed table that broke apart | Checker location, closing rule for general methods, five-step progress bar, complete-HTML tokens for `stream()` |
+| 2026-10-25 | Reviewer saw no reason for a line saying that the addresses are on screen | Closing narration names the library only; Program-only closings are silent |

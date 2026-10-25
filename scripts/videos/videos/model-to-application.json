@@ -1,0 +1,282 @@
+{
+  "title": "Instructions and context in a prompt",
+  "steps": [
+    {
+      "do": "goto",
+      "url": "stages/model-to-application.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "say": "This video explains how an application builds the prompt for a language model from instructions, context, and a question.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "A language model writes its answer from two sources. The first is the text in its prompt.",
+      "settle": 1.0,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The second is its training. Training compresses a large body of text into the parameters of the model, which keep patterns of that text and hold no records.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',1)",
+      "say": "In this example, a user asks how internet access and economic development have evolved in Rwanda and Kenya.",
+      "settle": 0.8,
+      "min": 5.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go('2b',2)",
+      "say": "The prompt holds only the question, so the model answers from its training. The figures arrive as rounded ranges, and none of them carries a citation.",
+      "min": 7.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "Six figures from that answer are set here beside the official values in World Development Indicators.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "Four of the six are close to the official values.",
+      "min": 2.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "Two are off. The answer gives about 40 percent for internet use in Kenya, where the data show 35.0 percent in 2024, and 9 to 10 percent for growth in Rwanda in 2024, where the data show 7.2.",
+      "speak": "Two are off. The answer gives about forty percent for internet use in Kenya, where the data show thirty-five point zero percent in twenty twenty-four, and nine to ten percent for growth in Rwanda in twenty twenty-four, where the data show seven point two.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,4)",
+      "say": "No figure in the answer points to a record. A reader has no means to tell the close figures from the wrong ones.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "An application builds the prompt from three parts. The builders write the instructions, the application selects the context, and the user writes the question.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "Each part has its own slot, because a different person changes each one, at a different time.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,3)",
+      "say": "The instructions become the system message. A model treats the system message as standing instructions for the whole exchange.",
+      "min": 2.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,4)",
+      "say": "The context and the question go together into one user message, under fixed labels that let the model tell them apart.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,5)",
+      "say": "These two messages hold everything the model reads in this call.",
+      "min": 2.6,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "For the same question, the application now places four country briefs in the context. Each brief starts with its identifier in square brackets.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "The grounded instructions tell the model to answer only from the context, to cite the identifier after each figure, and to say when something is missing.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,3)",
+      "say": "The model compares the latest year, 2024, and writes an identifier after each figure.",
+      "speak": "The model compares the latest year, twenty twenty-four, and writes an identifier after each figure.",
+      "min": 6.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,4)",
+      "say": "Every figure now cites a brief. The 35.0 percent for internet use in Kenya comes from the Kenya digital brief.",
+      "speak": "Every figure now cites a brief. The thirty-five point zero percent for internet use in Kenya comes from the Kenya digital brief.",
+      "min": 5.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "A second question asks for the share of people in Kenya using the internet in 2025. The context holds only the Kenya digital brief, and its figures end in 2024.",
+      "speak": "A second question asks for the share of people in Kenya using the internet in twenty twenty-five. The context holds only the Kenya digital brief, and its figures end in twenty twenty-four.",
+      "settle": 0.8,
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "The model reports that the context has no figure for 2025. It names 2024 as the latest year and gives 35.0 percent with a citation.",
+      "speak": "The model reports that the context has no figure for twenty twenty-five. It names twenty twenty-four as the latest year and gives thirty-five point zero percent with a citation.",
+      "min": 6.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "This behaviour comes from one sentence of the grounded instructions.",
+      "min": 2.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "The question “How connected is Kenya?” has several readings, among them internet use, mobile subscriptions, and broadband coverage.",
+      "settle": 0.8,
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "Under basic instructions, the model chooses a reading itself. It answers at length on two readings and adds an analysis of growth beyond the question.",
+      "min": 6.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,3)",
+      "say": "One added rule tells the model to list the readings and ask which one is meant. With that rule, the model asks before it answers.",
+      "min": 5.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,4)",
+      "say": "A confident answer does not show the reader which reading the model chose. For a research application, one clarifying exchange removes that uncertainty.",
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "A model reads a limited amount of text in each call. The limit is called the context window, and it is measured in tokens.",
+      "settle": 0.8,
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "A token is a word or a part of a word, about four characters of English on average. The four briefs came to about a thousand tokens.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "A collection of thousands of documents exceeds any context window. The price of a call also grows with the number of its tokens.",
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,4)",
+      "say": "The application therefore selects, for each question, the passages that the model reads.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,1)",
+      "say": "In the application, the answer shows the identifier of a brief after each figure.",
+      "settle": 0.8,
+      "min": 2.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,2)",
+      "say": "A citation leads to the brief behind a figure. The Kenya digital brief states 35.0 percent for 2024, the latest year available.",
+      "speak": "A citation leads to the brief behind a figure. The Kenya digital brief states thirty-five point zero percent for twenty twenty-four, the latest year available.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(9,3)",
+      "say": "The Rwanda digital brief states 31.7 percent for the same year.",
+      "speak": "The Rwanda digital brief states thirty-one point seven percent for the same year.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,1)",
+      "say": "Instructions set the behaviour of the model. They make it cite each figure, report missing information, and ask about an ambiguous question.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,2)",
+      "say": "Instructions cannot supply data. Each figure in a grounded answer comes from the evidence in the context.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,3)",
+      "say": "Whether that evidence fits the question remains a judgement for the builders of the application and for the reader.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(10,4)",
+      "say": "The citation makes that judgement easier, because a reader can open the cited brief and find the figure in its text.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(11,0)",
+      "min": 4.0,
+      "settle": 0.9,
+      "pause": 2.0
+    }
+  ]
+}
