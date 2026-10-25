@@ -146,9 +146,13 @@ The closing lists addresses that the program maintains. A method with its
 own program library and paper lists Code, Paper and Program, as PCN does.
 A topic built on general third-party tools (LangChain, an embedding model),
 or a general method with no program library (the parts of a prompt), shows
-the Program address only, and the closing line says that the address of the
-AI for Data program is on screen. Third-party projects can be named
-in the narration where the method uses them.
+the Program address only. Third-party projects can be named in the
+narration where the method uses them.
+
+The narration does not read out or point to the addresses. A closing with a
+program library has one line that names the library; a closing with the
+Program address only has no narration and stays on screen for four seconds
+(`"min": 4.0`) under the music.
 
 Rules that came from review feedback on PCN:
 
@@ -275,8 +279,8 @@ writing rules of the project (the global and project `CLAUDE.md`):
   AI chatbots" was the framing requested in review for the context scene.
 - Describe what is on screen as it appears; the narration and the animation
   of a beat refer to the same thing.
-- No reference to a session or notebook. The closing line names the library
-  and the addresses on screen.
+- No reference to a session or notebook. The closing names the library, if
+  there is one, and says nothing about the addresses shown.
 
 Text for the voice: put the caption in `say` and, where it differs, the
 spoken form in `speak`. Write numbers out in words in `speak` ("thirty-four
@@ -358,3 +362,4 @@ section 7 apply unchanged.
 | 2026-10-24 | Closing of that video listed third-party projects | Program address only for topics built on third-party tools |
 | 2026-10-24 | One cue per narration line exceeded the subtitle limits of the explainer videos cookbook | `captions.py` divides the lines into cues of two lines of 37 characters |
 | 2026-10-25 | A third explainer (instructions and context in a prompt) made from this guide; the agent found no location for the caption checker, no rule for a general method without a library, and a streamed table that broke apart | Checker location, closing rule for general methods, five-step progress bar, complete-HTML tokens for `stream()` |
+| 2026-10-25 | Reviewer saw no reason for a line saying that the addresses are on screen | Closing narration names the library only; Program-only closings are silent |

@@ -37,7 +37,8 @@
     {
       "do": "eval",
       "js": "go(4,0)",
-      "say": "The LIBRARY library implements this method. The addresses of the code, the paper, and the AI for Data program are on screen.",
+      "say": "The LIBRARY library implements this method.",
+      "min": 5.0,
       "settle": 0.9,
       "pause": 2.0
     }

@@ -252,7 +252,7 @@
     {
       "do": "eval",
       "js": "go(10,0)",
-      "say": "The address of the AI for Data program is on screen.",
+      "min": 4.0,
       "settle": 0.9,
       "pause": 2.0
     }
