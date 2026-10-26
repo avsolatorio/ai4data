@@ -1,14 +1,4 @@
-{
-  "id": "ai-applications",
-  "title": "Building an AI application that answers from data",
-  "example": "An application that answers questions from published World Bank material on Kenya and Uganda: 13 country economic updates (parts 1 to 3) and World Bank indicator data (parts 4 to 6).",
-  "parts": [
-    {
-      "part": 1,
-      "title": "From a model to an application",
-      "area": "Implementation",
-      "shorts": [
-        {"id": "model-without-context", "title": "A language model with no context", "idea": "A model alone answers from its training data, with no source to check the figure against."},
+{"id": "ai-applications", "title": "Building an AI application that answers from data", "example": "An application that answers questions from published World Bank material on Kenya and Uganda: 13 country economic updates (parts 1 to 3) and World Bank indicator data (parts 4 to 6).", "parts": [ { "part": 1, "title": "From a model to an application", "area": "Implementation", "shorts": [ { "id": "model-without-context", "title": "A language model with no context", "idea": "A model alone answers from its training data, with no source to check the figure against."},
         {"id": "parts-of-a-prompt", "title": "The three parts of a prompt", "idea": "An application sends instructions, context and the question together as one prompt."},
         {"id": "source-in-the-prompt", "title": "A source in the prompt", "idea": "With the source in the context, the model answers from it and cites it."},
         {"id": "source-cannot-answer", "title": "Questions the source cannot answer", "idea": "The instructions tell the model to say when the context does not hold the answer."},
@@ -28,13 +18,14 @@
     },
     {
       "part": 3,
-      "title": "Answering from an archive",
+      "title": "Answering from a document collection",
       "area": "Implementation",
       "shorts": [
-        {"id": "answering-from-an-archive", "title": "Answering from a document archive", "idea": "The application finds passages for each question, and the model answers from them with a citation to each source."},
+        {"id": "steps-of-rag", "title": "The steps of retrieval-augmented generation", "idea": "Documents are prepared once as passages in a store; for each question, the application searches the store, builds a prompt, and the model answers with citations."},
+        {"id": "answering-from-a-document-collection", "title": "Answering from a document collection", "idea": "The application finds passages in the document collection for each question, and the model answers from them with a citation to each source."},
         {"id": "how-search-ranks-passages", "title": "How the search ranks passages", "idea": "The search ranks passages by closeness in meaning, and a needed passage can fall just below the cut."},
         {"id": "dates-in-the-search", "title": "Dates in the search", "idea": "The search does not know which report is the newest; a filter on the edition date does."},
-        {"id": "questions-outside-the-archive", "title": "Questions outside the archive", "idea": "The instructions tell the model to say when the passages do not hold the answer."},
+        {"id": "questions-outside-the-collection", "title": "Questions outside the collection", "idea": "The instructions tell the model to say when the passages do not hold the answer."},
         {"id": "testing-search-and-answers", "title": "Testing the search and checking answers", "idea": "Test questions check the search without the model, and the citation lets a reader check the answer."}
       ]
     },

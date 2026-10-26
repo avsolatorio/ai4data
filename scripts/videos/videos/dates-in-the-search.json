@@ -1,7 +1,7 @@
 {
   "title": "Dates in the search",
   "series": "ai-applications",
-  "next": "questions-outside-the-archive",
+  "next": "questions-outside-the-collection",
   "steps": [
     {"do": "goto", "url": "stages/dates-in-the-search.html", "pause": 0.1},
     {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},

@@ -222,7 +222,7 @@ question.").
 
 Every short in a series uses the same example material, so that a viewer
 of several shorts sees one application grow. The shorts on documents use
-the archive of `examples/rag-public/`; its runs and recorded answers are
+the document collection of `examples/rag-public/`; its runs and recorded answers are
 the source of every figure on screen.
 
 Files: copy `stages/_short-template.html` and `videos/_short-template.json`.
