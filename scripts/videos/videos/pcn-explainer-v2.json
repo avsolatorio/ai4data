@@ -1,34 +1,211 @@
 {
   "title": "Proof-Carrying Numbers",
   "steps": [
-    {"do": "goto", "url": "stages/pcn-v2.html", "pause": 0.1},
-    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
-    {"do": "eval", "js": "go(2,1)", "say": "AI chatbots now answer questions about official statistics. A user asks how internet use has changed in Kenya and Rwanda.", "settle": 0.8, "min": 2.4, "pause": 0.35},
-    {"do": "eval", "js": "go(2,2)", "say": "The chatbot answers in plain language, with figures.", "min": 5.5, "pause": 0.35},
-    {"do": "eval", "js": "go(2,3)", "say": "Take the figure 35.0. It may come from the data that the chatbot was given, rounded to one decimal.", "speak": "Take the figure thirty-five point zero. It may come from the data that the chatbot was given, rounded to one decimal.", "min": 3.0, "pause": 0.35},
-    {"do": "eval", "js": "go(2,4)", "say": "It may also come from the model's memory of its training data, which can hold an older estimate.", "min": 2.8, "pause": 0.35},
-    {"do": "eval", "js": "go(2,5)", "say": "Or the model may copy a record and change a digit as it writes.", "min": 3.0, "pause": 0.35},
-    {"do": "eval", "js": "go(2,6)", "say": "The answer reads the same in all three cases, so a reader cannot tell which figures to trust. Proof-Carrying Numbers, or PCN, lets the application check each figure against its source.", "speak": "The answer reads the same in all three cases, so a reader cannot tell which figures to trust. Proof-Carrying Numbers, or P C N, lets the application check each figure against its source.", "pause": 0.5},
-    {"do": "eval", "js": "go(3,1)", "say": "PCN starts with the data that the application gives the model. Here the values come from the World Bank's World Development Indicators.", "speak": "P C N starts with the data that the application gives the model. Here the values come from the World Bank's World Development Indicators.", "settle": 0.8, "min": 3.0, "pause": 0.35},
-    {"do": "eval", "js": "go(3,2)", "say": "The application gives each value a claim id, a key that names exactly one record. Here the key joins the indicator, the country and the year.", "min": 2.0, "pause": 0.35},
-    {"do": "eval", "js": "go(3,3)", "say": "The claim id is the link that lets a figure in the answer point back to its record. Any key that is unique in the data works, such as a short hash.", "pause": 0.35},
-    {"do": "eval", "js": "go(4,1)", "say": "Only the model knows which record each of its figures comes from, so the instructions ask the model to say so.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "go(4,2)", "say": "Every figure taken from the data goes inside a claim tag, with the claim id of its record and the rule for comparing the two.", "pause": 0.35},
-    {"do": "eval", "js": "go(4,3)", "say": "The application sends the instructions, the data and the question to the model together.", "min": 2.0, "pause": 0.35},
-    {"do": "eval", "js": "go(5,1)", "say": "The model streams its answer. Each figure from the data arrives inside a claim tag.", "settle": 0.8, "min": 4.0, "pause": 0.35},
-    {"do": "eval", "js": "go(5,2)", "say": "The reader sees the figures alone. The tags stay in the response for the next step.", "min": 4.5, "pause": 0.35},
-    {"do": "eval", "js": "go(6,1)", "say": "A verifier, written as ordinary code, reads the response as it streams. When a claim tag is complete, the verifier reads its claim id, its rule and its figure.", "settle": 0.8, "min": 2.0, "pause": 0.35},
-    {"do": "eval", "js": "go(6,2)", "say": "It finds the record by its claim id. The record for Kenya in 2024 holds 34.98, to two decimals.", "speak": "It finds the record by its claim id. The record for Kenya in twenty twenty-four holds thirty-four point nine eight, to two decimals.", "pause": 0.35},
-    {"do": "eval", "js": "go(6,3)", "say": "The rule rounds the record to one decimal, which gives 35.0, the figure in the answer. The figure is verified.", "speak": "The rule rounds the record to one decimal, which gives thirty-five point zero, the figure in the answer. The figure is verified.", "pause": 0.35},
-    {"do": "eval", "js": "go(6,4)", "say": "No language model takes part in the check, so the check gives the same result on every run.", "pause": 0.35},
-    {"do": "eval", "js": "go(6,5)", "say": "For Rwanda, the record rounds to 31.7, and the answer says 35.7. The verifier flags the figure.", "speak": "For Rwanda, the record rounds to thirty-one point seven, and the answer says thirty-five point seven. The verifier flags the figure.", "min": 5.2, "pause": 0.35},
-    {"do": "eval", "js": "go(6,6)", "say": "The figure on mobile money has no tag. With no record named, the verifier has nothing to check, and the figure gets no mark.", "min": 3.2, "pause": 0.35},
-    {"do": "eval", "js": "go(7,1)", "say": "In the chatbot, each checked figure carries a mark.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "go(7,2)", "say": "Hovering over a mark shows the record and its value in the data, so the reader can trace the figure to its source.", "min": 2.0, "pause": 0.35},
-    {"do": "eval", "js": "go(7,3)", "say": "A flagged figure is caught before anyone uses it. A figure without a mark is known to need a check by hand.", "min": 2.0, "pause": 0.35},
-    {"do": "eval", "js": "go(8,1)", "say": "The verifier confirms that each tagged figure matches the record named in its tag.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "go(8,2)", "say": "Whether that record answers the question remains the reader's judgement.", "pause": 0.35},
-    {"do": "eval", "js": "go(8,3)", "say": "The claim id makes that judgement quick. Here the indicator is internet use and the country is Kenya, as the question asks, and the year is the latest in the data.", "min": 3.4, "pause": 0.5},
-    {"do": "eval", "js": "go(9,0)", "say": "The PCN library implements this check.", "speak": "The P C N library implements this check.", "min": 5.0, "settle": 0.9, "pause": 2.0}
+    {
+      "do": "goto",
+      "url": "stages/pcn-v2.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "min": 3.0,
+      "pause": 0.2
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "AI chatbots now answer questions about official statistics. A user asks how internet use has changed in Kenya and Rwanda.",
+      "settle": 0.8,
+      "min": 2.4,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The chatbot answers in plain language, with figures.",
+      "min": 5.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,3)",
+      "say": "Take the figure 35.0. It may come from the data that the chatbot was given, rounded to one decimal.",
+      "speak": "Take the figure thirty-five point zero. It may come from the data that the chatbot was given, rounded to one decimal.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,4)",
+      "say": "It may also come from the model's memory of its training data, which can hold an older estimate.",
+      "min": 2.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,5)",
+      "say": "Or the model may copy a record and change a digit as it writes.",
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,6)",
+      "say": "The answer reads the same in all three cases, so a reader cannot tell which figures to trust. Proof-Carrying Numbers, or PCN, lets the application check each figure against its source.",
+      "speak": "The answer reads the same in all three cases, so a reader cannot tell which figures to trust. Proof-Carrying Numbers, or P C N, lets the application check each figure against its source.",
+      "pause": 0.5
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "PCN starts with the data that the application gives the model. Here the values come from the World Bank's World Development Indicators.",
+      "speak": "P C N starts with the data that the application gives the model. Here the values come from the World Bank's World Development Indicators.",
+      "settle": 0.8,
+      "min": 3.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "The application gives each value a claim id, a key that names exactly one record. Here the key joins the indicator, the country and the year.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "The claim id is the link that lets a figure in the answer point back to its record. Any key that is unique in the data works, such as a short hash.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "Only the model knows which record each of its figures comes from, so the instructions ask the model to say so.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,2)",
+      "say": "Every figure taken from the data goes inside a claim tag, with the claim id of its record and the rule for comparing the two.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,3)",
+      "say": "The application sends the instructions, the data and the question to the model together.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "The model streams its answer. Each figure from the data arrives inside a claim tag.",
+      "settle": 0.8,
+      "min": 4.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "The reader sees the figures alone. The tags stay in the response for the next step.",
+      "min": 4.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,1)",
+      "say": "A verifier, written as ordinary code, reads the response as it streams. When a claim tag is complete, the verifier reads its claim id, its rule and its figure.",
+      "settle": 0.8,
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,2)",
+      "say": "It finds the record by its claim id. The record for Kenya in 2024 holds 34.98, to two decimals.",
+      "speak": "It finds the record by its claim id. The record for Kenya in twenty twenty-four holds thirty-four point nine eight, to two decimals.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,3)",
+      "say": "The rule rounds the record to one decimal, which gives 35.0, the figure in the answer. The figure is verified.",
+      "speak": "The rule rounds the record to one decimal, which gives thirty-five point zero, the figure in the answer. The figure is verified.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,4)",
+      "say": "No language model takes part in the check, so the check gives the same result on every run.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,5)",
+      "say": "For Rwanda, the record rounds to 31.7, and the answer says 35.7. The verifier flags the figure.",
+      "speak": "For Rwanda, the record rounds to thirty-one point seven, and the answer says thirty-five point seven. The verifier flags the figure.",
+      "min": 5.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(6,6)",
+      "say": "The figure on mobile money has no tag. With no record named, the verifier has nothing to check, and the figure gets no mark.",
+      "min": 3.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,1)",
+      "say": "In the chatbot, each checked figure carries a mark.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,2)",
+      "say": "Hovering over a mark shows the record and its value in the data, so the reader can trace the figure to its source.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(7,3)",
+      "say": "A flagged figure is caught before anyone uses it. A figure without a mark is known to need a check by hand.",
+      "min": 2.0,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,1)",
+      "say": "The verifier confirms that each tagged figure matches the record named in its tag.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,2)",
+      "say": "Whether that record answers the question remains the reader's judgement.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(8,3)",
+      "say": "PCN makes that judgement quick, because each mark shows the record behind its figure. Here the indicator is internet use and the country is Kenya, as the question asks, and the year is the latest in the data.",
+      "min": 3.4,
+      "pause": 0.5,
+      "speak": "P C N makes that judgement quick, because each mark shows the record behind its figure. Here the indicator is internet use and the country is Kenya, as the question asks, and the year is the latest in the data."
+    },
+    {
+      "do": "eval",
+      "js": "go(9,0)",
+      "say": "The PCN library implements this check.",
+      "speak": "The P C N library implements this check.",
+      "min": 5.0,
+      "settle": 0.9,
+      "pause": 2.0
+    }
   ]
 }
