@@ -1,0 +1,32 @@
+{
+  "title": "GISTEmbed",
+  "steps": [
+    {"do": "goto", "url": "stages/gist.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "Search in an AI application runs on an embedding model. It turns the question and every document into vectors, and the search returns the closest documents.", "settle": 0.8, "min": 4.5, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "A large embedding model ranks results well, but it needs more memory and more time for every search.", "pause": 0.35},
+    {"do": "eval", "js": "go(2,3)", "say": "A small model, here with 22.7 million parameters, runs on an ordinary computer. That suits organizations with limited computing.", "speak": "A small model, here with twenty-two point seven million parameters, runs on an ordinary computer. That suits organizations with limited computing.", "pause": 0.35},
+    {"do": "eval", "js": "go(2,4)", "say": "GISTEmbed trains the small model with the large model as its guide.", "speak": "Gist Embed trains the small model with the large model as its guide.", "min": 2.4, "pause": 0.5},
+    {"do": "eval", "js": "go(3,1)", "say": "A search model learns from pairs: a query and a text that answers it. Training takes a batch of such pairs.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "For each query, training pulls the matching text closer in the model's space of meaning.", "min": 2.2, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "Every other text in the batch is pushed away, as a negative. These negatives need no labelling, which is why training at scale uses them.", "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "Some of those texts are related to the query. A sentence on Canberra, the capital of Australia, sits in another pair of the batch.", "settle": 0.8, "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "Pushed away as a negative, it teaches the model that capital cities and Canberra are unrelated, which is the opposite of what search needs.", "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "Training sets are too large to check by hand. One that the paper uses holds 1.45 million examples.", "speak": "Training sets are too large to check by hand. One that the paper uses holds one point four five million examples.", "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "GISTEmbed adds a guide: a large embedding model that scores every text in the batch against the query.", "speak": "Gist Embed adds a guide: a large embedding model that scores every text in the batch against the query.", "settle": 0.8, "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "The pair itself sets the bar. The guide scores capital cities and Ottawa at 0.65.", "speak": "The pair itself sets the bar. The guide scores capital cities and Ottawa at zero point six five.", "pause": 0.35},
+    {"do": "eval", "js": "go(5,3)", "say": "Two texts score above it: the sentence on Canberra and the question about the capital of Australia.", "pause": 0.35},
+    {"do": "eval", "js": "go(6,1)", "say": "A text that the guide scores above the pair is left out of the negatives for that query.", "settle": 0.8, "min": 1.6, "pause": 0.35},
+    {"do": "eval", "js": "go(6,2)", "say": "The other texts stay as negatives. The rule adds no setting to tune, and it runs for every query in every batch.", "pause": 0.35},
+    {"do": "eval", "js": "0", "say": "The small model is then no longer pushed away from texts that answer the query.", "pause": 0.35},
+    {"do": "eval", "js": "go(7,1)", "say": "The small model learns from the negatives that remain.", "settle": 0.8, "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "go(7,2)", "say": "The guide runs only during training. Search then uses the small model alone, at its own size and speed.", "min": 4.5, "pause": 0.35},
+    {"do": "eval", "js": "go(8,1)", "say": "On a benchmark of 56 tasks, the small model scored 56.3 before this training.", "speak": "On a benchmark of fifty-six tasks, the small model scored fifty-six point three before this training.", "settle": 0.8, "min": 2.0, "pause": 0.35},
+    {"do": "eval", "js": "0", "say": "Training without a guide raised the score to 57.5. Training with GISTEmbed raised it to 58.1.", "speak": "Training without a guide raised the score to fifty-seven point five. Training with Gist Embed raised it to fifty-eight point one.", "pause": 0.35},
+    {"do": "eval", "js": "go(8,2)", "say": "On search tasks, the score rose from 42.0 to 44.4. In the paper, the smallest models gained the most.", "speak": "On search tasks, the score rose from forty-two to forty-four point four. In the paper, the smallest models gained the most.", "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(9,1)", "say": "The guide's own errors carry over into training.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(9,2)", "say": "Results also depend on the training data. For the larger models, search scores fell on some tasks that the training data hardly covered.", "pause": 0.35},
+    {"do": "eval", "js": "go(9,3)", "say": "The method needs only pairs of a query and a matching text, so an organization can train a small search model on its own pairs.", "pause": 0.6},
+    {"do": "eval", "js": "go(10,0)", "say": "Sentence Transformers implements this method as GISTEmbedLoss.", "speak": "Sentence Transformers implements this method as Gist Embed Loss.", "min": 5.0, "settle": 0.9, "pause": 2.0}
+  ]
+}
