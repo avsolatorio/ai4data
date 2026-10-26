@@ -38,6 +38,8 @@ scripts/videos/
   captions.py             divides the narration into subtitle cues for the .vtt file
   series.py               checks the shorts of a series against its plan
   thumbnail.py            renders thumbnails/<name>.html to a 1280x720 PNG for YouTube
+  publish.py              checks a video's upload file, uploads to YouTube, writes the catalogue entry
+  authorize.py            makes the YouTube OAuth token, once, on a computer with a browser
   thumbnails/             thumbnail pages, one per published video
   review.py               contact sheets of the stage (before recording) and of the video (after)
   music.py                synthesises the background track (no licence needed)
@@ -123,7 +125,7 @@ a background task and wait for it; it does not need tmux.
    screen at the end of a narration line; check that the animation of each
    line has finished by then. Check the length and the levels (section 7).
 8. **Send** the MP4 and the VTT for review, with a short note of what
-   changed. Add decisions and feedback to the history in section 10.
+   changed. Add decisions and feedback to the history in section 11.
 
 ## 4. Scene sequence
 
@@ -470,7 +472,54 @@ highlight ring, the caption bar, the address pill and title cards in the
 same palette. The narration rules of section 6 and the audio settings of
 section 7 apply unchanged.
 
-## 10. History of decisions
+## 10. Publishing
+
+Videos are published on YouTube and listed on the site's `/videos` page
+(`website/src/content/videos.js`). Each published video has an upload file,
+`videos/<name>.youtube.json`, next to its step script:
+
+| Field | Content |
+|---|---|
+| `title` | At most 100 characters, with no `<` or `>` |
+| `description` | Paragraphs that say what the video explains, in the neutral register of section 6 |
+| `chapters` | `[title, phrase]` pairs; each chapter starts at the first subtitle cue that begins with its phrase |
+| `links`, `about` | Lines under "Links" and "About this video": sources, licences, the synthetic voice |
+| `tags`, `category`, `playlist`, `privacy`, `license`, `made_for_kids`, `synthetic_media` | YouTube settings; category 28 is Science & Technology |
+| `thumbnail` | A page in `thumbnails/`, rendered by `thumbnail.py` |
+| `youtube_id`, `published` | Written by `publish.py --upload` |
+| `catalogue` | The site entry: id, title, kind (`concepts`, `methods`, `walkthroughs`), hub area, voice, summary, links |
+
+`videos/pcn-explainer-v2.youtube.json` and `videos/gist-explainer.youtube.json`
+are complete examples.
+
+```
+.venv/bin/python publish.py videos/<name>.youtube.json             # checks only; writes out/<name>.youtube.txt
+.venv/bin/python publish.py videos/<name>.youtube.json --upload    # sends the video, subtitles, thumbnail, playlist
+.venv/bin/python publish.py videos/<name>.youtube.json --catalogue ../../website/src/content/videos.js
+```
+
+The check takes chapter times from the subtitles. YouTube shows chapters
+when the first starts at 0:00, there are at least three, and each lasts ten
+seconds or more; a closing card shorter than that is merged into the last
+chapter.
+
+Setup for uploading (`requirements-publish.txt` in the video environment):
+
+1. A Google Cloud project, owned by the account of the channel, with the
+   YouTube Data API v3 enabled, an OAuth consent screen with the channel
+   account as a test user, and an OAuth client of the type "Desktop app".
+2. `authorize.py client_secret.json youtube-token.json`, run once on a
+   computer with a browser and signed in to the channel account. Copy the
+   token to `~/.config/ai4data/youtube-token.json` on the server with mode
+   600. The token stays out of git.
+
+Limits: a video uploaded through a project that has not passed the YouTube
+API audit stays private until the project passes it, so switch it to
+unlisted or public in YouTube Studio. The default quota is 10,000 units a
+day and an upload costs 1,600. Custom thumbnails need a channel verified by
+phone.
+
+## 11. History of decisions
 
 | Date | Feedback or finding | Change |
 |---|---|---|
@@ -492,3 +541,4 @@ section 7 apply unchanged.
 | 2026-10-26 | Reviewer could not tell what the document source looked like, saw a stretched blue shape when passages moved, and asked whether the RAG shorts were a serious explanation of its steps | Real covers and pages from `render_pages.py`, a map of the steps of RAG in every scene, one focal object per beat, `moveCard()` without scaling; "document collection" in place of "archive"; a first short on the steps |
 | 2026-10-26 | Reviewer found the RAG shorts lacking the reason for each step and carrying unneeded counts, and asked where parsing is explained | One why line per step; counts removed; Text step in the map of RAG; short "Getting text out of documents" first in part 2 |
 | 2026-10-26 | Reviewer asked for at least 1080p and found the music too quiet under the narration | Stages recorded at 1920x1080 from the screencast; music gain 0.45 |
+| 2026-10-26 | Reviewer expects more videos and asked for publication from the server | `publish.py` with upload files per video, `authorize.py` for the channel token, catalogue entries written from the step script |

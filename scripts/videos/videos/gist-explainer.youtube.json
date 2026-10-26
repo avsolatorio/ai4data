@@ -1,0 +1,109 @@
+{
+  "title": "Small AI for search: how GISTEmbed trains a small model with a large guide",
+  "description": [
+    "A question and the text that answers it can share no words at all. Search by meaning finds the answer anyway, using an embedding model that places every text on a map of meaning. Large embedding models draw that map well but need powerful hardware for every search. Small AI models run on an ordinary computer, answer quickly, cost little to run, and can keep documents on an organization's own machines.",
+    "This video explains GISTEmbed, a way to train a small embedding model with a large one as its guide. Training pulls each question towards its answer and pushes every other text in the group away. Some of those texts belong close, and pushing them away teaches the small model the wrong lesson. Before each push, the guide scores how close each text is to the question and leaves out the texts that score above the real answer. The guide is needed only during training; search then runs on the small model alone."
+  ],
+  "chapters": [
+    [
+      "Search by meaning",
+      "People search"
+    ],
+    [
+      "A map of meaning",
+      "Search by meaning runs"
+    ],
+    [
+      "Small AI",
+      "Large embedding models"
+    ],
+    [
+      "How a model learns the map",
+      "A model learns the map"
+    ],
+    [
+      "The wrong lesson",
+      "Some of the pushed"
+    ],
+    [
+      "The guide's check",
+      "GISTEmbed adds"
+    ],
+    [
+      "Why it works",
+      "The small model learns from"
+    ],
+    [
+      "Code and models",
+      "GISTEmbed is open"
+    ]
+  ],
+  "links": [
+    [
+      "Code",
+      "https://github.com/worldbank/GISTEmbed"
+    ],
+    [
+      "Models",
+      "https://huggingface.co/collections/ai4data/gistembed"
+    ],
+    [
+      "Paper",
+      "https://arxiv.org/abs/2402.16829"
+    ],
+    [
+      "Sentence Transformers (GISTEmbedLoss)",
+      "https://sbert.net"
+    ]
+  ],
+  "about": [
+    "The example questions and the group of training pairs were written for this video. The closeness scores come from the guide model WhereIsAI/UAE-Large-V1. The narration is read by a synthetic voice (Kokoro text-to-speech).",
+    "AI for Data – Data for AI, World Bank: https://worldbank.github.io/ai4data/"
+  ],
+  "tags": [
+    "Small AI",
+    "GISTEmbed",
+    "embedding models",
+    "semantic search",
+    "search by meaning",
+    "text embeddings",
+    "sentence transformers",
+    "small language models",
+    "contrastive learning",
+    "false negatives",
+    "retrieval-augmented generation",
+    "RAG",
+    "AI for Data"
+  ],
+  "category": "28",
+  "playlist": "Small AI",
+  "privacy": "private",
+  "license": "youtube",
+  "made_for_kids": false,
+  "synthetic_media": false,
+  "thumbnail": "thumbnails/gist.html",
+  "youtube_id": "f-fsbT9q308",
+  "published": "October 2026",
+  "catalogue": {
+    "id": "gistembed-explainer",
+    "title": "GISTEmbed: Small AI for search",
+    "kind": "methods",
+    "area": "Access",
+    "voice": "synthetic",
+    "summary": "Search by meaning runs on an embedding model, and small models of this kind can run on an ordinary computer. The video shows how GISTEmbed trains a small embedding model with a large model as its guide: during training, the guide keeps texts that belong close to a question from being pushed away from it, so the small model does not learn the wrong lesson.",
+    "links": [
+      {
+        "label": "Code",
+        "href": "https://github.com/worldbank/GISTEmbed"
+      },
+      {
+        "label": "Models",
+        "href": "https://huggingface.co/collections/ai4data/gistembed"
+      },
+      {
+        "label": "Paper",
+        "href": "https://arxiv.org/abs/2402.16829"
+      }
+    ]
+  }
+}

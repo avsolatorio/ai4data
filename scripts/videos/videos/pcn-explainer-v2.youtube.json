@@ -1,0 +1,103 @@
+{
+  "title": "Proof-Carrying Numbers: checking every figure in an AI answer against its data",
+  "description": [
+    "An AI chatbot that answers from statistics can write a figure that differs from its source, and a reader cannot tell this from the text of the answer. This video explains Proof-Carrying Numbers (PCN), a method that links each figure in an answer to the record it came from and checks the figure against that record before the reader sees it.",
+    "The example uses internet use in Kenya and Rwanda from the World Bank's World Development Indicators. The video follows the data as each value receives a claim id, the instructions that ask the model to tag every figure, the answer with its tags, the verifier that checks each tag in ordinary code, and the marks that a reader sees in the chatbot. A verified mark says that a figure matches its record. Whether that record answers the question remains the reader's judgement."
+  ],
+  "chapters": [
+    [
+      "Why it matters",
+      "AI chatbots now"
+    ],
+    [
+      "The data and its claim ids",
+      "PCN starts with"
+    ],
+    [
+      "The instructions",
+      "Only the model knows"
+    ],
+    [
+      "The answer with its tags",
+      "The model streams"
+    ],
+    [
+      "The verifier",
+      "A verifier, written"
+    ],
+    [
+      "Marks for the reader",
+      "In the chatbot, each"
+    ],
+    [
+      "The reader's judgement",
+      "The verifier confirms that each"
+    ],
+    [
+      "Code and paper",
+      "The PCN library"
+    ]
+  ],
+  "links": [
+    [
+      "Documentation",
+      "https://worldbank.github.io/ai4data/docs/pcn/"
+    ],
+    [
+      "Code",
+      "https://github.com/worldbank/pcn"
+    ],
+    [
+      "Paper",
+      "https://arxiv.org/abs/2509.06902"
+    ]
+  ],
+  "about": [
+    "Data: World Bank, World Development Indicators, indicator IT.NET.USER.ZS (Individuals using the Internet, % of population), from api.worldbank.org, last updated 8 October 2026. CC BY 4.0.",
+    "The chatbot answer is an example written for this video. The narration is read by a synthetic voice (Kokoro text-to-speech).",
+    "AI for Data – Data for AI, World Bank: https://worldbank.github.io/ai4data/"
+  ],
+  "tags": [
+    "Proof-Carrying Numbers",
+    "PCN",
+    "AI chatbot",
+    "large language models",
+    "verification",
+    "official statistics",
+    "data dissemination",
+    "World Development Indicators",
+    "hallucination",
+    "AI for Data"
+  ],
+  "category": "28",
+  "playlist": "Methods and tools",
+  "privacy": "private",
+  "license": "youtube",
+  "made_for_kids": false,
+  "synthetic_media": false,
+  "thumbnail": "thumbnails/pcn.html",
+  "youtube_id": "FakLU10grL4",
+  "published": "October 2026",
+  "catalogue": {
+    "id": "pcn-explainer",
+    "title": "Proof-Carrying Numbers",
+    "kind": "methods",
+    "area": "Verification",
+    "voice": "synthetic",
+    "summary": "An AI chatbot that answers from statistics can write a figure that differs from its source, and a reader cannot tell this from the text of the answer. The video shows how Proof-Carrying Numbers links each figure in an answer to the record it came from, how a verifier checks the figure against that record, and what the check leaves to the judgement of the reader.",
+    "links": [
+      {
+        "label": "Documentation",
+        "to": "/docs/pcn/"
+      },
+      {
+        "label": "Code",
+        "href": "https://github.com/worldbank/pcn"
+      },
+      {
+        "label": "Paper",
+        "href": "https://arxiv.org/abs/2509.06902"
+      }
+    ]
+  }
+}
