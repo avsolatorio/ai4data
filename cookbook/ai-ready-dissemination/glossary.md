@@ -115,6 +115,8 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX and, for some data types, schema.org, Croissant, and DCAT.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **Model Context Protocol (MCP).** An open standard through which AI assistants discover and call an organization's tools and read its resources.
 
 **MRR.** Mean reciprocal rank: 1 when the right item comes first, one half when it comes second, and so on, averaged over the questions.
@@ -173,7 +175,7 @@ description: Terms used in the Practical Guide to AI-Ready Data Dissemination.
 
 **SKOS and XKOS.** SKOS is the web standard for publishing controlled vocabularies (concepts with labels and identifiers); XKOS extends it for statistical classifications and their correspondences.
 
-**Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+**Small model.** A model that runs on one GPU or on a CPU and is enough for narrow tasks: a language model of roughly one to fifteen billion parameters with the right context, or a model of tens to hundreds of millions of parameters trained for one task, such as a fine-tuned encoder.
 
 **Stable identifier.** An identifier for a series or dataset that does not change across releases or site redesigns.
 

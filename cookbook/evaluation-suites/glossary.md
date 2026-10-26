@@ -91,6 +91,10 @@ description: Terms used in the Practical Guide to Evaluation Suites for Statisti
 
 **Mention.** A reference to a dataset in a document, named or unnamed.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
+**Model card.** The document published with a model that states its task, its training, its scores with the data they were measured on, its known errors, and its licence.
+
 **MRR.** Mean reciprocal rank: 1 when the right item comes first, one half when it comes second, and so on, averaged over the questions.
 
 **nDCG@k.** Normalized discounted cumulative gain at k. A retrieval measure that credits partially relevant results and rewards placing the best ones first.

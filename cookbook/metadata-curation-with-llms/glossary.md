@@ -21,7 +21,7 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **API.** Application programming interface: the address at which a program asks a system for data and receives it in a structured form.
 
-**Calibration.** The comparison of model scores with curator scores on a sample, per dimension, to find systematic bias.
+**Calibration.** The comparison of model scores with reference scores or labels on a sample, to find systematic bias or to choose the threshold at which the model's scores are used.
 
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
 
@@ -81,6 +81,8 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX and, for some data types, schema.org, Croissant, and DCAT.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **NADA.** The open-source data catalog from the International Household Survey Network, used for the World Bank Microdata Library. It supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC. NADA AI, a service being integrated into NADA, adds semantic search and an MCP server over the catalog.
 
 **Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under a published licence that may be permissive or restricted.
@@ -103,7 +105,7 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **SKOS and XKOS.** SKOS is the web standard for publishing controlled vocabularies (concepts with labels and identifiers); XKOS extends it for statistical classifications and their correspondences.
 
-**Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+**Small model.** A model that runs on one GPU or on a CPU and is enough for narrow tasks: a language model of roughly one to fifteen billion parameters with the right context, or a model of tens to hundreds of millions of parameters trained for one task, such as a fine-tuned encoder.
 
 **Split.** The division of a dataset into a training part (the model learns from it), a validation part (the model builder chooses settings on it), and a test part (touched once, to report a score).
 

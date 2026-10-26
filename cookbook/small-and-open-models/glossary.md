@@ -51,6 +51,8 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Gate.** The rule that decides whether a change ships, applied to a paired comparison of the evaluation suite before and after the change.
 
+**Generating model.** The large language model that writes synthetic training examples; its terms of use apply to the examples and can apply to the models trained on them.
+
 **GPU.** A graphics processing unit, the processor on which language models run fast; its memory decides which model fits.
 
 **Grounding.** Restricting a language model to what was retrieved or given for the task: an answer that uses only the retrieved records, a draft that uses only what the record and its named sources support.
@@ -82,6 +84,10 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
 
 **Mention.** A reference to a dataset in a document, named or unnamed.
+
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
+**Model card.** The document published with a model that states its task, its training, its scores with the data they were measured on, its known errors, and its licence.
 
 **Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under a published licence that may be permissive or restricted.
 
@@ -115,7 +121,7 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Slice.** A subset of the questions (a language, a question type) scored on its own, so that a change's effect on it is visible.
 
-**Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+**Small model.** A model that runs on one GPU or on a CPU and is enough for narrow tasks: a language model of roughly one to fifteen billion parameters with the right context, or a model of tens to hundreds of millions of parameters trained for one task, such as a fine-tuned encoder.
 
 **Split.** The division of a dataset into a training part (the model learns from it), a validation part (the model builder chooses settings on it), and a test part (touched once, to report a score).
 

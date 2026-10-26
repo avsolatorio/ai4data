@@ -34,6 +34,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Automated share.** The share of responses coded at or above the confidence threshold without a coder; measured by a re-coded sample each round.
 
+**Background example.** A generated training sentence about none of the labels, such as a sentence on methods or data, included so that the classifier learns that such sentences carry no topic.
+
 **Benchmark (population).** The share of each group in the population, from the census or population estimates, against which a dataset's composition is compared.
 
 **BM25.** A keyword ranking function used by most search engines. It matches exact words and weights rare ones more.
@@ -43,7 +45,7 @@ chapters. Edit terms here; never edit the generated pages.
 **Bounding box.** The rectangle that encloses a detected table or figure on a page, written as the left, top, right, and bottom edges as fractions of the page width and height, with the origin at the top left.
 <!-- match: bounding box; bbox -->
 
-**Calibration.** The comparison of model scores with curator scores on a sample, per dimension, to find systematic bias.
+**Calibration.** The comparison of model scores with reference scores or labels on a sample, to find systematic bias or to choose the threshold at which the model's scores are used.
 
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
 
@@ -135,6 +137,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Embedding.** A list of numbers that a model assigns to a text so that texts with similar meaning have similar numbers; the basis of search by meaning.
 
+**Encoder.** A pretrained model that turns a text into numbers representing its meaning, used as the base of a classifier; DeBERTa and BERT are encoders.
+
 **Error taxonomy.** The coded kinds of error a component makes, each pointing to a different fix: for an extractor, missed, spurious, boundary, wrong type; for curation suggestions, wrong flag, invented fact, wrong vocabulary term, style.
 <!-- match: error taxonomy; taxonomy -->
 
@@ -162,6 +166,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Gap.** The distance between a dimension's current level and its target, measured in levels and in the number of questions below the target's value.
 
 **Gate.** The rule that decides whether a change ships, applied to a paired comparison of the evaluation suite before and after the change.
+
+**Generating model.** The large language model that writes synthetic training examples; its terms of use apply to the examples and can apply to the models trained on them.
 
 **Governance board.** The body, with written terms of reference, that approves AI components, closes incidents, decides reviews, and accepts residual risk.
 
@@ -252,13 +258,19 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Method of record.** The documented, reproducible imputation or estimation method the organization applies; a model proposes and explains beside it.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **Missing-value code.** A code in a variable that marks a missing, inapplicable, refused, or unknown response, which has to be labelled so that it is never read as a value.
 
 **ML-ready dataset.** A fixed, versioned set of examples with a documented structure, a stated purpose, a split for training and testing, a statement of whom the examples represent, and a licence that covers model training.
 
 **Model Context Protocol (MCP).** An open standard through which AI assistants discover and call an organization's tools and read its resources.
 
+**Model card.** The document published with a model that states its task, its training, its scores with the data they were measured on, its known errors, and its licence.
+
 **MRR.** Mean reciprocal rank: 1 when the right item comes first, one half when it comes second, and so on, averaged over the questions.
+
+**Multi-label classifier.** A classifier that gives a separate probability for each label, so that one text can receive several labels.
 
 **NADA.** The open-source data catalog from the International Household Survey Network, used for the World Bank Microdata Library. It supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC. NADA AI, a service being integrated into NADA, adds semantic search and an MCP server over the catalog.
 
@@ -366,7 +378,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Slice.** A subset of the questions (a language, a question type) scored on its own, so that a change's effect on it is visible.
 
-**Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+**Small model.** A model that runs on one GPU or on a CPU and is enough for narrow tasks: a language model of roughly one to fifteen billion parameters with the right context, or a model of tens to hundreds of millions of parameters trained for one task, such as a fine-tuned encoder.
 
 **Split.** The division of a dataset into a training part (the model learns from it), a validation part (the model builder chooses settings on it), and a test part (touched once, to report a score).
 
@@ -390,7 +402,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Synthesis record.** The document that accompanies a synthetic file: source, method and seed, utility and risk results, intended and prohibited uses, label, licence, contact.
 
-**Synthetic data.** Records generated by a model fitted to real data so that they have the same shape and similar relationships while containing no real person's record.
+**Synthetic data.** Data generated by a model. For sharing microdata, records generated by a model fitted to real data so that they have the same shape and similar relationships while containing no real person's record; for training a model, labelled examples written by a large language model.
 <!-- match: synthetic -->
 
 **Table record.** The catalog record of a statistical table in the World Bank table schema, with columns, rows, sources, definitions, citation, and relations.

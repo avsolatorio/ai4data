@@ -79,6 +79,8 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Mention.** A reference to a dataset in a document, named or unnamed.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **Model Context Protocol (MCP).** An open standard through which AI assistants discover and call an organization's tools and read its resources.
 
 **NADA.** The open-source data catalog from the International Household Survey Network, used for the World Bank Microdata Library. It supports DDI Codebook, Dublin Core, ISO 19115/19139, and IPTC. NADA AI, a service being integrated into NADA, adds semantic search and an MCP server over the catalog.

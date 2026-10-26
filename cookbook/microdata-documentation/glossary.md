@@ -21,7 +21,7 @@ description: Terms used in the Practical Guide to AI-Ready Microdata Documentati
 
 **BM25.** A keyword ranking function used by most search engines. It matches exact words and weights rare ones more.
 
-**Calibration.** The comparison of model scores with curator scores on a sample, per dimension, to find systematic bias.
+**Calibration.** The comparison of model scores with reference scores or labels on a sample, to find systematic bias or to choose the threshold at which the model's scores are used.
 
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
 
@@ -96,6 +96,8 @@ description: Terms used in the Practical Guide to AI-Ready Microdata Documentati
 **Mention.** A reference to a dataset in a document, named or unnamed.
 
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX and, for some data types, schema.org, Croissant, and DCAT.
+
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
 
 **Missing-value code.** A code in a variable that marks a missing, inapplicable, refused, or unknown response, which has to be labelled so that it is never read as a value.
 

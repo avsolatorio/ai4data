@@ -89,7 +89,11 @@ description: Terms used in this guide.
 
 **Mention.** A reference to a dataset in a document, named or unnamed.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **ML-ready dataset.** A fixed, versioned set of examples with a documented structure, a stated purpose, a split for training and testing, a statement of whom the examples represent, and a licence that covers model training.
+
+**Model card.** The document published with a model that states its task, its training, its scores with the data they were measured on, its known errors, and its licence.
 
 **Number check.** The comparison of every figure in an assistant's answer with the values of the source table, which marks each as verified or unverified before the answer is used.
 
@@ -131,7 +135,7 @@ description: Terms used in this guide.
 
 **Semantic search.** Search by meaning; see dense retrieval.
 
-**Small model.** A model of roughly one to fifteen billion parameters that runs on one GPU or on CPU, enough for narrow tasks with the right context.
+**Small model.** A model that runs on one GPU or on a CPU and is enough for narrow tasks: a language model of roughly one to fifteen billion parameters with the right context, or a model of tens to hundreds of millions of parameters trained for one task, such as a fine-tuned encoder.
 
 **Statement of model use.** The section of a release's quality report that says where models were used, which, how they performed, who decided, and what the effect was.
 

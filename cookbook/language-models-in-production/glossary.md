@@ -79,6 +79,8 @@ description: Terms used in the Practical Guide to Language Models in Statistical
 
 **Method of record.** The documented, reproducible imputation or estimation method the organization applies; a model proposes and explains beside it.
 
+**Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
+
 **Number check.** The comparison of every figure in an assistant's answer with the values of the source table, which marks each as verified or unverified before the answer is used.
 
 **Open-weight model.** A model whose weights can be downloaded and run on the organization's own infrastructure, under a published licence that may be permissive or restricted.
