@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GISTEmbed thumbnail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../stages/kit/stage.css">
+<style>
+  /* YouTube thumbnail, 1280x720: a small model learning from a large guide. */
+  .scene.on { opacity: 1; }
+  .badge { position: absolute; left: 90px; top: 200px; padding: 8px 18px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 26px; font-weight: 800; letter-spacing: .02em; }
+  .t { position: absolute; left: 90px; top: 268px; width: 600px; }
+  .t h1 { font-size: 96px; line-height: 1; margin: 0; }
+  .t p { font-size: 36px; color: var(--block-soft); margin: 24px 0 0; line-height: 1.25; }
+  .big { position: absolute; left: 730px; top: 150px; width: 300px; height: 300px; border-radius: 26px; background: #2a3039; border: 2px solid #3a424d;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 22px; color: var(--block-soft); }
+  .big b { color: #fff; font-size: 30px; }
+  .small { position: absolute; left: 1080px; top: 420px; width: 100px; height: 100px; border-radius: 18px; background: var(--primary);
+    box-shadow: 0 0 0 10px rgba(21,88,214,.25); }
+  .small-l { position: absolute; left: 1030px; top: 540px; width: 200px; text-align: center; font-size: 28px; font-weight: 800; color: #fff; }
+  svg { position: absolute; inset: 0; width: 1280px; height: 720px; }
+</style>
+</head>
+<body>
+<section class="scene dark on">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="" style="height:64px">
+  <div class="badge">Small AI</div>
+  <div class="t"><h1>GISTEmbed</h1><p>Small models for search, trained with a large guide</p></div>
+  <svg><path d="M1020 330 C1110 330 1130 360 1130 405" fill="none" stroke="#7ba7f2" stroke-width="5" stroke-dasharray="10 10"/>
+    <path d="M1118 395 L1130 412 L1142 395" fill="none" stroke="#7ba7f2" stroke-width="5"/></svg>
+  <div class="big"><b>Guide</b><span style="font-size:22px">large model</span></div>
+  <div class="small"></div>
+  <div class="small-l">Small model</div>
+</section>
+</body>
+</html>
