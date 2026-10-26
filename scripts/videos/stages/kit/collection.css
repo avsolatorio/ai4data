@@ -1,0 +1,96 @@
+/* Components for the videos on the document collection of
+   examples/rag-public (13 World Bank economic updates). A stage links this
+   file after stage.css, and loads collection.js and the page data
+   (local/rag-public/pages/pages.js, written by render_pages.py). */
+
+/* map of the steps of RAG, under the heading */
+.rmap { position: absolute; left: 80px; right: 80px; top: 148px; display: flex; align-items: center; gap: 8px; }
+.rmap .grp { display: flex; align-items: center; gap: 6px; }
+.rmap .grp > span { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); margin-right: 6px; }
+.rmap .st { padding: 6px 13px; border-radius: 999px; border: 1px solid var(--hairline); background: #fff; color: var(--muted);
+  font-size: 15px; font-weight: 600; transition: background .4s, color .4s, border-color .4s, box-shadow .4s; }
+.rmap .st.done { background: var(--primary-subtle); border-color: var(--primary-subtle); color: var(--primary); }
+.rmap .st.on { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 0 0 4px var(--primary-subtle); }
+.rmap .ar { width: 14px; height: 14px; color: #b9c4d6; flex: none; }
+.rmap .sep { width: 1px; height: 30px; background: var(--hairline); margin: 0 12px; }
+
+/* source line of the reports, at the bottom of every light scene */
+.srcline { position: absolute; left: 80px; right: 80px; bottom: 24px; font-size: 12px; color: var(--subtle); line-height: 1.5; }
+.dark .srcline { left: 110px; right: 110px; bottom: 34px; color: var(--block-soft); }
+
+/* covers and pages of the reports */
+.cover { position: absolute; border: 1px solid var(--hairline); border-radius: 3px; overflow: hidden; background: #fff; }
+.cover img { display: block; width: 100%; }
+.leaf { position: absolute; border: 1px solid var(--hairline); border-radius: 3px; overflow: hidden; background: #fff;
+  transition: transform .9s cubic-bezier(.2,.8,.2,1), opacity .6s; }
+.leaf img { display: block; width: 100%; }
+.rowlab { position: absolute; font-size: 18px; font-weight: 600; }
+.rowlab small { display: block; font-size: 15px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+/* a page in a frame that can zoom to a region; children of .inner are in image pixels */
+.pageview { position: absolute; overflow: hidden; background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 10px; }
+.pageview .inner { position: absolute; left: 0; top: 0; transform-origin: 0 0; transition: transform 1.5s cubic-bezier(.4,0,.2,1); }
+.pageview .inner > img { display: block; }
+.pageview .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 7px 12px; font-size: 13px; color: var(--muted);
+  background: rgba(255,255,255,.94); border-top: 1px solid var(--hairline); }
+.band { position: absolute; border: calc(2px * var(--inv, 1)) solid var(--primary); background: rgba(21,88,214,.07);
+  border-radius: calc(3px * var(--inv, 1)); opacity: 0; transition: opacity .35s; }
+.band.alt { border-color: var(--teal); background: rgba(18,160,138,.07); }
+.band.in2 { opacity: 1; }
+.band b { position: absolute; left: calc(-2px * var(--inv, 1)); top: calc(-19px * var(--inv, 1)); padding: 0 calc(6px * var(--inv, 1));
+  font: 700 calc(12px * var(--inv, 1))/calc(19px * var(--inv, 1)) var(--mono); color: #fff; background: var(--primary);
+  border-radius: calc(3px * var(--inv, 1)) calc(3px * var(--inv, 1)) 0 0; }
+.band.alt b { background: var(--teal); }
+.band.dim { opacity: .25; }
+.hl { position: absolute; background: rgba(255,214,0,.42); box-shadow: 0 0 0 calc(3px * var(--inv, 1)) rgba(255,214,0,.42);
+  transform: scaleX(0); transform-origin: left; transition: transform .8s ease; }
+.hl.in2 { transform: none; }
+
+/* a passage as a card: citation, edition and the first words */
+.pcard { position: absolute; width: 360px; height: 62px; background: #fff; border: 1px solid var(--hairline);
+  border-left: 4px solid var(--primary); border-radius: 8px; padding: 7px 12px; overflow: hidden;
+  transition: opacity .4s, transform .5s cubic-bezier(.2,.8,.2,1); }
+.pcard.alt { border-left-color: var(--teal); }
+.pcard .c { font: 600 13px var(--mono); color: var(--primary); }
+.pcard.alt .c { color: var(--teal); }
+.pcard .c span { font: 500 13px Inter, sans-serif; color: var(--subtle); margin-left: 8px; }
+.pcard .t { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.pcard.hide { opacity: 0; transform: translateX(-14px); }
+
+/* a vector drawn as bars, one per number: up for positive, down for negative */
+.vec { position: absolute; display: flex; align-items: center; gap: 2px; height: 44px; }
+.vec i { width: 5px; border-radius: 1px; background: var(--primary-light); transform: scaleY(0); transition: transform .35s ease; }
+.vec i.in2 { transform: none; }
+.vec span { margin-left: 6px; font: 500 13px var(--mono); color: var(--subtle); white-space: nowrap; }
+
+/* the store */
+.store { position: absolute; background: #fff; border: 1px solid var(--hairline); border-top: 4px solid var(--teal); border-radius: 10px;
+  padding: 16px 18px; text-align: center; }
+.store .big { font-size: 44px; font-weight: 800; letter-spacing: -.03em; margin-top: 8px; }
+.store .lab { font-size: 16px; color: var(--muted); }
+.store.pulse { animation: pulse .5s ease; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px var(--teal-subtle); } }
+
+/* a copy that moves between two places at its own size */
+.mover-card { position: absolute; z-index: 8; pointer-events: none; }
+
+/* map of meaning (an illustration) */
+.mmap { position: absolute; background: #fff; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden; }
+.mmap svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mmap .note { position: absolute; right: 14px; bottom: 10px; font-size: 12px; color: var(--subtle); }
+.mmap .topic { font: 600 13px Inter, sans-serif; fill: var(--subtle); letter-spacing: .06em; text-transform: uppercase; }
+.mmap .pick { font: 600 13px var(--mono); fill: var(--primary); }
+
+/* prompt panel */
+.prompt { position: absolute; background: #fff; border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 18px; }
+.prompt .sec { margin-top: 10px; transition: opacity .4s, transform .4s; }
+.prompt .sec:first-of-type { margin-top: 4px; }
+.prompt .ins { font-size: 16px; line-height: 1.45; color: var(--ink); }
+.prompt .q { font-size: 17px; font-weight: 600; }
+.prompt .pp { font-size: 15px; padding: 5px 10px; border-left: 3px solid var(--primary); background: var(--surface-1);
+  border-radius: 4px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prompt .pp b { font: 600 13px var(--mono); color: var(--primary); margin-right: 8px; }
+
+.cit { font: 600 .62em var(--mono); color: var(--primary); background: var(--primary-subtle); border-radius: 4px; padding: 1px 5px;
+  white-space: nowrap; vertical-align: 2px; transition: box-shadow .3s, background .3s; }
+.cit.hot { background: #fff4cc; color: #8a6400; box-shadow: 0 0 0 3px #fff4cc; }

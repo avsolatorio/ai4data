@@ -18,6 +18,7 @@ added.
 | `runs.py` | Runs the retrieval cases and checks the figures; writes `retrieval_runs.json` |
 | `retrieval_runs.json` | Every run: question, k, filter, ranked passages with scores, report, edition, page, and text |
 | `record_answers.py` | Sends the chosen cases to a live model; writes `answers.json` |
+| `render_pages.py` | Renders covers, inside pages and cited pages for the videos, with passage and phrase positions; writes `local/rag-public/pages/` |
 | `requirements.txt` | Python packages for this example |
 
 The PDFs, the extracted text (`chunks.jsonl`) and the store (`store.json`)
@@ -87,6 +88,7 @@ langchain-core 1.7, sentence-transformers 6.2 and PyMuPDF 2.0 on CPU):
 python -m venv .venv-rag && .venv-rag/bin/pip install -r requirements.txt
 .venv-rag/bin/python fetch.py          # download the 13 PDFs and check their SHA-256
 .venv-rag/bin/python build_store.py    # text, chunks and store under local/rag-public/
+.venv-rag/bin/python render_pages.py   # page images for the videos, under local/rag-public/pages/
 .venv-rag/bin/python runs.py           # retrieval_runs.json
 ```
 

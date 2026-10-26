@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The steps of retrieval-augmented generation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<link rel="stylesheet" href="kit/collection.css">
+<script src="kit/stage.js"></script>
+<script src="../../../local/rag-public/pages/pages.js"></script>
+<script src="kit/collection.js"></script>
+<style>
+  /* Layout of this short only. */
+  .count { position: absolute; left: 80px; top: 612px; font-size: 22px; color: var(--muted); }
+  .count b { color: var(--ink); font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+  #pv3 { left: 80px; top: 222px; width: 300px; height: 412px; }
+  .slot { position: absolute; left: 410px; width: 330px; height: 62px; }
+  #s3 .pcard { left: 410px; width: 330px; }
+  #s3 .vec { left: 760px; }
+  #store3 { left: 1052px; top: 318px; width: 148px; height: 220px; }
+  #q4 { position: absolute; left: 80px; top: 240px; width: 360px; }
+  #q4 .uq { margin-left: 0; font-size: 20px; }
+  #emb4 { position: absolute; left: 80px; top: 380px; width: 360px; }
+  #emb4 .chip { display: inline-block; font-size: 16px; }
+  #vec4 { left: 80px; top: 450px; }
+  #mm4 { left: 470px; top: 222px; width: 730px; height: 412px; }
+  #pr5 { left: 80px; top: 222px; width: 520px; height: 412px; }
+  #m5 { left: 640px; top: 343px; width: 150px; height: 150px; }
+  #w5 { left: 830px; top: 222px; width: 370px; height: 412px; }
+  #w5 .tx, #w6 .tx { font-size: 19px; line-height: 1.55; }
+  #w6 { left: 80px; top: 222px; width: 470px; height: 412px; }
+  #pv6 { left: 610px; top: 222px; width: 590px; height: 412px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>The steps of retrieval&#8209;augmented generation</h1>
+  <div class="part">Part 3 · Answering from a document collection · 1 of 6</div>
+</section>
+
+<!-- 2 the document collection -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">The document collection</div>
+  <h2>Thirteen World Bank economic updates</h2>
+  <div class="rowlab" style="left:80px;top:262px;width:236px" data-b="1">Kenya Economic Update<small>7 editions, December 2022 to July 2026</small></div>
+  <div class="rowlab" style="left:80px;top:455px;width:236px" data-b="1">Uganda Economic Update<small>6 editions, June 2023 to June 2026</small></div>
+  <div id="covers2"></div>
+  <div id="leaves2"></div>
+  <div class="count" data-b="2"><b id="n2r">13</b> reports &nbsp;·&nbsp; <b id="n2p">0</b> pages</div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 3 prepared once -->
+<section class="scene" id="s3">
+  <div class="eyebrow">Prepared once</div>
+  <h2>Pages become passages in a store</h2>
+  <div class="rmap" id="map3"></div>
+  <div class="pageview" id="pv3" data-b="1"><div class="cap">Uganda, December 2025 · page 12</div></div>
+  <div id="cards3"></div>
+  <div class="store" id="store3" data-b="4">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#12a08a" stroke-width="1.7"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+    <div class="big" id="n3">0</div>
+    <div class="lab">passages with their vectors</div>
+  </div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 4 the search -->
+<section class="scene" id="s4">
+  <div class="eyebrow">For each question</div>
+  <h2>The search finds the closest passages</h2>
+  <div class="rmap" id="map4"></div>
+  <div id="q4"><div class="label" style="margin-bottom:8px">Question</div><div class="uq" id="qt4"></div></div>
+  <div id="emb4" data-b="2"><div class="label" style="margin-bottom:8px">The same embedding model</div><span class="chip">question → vector</span></div>
+  <div class="vec" id="vec4"></div>
+  <div id="picks4" style="position:absolute;left:80px;top:520px;width:360px" data-b="3"><div class="label" style="margin-bottom:6px">Closest passages</div></div>
+  <div class="mmap" id="mm4" data-b="1"><svg id="mms4"></svg><div class="note">Positions drawn for illustration. The search compares vectors of 384 numbers.</div></div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 5 prompt and answer -->
+<section class="scene" id="s5">
+  <div class="eyebrow">For each question</div>
+  <h2>The prompt and the answer</h2>
+  <div class="rmap" id="map5"></div>
+  <div class="prompt" id="pr5" data-b="1">
+    <div class="label">Prompt</div>
+    <div class="sec" id="ins5"><div class="label" style="color:var(--primary)">Instructions</div>
+      <div class="ins">You are a research assistant for development data. Answer only from the supplied passages. After each figure, cite the passage in the square-bracket form given. If the passages do not contain what is needed, say so.</div></div>
+    <div class="sec" id="pas5"><div class="label" style="color:var(--primary)">Passages</div>
+      <div class="pp"><b>[ueu-2025-12 · p. 12]</b>Uganda’s economic growth remained above 6 percent in FY25 …</div>
+      <div class="pp"><b>[ueu-2023-06 · p. 40]</b>2.1 Uganda’s economic outlook has greatly improved …</div>
+      <div class="pp"><b>[ueu-2025-09 · p. 21]</b>Uganda’s economic growth remains strong …</div></div>
+    <div class="sec" id="que5"><div class="label" style="color:var(--primary)">Question</div>
+      <div class="q">How much did Uganda’s economy grow in FY25?</div></div>
+  </div>
+  <svg class="wires" id="ws5"></svg>
+  <div class="model" id="m5" data-b="2">Language model<small>writes the answer</small></div>
+  <div class="win" id="w5" data-b="2"><div class="bar"><span class="dot"></span>Economic updates assistant</div>
+    <div class="body"><div class="ua"><div class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg></div><div class="tx" id="a5"></div></div></div></div>
+  <div class="srcline" data-answers></div>
+</section>
+
+<!-- 6 the citation -->
+<section class="scene" id="s6">
+  <div class="eyebrow">For each question</div>
+  <h2>The citation leads to the page</h2>
+  <div class="rmap" id="map6"></div>
+  <div class="win" id="w6"><div class="bar"><span class="dot"></span>Economic updates assistant</div>
+    <div class="body"><div class="uq" style="font-size:18px">How much did Uganda’s economy grow in FY25?</div>
+      <div class="ua"><div class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+        <div class="tx">Uganda’s real GDP grew by <b class="num" id="v6">6.3 percent in FY25</b>, up from 6.1 percent in FY24 <span class="cit" id="c6">[ueu-2025-12 · p. 12]</span>. …</div></div></div></div>
+  <svg class="wires" id="ws6"></svg>
+  <div class="pageview" id="pv6" data-b="2"><div class="cap">Uganda Economic Update, December 2025 · page 12</div></div>
+  <div class="srcline" data-answers></div>
+</section>
+
+<!-- 7 end screen -->
+<section class="scene dark" id="s7">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>Answering from a document collection</b></div>
+  <div class="links"><span>Program</span><b>worldbank.github.io/ai4data</b></div>
+  <div class="srcline" data-answers></div>
+</section>
+
+<script>
+  sourceLines();
+  ['map3', 'map4', 'map5', 'map6'].forEach((m) => ragMap($(m)));
+
+  // Scene 2: the covers of the 13 reports, one row per series.
+  const KENYA = PAGES.covers.filter((c) => c.id.startsWith('keu'));
+  const UGANDA = PAGES.covers.filter((c) => c.id.startsWith('ueu'));
+  const coverHTML = (c, x, y) => `<div class="cover" data-id="${c.id}" style="left:${x}px;top:${y}px;width:112px;opacity:0;transform:translateY(16px);transition:all .5s cubic-bezier(.2,.8,.2,1)"><img src="${PAGE_DIR}${c.file}"></div>`;
+  $('covers2').innerHTML = KENYA.map((c, k) => coverHTML(c, 340 + 124 * k, 222)).join('') +
+                           UGANDA.map((c, k) => coverHTML(c, 340 + 124 * k, 420)).join('');
+  // Inside pages, shown fanned over the covers.
+  const LEAVES = PAGES.collage.slice(0, 6);
+  $('leaves2').innerHTML = LEAVES.map((p, k) => `<div class="leaf" style="left:${560}px;top:236px;width:180px;opacity:0"><img src="${PAGE_DIR}${p.file}"></div>`).join('');
+
+  // Scene 3: where the six passages of page 12 lie, as fractions of the page.
+  const P12 = citedOf('ueu-2025-12', 12);
+  const L = [.126, .494], R = [.516, .89];
+  const REGIONS = [
+    [[L[0], .163, R[1], .245], [L[0], .276, L[1], .347]],
+    [[L[0], .351, L[1], .617]],
+    [[L[0], .617, L[1], .848]],
+    [[L[0], .848, L[1], .906], [R[0], .283, R[1], .458]],
+    [[R[0], .458, R[1], .668]],
+    [[R[0], .668, R[1], .906]],
+  ];
+  const FIRST = ['EXECUTIVE SUMMARY. Uganda’s economic growth remained robust in FY25',
+                 'Uganda’s economic growth remained above 6 percent in FY25',
+                 'Export receipts surged, led by coffee, gold re-exports, cocoa',
+                 'Following three years of fiscal consolidation, the overall fiscal deficit',
+                 'Tight monetary policy anchored inflation but borrowing costs remained high',
+                 'The economic outlook is positive but economic transformation is key'];
+  const cardHTML = (k) => `<div class="pcard${k % 2 ? ' alt' : ''}" style="position:static"><div class="c">[ueu-2025-12 · p. 12]<span>December 2025</span></div><div class="t">${FIRST[k]}</div></div>`;
+  $('cards3').innerHTML = FIRST.map((_, k) => `<div class="slot" id="slot3-${k}" style="top:${222 + 70 * k}px"></div>` +
+    `<div class="pcard hide${k % 2 ? ' alt' : ''}" id="card3-${k}" style="top:${222 + 70 * k}px"><div class="c">[ueu-2025-12 · p. 12]<span>December 2025</span></div><div class="t">${FIRST[k]}</div></div>` +
+    `<div class="vec" id="vec3-${k}" style="top:${222 + 70 * k + 9}px"></div>`).join('');
+  let pv3 = null, bands3 = [];
+
+  // Scene 4: an illustrated map of meaning with clusters of passages by topic.
+  const TOPICS = [['Growth', 220, 165], ['Inflation', 520, 105], ['Poverty', 590, 290], ['Public debt', 335, 300], ['Trade', 105, 300], ['Agriculture', 430, 205]];
+  const QPOS = [236, 182];
+  const DOTS = [];
+  {
+    const r = rng(7);
+    TOPICS.forEach(([name, cx, cy], t) => {
+      for (let i = 0; i < 22; i++) {
+        const a = r() * Math.PI * 2, d = Math.sqrt(r()) * 62;
+        DOTS.push({ t, x: cx + Math.cos(a) * d * 1.25, y: cy + Math.sin(a) * d * .85 });
+      }
+    });
+  }
+  const NEAR = DOTS.map((d, i) => [i, Math.hypot(d.x - QPOS[0], d.y - QPOS[1])]).sort((a, b) => a[1] - b[1]).slice(0, 3).map((x) => x[0]);
+  const PICKS = ['[ueu-2025-12 · p. 12]', '[ueu-2023-06 · p. 40]', '[ueu-2025-09 · p. 21]'];
+  {
+    const s = $('mms4');
+    s.innerHTML = DOTS.map((d, i) => `<circle id="d4-${i}" cx="${d.x}" cy="${d.y}" r="4.5" fill="#c9d3e3"/>`).join('') +
+      TOPICS.map(([n, cx, cy]) => `<text class="topic" x="${cx}" y="${cy - 58}" text-anchor="middle">${n}</text>`).join('');
+  }
+
+  // Scene 5: the answer, shortened; its figures and citations are as recorded.
+  const ANSWER = ['Uganda’s ', 'real ', 'GDP ', 'grew ', 'by ', '<b>6.3 ', 'percent ', 'in ', 'FY25</b>, ', 'up ', 'from ', '6.1 ', 'percent ', 'in ', 'FY24 ',
+    '<span class="cit">[ueu-2025-12 · p. 12]</span>. ', 'The ', 'September ', '2025 ', 'update ', 'reports ', '6.8 ', 'percent ', 'growth ', 'for ', 'the ', 'first ', 'nine ', 'months ', 'of ', 'FY25 ',
+    '<span class="cit">[ueu-2025-09 · p. 21]</span>. ', '…'];
+
+  let pv6 = null;
+
+  const HOOKS = {
+    2: {
+      1: () => {
+        document.querySelectorAll('#covers2 .cover').forEach((c, k) => later(70 * k, () => { c.style.opacity = 1; c.style.transform = 'none'; }));
+      },
+      2: () => {
+        countUp($('n2p'), 769, 1600);
+        document.querySelectorAll('#covers2 .cover').forEach((c) => { c.style.opacity = .18; });
+        document.querySelectorAll('.rowlab').forEach((c) => { c.style.opacity = .3; });
+        document.querySelectorAll('#leaves2 .leaf').forEach((l, k) => {
+          l.style.opacity = 1;
+          later(80 * k, () => { l.style.transform = `translate(${(k - 2.5) * 172}px, ${Math.abs(k - 2.5) * 10}px) rotate(${(k - 2.5) * 3}deg)`; });
+        });
+      },
+    },
+    3: {
+      1: () => { mapAt($('map3'), 0); pv3 = pageView($('pv3'), P12); },
+      2: () => {
+        mapAt($('map3'), 1);
+        REGIONS.forEach((boxes, k) => later(650 * k, () => {
+          const bs = boxes.map((b, j) => pageBox(pv3, b, 'band' + (k % 2 ? ' alt' : ''), j ? '' : String(k + 1)));
+          bands3.push(bs);
+          bs.forEach((b) => b.classList.add('in2'));
+          moveCard(bs[0], $('slot3-' + k), cardHTML(k), 700, () => $('card3-' + k).classList.remove('hide'));
+        }));
+      },
+      3: () => {
+        mapAt($('map3'), 2);
+        FIRST.forEach((_, k) => later(260 * k, () => vecBars($('vec3-' + k), PAGES.vectors.passages[`ueu-2025-12/p12/${k}`], PAGES.vectors.of)));
+      },
+      4: () => {
+        mapAt($('map3'), 3);
+        FIRST.forEach((_, k) => later(170 * k, () => moveCard($('vec3-' + k), $('store3'),
+          '<div class="pcard" style="position:static;width:150px;height:auto;padding:4px 8px"><div class="c" style="font-size:11px">[ueu-2025-12 · p. 12]</div></div>', 750,
+          () => $('store3').classList.add('pulse'))));
+        later(400, () => countUp($('n3'), 3440, 2200));
+      },
+    },
+    4: {
+      1: () => { mapAt($('map4'), 4); typeText($('qt4'), 'How much did Uganda’s economy grow in FY25?', 28); },
+      2: () => { mapAt($('map4'), 5); vecBars($('vec4'), Object.values(PAGES.vectors.questions)[0], PAGES.vectors.of); },
+      3: () => {
+        const s = $('mms4');
+        const ring = document.createElementNS(NS, 'circle');
+        ring.setAttribute('cx', QPOS[0]); ring.setAttribute('cy', QPOS[1]); ring.setAttribute('r', 8);
+        ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#1558d6'); ring.setAttribute('stroke-width', 2);
+        s.appendChild(ring);
+        ring.animate([{ r: 8, opacity: 1 }, { r: 70, opacity: 0 }], { duration: 1200, iterations: 2 });
+        const q = document.createElementNS(NS, 'g');
+        q.innerHTML = `<circle cx="${QPOS[0]}" cy="${QPOS[1]}" r="9" fill="#1558d6"/><text x="${QPOS[0]}" y="${QPOS[1] + 30}" text-anchor="middle" style="font:700 14px Inter;fill:#1558d6">question</text>`;
+        s.appendChild(q);
+        q.animate([{ opacity: 0, transform: 'translateY(-30px)' }, { opacity: 1, transform: 'none' }], { duration: 500, fill: 'forwards' });
+        NEAR.forEach((i, k) => later(900 + 450 * k, () => {
+          const d = DOTS[i], c = $('d4-' + i);
+          c.setAttribute('fill', '#1558d6'); c.setAttribute('r', 7);
+          seg(s, QPOS[0], QPOS[1], d.x, d.y);
+          $('picks4').insertAdjacentHTML('beforeend', `<div class="pp" style="font:600 15px var(--mono);color:var(--primary);padding:4px 0;opacity:0;transition:opacity .4s" id="pk4-${k}">${k + 1}&nbsp;&nbsp;${PICKS[k]}</div>`);
+          later(30, () => { $('pk4-' + k).style.opacity = 1; });
+        }));
+      },
+    },
+    5: {
+      1: () => {
+        mapAt($('map5'), 6);
+        ['ins5', 'pas5', 'que5'].forEach((id, k) => {
+          const e = $(id); e.style.opacity = 0; e.style.transform = 'translateY(10px)';
+          later(350 + 650 * k, () => { e.style.opacity = 1; e.style.transform = 'none'; });
+        });
+      },
+      2: () => {
+        const p = wire($('ws5'), $('pr5'), $('m5'), { hot: true });
+        later(600, () => { flow($('ws5'), p, '#1558d6'); $('m5').classList.add('busy'); });
+        later(1300, () => {
+          wire($('ws5'), $('m5'), $('w5'), { hot: true });
+          mapAt($('map5'), 7);
+          stream($('a5'), ANSWER, 120, null, () => $('m5').classList.remove('busy'));
+        });
+      },
+    },
+    6: {
+      1: () => { mapAt($('map6'), 7); $('v6').style.background = 'var(--primary-subtle)'; $('v6').style.boxShadow = '0 0 0 3px var(--primary-subtle)'; },
+      2: () => {
+        $('c6').classList.add('hot');
+        pv6 = pageView($('pv6'), P12);
+        later(300, () => wire($('ws6'), $('c6'), $('pv6'), { hot: true }));
+      },
+      3: () => {
+        pv6.zoom([L[0], .35, L[1], .62], .94);
+        const m = P12.marks[0].boxes[0];
+        later(1600, () => {
+          const h = pageBox(pv6, [m[0] - .004, m[1] - .002, m[2] + .004, m[3] + .002], 'hl');
+          later(50, () => h.classList.add('in2'));
+        });
+      },
+    },
+  };
+
+  // A straight line drawn in over `ms`.
+  function seg(svg, x1, y1, x2, y2, color = '#1558d6', ms = 500) {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', color); p.setAttribute('stroke-width', 2);
+    svg.insertBefore(p, svg.firstChild);
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+    p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset ${ms}ms ease`; p.style.strokeDashoffset = 0;
+  }
+  go(1, 0);
+</script>
+</body>
+</html>

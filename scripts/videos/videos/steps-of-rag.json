@@ -1,0 +1,24 @@
+{
+  "title": "The steps of retrieval-augmented generation",
+  "series": "ai-applications",
+  "next": "answering-from-a-document-collection",
+  "steps": [
+    {"do": "goto", "url": "stages/steps-of-rag.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "An application can answer questions from a document collection. This collection holds 13 World Bank economic updates on Kenya and Uganda.", "speak": "An application can answer questions from a document collection. This collection holds thirteen World Bank economic updates on Kenya and Uganda.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "Together the reports have 769 pages of text, tables and charts.", "speak": "Together the reports have seven hundred and sixty-nine pages of text, tables and charts.", "min": 3.2, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "Retrieval-augmented generation, or RAG, first prepares the collection, once, before any question.", "speak": "Retrieval-augmented generation, or rag, first prepares the collection, once, before any question.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "The application divides each page into short passages. Each passage keeps its report, its edition date and its page.", "min": 4.6, "pause": 0.35},
+    {"do": "eval", "js": "go(3,3)", "say": "An embedding model turns each passage into a vector, a list of numbers that represents its meaning.", "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(3,4)", "say": "The passages and their vectors go into a store, 3,440 passages for this collection.", "speak": "The passages and their vectors go into a store, three thousand, four hundred and forty passages for this collection.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "The second stage runs for each question. A user asks how much Uganda's economy grew in FY25.", "speak": "The second stage runs for each question. A user asks how much Uganda's economy grew in F Y twenty-five.", "settle": 0.8, "min": 2.2, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "The same embedding model turns the question into a vector.", "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "The search compares this vector with the vectors in the store and returns the three passages closest in meaning.", "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "The application builds a prompt from the instructions, these passages and the question.", "settle": 0.8, "min": 2.4, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "A language model writes the answer from the prompt, with a citation to a report and a page after each figure.", "min": 6.5, "pause": 0.35},
+    {"do": "eval", "js": "go(6,1)", "say": "The answer gives growth of 6.3 percent for FY25.", "speak": "The answer gives growth of six point three percent for F Y twenty-five.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(6,2)", "say": "Its citation leads to page 12 of the December 2025 Uganda Economic Update.", "speak": "Its citation leads to page twelve of the December twenty twenty-five Uganda Economic Update.", "pause": 0.35},
+    {"do": "eval", "js": "go(6,3)", "say": "A reader can check the figure against the text of the report.", "min": 2.8, "pause": 0.6},
+    {"do": "eval", "js": "go(7,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

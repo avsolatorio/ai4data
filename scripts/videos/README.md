@@ -42,6 +42,7 @@ scripts/videos/
   overlay.js              pointer, ring, caption and title cards for site walkthroughs
   stages/kit/stage.css    theme and shared components for every stage
   stages/kit/stage.js     go(), later(), wire(), flow(), carry(), fly(), typeText(), stream()
+  stages/kit/collection.* map of the steps of RAG, report pages, passage cards, moveCard(), vectors
   stages/_template.html   starting point for a new stage
   stages/_short-template.html  starting point for a short in a series
   stages/pcn.html         the reference stage
@@ -281,8 +282,25 @@ are in `stages/kit/stage.css`; do not introduce new colours.
   that shows it, with the publisher, series, years, repository and
   licence, and the closing repeats it under the addresses. Model answers
   recorded for the video are named on the closing with the model and the
-  temperature. Logos and cover images of the source are not shown.
-  `rag-public-reports` adds the line from one constant in its script.
+  temperature. `stages/kit/collection.js` holds the line (`SRC`) and fills
+  every `.srcline` element.
+- Show the real source. A viewer understands a document collection from
+  its covers and pages, and a citation from the page that it leads to.
+  `examples/rag-public/render_pages.py` renders covers, inside pages and
+  cited pages from the downloaded PDFs into `local/rag-public/pages/`
+  (outside git, with the PDFs), with the position of each passage and of
+  each marked phrase. `pageView()` shows a page and zooms to a region;
+  `pageBox()` marks a passage or a phrase on it. A page is shown at a size
+  where its text can be read, or as a recognisable page in a collage.
+- One focal object per beat. A scene of two or three panels of small
+  monospaced text cannot be read on a phone, and the eye has no place to
+  start. Prose on screen is at least 16 px and, in the main object of a
+  scene, 18 to 21 px.
+- Shorts on retrieval-augmented generation show the map of its steps
+  (`ragMap()` and `mapAt()` in `stages/kit/collection.js`) under the
+  heading of every light scene, with the current step marked: Documents,
+  Passages, Vectors and Store, prepared once; Question, Search, Prompt and
+  Answer, for each question.
 - A store of thousands of chunks is drawn as one small square per chunk,
   grouped by document in store order, so that the retrieved and the needed
   chunks can be marked at their real positions (`rag-public-reports`,
@@ -308,6 +326,12 @@ is not finished. The kit provides the motions used in PCN:
 | `stream(el, tokens, ms, onToken)` | Tokens appended one at a time with a caret | Model output, in a chat bubble or a code panel |
 | `.model.busy` | Spinning gradient ring | The model while it writes |
 | `.pm.stamp` | A mark stamps onto a figure | Verification marks |
+
+An element that moves between two places keeps its size: `moveCard()`
+in `stages/kit/collection.js` moves a copy of a card from one element to
+another. Scaling a small element to the box of a large one, as an earlier
+helper did with a 6 px square sent to a list row, draws a stretched blue
+lens across the frame.
 
 A stage can add its own motion code where the kit has no helper; keep it in
 the stage's script, use `later()` for its timers and `rectOf()` for
@@ -449,3 +473,4 @@ section 7 apply unchanged.
 | 2026-10-25 | A fourth explainer (retrieval-augmented generation) made from this guide; it needed a step per failure case, a scene for testing retrieval alone, and found a pointer hook that ran before the stream it pointed into had finished | Rules for failure steps and a test scene; timing note for hooks that use streamed elements |
 | 2026-10-25 | A second RAG explainer built on 13 published World Bank reports (`rag-public-reports`); the guide had no rule for attributing licensed report material, and one tile per chunk does not scale to 3,440 chunks | Source line on scenes with report material and on the closing; one square per chunk for a large store |
 | 2026-10-25 | Reviewer found the long RAG explainer on published reports too technical and dense | Series of shorts of 60 to 90 seconds with one idea each; plan in `videos/series/`, templates for shorts, `series.py` |
+| 2026-10-26 | Reviewer could not tell what the document source looked like, saw a stretched blue shape when passages moved, and asked whether the RAG shorts were a serious explanation of its steps | Real covers and pages from `render_pages.py`, a map of the steps of RAG in every scene, one focal object per beat, `moveCard()` without scaling; "document collection" in place of "archive"; a first short on the steps |
