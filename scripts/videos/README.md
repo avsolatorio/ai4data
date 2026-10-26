@@ -37,6 +37,8 @@ scripts/videos/
   record.py               plays a step script, records the browser, adds voice and music
   captions.py             divides the narration into subtitle cues for the .vtt file
   series.py               checks the shorts of a series against its plan
+  thumbnail.py            renders thumbnails/<name>.html to a 1280x720 PNG for YouTube
+  thumbnails/             thumbnail pages, one per published video
   review.py               contact sheets of the stage (before recording) and of the video (after)
   music.py                synthesises the background track (no licence needed)
   overlay.js              pointer, ring, caption and title cards for site walkthroughs

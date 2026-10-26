@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Proof-Carrying Numbers thumbnail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../stages/kit/stage.css">
+<style>
+  /* YouTube thumbnail, 1280x720: large type that stays legible at small sizes. */
+  .scene.on { opacity: 1; }
+  .t { position: absolute; left: 90px; top: 250px; width: 600px; }
+  .t h1 { font-size: 80px; white-space: nowrap; line-height: .98; margin: 0; }
+  .t p { font-size: 34px; color: var(--block-soft); margin: 26px 0 0; line-height: 1.25; }
+  .ans { position: absolute; left: 700px; top: 150px; width: 500px; background: #fff; color: var(--ink); border-radius: 22px; padding: 30px 34px; }
+  .ans .q { font-size: 22px; color: var(--muted); }
+  .ans .fig { display: flex; gap: 18px; align-items: center; margin-top: 18px; }
+  .ans .v { font-size: 88px; font-weight: 800; letter-spacing: -.04em; line-height: 1; border-bottom: 7px dotted var(--ok); }
+  .ans .ok { flex: none; width: 80px; height: 80px; border-radius: 50%; background: var(--ok); color: #fff; font-size: 56px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .ans .bad { margin-top: 26px; display: flex; gap: 14px; align-items: center; font-size: 40px; font-weight: 800; }
+  .ans .bad span:first-child { border-bottom: 5px dotted var(--bad); }
+  .ans .bad .x { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--bad); color: #fff; font-size: 34px; display: flex; align-items: center; justify-content: center; }
+  .tag { position: absolute; left: 700px; top: 590px; width: 460px; font: 500 19px var(--mono); color: var(--primary-light); }
+</style>
+</head>
+<body>
+<section class="scene dark on">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="" style="height:64px">
+  <div class="t"><h1>Proof&#8209;Carrying<br>Numbers</h1><p>Checking every figure in an AI answer against its data</p></div>
+  <div class="ans">
+    <div class="q">Internet use in 2024, percent</div>
+    <div class="fig"><span style="font-size:24px;font-weight:600;width:104px;flex:none">Kenya</span><span class="v">35.0</span><span class="ok">✓</span></div>
+    <div class="bad"><span style="font-size:24px;font-weight:600;width:104px;flex:none;border:0">Rwanda</span><span>35.7</span><span class="x">!</span><span style="font-size:20px;font-weight:600;color:var(--bad);line-height:1.2">differs from its record</span></div>
+  </div>
+  <div class="tag">&lt;claim id="IT.NET.USER.ZS:KEN:2024"&gt;</div>
+</section>
+</body>
+</html>
