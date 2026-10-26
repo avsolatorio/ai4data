@@ -6,35 +6,50 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="kit/stage.css">
+<link rel="stylesheet" href="kit/collection.css">
 <script src="kit/stage.js"></script>
+<script src="../../../local/rag-public/pages/pages.js"></script>
+<script src="kit/collection.js"></script>
 <style>
-  /* Layout of the GISTEmbed explainer: small embedding models for search, trained with a large guide model. */
+  /* GISTEmbed, from the angle of Small AI for search: search by meaning, the map of meaning,
+     why small models matter, how they learn, the wrong lesson, the guide's check, and why it works. */
   .srcline { position: absolute; left: 80px; right: 80px; bottom: 24px; font-size: 12px; color: var(--subtle); }
   .dark .srcline { left: 110px; right: 110px; bottom: 34px; color: var(--block-soft); }
   .note { position: absolute; font-size: 13px; color: var(--subtle); }
   .lab { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); }
 
-  /* 2: search and model size */
-  #srch2 { position: absolute; left: 80px; top: 180px; width: 560px; height: 452px; padding: 22px 24px; }
-  #box2 { border: 1.5px solid var(--primary); border-radius: 999px; padding: 12px 20px; font-size: 19px; min-height: 50px; display: flex; gap: 10px; align-items: center; }
-  #emb2 { margin: 16px 0 6px; display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--muted); opacity: 0; transition: opacity .4s; }
-  #emb2.in2 { opacity: 1; }
-  .res { margin-top: 10px; padding: 10px 14px; border: 1px solid var(--hairline); border-radius: 8px; font-size: 16px; line-height: 1.4;
-    opacity: 0; transform: translateY(8px); transition: all .45s; }
-  .res.in2 { opacity: 1; transform: none; }
-  .res b { font: 600 13px var(--mono); color: var(--primary); display: block; margin-bottom: 2px; }
-  .mblock { position: absolute; border-radius: 14px; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px 16px; color: #fff; }
-  #big2 { left: 700px; top: 200px; width: 270px; height: 270px; background: var(--block); }
-  #small2 { left: 1030px; top: 400px; width: 70px; height: 70px; background: var(--primary); padding: 0; }
-  .mlab { position: absolute; font-size: 17px; line-height: 1.4; }
-  .mlab b { display: block; font-size: 19px; }
-  .mlab span { color: var(--muted); font-size: 15px; }
-  #gist2 { position: absolute; left: 700px; top: 560px; width: 500px; padding: 14px 18px; font-size: 19px; border-top: 4px solid var(--primary); }
+  /* 2: search by meaning */
+  .txt { position: absolute; width: 500px; padding: 22px 26px; font-size: 27px; line-height: 1.4; }
+  .txt .lab { margin-bottom: 8px; }
+  #kw2 { position: absolute; left: 80px; top: 470px; width: 500px; padding: 16px 22px; font-size: 20px; border-top: 4px solid var(--bad); }
+  #mn2 { position: absolute; left: 700px; top: 470px; width: 500px; padding: 16px 22px; font-size: 20px; border-top: 4px solid var(--ok); }
+  #kw2 b { color: var(--bad); } #mn2 b { color: var(--ok); }
 
-  /* 3, 4: the batch and the space of meaning */
+  /* 3: map of meaning */
+  .map { position: absolute; left: 80px; top: 196px; width: 760px; height: 440px; background: #fff; border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .map .note { right: 14px; bottom: 10px; }
+  .map .ct { font: 700 13px Inter, sans-serif; fill: var(--subtle); letter-spacing: .08em; }
+  .map .pt text { font: 500 14px Inter, sans-serif; fill: var(--ink); }
+  .map .pt { transition: opacity .5s; }
+  .side3 { position: absolute; left: 870px; width: 330px; padding: 14px 18px; font-size: 17px; line-height: 1.45; }
+  .side3 .vec { position: relative; margin-top: 8px; }
+  .side3 small { display: block; font-size: 12px; color: var(--subtle); margin-top: 4px; }
+
+  /* 4: Small AI */
+  .mblock { position: absolute; border-radius: 16px; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 18px; color: #fff; }
+  #big4 { left: 80px; top: 200px; width: 290px; height: 290px; background: var(--block); }
+  #small4 { left: 410px; top: 415px; width: 75px; height: 75px; background: var(--primary); padding: 0; }
+  .mcap { position: absolute; font-size: 17px; line-height: 1.4; color: var(--muted); }
+  .mcap b { display: block; color: var(--ink); font-size: 20px; }
+  .why4 { position: absolute; left: 640px; width: 560px; display: flex; gap: 16px; align-items: center; padding: 14px 18px; font-size: 21px; }
+  .why4 .ic { flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--primary-subtle); display: flex; align-items: center; justify-content: center; }
+  #gist4 { position: absolute; left: 80px; top: 560px; width: 1120px; padding: 14px 20px; font-size: 21px; border-top: 4px solid var(--primary); }
+
+  /* 5, 6: the group of pairs and the map */
   .batch { position: absolute; left: 80px; top: 222px; width: 590px; }
-  .batch table.data { width: 100%; font-size: 16px; }
-  .batch td, .batch th { padding: 11px 14px; }
+  .batch table.data { width: 100%; font-size: 17px; }
+  .batch td, .batch th { padding: 12px 14px; }
   .batch tr.r { opacity: 0; transition: opacity .4s; }
   .batch tr.r.in2 { opacity: 1; }
   .batch tr.hot td { background: var(--primary-subtle); }
@@ -42,66 +57,49 @@
   .space svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .space .note { right: 12px; bottom: 8px; }
   .dot { transition: transform 1.4s cubic-bezier(.4,0,.2,1); }
-  .dot circle { transition: fill .4s, r .4s; }
-  .dot text { font: 500 13px Inter, sans-serif; fill: var(--muted); transition: fill .4s; }
+  .dot circle { transition: fill .4s; }
+  .dot text { font: 500 13.5px Inter, sans-serif; fill: var(--muted); transition: fill .4s; }
   .dot.pos circle { fill: var(--ok); } .dot.pos text { fill: var(--ok); font-weight: 700; }
   .dot.bad circle { fill: var(--bad); } .dot.bad text { fill: var(--bad); font-weight: 700; }
-  .card.warn { position: absolute; left: 80px; width: 590px; padding: 14px 18px; font-size: 18px; line-height: 1.45; border-top: 4px solid var(--bad); }
+  .card.warn { position: absolute; left: 80px; width: 590px; padding: 16px 20px; font-size: 20px; line-height: 1.45; border-top: 4px solid var(--bad); }
   .card.warn b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px; }
-  .card.info { position: absolute; left: 80px; width: 590px; padding: 14px 18px; font-size: 18px; line-height: 1.45; border-top: 4px solid var(--primary); }
+  .card.info { position: absolute; left: 80px; width: 590px; padding: 16px 20px; font-size: 20px; line-height: 1.45; border-top: 4px solid var(--primary); }
 
-  /* 5, 6: guide scores */
-  .guide { position: absolute; left: 80px; top: 222px; width: 300px; height: 412px; background: var(--block); color: #fff; border-radius: 14px; padding: 22px 22px; }
-  .guide .k { color: var(--block-soft); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 14px; }
-  .guide .v { font-size: 19px; margin-top: 4px; }
-  .guide .v.mono { font: 500 15px var(--mono); color: var(--primary-light); }
-  .chart { position: absolute; left: 410px; top: 222px; width: 790px; height: 412px; }
-  .row { position: absolute; left: 0; width: 790px; height: 32px; display: flex; align-items: center; transition: opacity .5s; }
-  .row .t { width: 360px; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 12px; transition: color .4s; }
-  .row .t small { color: var(--subtle); font-size: 12px; margin-right: 6px; }
-  .row .bar { height: 20px; border-radius: 4px; background: #c9d3e3; width: 0; transition: width .9s cubic-bezier(.2,.8,.2,1), background .4s; }
-  .row .n { font: 600 14px var(--mono); margin-left: 10px; opacity: 0; transition: opacity .4s; }
+  /* 7: the guide's check */
+  .guide { position: absolute; left: 80px; top: 222px; width: 300px; height: 412px; background: var(--block); color: #fff; border-radius: 14px; padding: 22px; }
+  .guide .k { color: var(--block-soft); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 16px; }
+  .guide .v { font-size: 20px; margin-top: 4px; line-height: 1.35; }
+  .chart { position: absolute; left: 410px; top: 236px; width: 790px; height: 400px; }
+  .row { position: absolute; left: 0; width: 790px; height: 44px; display: flex; align-items: center; transition: opacity .5s; }
+  .row .t { width: 380px; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 12px; transition: color .4s; }
+  .row .bar { height: 26px; border-radius: 5px; background: #c9d3e3; width: 0; transition: width .9s cubic-bezier(.2,.8,.2,1), background .4s; }
+  .row .n { font: 600 15px var(--mono); margin-left: 10px; opacity: 0; transition: opacity .4s; color: var(--muted); }
   .row.in2 .n { opacity: 1; }
   .row.pair .bar { background: var(--primary); } .row.pair .t { font-weight: 700; color: var(--primary); }
   .row.over .bar { background: #e0a800; } .row.over .t { font-weight: 700; color: #8a6400; }
-  .row.gone { opacity: .35; } .row.gone .t { text-decoration: line-through; }
+  .row.gone { opacity: .4; } .row.gone .t { text-decoration: line-through; }
   .row.neg .bar { background: var(--teal); }
-  .thr { position: absolute; top: -6px; width: 0; height: 384px; border-left: 2px dashed var(--primary); opacity: 0; transition: opacity .4s; }
+  .tagx { position: absolute; font-size: 15px; font-weight: 700; opacity: 0; transition: opacity .4s; }
+  .tagx.in2 { opacity: 1; }
+  .thr { position: absolute; top: -10px; width: 0; height: 330px; border-left: 2px dashed var(--primary); opacity: 0; transition: opacity .4s; }
   .thr.in2 { opacity: 1; }
-  .thr span { position: absolute; left: 8px; top: -18px; white-space: nowrap; font-size: 12px; font-weight: 700; color: var(--primary); letter-spacing: .04em; }
-  .rule { position: absolute; left: 80px; top: 470px; width: 300px; padding: 14px 18px; font-size: 16px; line-height: 1.45; }
-  .rule .mono { font: 500 14px var(--mono); display: block; margin-top: 6px; color: var(--primary); }
+  .thr span { position: absolute; left: 8px; top: -20px; white-space: nowrap; font-size: 13px; font-weight: 700; color: var(--primary); letter-spacing: .04em; }
 
-  /* 7: training and use */
-  .phase { position: absolute; top: 222px; height: 412px; padding: 18px 22px; }
-  .phase .lab { margin-bottom: 12px; }
+  /* 8: why it works */
+  .phase { position: absolute; top: 222px; height: 300px; padding: 18px 22px; }
   .mini { display: inline-flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; text-align: center; }
   .mini small { font-weight: 400; font-size: 13px; color: var(--block-soft); margin-top: 3px; }
-  #g7 { position: absolute; left: 30px; top: 70px; width: 200px; height: 200px; background: var(--block); transition: opacity .8s; }
-  #m7 { position: absolute; left: 330px; top: 140px; width: 110px; height: 110px; background: var(--primary); }
-  #m7 small, #m8 small { color: #dbe6fb; }
-  #m8 { position: absolute; left: 40px; top: 160px; width: 110px; height: 110px; background: var(--primary); }
-  #q8 { position: absolute; left: 190px; top: 70px; width: 320px; }
-  #q8 .uq { margin-left: 0; font-size: 17px; }
-  #r8 { position: absolute; left: 190px; top: 160px; width: 320px; }
-  #r8 .res { font-size: 15px; }
-
-  /* 8: results */
-  .dots { position: absolute; top: 240px; width: 540px; height: 330px; padding: 16px 20px; }
-  .dots .lab { margin-bottom: 4px; }
-  .dots .sub { font-size: 14px; color: var(--muted); }
-  .dots svg { position: absolute; left: 0; top: 70px; width: 540px; height: 250px; overflow: visible; }
-  .dots svg text { font: 500 15px Inter, sans-serif; fill: var(--muted); }
-  .dots svg .v { font: 700 15px var(--mono); fill: var(--ink); }
-
-  /* 9: scope */
-  .two { position: absolute; left: 80px; top: 196px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-  .two .card { padding: 22px 26px; font-size: 21px; line-height: 1.45; }
-  .two .card b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
-  .two .g { border-top: 4px solid var(--ok); } .two .g b { color: var(--ok); }
-  .two .n { border-top: 4px solid #e0a800; } .two .n b { color: #8a6400; }
-  .own { position: absolute; left: 80px; top: 470px; width: 1120px; padding: 20px 26px; font-size: 21px; line-height: 1.45; border-top: 4px solid var(--primary); }
-  .own b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; color: var(--primary); }
+  #g8 { position: absolute; left: 30px; top: 60px; width: 190px; height: 190px; background: var(--block); transition: opacity .8s; }
+  #m8 { position: absolute; left: 330px; top: 120px; width: 110px; height: 110px; background: var(--primary); }
+  #m8 small, #m9 small { color: #dbe6fb; }
+  #m9 { position: absolute; left: 30px; top: 120px; width: 110px; height: 110px; background: var(--primary); }
+  #q9 { position: absolute; left: 175px; top: 60px; width: 350px; }
+  #q9 .uq { margin-left: 0; font-size: 17px; }
+  #r9 { position: absolute; left: 175px; top: 150px; width: 350px; }
+  .res { margin-top: 10px; padding: 10px 14px; border: 1px solid var(--hairline); border-radius: 8px; font-size: 16px; line-height: 1.4; opacity: 0; transform: translateY(8px); transition: all .45s; }
+  .res.in2 { opacity: 1; transform: none; }
+  .res b { font: 600 13px var(--mono); color: var(--primary); display: block; margin-bottom: 2px; }
+  #lim8 { position: absolute; left: 80px; top: 548px; width: 1120px; padding: 14px 20px; font-size: 19px; line-height: 1.45; border-top: 4px solid #e0a800; }
 </style>
 </head>
 <body>
@@ -110,285 +108,268 @@
 <section class="scene dark" id="s1">
   <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
   <div class="floaters">
-    <span style="left:760px;top:420px;animation-delay:-2s">σ(q, x) &gt; σ(q, p⁺) → −∞</span>
-    <span style="left:880px;top:560px;animation-delay:-9s">guide: UAE-Large-V1 · 335M</span>
+    <span style="left:760px;top:420px;animation-delay:-2s">guide(q, x) &gt; guide(q, answer) → leave out</span>
+    <span style="left:880px;top:560px;animation-delay:-9s">small model · 22.7M parameters</span>
     <span style="left:640px;top:640px;animation-delay:-5s">GISTEmbedLoss(model, guide)</span>
-    <span style="left:980px;top:300px;animation-delay:-13s">all-MiniLM-L6-v2 · 22.7M</span>
+    <span style="left:980px;top:300px;animation-delay:-13s">guide · 335M parameters</span>
   </div>
-  <div class="kicker">AI for Data – Data for AI · Access</div>
+  <div class="kicker">AI for Data – Data for AI · Small AI</div>
   <h1>GISTEmbed</h1>
-  <div class="sub">Small AI for search: training a small embedding model with a large one as its guide</div>
+  <div class="sub">Small AI for search: a small model that learns from a large one</div>
 </section>
 
-<!-- 2 why it matters -->
+<!-- 2 search by meaning -->
 <section class="scene" id="s2">
   <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
-  <div class="eyebrow">Why it matters</div>
-  <h2>Search runs on an embedding model</h2>
+  <div class="eyebrow">Search by meaning</div>
+  <h2>A good answer may share no words with the question</h2>
   <svg class="wires" id="ws2"></svg>
-  <div class="card" id="srch2" data-b="1">
-    <div id="box2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg><span id="qt2"></span></div>
-    <div id="emb2"><span class="chip on" style="font-size:14px;padding:5px 10px">embedding model</span>question and documents as vectors, closest first</div>
-    <div class="res" id="r2a"><b>[ueu-2025-12 · p. 12]</b>Real gross domestic product (GDP) growth accelerated to 6.3 percent …</div>
-    <div class="res" id="r2b"><b>[ueu-2025-09 · p. 21]</b>Real GDP during 9M-FY25 grew by 6.8 percent …</div>
-    <div class="res" id="r2c"><b>[ueu-2023-06 · p. 40]</b>Uganda’s economic outlook has greatly improved …</div>
-  </div>
-  <div class="mblock" id="big2" data-b="2"><div style="font-size:21px;font-weight:700">Large model</div><div style="font-size:15px;color:var(--block-soft)">335 million parameters</div></div>
-  <div class="mlab" style="left:700px;top:482px;width:300px" data-b="2"><span>More memory and more time for every search</span></div>
-  <div class="mblock" id="small2" data-b="3"></div>
-  <div class="mlab" style="left:1012px;top:200px;width:190px" data-b="3"><b>Small model</b><span>22.7 million parameters, runs on an ordinary computer</span></div>
-  <div class="card" id="gist2" data-b="4"><b style="color:var(--primary)">GISTEmbed</b> trains the small model with the large model as its guide.</div>
-  <div class="note" style="left:80px;top:640px">Search results from the document collection of 13 World Bank economic updates.</div>
+  <div class="card txt" id="q2" style="left:80px;top:200px" data-b="1"><div class="lab">Question</div>How fast did the economy expand last year?</div>
+  <div class="card txt" id="a2" style="left:700px;top:200px" data-b="2"><div class="lab">Text in a report</div>Real GDP growth accelerated to 6.3 percent.</div>
+  <div class="card" id="kw2" data-b="2"><b>Words in common:</b> none. A search for the same words misses this text.</div>
+  <div class="card" id="mn2" data-b="3"><b>Meaning in common:</b> both are about how much the economy grew.</div>
+  <div class="note" style="left:80px;top:640px">Example question written for this video.</div>
 </section>
 
-<!-- 3 how a search model learns -->
+<!-- 3 map of meaning -->
 <section class="scene" id="s3">
-  <div class="eyebrow">How a search model learns</div>
-  <h2>Pull the match closer, push the rest away</h2>
-  <div class="rmap" id="map3"></div>
+  <div class="eyebrow">A map of meaning</div>
+  <h2>An embedding model gives every text a place</h2>
+  <div class="map" data-b="1"><svg id="mp3"></svg><div class="note">Map drawn for illustration</div></div>
+  <div class="card side3" style="top:196px" data-b="1"><b>Embedding model</b><br>Reads a text and gives it a place on the map.</div>
+  <div class="card side3" style="top:316px" data-b="2"><b>Close means related</b><br>Texts about the same subject sit near each other.</div>
+  <div class="card side3" style="top:436px" data-b="3"><b>A place is a list of numbers</b><br>called a vector. The search returns the texts nearest to the question.
+    <div class="vec" id="vec3"></div><small>The first numbers of the vector of a real report passage on GDP growth</small></div>
+</section>
+
+<!-- 4 Small AI -->
+<section class="scene" id="s4">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Small AI</div>
+  <h2>Models small enough for an ordinary computer</h2>
+  <div class="mblock" id="big4" data-b="1"><div style="font-size:22px;font-weight:700">Large model</div><div style="font-size:15px;color:var(--block-soft)">335 million parameters</div></div>
+  <div class="mcap" style="left:80px;top:500px;width:300px" data-b="1">Draws the map well, and needs powerful hardware for every search.</div>
+  <div class="mblock" id="small4" data-b="2"></div>
+  <div class="mcap" style="left:410px;top:250px;width:200px" data-b="2"><b>Small model</b>22.7 million parameters</div>
+  <div class="card why4" style="top:200px" data-b="3"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>Runs on an ordinary computer</div>
+  <div class="card why4" style="top:278px" data-b="3"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg></div>Answers quickly</div>
+  <div class="card why4" style="top:356px" data-b="3"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg></div>Costs little to run</div>
+  <div class="card why4" style="top:434px" data-b="3"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>Keeps documents on the organization’s own machines</div>
+  <div class="card" id="gist4" data-b="4"><b style="color:var(--primary)">GISTEmbed</b> trains a small model to draw a better map, with a large model as its guide during training.</div>
+</section>
+
+<!-- 5 how a model learns the map -->
+<section class="scene" id="s5">
+  <div class="eyebrow">How a model learns the map</div>
+  <h2>Pull the answer closer, push the rest away</h2>
+  <div class="rmap" id="map5"></div>
   <div class="batch" data-b="1"><table class="data">
-    <tr><th>Query</th><th>Matching text</th></tr>
+    <tr><th>Question</th><th>Answer</th></tr>
     <tr class="r hot"><td>Capital cities</td><td>Ottawa</td></tr>
     <tr class="r"><td>Which city is the capital of Australia?</td><td>Canberra is the capital city of Australia.</td></tr>
     <tr class="r"><td>Who leads the government of Canada?</td><td>The Prime Minister heads the federal government of Canada.</td></tr>
     <tr class="r"><td>How much did Uganda’s economy grow in FY25?</td><td>Real GDP growth accelerated to 6.3 percent in FY25.</td></tr>
   </table></div>
-  <div class="card info" style="top:540px" data-b="3">The other texts of the batch serve as negatives for each query. They need no labelling.</div>
-  <div class="space" data-b="1"><svg id="sp3"></svg><div class="note">Positions drawn for illustration</div></div>
-  <div class="srcline"></div>
+  <div class="card info" style="top:540px" data-b="3">Every other text in the group is pushed away from the question. This needs no extra labels.</div>
+  <div class="space" data-b="1"><svg id="sp5"></svg><div class="note">Map drawn for illustration</div></div>
 </section>
 
-<!-- 4 the problem -->
-<section class="scene" id="s4">
-  <div class="eyebrow">The problem</div>
-  <h2>Some negatives are related to the query</h2>
-  <div class="rmap" id="map4"></div>
-  <div class="card warn" style="top:222px" data-b="1"><b>Related, but pushed away</b>“Canberra is the capital city of Australia.” and “Which city is the capital of Australia?” come from another pair of the batch.</div>
-  <div class="card warn" style="top:372px" data-b="2"><b>What the model learns</b>That capital cities and Canberra are unrelated: the opposite of what search needs.</div>
-  <div class="card info" style="top:522px" data-b="3">One public training set used in the paper holds 1.45 million examples, too many to check by hand.</div>
-  <div class="space" data-b="1"><svg id="sp4"></svg><div class="note">Positions drawn for illustration</div></div>
-  <div class="srcline"></div>
+<!-- 6 the wrong lesson -->
+<section class="scene" id="s6">
+  <div class="eyebrow">The wrong lesson</div>
+  <h2>Some pushed-away texts belong close</h2>
+  <div class="rmap" id="map6"></div>
+  <div class="card warn" style="top:222px" data-b="1"><b>Related, but pushed away</b>“Canberra is the capital city of Australia.” comes from another pair in the group.</div>
+  <div class="card warn" style="top:372px" data-b="2"><b>What the small model learns</b>That capital cities and Canberra are unrelated.</div>
+  <div class="card info" style="top:500px" data-b="2">Training data holds millions of pairs, too many to check by hand.</div>
+  <div class="space" data-b="1"><svg id="sp6"></svg><div class="note">Map drawn for illustration</div></div>
 </section>
 
-<!-- 5 guide scores -->
-<section class="scene" id="s5">
-  <div class="eyebrow">Step 1 · The guide</div>
-  <h2>A large model scores every text in the batch</h2>
-  <div class="rmap" id="map5"></div>
+<!-- 7 the guide's check -->
+<section class="scene" id="s7">
+  <div class="eyebrow">The guide</div>
+  <h2>A large model checks each push first</h2>
+  <div class="rmap" id="map7"></div>
   <div class="guide" data-b="1">
     <div style="font-size:24px;font-weight:700">Guide model</div>
-    <div class="k">Model</div><div class="v mono">WhereIsAI/UAE-Large-V1</div>
     <div class="k">Size</div><div class="v">335 million parameters</div>
-    <div class="k">Query</div><div class="v">Capital cities</div>
-    <div class="k">Used</div><div class="v">during training only</div>
+    <div class="k">Question</div><div class="v">Capital cities</div>
+    <div class="k">Its answer</div><div class="v">Ottawa</div>
+    <div class="k">Used</div><div class="v">only during training</div>
   </div>
-  <div class="chart" id="ch5" data-b="1"></div>
+  <div class="chart" id="ch7" data-b="1"></div>
   <div class="srcline"></div>
 </section>
 
-<!-- 6 false negatives -->
-<section class="scene" id="s6">
-  <div class="eyebrow">Step 2 · False negatives</div>
-  <h2>Texts that score above the pair are left out</h2>
-  <div class="rmap" id="map6"></div>
-  <div class="guide" style="height:228px" data-b="1">
-    <div style="font-size:24px;font-weight:700">Guide model</div>
-    <div class="k">Query</div><div class="v">Capital cities</div>
-    <div class="k">Pair score, the bar</div><div class="v">0.647 (with “Ottawa”)</div>
-  </div>
-  <div class="card rule" data-b="2"><b>Rule</b> remove a text from the negatives of a query when the guide scores it above the query and its own match.
-    <span class="mono">σ(q, x) &gt; σ(q, p⁺) → −∞</span></div>
-  <div class="chart" id="ch6" data-b="1"></div>
-  <div class="srcline"></div>
-</section>
-
-<!-- 7 training and use -->
-<section class="scene" id="s7">
-  <div class="eyebrow">Step 3 · Training</div>
-  <h2>The guide trains the small model, then steps aside</h2>
-  <div class="rmap" id="map7"></div>
-  <svg class="wires" id="ws7"></svg>
-  <div class="card phase" style="left:80px;width:520px" data-b="1"><div class="lab">During training</div>
-    <div class="mini" id="g7">Guide model<small>chooses the negatives</small></div>
-    <div class="mini model" id="m7">Small model<small>learns</small></div></div>
-  <div class="card phase" style="left:640px;width:560px" data-b="2"><div class="lab">In search</div>
-    <div class="mini" id="m8">Small model<small>alone</small></div>
-    <div id="q8"><div class="uq" id="qt8"></div></div>
-    <div id="r8"><div class="res" id="r8a"><b>[ueu-2025-12 · p. 12]</b>GDP growth accelerated to 6.3 percent …</div><div class="res" id="r8b"><b>[ueu-2025-09 · p. 21]</b>Real GDP during 9M-FY25 grew by 6.8 percent …</div></div></div>
-  <div class="srcline"></div>
-</section>
-
-<!-- 8 results -->
+<!-- 8 why it works -->
 <section class="scene" id="s8">
-  <div class="eyebrow">Results in the paper</div>
-  <h2>The small model gains the most</h2>
-  <div class="card dots" style="left:80px" data-b="1"><div class="lab">Mean score on 56 benchmark tasks</div><div class="sub">all-MiniLM-L6-v2, 22.7 million parameters</div><svg id="d8a"></svg></div>
-  <div class="card dots" style="left:660px" data-b="2"><div class="lab">Search tasks: mean of 15</div><div class="sub">same model, nDCG@10</div><svg id="d8b"></svg></div>
-  <div class="note" style="left:80px;top:590px">Massive Text Embedding Benchmark (MTEB). Axes start at the values shown, not at zero. Source: Solatorio (2024), Table 1.</div>
+  <div class="eyebrow">Why it works</div>
+  <h2>The small model learns only the right lessons</h2>
+  <div class="rmap" id="map8"></div>
+  <svg class="wires" id="ws8"></svg>
+  <div class="card phase" style="left:80px;width:520px" data-b="1"><div class="lab">During training</div>
+    <div class="mini" id="g8">Guide model<small>checks each push</small></div>
+    <div class="mini model" id="m8">Small model<small>learns</small></div></div>
+  <div class="card phase" style="left:640px;width:560px" data-b="2"><div class="lab">In search</div>
+    <div class="mini" id="m9">Small model<small>alone</small></div>
+    <div id="q9"><div class="uq" id="qt9"></div></div>
+    <div id="r9"><div class="res" id="r9a"><b>[ueu-2025-12 · p. 12]</b>Real GDP growth accelerated to 6.3 percent …</div></div></div>
+  <div class="card" id="lim8" data-b="3"><b style="color:#8a6400">Limit</b> &nbsp;A text that the guide misjudges is still pushed away, so the guide’s mistakes pass through to the small model.</div>
 </section>
 
-<!-- 9 scope -->
-<section class="scene" id="s9">
-  <div class="eyebrow">Scope</div>
-  <h2>What the method depends on</h2>
-  <div class="two">
-    <div class="card g" data-b="1"><b>Guide model</b>The guide’s own errors carry over. A text that the guide scores too low stays a negative.</div>
-    <div class="card n" data-b="2"><b>Training data</b>For the larger models, search scores fell on some tasks, such as one on COVID-19 research, which the training data hardly covered.</div>
-  </div>
-  <div class="card own" data-b="3"><b>Own data</b>The method needs only pairs of a query and a matching text. An organization can train a small search model on its own pairs.</div>
-</section>
-
-<!-- 10 closing -->
-<section class="scene dark" id="s10">
+<!-- 9 closing -->
+<section class="scene dark" id="s9">
   <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
-  <div class="kicker">AI for Data – Data for AI · Access</div>
+  <div class="kicker">AI for Data – Data for AI · Small AI</div>
   <h1 style="font-size:60px">GISTEmbed</h1>
   <div class="links">
     <span>Code</span><b>github.com/avsolatorio/GISTEmbed</b>
-    <span>Paper</span><b>arxiv.org/abs/2402.16829</b>
     <span>Models</span><b>huggingface.co/avsolatorio</b>
+    <span>Paper</span><b>arxiv.org/abs/2402.16829</b>
     <span>Program</span><b>worldbank.github.io/ai4data</b>
   </div>
   <div class="srcline"></div>
 </section>
 
 <script>
-  const SRC = 'Guide scores computed with WhereIsAI/UAE-Large-V1 on an example batch written for this video (scripts/videos/examples/gist). Results: Solatorio (2024), GISTEmbed, arXiv:2402.16829.';
-  document.querySelectorAll('.srcline').forEach((e) => { e.textContent = SRC; });
-  const STEPS = [['', ['Batch', 'Guide scores', 'False negatives', 'Training']]];
-  ['map3', 'map4', 'map5', 'map6', 'map7'].forEach((m) => stepMap($(m), STEPS));
+  const GSRC = 'Closeness scores computed with the guide model WhereIsAI/UAE-Large-V1 on an example group of pairs written for this video (scripts/videos/examples/gist).';
+  document.querySelectorAll('.srcline').forEach((e) => { e.textContent = GSRC; });
+  const STEPS = [['', ['Pairs', 'Push and pull', 'Guide check', 'Small model']]];
+  ['map5', 'map6', 'map7', 'map8'].forEach((m) => stepMap($(m), STEPS));
 
-  // Guide scores for the query "Capital cities" (examples/gist/similarities.json).
+  // Guide scores for the question "Capital cities" (examples/gist/similarities.json).
   const SCORES = [
-    ['positive of pair 2', 'Canberra is the capital city of Australia.', 0.674, 'Canberra …'],
-    ['query of pair 2', 'Which city is the capital of Australia?', 0.665, 'Australia’s capital?'],
-    ['its match', 'Ottawa', 0.647, 'Ottawa'],
-    ['negative of pair 3', 'What is the capital of Canada?', 0.631, 'Capital of Canada?'],
-    ['negative of pair 2', 'Sydney is the largest city in Australia.', 0.553, 'Sydney …'],
-    ['query of pair 4', 'How much did Uganda’s economy grow in FY25?', 0.428, 'Uganda growth?'],
-    ['positive of pair 3', 'The Prime Minister heads the federal government of Canada.', 0.425, 'Prime Minister …'],
-    ['positive of pair 4', 'Real GDP growth accelerated to 6.3 percent in FY25.', 0.425, 'GDP growth …'],
-    ['query of pair 3', 'Who leads the government of Canada?', 0.391, 'Leads Canada?'],
-    ['negative of pair 4', 'Inflation in Uganda was 3.0 percent in April 2026.', 0.383, 'Uganda inflation …'],
-    ['negative of pair 1', 'Maple syrup production in Quebec', 0.363, 'Maple syrup …'],
+    ['Canberra is the capital city of Australia.', 0.674, 'Canberra …'],
+    ['Which city is the capital of Australia?', 0.665, 'Australia’s capital?'],
+    ['Ottawa', 0.647, 'Ottawa'],
+    ['What is the capital of Canada?', 0.631, 'Capital of Canada?'],
+    ['Sydney is the largest city in Australia.', 0.553, 'Sydney …'],
+    ['How much did Uganda’s economy grow in FY25?', 0.428, 'Uganda growth?'],
+    ['The Prime Minister heads the federal government of Canada.', 0.425, 'Prime Minister …'],
+    ['Real GDP growth accelerated to 6.3 percent in FY25.', 0.425, 'GDP growth …'],
+    ['Who leads the government of Canada?', 0.391, 'Leads Canada?'],
+    ['Inflation in Uganda was 3.0 percent in April 2026.', 0.383, 'Uganda inflation …'],
+    ['Maple syrup production in Quebec', 0.363, 'Maple syrup …'],
   ];
   const PAIR = 0.647;
-  const BAR = (v) => Math.max(0, (v - 0.3) / 0.4) * 330; // bar length: 0.30 to 0.70 over 330 px
 
-  function chart(el) {
-    el.innerHTML = SCORES.map(([k, t, v], i) =>
-      `<div class="row${v === PAIR ? ' pair' : ''}" id="${el.id}-r${i}" style="top:${i * 35}px"><div class="t"><small>${k}</small>${t}</div><div class="bar"></div><div class="n">${v.toFixed(3)}</div></div>`).join('') +
-      `<div class="thr" id="${el.id}-thr" style="left:${360 + BAR(PAIR)}px"><span>SCORE OF THE PAIR, ${PAIR}</span></div>`;
+  // 3: an illustrated map of meaning with three subjects.
+  const MAPPTS = [
+    ['Real GDP growth accelerated to 6.3 percent.', 150, 150], ['Inflation fell to 3.0 percent.', 90, 240],
+    ['Exports rose in FY25.', 230, 270], ['Ottawa is the capital of Canada.', 470, 110],
+    ['Canberra is the capital of Australia.', 500, 190], ['Manila is the capital of the Philippines.', 430, 250],
+    ['Child vaccination rates', 420, 360], ['Hospital beds per 1,000 people', 520, 400],
+  ];
+  {
+    const s = $('mp3');
+    s.innerHTML = [['ECONOMY', 90, 80], ['CAPITAL CITIES', 470, 70], ['HEALTH', 420, 325]].map(([n, x, y]) => `<text class="ct" x="${x}" y="${y}">${n}</text>`).join('') +
+      MAPPTS.map(([t, x, y], i) => `<g class="pt" id="mp3-${i}" style="opacity:0"><circle cx="${x}" cy="${y}" r="7" fill="#8a929a"/><text x="${x + 12}" y="${y + 5}">${t}</text></g>`).join('');
   }
-  const growBars = (el, done) => SCORES.forEach(([, , v], i) => later(90 * i, () => {
-    const r = $(`${el.id}-r${i}`); r.querySelector('.bar').style.width = BAR(v) + 'px'; r.classList.add('in2');
-    if (done && i === SCORES.length - 1) later(900, done);
-  }));
-  const showBars = (el) => SCORES.forEach(([, , v], i) => { const r = $(`${el.id}-r${i}`); r.querySelector('.bar').style.transition = 'none'; r.querySelector('.bar').style.width = BAR(v) + 'px'; r.classList.add('in2'); });
-  chart($('ch5')); chart($('ch6'));
 
-  // The space of meaning: the query at the centre, each text at a distance that falls with its guide score.
+  // 5, 6: the question at the centre, each text at a distance that falls with its guide score.
   const ANG = [-60, 25, 195, 125, -15, 250, 160, 215, 95, 290, 60];
   const clampX = (x) => Math.max(62, Math.min(440, x)), clampY = (y) => Math.max(24, Math.min(350, y));
   function space(svg) {
     const cx = 250, cy = 200;
-    const dots = SCORES.map(([, , v, short], i) => {
+    const dots = SCORES.map(([, v, short], i) => {
       const r = 70 + (0.75 - v) * 380, a = ANG[i] * Math.PI / 180;
       return { x: clampX(cx + Math.cos(a) * r * 1.2), y: clampY(cy + Math.sin(a) * r * .85), short, i, v };
     });
-    svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="11" fill="#1558d6"/><text x="${cx}" y="${cy + 30}" text-anchor="middle" style="font:700 14px Inter;fill:#1558d6">Capital cities</text>` +
-      dots.map((d) => `<g class="dot" id="${svg.id}-d${d.i}" data-x="${d.x}" data-y="${d.y}"><circle cx="${d.x}" cy="${d.y}" r="6" fill="#8a929a"/><text x="${d.x}" y="${d.y + 18}" text-anchor="middle">${d.short}</text></g>`).join('');
+    svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="11" fill="#1558d6"/><text x="${cx}" y="${cy + 30}" text-anchor="middle" style="font:700 15px Inter;fill:#1558d6">Capital cities</text>` +
+      dots.map((d) => `<g class="dot" id="${svg.id}-d${d.i}"><circle cx="${d.x}" cy="${d.y}" r="6" fill="#8a929a"/><text x="${d.x}" y="${d.y + 18}" text-anchor="middle">${d.short}</text></g>`).join('') +
+      ['1f7a4d', '8a929a', 'b42318'].map((c) => `<defs><marker id="${svg.id}-ah-${c}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#${c}"/></marker></defs>`).join('');
     return { cx, cy, dots };
   }
-  // Moves a dot towards (f < 1) or away from (f > 1) the query.
   function moveDot(svg, sp, i, f) {
     const d = sp.dots[i], g = $(`${svg.id}-d${i}`);
     const x = clampX(sp.cx + (d.x - sp.cx) * f), y = clampY(sp.cy + (d.y - sp.cy) * f);
     g.style.transform = `translate(${x - d.x}px, ${y - d.y}px)`;
   }
-  const arrow = (svg, sp, i, color, inward) => {
+  function arrow(svg, sp, i, color, inward) {
     const d = sp.dots[i], k = inward ? .6 : 1.25;
     const x2 = clampX(sp.cx + (d.x - sp.cx) * k), y2 = clampY(sp.cy + (d.y - sp.cy) * k);
     const p = document.createElementNS(NS, 'path');
     p.setAttribute('d', `M${d.x},${d.y} L${x2},${y2}`); p.setAttribute('stroke', color); p.setAttribute('stroke-width', 2);
-    p.setAttribute('fill', 'none'); p.setAttribute('marker-end', `url(#ah-${color.slice(1)})`);
+    p.setAttribute('fill', 'none'); p.setAttribute('marker-end', `url(#${svg.id}-ah-${color.slice(1)})`);
     svg.insertBefore(p, svg.firstChild);
     const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
     p.style.transition = 'stroke-dashoffset .6s ease'; p.style.strokeDashoffset = 0;
-  };
-  const defs = (svg) => svg.insertAdjacentHTML('afterbegin', ['1f7a4d', '8a929a', 'b42318'].map((c) =>
-    `<defs><marker id="ah-${c}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#${c}"/></marker></defs>`).join(''));
-  const sp3 = space($('sp3')); defs($('sp3'));
-  const sp4 = space($('sp4')); defs($('sp4'));
-
-  // Results: dot plots with an axis that starts at the values shown.
-  function dotplot(svg, rows, lo, hi, unit) {
-    const x = (v) => 170 + (v - lo) / (hi - lo) * 330;
-    let h = `<line x1="170" x2="500" y1="200" y2="200" stroke="#c9d3e3"/>` +
-      [lo, (lo + hi) / 2, hi].map((t) => `<text x="${x(t)}" y="222" text-anchor="middle">${t}</text>`).join('');
-    rows.forEach(([name, v, col], i) => {
-      const y = 40 + i * 58;
-      h += `<text x="20" y="${y + 5}">${name}</text><line x1="${x(lo)}" x2="${x(v)}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="2" class="ln" style="opacity:0"/>` +
-        `<circle cx="${x(v)}" cy="${y}" r="9" fill="${col}" class="pt" style="opacity:0"/><text class="v pt" x="${x(v) + 16}" y="${y + 5}" style="opacity:0">${v.toFixed(2)}</text>`;
-    });
-    svg.innerHTML = h;
-    [...svg.querySelectorAll('.ln, .pt')].forEach((e, k) => later(300 + 160 * k, () => { e.style.transition = 'opacity .4s'; e.style.opacity = 1; }));
   }
+  const sp5 = space($('sp5'));
+  const sp6 = space($('sp6'));
+
+  // 7: the guide's scores as bars, for seven texts of the group.
+  const ROWS = [0, 1, 2, 3, 4, 7, 10];
+  const BAR = (v) => Math.max(0, (v - 0.3) / 0.4) * 300;
+  $('ch7').innerHTML = ROWS.map((k, i) => { const [t, v] = SCORES[k];
+    return `<div class="row${v === PAIR ? ' pair' : ''}" id="r7-${i}" style="top:${i * 46}px"><div class="t">${t}</div><div class="bar"></div><div class="n">${v.toFixed(2)}</div></div>`; }).join('') +
+    `<div class="thr" id="thr7" style="left:${380 + BAR(PAIR)}px"><span>THE ANSWER’S SCORE</span></div>` +
+    `<div class="tagx" id="tx7a" style="left:0;top:${ROWS.length * 46 + 6}px;color:#8a6400">Left out of the push: the two texts that score above the answer.</div>` +
+    `<div class="tagx" id="tx7b" style="left:0;top:${ROWS.length * 46 + 32}px;color:var(--teal)">The other texts are still pushed away.</div>`;
 
   const HOOKS = {
     2: {
-      1: () => {
-        typeText($('qt2'), 'How much did Uganda’s economy grow in FY25?', 30, () => {
-          $('emb2').classList.add('in2');
-          ['r2a', 'r2b', 'r2c'].forEach((id, k) => later(500 + 250 * k, () => $(id).classList.add('in2')));
-        });
-      },
-      4: () => {
-        const p = wire($('ws2'), $('big2'), $('small2'), { hot: true, ms: 700 });
-        later(700, () => flow($('ws2'), p, '#1558d6'));
+      3: () => {
+        const p = wire($('ws2'), $('q2'), $('a2'), { hot: true, color: '#1f7a4d', ms: 700 });
+        later(700, () => flow($('ws2'), p, '#1f7a4d'));
       },
     },
     3: {
-      1: () => { mapAt($('map3'), 0); document.querySelectorAll('#s3 tr.r').forEach((r, k) => later(200 * k, () => r.classList.add('in2'))); },
-      2: () => { const i = 2; $('sp3-d2').classList.add('pos'); arrow($('sp3'), sp3, i, '#1f7a4d', true); later(500, () => moveDot($('sp3'), sp3, i, .45)); },
-      3: () => SCORES.forEach((_, i) => { if (i !== 2) later(60 * i, () => { arrow($('sp3'), sp3, i, '#8a929a', false); later(500, () => moveDot($('sp3'), sp3, i, 1.2)); }); }),
-    },
-    4: {
-      1: () => {
-        mapAt($('map4'), 0);
-        moveDot($('sp4'), sp4, 2, .45); $('sp4-d2').classList.add('pos');
-        [0, 1].forEach((i) => later(700 + 300 * i, () => { $(`sp4-d${i}`).classList.add('bad'); arrow($('sp4'), sp4, i, '#b42318', false); later(500, () => moveDot($('sp4'), sp4, i, 1.25)); }));
+      1: () => MAPPTS.forEach((_, i) => later(150 * i, () => { $('mp3-' + i).style.opacity = 1; })),
+      2: () => {
+        const s = $('mp3');
+        [[0, 1], [0, 2], [3, 4], [3, 5], [6, 7]].forEach(([a, b], k) => later(200 * k, () => {
+          const A = MAPPTS[a], B = MAPPTS[b];
+          const l = document.createElementNS(NS, 'line');
+          l.setAttribute('x1', A[1]); l.setAttribute('y1', A[2]); l.setAttribute('x2', B[1]); l.setAttribute('y2', B[2]);
+          l.setAttribute('stroke', '#7ba7f2'); l.setAttribute('stroke-width', 2); l.setAttribute('stroke-dasharray', '4 4');
+          s.insertBefore(l, s.firstChild);
+        }));
+      },
+      3: () => {
+        const s = $('mp3');
+        const g = document.createElementNS(NS, 'g');
+        g.innerHTML = '<circle cx="215" cy="195" r="10" fill="#1558d6"/><text x="230" y="200" style="font:700 15px Inter;fill:#1558d6">the question</text>';
+        g.style.opacity = 0; g.style.transition = 'opacity .5s'; s.appendChild(g);
+        later(100, () => { g.style.opacity = 1; });
+        later(900, () => {
+          const r = document.createElementNS(NS, 'circle');
+          r.setAttribute('cx', 215); r.setAttribute('cy', 195); r.setAttribute('r', 10); r.setAttribute('fill', 'none'); r.setAttribute('stroke', '#1558d6'); r.setAttribute('stroke-width', 2);
+          s.appendChild(r); r.animate([{ r: 10, opacity: 1 }, { r: 110, opacity: 0 }], { duration: 1300, iterations: 2 });
+          const c = $('mp3-0').querySelector('circle'); c.setAttribute('fill', '#1558d6'); c.setAttribute('r', 9);
+        });
+        later(400, () => vecBars($('vec3'), PAGES.vectors.passages['ueu-2025-12/p12/1']));
       },
     },
     5: {
-      1: () => { mapAt($('map5'), 1); later(300, () => growBars($('ch5'))); },
-      2: () => $('ch5-thr').classList.add('in2'),
-      3: () => [0, 1].forEach((i) => later(300 * i, () => $(`ch5-r${i}`).classList.add('over'))),
+      1: () => { mapAt($('map5'), 0); document.querySelectorAll('#s5 tr.r').forEach((r, k) => later(200 * k, () => r.classList.add('in2'))); },
+      2: () => { mapAt($('map5'), 1); $('sp5-d2').classList.add('pos'); arrow($('sp5'), sp5, 2, '#1f7a4d', true); later(500, () => moveDot($('sp5'), sp5, 2, .45)); },
+      3: () => SCORES.forEach((_, i) => { if (i !== 2) later(60 * i, () => { arrow($('sp5'), sp5, i, '#8a929a', false); later(500, () => moveDot($('sp5'), sp5, i, 1.2)); }); }),
     },
     6: {
       1: () => {
-        mapAt($('map6'), 2); showBars($('ch6')); $('ch6-thr').classList.add('in2');
-        [0, 1].forEach((i) => $(`ch6-r${i}`).classList.add('over'));
-        later(900, () => [0, 1].forEach((i) => $(`ch6-r${i}`).classList.add('gone')));
+        mapAt($('map6'), 1);
+        moveDot($('sp6'), sp6, 2, .45); $('sp6-d2').classList.add('pos');
+        [0, 1].forEach((i) => later(700 + 300 * i, () => { $(`sp6-d${i}`).classList.add('bad'); arrow($('sp6'), sp6, i, '#b42318', false); later(500, () => moveDot($('sp6'), sp6, i, 1.25)); }));
       },
-      2: () => SCORES.forEach((_, i) => { if (i > 2) later(80 * (i - 3), () => $(`ch6-r${i}`).classList.add('neg')); }),
     },
     7: {
-      1: () => {
-        mapAt($('map7'), 3);
-        const p = wire($('ws7'), $('g7'), $('m7'), { hot: true, ms: 600 });
-        later(600, () => flow($('ws7'), p, '#1558d6'));
-        later(800, () => $('m7').classList.add('busy'));
-      },
-      2: () => {
-        $('g7').style.opacity = .25; $('ws7').style.opacity = .3;
-        later(500, () => typeText($('qt8'), 'How much did Uganda’s economy grow in FY25?', 32, () =>
-          ['r8a', 'r8b'].forEach((id, k) => later(300 + 250 * k, () => $(id).classList.add('in2')))));
-      },
+      1: () => { mapAt($('map7'), 2); ROWS.forEach((k, i) => later(300 + 110 * i, () => { const r = $('r7-' + i); r.querySelector('.bar').style.width = BAR(SCORES[k][1]) + 'px'; r.classList.add('in2'); })); },
+      2: () => $('thr7').classList.add('in2'),
+      3: () => { [0, 1].forEach((i) => $('r7-' + i).classList.add('over')); later(1200, () => { [0, 1].forEach((i) => $('r7-' + i).classList.add('gone')); $('tx7a').classList.add('in2'); }); },
+      4: () => { ROWS.forEach((_, i) => { if (i > 2) later(90 * (i - 3), () => $('r7-' + i).classList.add('neg')); }); later(500, () => $('tx7b').classList.add('in2')); },
     },
     8: {
-      1: () => dotplot($('d8a'), [['Before training', 56.26, '#8a929a'], ['Without a guide', 57.48, '#7ba7f2'], ['GISTEmbed', 58.06, '#1558d6']], 55, 59),
-      2: () => dotplot($('d8b'), [['Before training', 41.95, '#8a929a'], ['Without a guide', 43.57, '#7ba7f2'], ['GISTEmbed', 44.42, '#1558d6']], 41, 45),
+      1: () => {
+        mapAt($('map8'), 3);
+        const p = wire($('ws8'), $('g8'), $('m8'), { hot: true, ms: 600 });
+        later(600, () => flow($('ws8'), p, '#1558d6'));
+        later(800, () => $('m8').classList.add('busy'));
+      },
+      2: () => {
+        $('g8').style.opacity = .25; $('ws8').style.opacity = .3;
+        later(500, () => typeText($('qt9'), 'How fast did the economy expand last year?', 32, () => later(300, () => $('r9a').classList.add('in2'))));
+      },
     },
   };
   go(1, 0);
