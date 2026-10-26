@@ -514,8 +514,10 @@ Setup for uploading (`requirements-publish.txt` in the video environment):
    600. The token stays out of git.
 
 Limits: a video uploaded through a project that has not passed the YouTube
-API audit stays private until the project passes it, so switch it to
-unlisted or public in YouTube Studio. The default quota is 10,000 units a
+API audit is locked as private, and YouTube Studio cannot change that. Until
+the audit, upload by hand in YouTube Studio with the files and the text that
+the check prepares, and record the link with
+`publish.py videos/<name>.youtube.json --youtube-id <id>`. The default quota is 10,000 units a
 day and an upload costs 1,600. Custom thumbnails need a channel verified by
 phone.
 

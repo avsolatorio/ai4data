@@ -17,8 +17,9 @@ video to its playlist, and writes the YouTube id and the month back into the
 upload file. It needs an OAuth token for the channel, made once with
 authorize.py, at ~/.config/ai4data/youtube-token.json (or $YOUTUBE_TOKEN).
 A video uploaded through a Google Cloud project that has not passed the
-YouTube API audit stays private until the project passes it; switch it to
-unlisted or public in YouTube Studio.
+YouTube API audit is locked as private, and YouTube Studio cannot change
+that; until the audit, upload by hand in YouTube Studio and record the link
+with --youtube-id.
 
 --catalogue PATH writes or replaces the video's entry in the catalogue module
 (website/src/content/videos.js), with the YouTube id, the length, and the
@@ -240,6 +241,7 @@ def main():
     ap.add_argument("--upload", action="store_true", help="send the video to YouTube")
     ap.add_argument("--create-playlist", action="store_true", help="create the playlist when the channel has none of that name")
     ap.add_argument("--again", action="store_true", help="upload even when the upload file already holds a YouTube id")
+    ap.add_argument("--youtube-id", help="record the id of a video uploaded by hand in YouTube Studio")
     ap.add_argument("--catalogue", type=Path, help="write the entry into this catalogue module (videos.js)")
     args = ap.parse_args()
 
@@ -275,6 +277,11 @@ def main():
             sys.exit(f"Already uploaded as https://youtu.be/{spec['youtube_id']}; use --again for a new upload.")
         spec["youtube_id"] = upload(spec, text, files, args.create_playlist)
         spec["published"] = datetime.datetime.now(datetime.timezone.utc).strftime("%B %Y")  # noqa: UP017 (the video environment runs Python 3.10, which has no datetime.UTC)
+        path.write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"{path.relative_to(HERE)}: youtube_id {spec['youtube_id']}")
+    if args.youtube_id:
+        spec["youtube_id"] = args.youtube_id
+        spec["published"] = datetime.datetime.now(datetime.timezone.utc).strftime("%B %Y")  # noqa: UP017 (Python 3.10)
         path.write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(f"{path.relative_to(HERE)}: youtube_id {spec['youtube_id']}")
     if args.catalogue:
