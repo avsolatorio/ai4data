@@ -1,0 +1,270 @@
+---
+id: evaluate
+title: "5. Evaluation on real text"
+sidebar_label: "5. Evaluation"
+sidebar_position: 5
+description: How the small model is measured on real documents with labels assigned independently of it, how the decision threshold is calibrated on part of those documents, and how the model is compared with a large language model on the same documents.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 5. Evaluation on real text
+
+**Question:** How well does the model do on real documents?
+
+## Rationale
+
+A model trained on generated sentences has learned how the generating
+model writes about each topic. Real documents are written differently.
+Their sentences are longer, they mix topics, and they use the vocabulary of their field. The only way to know
+how the small model does on the documents of the collection is to
+measure it on real documents whose topics were assigned by someone
+other than the model or its generator.
+
+Those reference labels can come from two sources. The best is a set of
+documents labelled by staff for this purpose, with two people labelling
+each document and their disagreements resolved. Where an existing
+catalogue already assigns subjects to documents, its subjects can serve
+as a reference after a crosswalk maps them to the labels. A catalogue's
+subjects were assigned for another purpose, so they are incomplete for
+some labels, and the evaluation reports that limitation with its scores.
+
+The evaluation also answers the question of [chapter 1](./task.mdx):
+whether the small model is good enough. The answer comes from a
+comparison on the same documents with a large language model that labels
+each document from instructions alone. The comparison gives the
+difference in quality and the difference in cost, and the task owner
+decides whether the small model's quality is enough for the use.
+
+## Target state
+
+- A real test set exists, with reference labels assigned independently of the model, and its source and limits are documented.
+- The decision threshold for documents is chosen on a calibration part of the real documents, separate from the documents used to report the score.
+- The small model and a large model are scored on the same documents with micro and macro F1, and the per-label scores are read.
+- The task owner has decided, from the scores and the costs, whether the small model is used and for what.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Build a real test set from existing catalogue subjects or from 200 documents labelled by staff, and report micro and macro F1. |
+| **AI-ready** | Calibrate the threshold on a separate part of the real documents, compare with a large model on the same documents, and keep the scores with the model version. |
+| **AI-native** | Label a real test set with two annotators per document, measure their agreement, and run the evaluation automatically for every new model and every new round of generated data. |
+
+:::info[Running example]
+The chapter builds a test set of 1,792 abstracts of World Bank Policy
+Research Working Papers published from 2016 to 2020, with reference
+labels from the subjects of the Documents and Reports catalogue. It
+calibrates the threshold on 1,492 abstracts and reports the scores of the
+small model and of gpt-oss-120b on the other 300.
+:::
+
+## Recipes
+
+<Recipe title="5.1 Build a real test set with independent labels" level="Foundational" skills="Data scientist; task owner" time="One to three days">
+
+**Result:** a file of real documents with reference labels, built by a
+script from a documented source, and a crosswalk that records how the
+source's subjects map to the labels.
+
+A crosswalk is a table that maps the subjects of one classification to
+the labels of another. Only clear correspondences go into it. A subject
+that is broader than any label, or that mixes two labels, is left out,
+because a doubtful mapping would count correct predictions as errors.
+The script `build_real_testset.py` downloads documents from the World
+Bank Documents and Reports API, maps their subjects with the crosswalk,
+and keeps the documents that have an abstract of at least 40 words and
+at least one mapped label.
+
+The crosswalk has two columns, `source_topic` and `label`. One subject
+can map to two labels, as "Water Supply and Sanitation" does to Water
+Supply and to Sanitation.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/build_real_testset.py
+```
+
+1. Choose a source of real documents like the ones in the collection,
+   and a source of reference labels that is independent of the model.
+2. Write the crosswalk with the task owner. Keep only correspondences
+   that a curator would accept without discussion.
+3. Run the script and read which labels the test set can measure. A
+   label that never appears in the reference cannot be evaluated.
+4. Where the catalogue subjects are not available, label 200 documents
+   with two members of staff each, and use those labels.
+
+**Worked example.** The crosswalk of the example has 71 rows and maps
+catalogue subjects to 45 of the 86 labels. Subjects that the catalogue
+adds to whole groups of documents together, such as "Disability",
+which appears with "Access of Poor to Social Services" on papers about
+cash transfers, were left out after a sample of the documents was read.
+
+```text
+$ python build_real_testset.py crosswalk.csv real_test.jsonl
+papers downloaded   1922
+papers kept         1792
+labels measured     45
+most frequent: Macroeconomics (700), Labor Markets (565), Poverty (492), Trade (460), Education (449)
+least frequent: Indigenous Peoples (10), Biodiversity (6), Girls' Education (2)
+wrote real_test.jsonl
+```
+
+The file [real_sample.jsonl](pathname:///cookbook-files/small-ai-from-synthetic-data/real_sample.jsonl)
+holds twelve of these abstracts with their labels and their catalogue
+subjects.
+
+**What this does not do.** Catalogue subjects describe a document as a
+whole and were assigned for search, so a paper can be about a topic its
+subjects do not name. A predicted label missing from the reference is
+then counted as an error although it may be right. The scores in this
+chapter are therefore lower bounds on precision.
+
+</Recipe>
+
+<Recipe title="5.2 Calibrate the threshold on part of the real documents" level="AI-ready" skills="Data scientist" time="Two hours">
+
+**Result:** the threshold for document labels is chosen on a
+calibration part of the real test set, and the score is reported on the
+remaining documents.
+
+The threshold chosen in training applies to single generated sentences.
+A document is scored by combining the scores of its sentences
+([chapter 6](./apply.mdx)), and the combined scores are on a different
+scale. An average over ten sentences, of which two are about a topic,
+is much lower than the score of either of those two sentences. The
+threshold for documents is therefore chosen again, on real documents
+that are not used to report the score.
+
+1. Split the real test set into a calibration part and a reporting part.
+   The example keeps 300 documents for reporting and calibrates on the
+   other 1,492.
+2. Score the calibration documents with `predict.py` and run
+   `evaluate.py --sweep` with the limit on the number of labels the use
+   requires.
+3. Choose the threshold with the highest micro F1, and report the score
+   on the reporting documents with that threshold.
+
+**Worked example.** The documents are scored by the average of their
+sentence scores, and at most five labels are assigned to each.
+
+```text
+$ python evaluate.py real_calib.jsonl scores.jsonl --sweep --top 5
+threshold 0.02   micro F1 0.395
+threshold 0.03   micro F1 0.393
+threshold 0.05   micro F1 0.387
+threshold 0.075  micro F1 0.383
+threshold 0.1    micro F1 0.369
+threshold 0.15   micro F1 0.331
+threshold 0.2    micro F1 0.291
+threshold 0.3    micro F1 0.223
+threshold 0.4    micro F1 0.168
+threshold 0.5    micro F1 0.119
+```
+
+The best threshold for documents is 0.02, against 0.3 for sentences in
+training. At 0.3, the document score would be 0.223.
+
+**What this does not do.** One threshold serves all labels. Thresholds
+per label fit better, but they need enough calibration documents for
+each label. In the example, 31 of the 45 measured labels have at least 30 calibration documents.
+
+</Recipe>
+
+<Recipe title="5.3 Compare with a large model on the same documents" level="AI-ready" skills="Data scientist" time="Half a day">
+
+**Result:** the small model and a large language model have been scored
+on the same reporting documents, with the cost and time per document of
+each, and the task owner has the figures to decide.
+
+The script `llm_baseline.py` sends each document with the full label
+list to a large model and asks for up to five labels in a structure that
+only admits label names. It writes the answers in the format of
+`predict.py`, with a score of 1 for each chosen label, so that the same
+evaluation applies. The large model receives no examples and no
+training. The comparison therefore shows what the organization would
+get by calling a large model for every document.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/llm_baseline.py
+```
+
+1. Run the large model on the reporting documents, with the same limit
+   of labels per document as the small model.
+2. Evaluate both with `evaluate.py`, the small model at the calibrated
+   threshold and the large model at 0.5.
+3. Put the scores beside the cost and time per document, and give the
+   table to the task owner.
+
+**Worked example.** On the 300 reporting abstracts, with at most five
+labels per document, the scores are as follows. The first small model is
+the one trained on the public dataset in [chapter 4](./train.mdx). The
+second was trained on the set generated with topic names allowed, which
+did best in the comparison of recipe 3.3.
+
+| | Small model, public dataset | Small model, names allowed | gpt-oss-120b |
+|---|---|---|---|
+| Micro precision | 0.431 | 0.486 | 0.506 |
+| Micro recall | 0.421 | 0.436 | 0.515 |
+| Micro F1 | 0.426 | 0.460 | 0.511 |
+| Macro F1 | 0.354 | 0.380 | 0.421 |
+| Share of cells right | 0.909 | 0.918 | 0.921 |
+| Tokens per document | none | none | 741 in, 228 out |
+| Seconds per document | 0.007 on a GPU, 0.17 on four CPU cores | the same | 5.4 per request |
+
+The large model scores higher by 0.085 in micro F1 than the first small
+model, and by 0.051 than the second. All three are weakest on Water
+Resources Management, at 0.10, which points to the reference rather
+than the models. The catalogue subject "Water Resources", which the
+crosswalk maps to that label, comes with "Hydrology" on 105 of its 141
+papers, so it is likely added with a broader group of subjects. All
+three score well on Disaster Risk Management, Teachers, and Labor
+Markets. [Chapter 6](./apply.mdx) turns the token counts into costs for
+the collection.
+
+**What this does not do.** The large model was given the label names
+only. Definitions and examples in its prompt would likely raise its
+score, at the cost of more tokens per document. The small model was
+trained on one generated set with one set of settings; the comparison
+of generated sets in recipe 3.3 is the first way to raise its score.
+
+</Recipe>
+
+## Implementation options
+
+- Reference labels from staff are the strongest evidence. An annotation tool such as Label Studio records the labels of two annotators and their agreement.
+- Where the organization's catalogue uses a controlled vocabulary, such as a thesaurus of subjects, the crosswalk can be published with the label set as SKOS mappings (`skos:exactMatch`, `skos:closeMatch`), and only exact matches are used for evaluation.
+- The evaluation scripts read any file with an `id` and `labels`, so the same evaluation applies to sentences, paragraphs, or whole documents.
+
+## World Bank examples
+
+- The [Documents and Reports API](https://documents.worldbank.org/en/publication/documents-reports/api) provides the abstracts and the catalogue subjects of the running example.
+- The [evaluation suites cookbook](/cookbook/evaluation-suites/) describes how a test set becomes a suite that is run for every model release.
+
+## Resources
+
+- [scikit-learn multilabel metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#multilabel-ranking-metrics) defines micro and macro averaging as computed by `evaluate.py`.
+- [SKOS mapping properties](https://www.w3.org/TR/skos-reference/#mapping) define exact and close matches for publishing a crosswalk.
+- [Label Studio](https://labelstud.io/) records labels from several annotators for a staff-labelled test set.
+
+## Common mistakes
+
+- **Reporting only the score on generated test sentences.** The first model of the example scores 0.685 on generated test sentences and 0.426 on real abstracts.
+- **Using the training threshold for documents.** Combined document scores are on another scale, and the training threshold of 0.3 lowers the document score from 0.395 to 0.223 on the calibration documents.
+- **Calibrating and reporting on the same documents.** The reported score then includes a choice fitted to those documents.
+- **Reading a low score as a model failure without reading the reference.** The weakest label of both models in the example is a crosswalk problem.
+
+## Verification
+
+- The real test set is rebuilt by the script from the crosswalk, and its counts match the ones recorded.
+- No reporting document was used to choose the threshold.
+- Both models were scored on the same documents with the same limit on labels per document.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-evaluate" items={[
+  'Source of real documents and of independent reference labels chosen',
+  'Crosswalk written with the task owner and kept with the test set',
+  'Real test set built by script, with the measurable labels listed',
+  'Threshold calibrated on documents separate from the reporting documents',
+  'Small model and large model scored on the same documents',
+  'Scores, costs, and the decision of the task owner recorded',
+]} />

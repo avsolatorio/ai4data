@@ -1,0 +1,165 @@
+---
+id: index
+title: Practical Guide to Small AI from Synthetic Data
+sidebar_label: Overview
+sidebar_position: 0
+description: Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection.
+---
+
+# Practical Guide to Small AI from Synthetic Data
+
+**A cookbook for data science teams in national statistical organizations and other data producers.** Version 0.1 (working draft), October 2026.
+
+:::note[Working draft]
+This guide is a working draft from the AI for Data – Data for AI program. It
+collects practical approaches and open standards. It does not
+represent official World Bank Group guidance or policy and is not legal
+advice; an organization applies it under its own statistical law, data
+protection rules, and institutional policies.
+Comments and corrections are welcome as
+[GitHub issues](https://github.com/worldbank/ai4data/issues), and the
+[contributing](./contributing.md) page explains how to propose a recipe.
+:::
+
+Small AI, in this guide, means a model with tens or hundreds of millions
+of parameters, trained for one narrow task and run on the organization's
+own hardware. Such a model can assign topics to documents, code a
+response, or find a type of entity in text, at a fraction of a second
+per document and without sending the text outside the organization. Its
+training needs labelled examples, and few organizations have thousands
+of them for a new task. This guide uses a large language model to write
+those examples. The large model is used during development, and the
+small model then runs alone.
+
+The guide follows one task from start to finish: assigning topics from
+the World Bank's topic list to working papers. Its seven chapters
+answer the questions a team asks along the way: which task suits the
+approach and what its labels are, how the examples are generated and
+checked, how the small model is trained, how well it does on real
+documents, what running it over a collection costs, and how the model
+and its data are documented and kept current. Every figure in the
+chapters comes from running the guide's scripts on public data, and the
+results include the ones that did not work as expected.
+
+The recipes build on open tools: the OpenAI chat completions interface,
+which hosted services and local model servers offer, for generation;
+Hugging Face Transformers for training; and scikit-learn for
+evaluation. The [standards page](./standards.md) lists each and where it
+applies. The [Small and Open Models cookbook](/cookbook/small-and-open-models/)
+covers the choice, serving, and security of small models in general;
+this guide covers one way of making one.
+
+## Prerequisites
+
+The recipes assume the following are in place or can be arranged:
+
+- A narrow task with a fixed list of labels, and a collection of documents the task applies to.
+- A data scientist with Python, access to a GPU for training (a free hosted notebook is enough for the model sizes in this guide), and access to a large language model through a hosted service or a local server.
+- A task owner who knows the subject and can review labels and examples, and a legal or procurement officer who can read a model licence.
+- For the AI-ready and AI-native levels, a source of real documents with labels assigned independently of the model, and a place to publish models and data with their cards.
+
+## First steps
+
+For a team with limited time, this sequence gives the most useful result first:
+
+1. Write the task statement and the label file ([chapter 1](./task.mdx)). This takes half a day.
+2. Build a real test set of a few hundred documents and score a large model on it ([chapter 5](./evaluate.mdx), recipes 5.1 and 5.3). This takes one to three days, and it says what quality to expect before any training.
+3. Generate and check a first set of examples ([chapters 2](./generate.mdx) and [3](./check.mdx)). This takes a day and costs a few dollars.
+4. Train the small model and compare it with the large model on the same documents ([chapter 4](./train.mdx) and recipe 5.3). This takes a day.
+
+The application to the collection ([chapter 6](./apply.mdx)) and the
+cards and retraining rule ([chapter 7](./release.mdx)) follow once the
+task owner has accepted the comparison.
+
+## Chapters and questions
+
+| Chapter | Question | Practical topics |
+|---|---|---|
+| [1. Task and label set](./task.mdx) | Which task suits a small model trained on synthetic data, and what are its labels? | Task statement, fit of the task, label file from a published topic list, overlapping labels |
+| [2. Generation of training examples](./generate.mdx) | How are training examples generated with a large model? | Terms of the generating model, request plan, constrained output, topic names in the prompt, raw replies |
+| [3. Checks on generated examples](./check.mdx) | How are the generated examples checked and cleaned? | Check report, cleaning, sample review, comparison of generated sets |
+| [4. Training of the small model](./train.mdx) | How is the small model trained on the examples? | Split by request, fine-tuning, threshold, scores on synthetic text |
+| [5. Evaluation on real text](./evaluate.mdx) | How well does the model do on real documents? | Real test set and crosswalk, calibration, comparison with a large model |
+| [6. Application to a document collection](./apply.mdx) | How is the model run over a document collection, and at what cost? | Sentence scores, time and cost, stored suggestions, label frequencies |
+| [7. Release, licensing, and maintenance](./release.mdx) | How are the model and its data documented, licensed, and kept current? | Dataset card, model card, licences, retraining rule |
+
+## Maturity levels
+
+Each chapter describes three levels. An organization can sit at different
+levels in different chapters, and the first level is a complete, useful
+state on its own.
+
+| Level | Meaning |
+|---|---|
+| **Foundational** | The practice exists in a form a person can use and a crawler can read. |
+| **AI-ready** | The practice is structured, identified, and accessible through documented interfaces, so that software, including AI systems, can use it without manual steps. |
+| **AI-native** | The practice offers AI-oriented interfaces or methods, with provenance and verification built in. |
+
+## Running example
+
+The running example of this guide uses public material in place of
+the fictional organization of the other cookbooks, because the method
+can only be shown on real documents:
+
+- The label list is the World Bank's topic list as published on its [topic page](https://www.worldbank.org/en/topic), retrieved in 2024: 95 names that become 86 labels.
+- The earlier generated set is the public dataset [avsolatorio/doc-topics-synthetic_data](https://huggingface.co/datasets/avsolatorio/doc-topics-synthetic_data): 41,416 sentences written in 2024 by GPT-4 and Llama 3 70B for the [doc-topics](https://github.com/avsolatorio/doc-topics) project.
+- The new generated sets were written for this guide in October 2026 by gpt-oss-120b, an open-weight model under the Apache 2.0 licence.
+- The real documents are the abstracts of the 1,922 Policy Research Working Papers published from 2016 to 2020, with their subjects, from the World Bank [Documents and Reports API](https://documents.worldbank.org/en/publication/documents-reports/api).
+- The small model is DeBERTa-v3-small, published by Microsoft under the MIT licence.
+
+The generated sentences are invented and say so in their dataset card.
+The abstracts and subjects are quoted from the World Bank's catalogue.
+
+## Scope of the examples
+
+The example covers one task, one language, and one pretrained encoder,
+with one training run per configuration unless a recipe says otherwise.
+Differences of about 0.03 in micro F1 between configurations are within
+the variation between runs, and the chapters say so where it matters.
+Each recipe ends with a **What this does not do** note that says where
+the example stops and what the full version adds.
+
+## Files
+
+| File | Used in |
+|---|---|
+| [wb_topics.json](pathname:///cookbook-files/small-ai-from-synthetic-data/wb_topics.json) | Chapter 1: the published topic list |
+| [label_merges.csv](pathname:///cookbook-files/small-ai-from-synthetic-data/label_merges.csv) | Chapter 1: names folded into another label |
+| [prepare_labels.py](pathname:///cookbook-files/small-ai-from-synthetic-data/prepare_labels.py) | Chapter 1: writes the label file |
+| [labels.csv](pathname:///cookbook-files/small-ai-from-synthetic-data/labels.csv) | Chapters 1 to 6: the 86 labels |
+| [plan_requests.py](pathname:///cookbook-files/small-ai-from-synthetic-data/plan_requests.py) | Chapter 2: the request plan |
+| [generate_examples.py](pathname:///cookbook-files/small-ai-from-synthetic-data/generate_examples.py) | Chapter 2: generation with a constrained output |
+| [import_hub_dataset.py](pathname:///cookbook-files/small-ai-from-synthetic-data/import_hub_dataset.py) | Chapter 3: converts the public dataset to the example format |
+| [check_examples.py](pathname:///cookbook-files/small-ai-from-synthetic-data/check_examples.py) | Chapter 3: check report and cleaning |
+| [examples_sample.jsonl](pathname:///cookbook-files/small-ai-from-synthetic-data/examples_sample.jsonl) | Chapter 3: 42 examples from the public dataset |
+| [split_examples.py](pathname:///cookbook-files/small-ai-from-synthetic-data/split_examples.py) | Chapter 4: split by request |
+| [train_classifier.py](pathname:///cookbook-files/small-ai-from-synthetic-data/train_classifier.py) | Chapter 4: fine-tuning |
+| [requirements-training.txt](pathname:///cookbook-files/small-ai-from-synthetic-data/requirements-training.txt) | Chapters 2, 4, 6: tested library versions |
+| [evaluate.py](pathname:///cookbook-files/small-ai-from-synthetic-data/evaluate.py) | Chapters 4 to 6: scores against reference labels |
+| [crosswalk.csv](pathname:///cookbook-files/small-ai-from-synthetic-data/crosswalk.csv) | Chapter 5: catalogue subjects to labels |
+| [build_real_testset.py](pathname:///cookbook-files/small-ai-from-synthetic-data/build_real_testset.py) | Chapter 5: real test set from the Documents and Reports API |
+| [real_sample.jsonl](pathname:///cookbook-files/small-ai-from-synthetic-data/real_sample.jsonl) | Chapter 5: twelve abstracts with reference labels |
+| [llm_baseline.py](pathname:///cookbook-files/small-ai-from-synthetic-data/llm_baseline.py) | Chapter 5: labels from a large model |
+| [topic_scores.py](pathname:///cookbook-files/small-ai-from-synthetic-data/topic_scores.py) | Chapter 6: sentences, combination, and choice of labels |
+| [predict.py](pathname:///cookbook-files/small-ai-from-synthetic-data/predict.py) | Chapters 4 to 6: scores texts with the model |
+| [dataset_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/dataset_card.md) | Chapter 7: dataset card of the generated set |
+| [model_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/model_card.md) | Chapter 7: model card of the classifier |
+
+## Related resources
+
+| Resource | Purpose |
+|---|---|
+| This guide | What an organization can do, and why, in a sequence of practical steps. |
+| [Small and Open Models cookbook](/cookbook/small-and-open-models/) | Choosing, serving, adapting, and securing small and open models. |
+| [Evaluation Suites cookbook](/cookbook/evaluation-suites/) | Turning a test set into a suite that every model release must pass. |
+| [doc-topics](https://github.com/avsolatorio/doc-topics) | The first version of the topic pipeline that the running example builds on. |
+| [Code](https://github.com/worldbank/ai4data) | Open-source software to deploy or adapt. |
+
+## Citation
+
+World Bank. 2026. *Practical Guide to Small AI from Synthetic Data.* Version 0.1. AI for Data – Data for AI.
+https://worldbank.github.io/ai4data/cookbook/small-ai-from-synthetic-data/
+
+## Version history
+
+- **0.1 (October 2026).** First draft.

@@ -1,0 +1,251 @@
+---
+id: check
+title: "3. Checks on generated examples"
+sidebar_label: "3. Checks"
+sidebar_position: 3
+description: How generated training examples are checked by software for unknown labels, repeats, and copied label names, read by the task owner in a sample, and cleaned before training.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 3. Checks on generated examples
+
+**Question:** How are the generated examples checked and cleaned?
+
+## Rationale
+
+A large language model writes fluent sentences, and fluency hides
+errors. Over tens of thousands of examples, a generating model repeats
+sentences, returns label names that are not in the label file, and
+assigns labels that do not fit. Each error has a cost in the small
+model. Repeats make the test score look better than it is, unknown
+names are lost labels, and wrong labels teach wrong associations. The
+check also counts the sentences that name their topic. Such sentences
+are not errors, and the share is reported because it changes what the
+model learns to look for (recipe 3.3).
+
+Most of these errors can be counted by software in a minute. The
+remaining ones, such as a label that does not fit its sentence, need a
+person who knows the subject. A sample of a hundred examples read by
+the task owner shows whether the labels can be trusted and which kinds
+of error are common. Both checks are run on every generated set before
+training, and their results are kept with the set.
+
+## Target state
+
+- Every generated set has a check report with the counts of missing texts, unknown labels, repeats, and copied label names.
+- The cleaned set used for training is written by a script from the generated set and the label file, so that it can be rebuilt.
+- A sample of the cleaned set has been read by the task owner, and the share of examples with a wrong or missing label is recorded.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Run the checks on the generated set, remove unknown labels and repeats, and read a sample of a hundred examples. |
+| **AI-ready** | Keep the check report and the sample findings with the set, and compare generated sets by their reports before choosing one for training. |
+| **AI-native** | Use several trained models to flag examples whose labels they agree are wrong, and send those examples for review or regeneration. |
+
+:::info[Running example]
+The chapter checks the public dataset of 41,416 sentences generated in
+2024 and the two sets generated in chapter 2, writes a cleaned set from
+each, reads a sample of the public set, and compares the three sets by the scores of the models trained on them.
+:::
+
+## Recipes
+
+<Recipe title="3.1 Run the checks and write the cleaned set" level="Foundational" skills="Data scientist" time="One hour">
+
+**Result:** the team has a check report for the generated set and a
+cleaned set in which every label is in the label file and no text
+appears twice.
+
+The script `check_examples.py` reads the examples and the label file. It
+first replaces each name that the label file lists under `merged_from`
+by its label, then counts the problems. Unknown names are removed from
+the examples, and an example left without any label is dropped. A text
+that repeats an earlier one, ignoring case and spacing, is dropped. An
+example whose text contains one of its label names is kept and counted,
+because removing those examples can remove most of the examples of some
+labels. The counts tell the team whether the generation needs to change.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/check_examples.py
+```
+
+1. Run the script on the generated set with `--out` to write the cleaned
+   set.
+2. Read the most frequent unknown names. Names that are parts of a
+   label, such as "Oceans" for "Oceans, Fisheries, and Coastal
+   Economies", show that the model split a label at its commas.
+3. Read the share of examples that contain a label name, and compare
+   it with the documents of the collection. Real abstracts name their
+   topics often, and a set in which almost no sentence does trained a
+   weaker model in recipe 3.3.
+4. Read the smallest label counts. A label with far fewer examples than
+   the others needs a second round of generation (recipe 2.2).
+
+**Worked example.** The public dataset of the running example was
+generated with free-text labels. Its check report is below.
+
+```text
+$ python check_examples.py examples_hub.jsonl labels.csv --out clean_hub.jsonl
+examples              41416
+missing text          4
+no labels             5
+unknown label names   142
+unknown label uses    1041
+left without label    153
+duplicate texts       347
+label name in text    8745
+clean examples        40910
+most frequent unknown names: Oceans (92), Food System (67), Coastal Economies (59), Environmental Sustainability (58), Fisheries (57), Sustainability (52)
+labels per example: 1: 17039, 2: 22840, 3: 1023, 4: 8
+labels with no example: 0
+fewest examples: Gas Flaring Reduction (581), Food System Jobs (590), Sexual Orientation and Gender Identity (595)
+most examples: Jobs and Development (1507), Environment (1184), Poverty (1013)
+wrote clean_hub.jsonl
+```
+
+The generating models used 142 names that are not labels, 1,041 times in
+all. The most frequent are pieces of labels with commas and invented
+broader names such as "Sustainability". After cleaning, 40,910 examples
+remain, and every label has at least 581 examples. In 8,745 examples, or
+21 percent, the sentence contains one of its label names. The file
+[examples_sample.jsonl](pathname:///cookbook-files/small-ai-from-synthetic-data/examples_sample.jsonl)
+holds 42 examples from the public dataset, including unknown names and
+repeats, for trying the script.
+
+**What this does not do.** The script finds problems of form. A
+sentence with a fitting label name but a wrong label passes every check,
+and recipe 3.2 finds those.
+
+</Recipe>
+
+<Recipe title="3.2 Read a sample and record the label error rate" level="Foundational" skills="Task owner" time="Two to three hours">
+
+**Result:** the task owner has read a random sample of the cleaned set
+and recorded, for each example, whether its labels are right, wrong, or
+incomplete. The share of each is kept with the set.
+
+The labels of generated examples are the generating model's opinion. A
+person who knows the subject reads a sample to measure how often that
+opinion is wrong. A wrong label teaches the small model a wrong
+association. A missing label teaches it that the topic is absent where
+it is present. A sample of 100 examples gives the share of wrong labels
+to within about ten percentage points, which is enough to decide
+whether the set can be used.
+
+1. Draw 100 examples at random from the cleaned set with a fixed seed,
+   and save the sample with its seed.
+2. For each example, mark the labels as right, wrong (a label that does
+   not fit), or incomplete (a fitting label from the label file is
+   missing).
+3. Count the shares and note the kinds of error that recur.
+4. If more than about one example in five has a wrong label, change the
+   prompt or the generating model before training. Missing labels are
+   more common and do less harm, because the small model still learns
+   the labels that are present.
+
+**Worked example.** Two examples from the public dataset show the two
+kinds of error. The sentence "The restoration of wetlands is part of a
+broader strategy to improve water quality and combat pollution" is
+labelled Water Resources Management and Marine Plastic Pollution. The
+second label is wrong, since the sentence says nothing about plastic or
+the sea. The sentence "Farmers are adopting more sustainable practices
+in cattle farming to reduce environmental impact" is labelled Livestock
+and Sustainability only. Agriculture and Food and Environment are
+missing.
+
+**What this does not do.** A sample of 100 measures the overall rate
+and shows the common kinds of error. It cannot measure the rate for each
+of 86 labels; the per-label scores of chapters 4 and 5 do that.
+
+</Recipe>
+
+<Recipe title="3.3 Compare generated sets by their reports" level="AI-ready" skills="Data scientist" time="One hour per set">
+
+**Result:** the team has the check reports of two or more generated sets
+side by side, and it has chosen the set or the combination to train on
+from the reports and the evaluation of chapter 5.
+
+Generated sets differ with the generating model, the prompt, and the
+output format. A comparison of their check reports shows which of those
+choices reduce the errors that software can count. The final choice also
+uses the evaluation on real documents, because a set with fewer errors
+of form does not always train a better model.
+
+1. Run `check_examples.py` on each set with the same label file.
+2. Put the counts side by side, as shares of the examples.
+3. Train a model on each set ([chapter 4](./train.mdx)) and compare them
+   on the real test set ([chapter 5](./evaluate.mdx)).
+
+**Worked example.** The example compares three generated sets: the public
+dataset of 2024, and the two sets of chapter 2, one generated with topic
+names avoided and one with names allowed. Each model was trained on
+about 20,000 examples (an equal-size sample of the public dataset),
+with the settings of [chapter 4](./train.mdx), and scored on the 1,492
+real calibration abstracts of [chapter 5](./evaluate.mdx). Where a
+configuration was trained more than once with different random seeds,
+the table gives the range.
+
+| Generated set | Texts with an unknown label | Repeated texts | Texts that name a label | Micro F1 on real abstracts |
+|---|---|---|---|---|
+| Public dataset, GPT-4 and Llama 3, free-text labels | 2.1 percent | 0.8 percent | 21 percent | 0.379 to 0.406 (3 runs) |
+| gpt-oss-120b, names avoided | none | 0.06 percent | 3 percent | 0.371 to 0.387 (3 runs) |
+| gpt-oss-120b, names allowed | none | 0.1 percent | 78 percent | 0.441 to 0.446 (2 runs) |
+
+The set with the fewest errors of form, generated with names avoided,
+trained the weakest model. The set with names allowed trained the
+strongest, by about 0.05 over the public dataset and 0.07 over the set with names avoided, comparing the averages of the runs. The largest difference between two runs of one configuration was 0.027. Real abstracts use the names of their topics
+("labor market", "education"), and a model that never saw those words
+as evidence misses them. Two further runs changed little. Adding the
+2,002 background sentences of chapter 2 moved the score by less than
+0.01, and training on the public dataset and the set with names avoided
+together (60,000 examples) gave 0.410.
+
+**What this does not do.** Two sets generated for different labels or
+different numbers of examples cannot be compared fairly on the real test
+set. The comparison holds the label file and the size of the training
+set constant.
+
+</Recipe>
+
+## Implementation options
+
+- Near-duplicates, texts that say the same thing in different words, can be found with an embedding model and a similarity threshold. The exact-repeat check of the script is the first step.
+- The sample review of recipe 3.2 can be done in a spreadsheet, or in an annotation tool such as Label Studio or doccano when several reviewers share the work and their agreement is measured.
+- At the AI-native level, a set can be split into five parts, a model trained on four parts can score the fifth, and examples where several models agree that a label is wrong are sent for review. The [doc-topics notebook](https://github.com/avsolatorio/doc-topics) sketches this cross-checking.
+
+## World Bank examples
+
+- The public dataset [avsolatorio/doc-topics-synthetic_data](https://huggingface.co/datasets/avsolatorio/doc-topics-synthetic_data) is the generated set checked in the worked example of recipe 3.1.
+
+## Resources
+
+- [pandas](https://pandas.pydata.org/docs/) reads the examples and computes the counts in `check_examples.py`.
+- [Label Studio](https://labelstud.io/) and [doccano](https://github.com/doccano/doccano) are open-source annotation tools for the sample review.
+- [Sentence Transformers](https://sbert.net/) computes the embeddings used to find near-duplicates.
+
+## Common mistakes
+
+- **Choosing a generated set by its check report alone.** The set with the fewest errors of form trained the weakest model in recipe 3.3; the comparison on real documents decides.
+- **Training on the generated set as delivered.** Repeats inflate the test score, and unknown names silently remove labels from the training data.
+- **Dropping every example that names its label.** In the public dataset this would remove one example in five, and 80 percent of the examples of Water, whose name is an everyday word. In recipe 3.3, the set in which most sentences name their topic trained the best model.
+- **Trusting the labels because the sentences read well.** Software does not catch a fluent sentence with a wrong label, and only a reader who knows the subject does.
+
+## Verification
+
+- The check report of each set is saved with the set, and the cleaned set can be rebuilt from the generated set and the label file.
+- The cleaned set has no unknown label and no repeated text when the script is run on it again.
+- The sample review records the seed, the sample, and the shares of right, wrong, and incomplete labels.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-check" items={[
+  'Check report written for each generated set',
+  'Cleaned set written by check_examples.py and kept with the report',
+  'Most frequent unknown names read and their cause noted',
+  'Share of examples that contain a label name recorded',
+  'Sample of 100 examples read by the task owner, with the error shares recorded',
+  'Generated sets compared by their reports before training',
+]} />

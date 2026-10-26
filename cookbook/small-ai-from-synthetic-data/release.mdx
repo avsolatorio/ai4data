@@ -1,0 +1,218 @@
+---
+id: release
+title: "7. Release, licensing, and maintenance"
+sidebar_label: "7. Release"
+sidebar_position: 7
+description: How the generated data and the small model are documented in a dataset card and a model card, which licence terms they carry, and when the model is retrained.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 7. Release, licensing, and maintenance
+
+**Question:** How are the model and its data documented, licensed, and kept current?
+
+## Rationale
+
+A small model trained on generated data has two parents: the pretrained
+encoder and the large model that wrote the examples. Each comes with
+terms. A user of the model, inside or outside the organization, needs
+to know both, along with what the model was trained to do, how it
+scored on real documents, and where it fails. A dataset card and a
+model card are the standard places for that information. Model hubs
+display them with the files, and other organizations look for them
+before they reuse a model.
+
+The generated data deserve a card of their own. A reader of the
+examples cannot tell that a large model wrote them, which model it was,
+or that some sentences invent figures and attribute them to real
+institutions. The card states these facts, so that nobody mistakes a
+generated sentence for a quotation from a real report.
+
+A topic classifier also ages. The label list changes when the
+organization revises its topics, new kinds of documents enter the
+collection, and better generating and pretrained models appear. The
+model is therefore retrained on a rule: when the labels change, when the
+evaluation on newly sampled real documents falls, or when a new
+generator or encoder improves the score in the comparison of
+[chapter 5](./evaluate.mdx).
+
+## Target state
+
+- The generated data have a dataset card that names the generating model, its terms, the prompt version, the request plan, the check report, and the known issues.
+- The model has a model card that names the encoder and its licence, the training data, the labels, the threshold, the scores on real documents, the intended use, and the known errors.
+- The licence of the model and of the data has been confirmed against the terms of every model involved.
+- A retraining rule is written, and each release keeps its label file, data, model, and evaluation together under one version.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write a dataset card and a model card from the templates, with the generating model, the scores on real documents, and the known errors. |
+| **AI-ready** | Publish the model and the data with their cards and licences on a model hub or in the organization's catalogue, versioned with the label file and the evaluation. |
+| **AI-native** | Retrain on a written rule, run the evaluation of chapter 5 for every release automatically, and publish the scores with each version. |
+
+:::info[Running example]
+The chapter fills the dataset card for the examples generated in chapter
+2 and the model card for the classifier of chapter 4, and writes the
+retraining rule for the topic classifier.
+:::
+
+## Recipes
+
+<Recipe title="7.1 Write the dataset card for the generated examples" level="Foundational" skills="Data scientist" time="Half a day">
+
+**Result:** the generated examples have a dataset card from which a reader can judge their origin and the uses they suit.
+
+A dataset card is a short document published with a dataset. The
+template [dataset_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/dataset_card.md)
+has the sections that matter for generated data: the generating model
+and its terms, the prompt and the request plan, the counts from the
+check report, the fields of the files, the intended use, and the known
+issues. Its front matter follows the metadata format of the Hugging Face
+Hub, so the card can be published there without changes.
+
+1. Copy the template and fill each section from the records of chapters
+   2 and 3: the model identifier, the prompt version, the plan, the
+   check report, and the cost.
+2. State plainly that every sentence was written by a language model and
+   that names, places, and figures in the sentences are invented.
+3. Give the licence of the data, and the conditions of the generating
+   model's terms that apply to them.
+4. Publish the card with the raw replies and the cleaned examples.
+
+**Worked example.** The card of the example's generated set names
+gpt-oss-120b under the Apache 2.0 licence and the prompt version, and it
+reports the counts of chapter 3. Under known issues, it records that
+some sentences attribute invented figures to real institutions, such as
+"The 2025 World Bank report on debt relief recommends extending grace
+periods for low-income countries by up to five years."
+
+**What this does not do.** The card describes the data. It does not
+make them fit for a use that their generating model's terms exclude.
+
+</Recipe>
+
+<Recipe title="7.2 Write the model card" level="Foundational" skills="Data scientist; task owner" time="Half a day">
+
+**Result:** the model has a model card that states its task, its scores on real documents, and its known errors.
+
+A model card is the model's equivalent of a dataset card. The template
+[model_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/model_card.md)
+has sections for the intended use, the training data, the training
+procedure, the evaluation, the known errors, and the licences. The
+evaluation section reports the scores on real documents with their
+source, and the scores on generated test sentences only beside them, as
+an upper bound.
+
+1. Copy the template and fill it from `classifier.json`, the training
+   log, and the evaluation of chapter 5.
+2. Write the intended use as the task statement of recipe 1.1 says it:
+   suggestions to curators, for example, with no automatic publication.
+3. List the known errors with figures, such as labels that the model
+   over-assigns, and the labels the evaluation could not measure.
+4. State the licence of the model and the terms inherited from the
+   encoder and from the generating model, as confirmed by the legal
+   office (recipe 2.1).
+
+**Worked example.** The [model card of the example](pathname:///cookbook-files/small-ai-from-synthetic-data/model_card.md)
+describes the classifier trained on the set generated with topic names
+allowed. Its evaluation table gives the micro F1 of 0.460 on the 300
+reporting abstracts beside the 0.758 on generated test sentences, and
+the 0.511 of gpt-oss-120b on the same abstracts. Its known errors list
+the three most over-assigned labels with their counts, the weakest
+labels, and the 42 labels that the reference does not measure. Its
+licence section states that the generating model's licence places no
+conditions on its outputs.
+
+**What this does not do.** A card states what was measured. A use
+outside the intended use, such as counting documents by topic for a
+published statistic, needs its own evaluation.
+
+</Recipe>
+
+<Recipe title="7.3 Retrain on a written rule" level="AI-ready" skills="Data scientist; task owner" time="One day to write; one to two days per release">
+
+**Result:** a written rule says when the model is retrained, and each
+release keeps the label file, the generated data, the model, and its
+evaluation together under one version.
+
+A rule replaces ad hoc retraining. It names the triggers and the checks
+that a new model must pass before it replaces the current one. Each
+release is a folder or a tagged repository state that holds every input
+needed to rebuild the model, so that a question about a past suggestion
+can be answered from the version that made it.
+
+1. Write the triggers. Typical triggers are a change to the label file,
+   a fall in micro F1 of more than a set amount on a fresh sample of real
+   documents, and a new generator or encoder that the comparison of
+   chapter 5 shows to be better.
+2. Write the acceptance check. A new model replaces the current one only
+   when its micro and macro F1 on the reporting documents are at least
+   as high, and the frequency check of recipe 6.3 shows no new
+   over-assigned label.
+3. Version each release with the label file, the plan, the raw replies,
+   the cleaned examples, the model folder, and the evaluation output.
+4. Keep the previous release available until the new one has been used
+   by the curators for a full cycle.
+
+**Worked example.** The rule for the topic classifier names three
+triggers:
+
+- a revision of the topic list on the World Bank's topic page;
+- a fall of more than 0.03 in micro F1 on 200 newly sampled working papers, checked each quarter;
+- a new open-weight generator or encoder.
+
+The acceptance check compares the new model with the current one on the 300
+reporting abstracts of chapter 5. The threshold of 0.03 is larger than
+the differences of up to 0.027 in micro F1 that the tests for this
+guide measured between training runs that differed only in their random
+seed.
+
+**What this does not do.** The rule detects a fall in quality on
+documents like the reference. A new kind of document with no reference
+labels is found only when curators report bad suggestions, which the
+AI-native level records.
+
+</Recipe>
+
+## Implementation options
+
+- The [Hugging Face Hub](https://huggingface.co/docs/hub/model-cards) displays model and dataset cards with the files and supports private repositories for review before publication.
+- An organization that publishes through its own catalogue can describe the model and the data with the metadata standards it already uses, and link to the cards.
+- [Croissant](https://docs.mlcommons.org/croissant/) describes a machine-learning dataset in a machine-readable form, which the [ML-ready datasets cookbook](/cookbook/ml-ready-datasets/) covers.
+
+## World Bank examples
+
+- The [ai4data organization on the Hugging Face Hub](https://huggingface.co/ai4data) publishes the program's models, including the [GISTEmbed models](https://huggingface.co/collections/ai4data/gistembed), with their cards.
+- The [Small and Open Models cookbook](/cookbook/small-and-open-models/) covers model cards, provenance, and the security of model files.
+
+## Resources
+
+- [Hugging Face model cards](https://huggingface.co/docs/hub/model-cards) and [dataset cards](https://huggingface.co/docs/hub/datasets-cards) give the metadata format of the templates.
+- [Model Cards for Model Reporting](https://arxiv.org/abs/1810.03993) is the paper that defined the model card.
+- [Datasheets for Datasets](https://arxiv.org/abs/1803.09010) is the paper that defined the questions a dataset card answers.
+
+## Common mistakes
+
+- **Publishing generated sentences without saying so.** A reader can take an invented figure attributed to a real institution as a quotation.
+- **Reporting only the synthetic test score in the card.** It overstated the score on real abstracts by about a quarter of the scale in the example.
+- **Leaving the generator out of the model card.** The terms of the generating model can apply to the model, and a user cannot check them without its name.
+- **Retraining whenever a new model appears.** Without an acceptance check, a new release can score lower than the release before it.
+
+## Verification
+
+- Both cards name the generating model with its version, and the model card names the encoder with its licence.
+- The model card reports scores on real documents with their source and date.
+- The release folder rebuilds the model and reproduces its evaluation.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-release" items={[
+  'Dataset card written, with the generator, its terms, the prompt version, and the known issues',
+  'Model card written, with real-document scores, known errors, and licences',
+  'Licences confirmed against the terms of the encoder and the generator',
+  'Retraining triggers and acceptance check written',
+  'Release versioned with label file, data, model, and evaluation',
+]} />

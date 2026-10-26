@@ -165,6 +165,17 @@
 /cookbook/serving-statistics-to-agents/standards
 /cookbook/serving-statistics-to-agents/start-here
 /cookbook/serving-statistics-to-agents/tools
+/cookbook/small-ai-from-synthetic-data
+/cookbook/small-ai-from-synthetic-data/apply
+/cookbook/small-ai-from-synthetic-data/check
+/cookbook/small-ai-from-synthetic-data/contributing
+/cookbook/small-ai-from-synthetic-data/evaluate
+/cookbook/small-ai-from-synthetic-data/generate
+/cookbook/small-ai-from-synthetic-data/glossary
+/cookbook/small-ai-from-synthetic-data/release
+/cookbook/small-ai-from-synthetic-data/standards
+/cookbook/small-ai-from-synthetic-data/task
+/cookbook/small-ai-from-synthetic-data/train
 /cookbook/small-and-open-models
 /cookbook/small-and-open-models/adaptation
 /cookbook/small-and-open-models/candidates

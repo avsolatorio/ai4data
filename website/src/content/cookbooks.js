@@ -158,6 +158,17 @@ export const allCookbooks = [
     chapters: 6,
     to: '/cookbook/ai-assistants-at-work/',
   },
+  {
+    id: 'small-ai-from-synthetic-data',
+    version: '0.1',
+    date: 'October 2026',
+    audience: 'Data science teams in national statistical organizations and other data producers',
+    title: 'Practical Guide to Small AI from Synthetic Data',
+    description:
+      'Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection.',
+    chapters: 7,
+    to: '/cookbook/small-ai-from-synthetic-data/',
+  },
 ];
 
 export const cookbooks = allCookbooks.filter((c) => !isHiddenCookbook(c.id));

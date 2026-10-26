@@ -1,0 +1,248 @@
+---
+id: apply
+title: "6. Application to a document collection"
+sidebar_label: "6. Application"
+sidebar_position: 6
+description: How the classifier scores whole documents from their sentences, what running it over a collection costs in time and money compared with a large model, and how its suggestions are stored and watched.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 6. Application to a document collection
+
+**Question:** How is the model run over a document collection, and at what cost?
+
+## Rationale
+
+The classifier was trained on single sentences, and the documents of a
+collection are abstracts, chapters, and whole reports. A document is
+therefore read one sentence at a time, and the scores of its sentences
+are combined into one score per label. The way the scores are combined
+changes the result, and the choice is measured on the calibration
+documents of [chapter 5](./evaluate.mdx).
+
+The reason to train a small model is to run it often and cheaply, on
+hardware the organization controls. The figures that support that
+decision are the time per document on the organization's own machines
+and the cost per document of the alternative, a large model called for
+each document. Both are measured on the same documents and multiplied
+out to the size of the collection.
+
+The output is a suggestion. Each document's record keeps the scores of
+all labels, the labels chosen, and the version of the model, so that a
+curator can accept or change the suggestion and a later model can be
+compared with this one. The frequency of each label over the collection
+is watched as well. A label that the model assigns far more often than
+the reference does is usually a systematic error, and in the running
+example it was the most visible one.
+
+## Target state
+
+- Documents are scored sentence by sentence, with the combination and the threshold chosen on calibration documents.
+- The time per document on the organization's hardware and the cost of the large-model alternative are measured and recorded.
+- Each document's record holds the label scores, the suggested labels, and the model version.
+- The frequency of each suggested label is compared with the reference, and over-assigned labels are investigated.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Score the documents of the collection with the model, sentence by sentence, and give the suggested labels to the curators. |
+| **AI-ready** | Store the scores, the labels, and the model version for each document, measure time and cost against a large model, and compare label frequencies with the reference. |
+| **AI-native** | Score each new document on arrival, record the curators' decisions, and use the decisions as real training and test data for the next model. |
+
+:::info[Running example]
+The chapter compares three ways to score an abstract, measures the time
+per abstract on four CPU cores, sets that against the cost of
+gpt-oss-120b for the same abstracts, and finds that the model suggests
+Measuring Poverty for most abstracts.
+:::
+
+## Recipes
+
+<Recipe title="6.1 Score documents sentence by sentence" level="Foundational" skills="Data scientist" time="Two hours">
+
+**Result:** every document has a score for each label, combined from the
+scores of its sentences in the way that did best on the calibration
+documents.
+
+The script `predict.py` splits each text into sentences with the
+function `split_sentences` of `topic_scores.py`, scores every sentence,
+and combines the scores with `aggregate`. Two combinations are offered.
+The mean gives a label a high score when many sentences are about it,
+and the maximum gives a high score when any one sentence is. The script can also read the whole text in one pass, cut at 512 tokens. The model was trained on sentences of at most 128 tokens, so a whole abstract is longer than any text it saw in training.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/topic_scores.py
+```
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/predict.py
+```
+
+1. Score the calibration documents three ways: `--unit sentence --how
+   mean`, `--unit sentence --how max`, and `--unit whole`.
+2. Sweep the threshold for each with `evaluate.py --sweep`, and keep the
+   combination with the highest micro F1.
+3. Score the collection with that combination, the calibrated threshold,
+   and the limit of labels per document (`--threshold` and `--top`).
+
+**Worked example.** On the 1,492 calibration abstracts, with the first model of chapter 4, at most five labels each, and the best threshold for each method, the mean of the sentence scores does best.
+
+| Method | Best threshold | Micro F1 |
+|---|---|---|
+| Mean of sentence scores | 0.02 | 0.395 |
+| Maximum of sentence scores | 0.02 | 0.368 |
+| Whole abstract in one pass | 0.02 | 0.334 |
+
+The abstracts have about seven sentences each, so the model reads 12,325
+sentences for the 1,792 abstracts of the test set.
+
+**What this does not do.** Each sentence counts equally. A title or a
+summary sentence carries more information about the topics than a
+sentence on the sample, and weighting by position is a possible
+improvement that this guide has not tested.
+
+</Recipe>
+
+<Recipe title="6.2 Measure time and cost against a large model" level="AI-ready" skills="Data scientist" time="Half a day">
+
+**Result:** the team has the time per document of the small model on its
+own hardware and the cost and time per document of the large model,
+multiplied out to the collection, in a table the task owner can read.
+
+The time of the small model is measured with `predict.py`, which prints
+the seconds per document, on the hardware that will run it. The cost of
+the large model is the number of tokens per document, printed by
+`llm_baseline.py`, multiplied by the provider's price. A token is a
+piece of a word, about three quarters of an English word on average,
+and providers charge per million tokens read and written.
+
+1. Run `predict.py` on 200 documents with `--device cpu` and the number
+   of cores the production server will give it (`--threads`).
+2. Take the tokens per document from the run of `llm_baseline.py` in
+   recipe 5.3, and the provider's price on the day.
+3. Multiply both by the size of the collection and by the number of new
+   documents per year.
+4. Add what the numbers leave out: whether the documents may be sent to
+   an outside service, and whether the service must be available when
+   the collection is processed.
+
+**Worked example.** The small model takes 0.17 seconds per abstract on
+four cores of an AMD EPYC server processor, and 0.007 seconds on an
+NVIDIA H100 GPU. The large model reads 741 tokens and writes 228 per
+abstract, which at the listed price of October 2026 costs 0.025 US cents
+per abstract.
+
+| | Small model on four CPU cores | gpt-oss-120b through a hosted service |
+|---|---|---|
+| 1,922 abstracts of the example | 5.4 minutes | 0.48 dollars |
+| One million abstracts | 47 hours | 248 dollars |
+| Documents leave the organization | No | Yes |
+| Micro F1 on the reporting abstracts | 0.460 | 0.511 |
+
+At these prices the large model is affordable for abstracts. The case
+for the small model in this example rests on the documents staying
+inside the organization, on running without an outside service, and on
+the same model giving the same answer every time. Full reports are many times longer than abstracts, and the cost of the large model grows with their length.
+
+**What this does not do.** The prices are list prices on one day, and
+they change often. The comparison uses a prompt with label names only
+(recipe 5.3).
+
+</Recipe>
+
+<Recipe title="6.3 Store the suggestions and watch the label frequencies" level="AI-ready" skills="Data scientist; curator" time="One day to set up">
+
+**Result:** each document's record holds the scores, the suggested
+labels, and the model version, and a frequency check compares how often
+each label is suggested with how often the reference uses it.
+
+With `--threshold`, `predict.py` writes for each document the scores of
+all labels, the suggested labels in order, and the name of the model
+folder. The scores are kept so that the threshold can change without
+scoring again. The frequency check is part of `evaluate.py`, which
+prints the three labels assigned most often relative to the reference.
+
+1. Score the documents with `--threshold` and `--top`, and load the
+   records into the system the curators use, with the model version.
+2. Run `evaluate.py` on the reporting documents and read the
+   over-assigned labels.
+3. For each over-assigned label, read ten documents where it was
+   suggested and the reference does not have it, and find the sentences
+   that raised its score.
+4. Fix the cause in the training data ([chapter 2](./generate.mdx)), and
+   keep the label out of the suggestions until the next model is
+   checked.
+
+**Worked example.** For the working paper "Financial constraints and
+girls' secondary education: evidence from school fee elimination", the record written by the first model, trained on the public dataset, holds the suggestions Girls' Education, Education, Measuring
+Poverty, Teachers, and Skills Development. The catalogue subjects map to
+Education, Gender, Poverty, and Teachers. Over the 1,792 abstracts of
+the test set, this model suggests Measuring Poverty for 1,298, while the reference has it for 48. On the reporting abstracts, the evaluation
+prints the following line.
+
+```text
+most over-assigned: Measuring Poverty (226 assigned, 15 in reference), Competition Policy (29 assigned, 2 in reference), Investment Climate (26 assigned, 3 in reference)
+```
+
+In a sample of 150 abstracts, 305 of their 1,051 sentences score above 0.3 for Measuring Poverty. Some are about poverty measurement. An example is "This note describes a new measure of multidimensional poverty developed for Armenia". Many describe methods or theory. One of them scores 0.99: "This paper returns to this question with the objective of providing a general framework for the use of theoretical contributions in empirical works". Real abstracts have many such sentences, and every generated training
+sentence was about some topic, so the model attaches them to the
+closest label.
+
+The cause lay in the training data, and two changes were tested. Adding
+2,002 background sentences, about methods and data and labelled with no
+topic, made no measurable difference (chapter 2, implementation
+options). Training on the set generated with topic names allowed
+lowered the count from 1,298 to 216 abstracts, and Measuring Poverty no
+longer appears among the over-assigned labels of that model:
+
+```text
+most over-assigned: Competition Policy (22 assigned, 2 in reference), Debt (18 assigned, 3 in reference), Higher Education (30 assigned, 5 in reference)
+```
+
+**What this does not do.** The frequency check finds labels that are
+assigned too often. A label that the model never suggests shows up only
+in its per-label recall, which [chapter 5](./evaluate.mdx) reports.
+
+</Recipe>
+
+## Implementation options
+
+- A batch job over the collection is enough for most organizations; scoring each document on arrival can be added to the publication workflow when new documents come every day.
+- The model can be exported to ONNX and run with ONNX Runtime, which can be faster on a CPU than PyTorch. The scores should be checked against the PyTorch scores on the calibration documents after export.
+- Where both quality and cost matter, the small model can score every document and the large model can be called only for the documents where the small model's top scores are close together.
+
+## World Bank examples
+
+- The [doc-topics notebook](https://github.com/avsolatorio/doc-topics) scored the sentences of a World Development Report summary with several of the models and combined the scores per topic, as recipe 6.1 does with one model.
+- The [Data from Documents cookbook](/cookbook/data-from-documents/) describes how the text of reports is extracted before it can be scored.
+
+## Resources
+
+- [ONNX Runtime](https://onnxruntime.ai/docs/) runs an exported model on CPU servers.
+- [Hugging Face Optimum](https://huggingface.co/docs/optimum/) exports Transformers models to ONNX.
+- [OpenRouter pricing](https://openrouter.ai/models) lists the per-token prices used in recipe 6.2.
+
+## Common mistakes
+
+- **Scoring a long document in one pass.** The model reads at most 512 tokens and was trained on sentences, and on abstracts this method scored lowest.
+- **Storing only the chosen labels.** Without the scores, a new threshold or a new combination means scoring the collection again.
+- **Comparing costs without the quality figures.** A cheaper model with a lower score is a choice only when the use can accept the difference.
+- **Publishing suggestions without the frequency check.** A label suggested for most documents distorts any count or search built on the topics.
+
+## Verification
+
+- The combination and the threshold in production are the ones chosen on the calibration documents.
+- The time per document was measured on the production hardware, and the cost of the large model on a recorded date and price.
+- Every stored record carries a model version, and the frequency check has been run and read for that version.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-apply" items={[
+  'Combination of sentence scores chosen on calibration documents',
+  'Collection scored with the calibrated threshold and label limit',
+  'Time per document measured on the production hardware',
+  'Cost of the large-model alternative recorded with date and price',
+  'Scores, suggested labels, and model version stored per document',
+  'Label frequencies compared with the reference and over-assigned labels investigated',
+]} />

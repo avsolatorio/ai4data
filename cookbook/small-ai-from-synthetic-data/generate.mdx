@@ -1,0 +1,274 @@
+---
+id: generate
+title: "2. Generation of training examples"
+sidebar_label: "2. Generation"
+sidebar_position: 2
+description: How a large language model writes labelled training sentences, from the choice of model and its terms of use to a request plan that covers every label and an output format that admits only known labels.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 2. Generation of training examples
+
+**Question:** How are training examples generated with a large model?
+
+## Rationale
+
+A training example for a topic classifier is a text with its topics
+marked. The approach of this guide asks a large language model to write
+such texts: a request names a few labels, and the model returns twenty
+sentences about them, each marked with its labels. A thousand
+requests give about twenty thousand examples. With an open-weight model offered by a hosted service, such a run took a few minutes and cost about two dollars in the tests for this guide.
+
+Three choices made at this step decide the quality of everything that
+follows. The generating model must be allowed to produce training data
+for another model, and its terms of use say whether it is. The requests
+must cover every label evenly, or the small model will learn the common
+labels and miss the rare ones. The output must be checked by software,
+so the reply has to come in a fixed structure in which a label can only
+be a name from the label file.
+
+Every reply is kept in full, with the model, the time, the prompt
+version, and the token counts. These records are the provenance of the
+training data: they show later which model wrote which examples, and
+they let the team rebuild the training set or answer a question about it
+without generating again.
+
+## Target state
+
+- The generating model is chosen, its version is recorded, and its terms of use allow the use of its outputs to train the small model.
+- A request plan covers every label, with each label offered about the same number of times.
+- Every reply is stored in full, and each parsed example names the request of its reply.
+- The prompt is a versioned file, and its version is stored with each reply.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Choose a generating model whose terms allow the use, write the prompt, and generate examples for every label with the replies kept. |
+| **AI-ready** | Plan the requests so that every label is offered evenly, constrain the output to the label file, and record the model, prompt version, and token counts with each reply. |
+| **AI-native** | Re-plan each round from the counts of the examples already accepted, run the generating model on the organization's own hardware where the material is confidential, and compare generating models on the evaluation of chapter 5. |
+
+:::info[Running example]
+The chapter plans 1,000 requests of eight labels each over the 86 labels
+and sends them twice to gpt-oss-120b, an open-weight model under the
+Apache 2.0 licence, through a hosted service. One run asks for sentences
+that avoid the topic names, and the other allows them. The two new sets
+stand beside the earlier public dataset of 41,416 sentences written by
+GPT-4 and Llama 3.
+:::
+
+## Recipes
+
+<Recipe title="2.1 Choose the generating model and read its terms" level="Foundational" skills="Data scientist; legal or procurement officer" time="One day">
+
+**Result:** the organization has chosen a generating model, recorded its
+exact version, and confirmed in writing that its terms of use allow the
+outputs to train and publish the small model.
+
+The generating model writes every training example, so its terms of use
+apply to the whole training set. Terms differ between models. Some
+licences restrict the use of a model's outputs to improve other models,
+and some require that a model trained with them carries a name or a
+notice. The Meta Llama 3 Community License, for example, says that
+outputs may not be used "to improve any other large language model",
+and that a model trained with the Llama materials and distributed must
+have a name that begins with "Llama 3". An open-weight model under a
+permissive licence such as Apache 2.0 places no such conditions on its
+outputs. The question is legal, and the organization's legal or
+procurement office answers it before any data are generated.
+
+1. List two or three candidate models. A capable open-weight model is a
+   good default, because the organization can also run it on its own
+   hardware if the material becomes confidential.
+2. Read the licence and the usage policy of each candidate. Look for
+   clauses on the use of outputs to train or improve other models, on
+   naming, and on notices.
+3. Ask the legal or procurement office to confirm the use: training a
+   small classifier on the outputs and publishing the classifier.
+4. Record the chosen model with its exact identifier, the provider, and
+   the date. The prompt and every reply refer to it.
+
+**Worked example.** The running example uses gpt-oss-120b, which OpenAI
+published with open weights under the Apache 2.0 licence, called
+through the OpenRouter service at its listed price of 0.15 US dollars
+per million input tokens and 0.60 dollars per million output tokens in
+October 2026. The earlier public dataset of the running example was
+written in 2024 by GPT-4 (version gpt-4-0125-preview) and by Llama 3 70B,
+so the terms of both providers apply to it, and its dataset card names
+both generators ([chapter 7](./release.mdx)).
+
+**What this does not do.** The recipe identifies the terms to read. It
+does not interpret them; that is for the organization's lawyers, under
+the law that applies to it.
+
+</Recipe>
+
+<Recipe title="2.2 Plan the requests so that every label is covered" level="AI-ready" skills="Data scientist" time="One hour">
+
+**Result:** a request plan lists the labels of each request, and every label is offered about the same number of times.
+
+Each request asks for sentences about a small set of labels, eight in the
+example. Asking about several labels at once lets the model write
+sentences that combine topics, which is how real documents read. If the
+sets were drawn at random with equal chances, some labels would by
+chance be offered far more often than others. The script
+`plan_requests.py` draws each set with chances that favour the labels
+offered least so far. A label offered once fewer than the least offered
+label is about 2.7 times as likely to be drawn as one offered once more.
+
+The script writes one JSON line per request with two fields:
+`request_id`, an identifier such as `req-00042`, and `labels`, the
+labels of that request.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/plan_requests.py
+```
+
+1. Choose the number of requests and the labels per request. Twenty
+   sentences per request and eight labels per request give about 230
+   examples per label from 1,000 requests over 86 labels.
+2. Run the script, and compare the least and most offered counts with
+   a uniform draw (`--uniform`).
+3. For a second round, pass the examples already accepted with
+   `--existing`, so that the plan favours the labels that are still
+   short.
+
+**Worked example.** With 1,000 requests of eight labels over 86 labels,
+the planned draw offers each label between 92 and 95 times:
+
+```text
+$ python plan_requests.py labels.csv requests.jsonl --requests 1000 --per-request 8
+requests       1000
+labels offered 86 of 86
+least offered  92
+most offered   95
+wrote requests.jsonl
+```
+
+A uniform draw with the same seed (`--uniform`) offers the least offered
+label 75 times and the most offered 114 times.
+
+**What this does not do.** An even offer does not guarantee even
+examples, because the model decides which of the offered labels each
+sentence is about. The checks of [chapter 3](./check.mdx) count the
+examples per label, and a second round with `--existing` fills the
+gaps.
+
+</Recipe>
+
+<Recipe title="2.3 Generate with a constrained output and keep every reply" level="AI-ready" skills="Data scientist" time="Half a day, plus one to two hours of generation">
+
+**Result:** every planned request has a reply stored in full, and the
+parsed examples are in a file in which each example names its request
+and its generating model.
+
+The script `generate_examples.py` sends the requests to any server that
+offers the OpenAI chat completions interface. Hosted services and local
+servers such as vLLM and Ollama offer it, so the same script works with
+a hosted model and with one on the organization's hardware. Each
+request asks for the reply in a JSON structure that the server enforces.
+In that structure the labels of a sentence can only take the names
+offered in the request, so the model cannot invent a label or misspell
+one. The script appends each reply to `raw.jsonl` and the parsed
+sentences to `examples.jsonl`. A request already in `raw.jsonl` is
+skipped, so an interrupted run continues where it stopped.
+
+The prompt asks for sentences of the kind found in reports and working
+papers, of varied length and style, about one or more of the offered
+topics. The option `--names` sets one rule of the prompt. With `allow`,
+the default, the sentences use the words a report on the subject would
+use, including the topic names. With `avoid`, the prompt asks the model
+to describe each subject in other words. The reason to avoid the names is that a model could learn to look for a word. In the tests for this guide, the rule lowered the score on real abstracts, which name their topics often (recipe 3.3).
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/generate_examples.py
+```
+
+The examples file has one JSON line per sentence:
+
+| Field | Content |
+|---|---|
+| `text` | The generated sentence. |
+| `labels` | The labels the generating model assigned to it. |
+| `request_id` | The request that produced it, which links it to its full reply in `raw.jsonl`. |
+| `generator` | The model that wrote it. |
+
+1. Set the connection in the environment: `SYNTH_BASE_URL`,
+   `SYNTH_API_KEY`, and `SYNTH_MODEL`. Keep the key out of scripts and
+   notebooks.
+2. Run five requests with `--limit 5` and read the replies before the
+   full run.
+3. Run the full plan. Increase `--workers` if the service allows more
+   requests at once.
+4. Record the number of replies, the token counts, and the cost.
+
+**Worked example.** The run with `--names allow` sent the 1,000 planned
+requests with 32 at a time, through a hosted service set to prefer its
+fastest providers.
+
+```text
+$ python generate_examples.py requests.jsonl gen_names --workers 32 --names allow
+requests sent   1000
+failed          0
+```
+
+The replies hold 20,074 sentences. The requests read 485,668 tokens and
+wrote 3,138,192, part of which is the model's reasoning before its
+answer, for a cost of 1.96 dollars at the listed price. Most replies
+took about two seconds and the run less than two minutes. An earlier
+run on the same service without the preference for fast providers took
+about a minute per reply. Two sentences from the replies show the style:
+
+- "Urban planners in Lagos cite transport integration as essential for achieving inclusive cities and reducing socioeconomic disparities." The labels are Inclusive Cities and Transport.
+- "The 2025 World Bank report on debt relief recommends extending grace periods for low-income countries by up to five years." The label is Debt Relief. The report and the figure are invented, which the dataset card states ([chapter 7](./release.mdx)).
+
+**What this does not do.** The structure guarantees that every label is
+a known name. It does not guarantee that the label is right for the
+sentence, that the sentence avoids the topic name, or that two
+sentences differ. [Chapter 3](./check.mdx) checks those.
+
+</Recipe>
+
+## Implementation options
+
+- Background sentences are sentences about none of the labels, such as sentences on methods and data, added as examples with no label. Real documents contain many such sentences. A plan made with `plan_requests.py --background 100` asks for them, and `check_examples.py` keeps them. In the tests for this guide, adding 2,002 background sentences to about 20,000 examples changed the micro F1 on real abstracts by less than 0.01, so the default plan leaves them out.
+- Any model behind an OpenAI-compatible interface can generate. A model run on the organization's own hardware with [vLLM](https://docs.vllm.ai/) keeps confidential material inside, at the cost of a GPU server for the hours of generation.
+- Structured output with a JSON schema is supported by most current servers. Where it is not, the script's parser drops labels outside the request, and the checks of chapter 3 count what was dropped.
+- Instead of sentences written from label names, the model can be asked to write sentences in the style of the organization's own documents, given a few real sentences as models. This brings the examples closer to real text, and the real sentences must then be ones the organization may share with the provider.
+
+## World Bank examples
+
+- The [doc-topics repository](https://github.com/avsolatorio/doc-topics) generated the earlier public dataset of the running example with a prompt that asked for twenty sentences on ten topics and re-weighted the topics after each reply.
+- The dataset [avsolatorio/doc-topics-synthetic_data](https://huggingface.co/datasets/avsolatorio/doc-topics-synthetic_data) holds those 41,416 sentences and the 2,015 raw replies.
+
+## Resources
+
+- [OpenAI chat completions interface](https://platform.openai.com/docs/api-reference/chat) is the interface the script uses, which most hosted and local servers also offer.
+- [Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) describes the JSON schema format that constrains the labels.
+- [gpt-oss-120b model card](https://huggingface.co/openai/gpt-oss-120b) gives the licence and the usage policy of the generating model in the example.
+- [Meta Llama 3 Community License](https://github.com/meta-llama/llama3/blob/main/LICENSE) is the licence quoted in recipe 2.1.
+- [OpenRouter](https://openrouter.ai/docs) is the hosted service the example uses; any provider with the same interface works.
+
+## Common mistakes
+
+- **Generating before reading the terms.** A training set written by a model whose terms forbid the use cannot be used, however good it is.
+- **Keeping only the parsed sentences.** Without the raw replies, the team cannot tell which model and prompt produced an example, or recover sentences that the parser dropped.
+- **Letting the model name the labels freely.** Free-text labels come back split, shortened, and paraphrased, and each variant has to be repaired or discarded by hand.
+- **Running the full plan without reading a few replies.** A prompt error repeated a thousand times costs the whole budget.
+
+## Verification
+
+- `raw.jsonl` has one line per planned request, and the script reports no failed requests.
+- Every example in `examples.jsonl` has a `request_id` that exists in `raw.jsonl`.
+- The model identifier and the prompt version in `raw.jsonl` match the ones recorded in recipe 2.1.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-generate" items={[
+  'Generating model chosen and its version recorded',
+  'Terms of use read and the use confirmed by the legal or procurement office',
+  'Request plan written with every label offered evenly',
+  'Prompt saved as a versioned file',
+  'Five replies read before the full run',
+  'Full run complete, with raw replies, token counts, and cost recorded',
+]} />

@@ -1,0 +1,245 @@
+---
+id: train
+title: "4. Training of the small model"
+sidebar_label: "4. Training"
+sidebar_position: 4
+description: How the cleaned examples are split by request, how a small pretrained encoder is fine-tuned as a multi-label classifier with a decision threshold chosen on held-out examples, and how its scores on synthetic text are read.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 4. Training of the small model
+
+**Question:** How is the small model trained on the examples?
+
+## Rationale
+
+The small model in this guide is a pretrained encoder: a model that has
+already learned the patterns of a language from a large amount of text,
+and that turns a sentence into numbers representing its meaning.
+Fine-tuning adds one output per label on top of the encoder and trains
+the whole model on the labelled examples. The encoder used in the
+running example, DeBERTa-v3-small, has 142 million parameters and is
+published by Microsoft under the MIT licence. Fine-tuning it on 33,000
+sentences took a little over two minutes on a data-centre GPU in the
+tests for this guide.
+
+Two decisions in training are easy to get wrong. The first is the split.
+Sentences from one generation request share wording and topics, and if
+some of them are used for training and others for testing, the test
+measures memory of that request. The split therefore keeps each request
+whole. The second is the threshold. The model gives each label a
+probability, and a label is assigned when its probability passes a
+threshold. That threshold is chosen on held-out examples, never on the
+test file.
+
+The scores on the synthetic test file are an upper bound. The test
+sentences come from the same generator as the training sentences, so
+they are easier for the model than real documents. They are useful to
+compare training runs and to find labels that the model cannot tell
+apart, and the evaluation of [chapter 5](./evaluate.mdx) measures the
+model on real text.
+
+## Target state
+
+- The cleaned examples are split into training, development, and test files, with every generation request in one file only.
+- The model is trained by a script with pinned library versions, and the model folder holds the weights, the tokenizer, the label list, the threshold, and the scores.
+- The threshold is chosen on the development file.
+- The per-label scores on the synthetic test file have been read, and the weakest labels have gone to the review of recipe 1.3.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Split the examples by request, fine-tune a small encoder with the script, and record the scores on the development and test files. |
+| **AI-ready** | Pin the library versions, keep each trained model with its label file, threshold, and scores in a versioned folder, and read the per-label scores after each run. |
+| **AI-native** | Train several models on different parts of the data, use their agreement to clean the labels (recipe 3.3), and choose thresholds per label on real calibration documents. |
+
+:::info[Running example]
+The chapter splits the 40,910 cleaned examples of the public dataset by
+request, fine-tunes DeBERTa-v3-small for four passes over the training
+file, and reads the scores on the synthetic test file.
+:::
+
+## Recipes
+
+<Recipe title="4.1 Split the examples by request" level="Foundational" skills="Data scientist" time="Half an hour">
+
+**Result:** the cleaned examples are in three files (training,
+development, and test), and the sentences of each generation request are
+all in the same file.
+
+The development file is used during training to choose the best pass
+over the data and the threshold. The test file is used once, at the end,
+to report the score. The script `split_examples.py` assigns whole
+requests to the files with scikit-learn's `GroupShuffleSplit`, which
+draws groups at random until the requested shares are reached.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/split_examples.py
+```
+
+1. Run the script on the cleaned set with ten percent of the requests for
+   development and ten percent for test.
+2. Check that the three files together hold every example and that no
+   `request_id` appears in two files.
+3. Keep the seed, so that the same split can be drawn again.
+
+**Worked example.** The 40,910 cleaned examples come from 2,014 requests.
+
+```text
+$ python split_examples.py clean_hub.jsonl splits_hub
+train   32712 examples   1611 requests
+dev      4109 examples    201 requests
+test     4089 examples    202 requests
+```
+
+**What this does not do.** Keeping requests whole prevents the most
+direct leak. Two requests can still produce similar sentences, so the
+synthetic test score remains an upper bound.
+
+</Recipe>
+
+<Recipe title="4.2 Fine-tune the classifier" level="Foundational" skills="Data scientist with Python" time="Half a day, including set-up">
+
+**Result:** a model folder holds the fine-tuned classifier, its tokenizer,
+the label list, the decision threshold, and the scores on the
+development and test files.
+
+The script `train_classifier.py` fine-tunes the encoder with the
+Hugging Face Transformers library. Each label gets one output, and each
+output is trained to give the probability that the sentence is about
+that label, so a sentence can have several labels. After each pass over
+the training file, the script measures the loss on the development file
+and keeps the best pass. It then tries thresholds from 0.05 to 0.95 on
+the development file and keeps the one with the highest micro F1 score.
+The micro F1 score pools every sentence-label decision of the file,
+which gives frequent labels more weight than rare ones. The macro F1
+score is the average of the F1 scores of the labels.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/train_classifier.py
+```
+
+1. Install the libraries at the versions named in the script. The
+   versions matter: with Transformers 5.20 and PyTorch 2.14,
+   DeBERTa-v3 did not train in the tests for this guide, and its loss
+   became undefined within ten steps.
+2. Run a short check first with `--max-steps 200` and confirm that the
+   loss falls.
+3. Run the full training. The option `--bf16` trains in half precision
+   on GPUs that support the bfloat16 format; the worked example ran in
+   full precision without it.
+4. Read the printed threshold and scores, and keep the folder with the
+   label file it was trained on.
+
+**Worked example.** Four passes over the 32,712 training sentences, in
+full precision on one NVIDIA H100 GPU, took 2 minutes and 10 seconds
+including the loading of the model.
+
+```text
+$ python train_classifier.py splits_hub labels.csv model_hub --epochs 4
+threshold  0.3
+dev    micro F1 0.685  macro F1 0.694
+test   micro F1 0.685  macro F1 0.694
+```
+
+The loss on the development file fell at every pass, from 0.048 after the first to 0.031 after the fourth. The weights take 568 megabytes in
+full precision.
+
+**What this does not do.** The script uses one set of training
+settings, which worked for this task. It does not search for better
+settings; a search on the development file is the next step when the
+scores matter more than the time.
+
+</Recipe>
+
+<Recipe title="4.3 Read the scores on the synthetic test file" level="AI-ready" skills="Data scientist; task owner" time="One hour">
+
+**Result:** the team knows the micro and macro F1 of the model on the
+synthetic test file and the labels with the lowest scores, and it has
+sent the weakest labels to the review of recipe 1.3.
+
+The script `predict.py` scores a file of texts with the trained model,
+and `evaluate.py` compares the scores with the labels of the file. The
+evaluation prints the share of all sentence-label cells that the model
+got right, which looks high for any multi-label task. Most labels are
+absent from most sentences, so a model that predicts nothing at all is
+right in almost every cell. The F1 scores count only the labels that are
+present or predicted, and they are the figures to report.
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/evaluate.py
+```
+
+1. Give each example of the test file an identifier, score the file with
+   `predict.py --unit whole`, and evaluate with the threshold that
+   training chose and no limit on the number of labels (`--top 0`).
+2. Compare the micro and macro F1 with the share of cells right.
+3. Read the weakest labels, and look for parents and near-synonyms
+   among them.
+
+**Worked example.** On the 4,089 test sentences, the model is right in
+98.8 percent of the cells, while its micro F1 is 0.685.
+
+```text
+$ python evaluate.py test_ids.jsonl scores_test.jsonl --threshold 0.3 --top 0
+documents 4089  measured labels 86  threshold 0.3  top 0
+accuracy (all cells)  0.988
+micro precision       0.683
+micro recall          0.687
+micro F1              0.685
+macro F1              0.694
+weakest: Environment 0.20, Social Sustainability and Inclusion 0.28, Water 0.38, Agriculture and Food 0.40, Social Inclusion 0.41
+strongest: Competition Policy 0.94, Fragility, Conflict, and Violence 0.93, Regional Integration 0.93, Indigenous Peoples 0.93, Pensions 0.92
+```
+
+The five weakest labels are broad parents (Environment, Water,
+Agriculture and Food) and the two inclusion labels that name nearly the
+same idea. The strongest labels have a subject that no other label
+shares.
+
+**What this does not do.** A high score on generated sentences shows
+that the model learned the generator's way of writing about each label.
+Whether that carries over to real documents is the subject of
+[chapter 5](./evaluate.mdx).
+
+</Recipe>
+
+## Implementation options
+
+- Other small encoders can replace DeBERTa-v3-small with the same script, for example ModernBERT or a multilingual encoder for documents in several languages. The comparison on the real test set decides.
+- [SetFit](https://github.com/huggingface/setfit) trains a classifier from a few examples per label on top of a sentence embedding model, which suits a task with few generated examples per label.
+- A free GPU in a hosted notebook is enough to train a model of this size. The [doc-topics notebook](https://github.com/avsolatorio/doc-topics) was run on such a GPU.
+
+## World Bank examples
+
+- The models [avsolatorio/doc-topic-model_eval-00_train-01](https://huggingface.co/avsolatorio/doc-topic-model_eval-00_train-01) and its siblings are DeBERTa-v3-small classifiers trained in 2024 on the public dataset split into five parts. Each model was trained on one part and evaluated on another, and the twenty models were combined as an ensemble for document topics.
+
+## Resources
+
+- [Hugging Face Transformers](https://huggingface.co/docs/transformers/) provides the encoder, the tokenizer, and the training loop used by the scripts.
+- [DeBERTa-v3-small](https://huggingface.co/microsoft/deberta-v3-small) is the pretrained encoder of the running example.
+- [scikit-learn](https://scikit-learn.org/stable/modules/model_evaluation.html#multilabel-ranking-metrics) computes the F1 scores and provides the grouped split.
+
+## Common mistakes
+
+- **Splitting sentences at random.** Sentences from one request then appear in training and test, and the test score measures memory of the request.
+- **Reporting the share of cells right.** In a task with 86 labels, it is above 98 percent for almost any model, and it hides how many labels the model misses.
+- **Choosing the threshold on the test file.** The test score then includes a choice fitted to the test, and it overstates the score on new text.
+- **Upgrading the libraries without a check.** A new version can change training behaviour, as the undefined loss with Transformers 5.20 showed.
+
+## Verification
+
+- No `request_id` appears in two of the three files, and the files together hold every cleaned example.
+- The training loss falls in the short check, and the loss on the development file falls between the first and the last pass.
+- The model folder holds `classifier.json` with the label list, the threshold, and the scores, and the label list equals the label file.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-train" items={[
+  'Examples split by request with a recorded seed',
+  'Library versions pinned as in the script',
+  'Short check run and the loss seen to fall',
+  'Full training run, with the threshold chosen on the development file',
+  'Model folder kept with its label file, threshold, and scores',
+  'Per-label scores read and the weakest labels sent to review',
+]} />

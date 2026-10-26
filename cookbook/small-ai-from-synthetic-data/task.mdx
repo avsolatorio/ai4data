@@ -1,0 +1,265 @@
+---
+id: task
+title: "1. Task and label set"
+sidebar_label: "1. Task and labels"
+sidebar_position: 1
+description: How to decide whether a task suits a small model trained on generated examples, and how a published topic list becomes the label file that every later step reads.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 1. Task and label set
+
+**Question:** Which task suits a small model trained on synthetic data, and what are its labels?
+
+## Rationale
+
+A small model is a model with tens or hundreds of millions of parameters,
+small enough to run on an ordinary server or a laptop. It can do one
+narrow task well when it has been trained on examples of that task. A
+large language model can do the same task without training, from
+instructions alone, but every document then costs a request to a large
+model. For a data producer with a collection of tens of thousands of
+reports, or a stream of new documents every day, that cost and the
+dependence on an outside service add up.
+
+The obstacle to training a small model is usually the training data. A
+classifier that assigns topics to documents needs thousands of texts
+with their topics marked, and few organizations have them. This guide
+uses a large language model to write those examples. The large model is
+used once, during development, and the small model trained on its
+examples then runs on the organization's own hardware.
+
+The method works when the answer is one or more labels from a fixed
+list, when the evidence for a label sits in a sentence or a paragraph,
+and when a large model can write sentences about each label. The label
+list is the foundation of every later step. The generated examples, the
+trained model, and the evaluation all refer to it, and a list with
+repeated names or two labels for one idea produces a model that
+confuses them.
+
+## Target state
+
+- The task is written down: the input text, the labels, how many labels a text can have, and how the output will be used.
+- The labels are in one versioned file, with one row per label, its parent topics, and any names folded into it.
+- Labels that overlap have been reviewed by the task owner, and the decision for each is recorded.
+- The volume of documents and the acceptable cost per document are known, so that the small model can be compared with a large one.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Write down the task, the input, and the use of the output. Turn the topic list into a label file with repeated names removed. |
+| **AI-ready** | Record merges and parent topics in the label file, keep the file under version control, and review overlapping labels with the task owner using the per-label scores of the first model. |
+| **AI-native** | Give each label a short definition that the generation prompt and the documentation both use, and revise the label set from the evaluation of each model release. |
+
+:::info[Running example]
+The task is to assign topics from the World Bank's topic list to
+documents in a collection of reports and working papers. The chapter
+writes the task statement and turns the 95 names on the topic page into
+a label file of 86 labels.
+:::
+
+## Recipes
+
+<Recipe title="1.1 Describe the task and check that it suits a small model" level="Foundational" skills="Task owner; data scientist" time="Half a day">
+
+**Result:** the organization has a one-page task statement that names the
+input, the labels, the expected volume, and the use of the output, and
+it has decided whether a small model trained on generated examples is
+worth trying.
+
+A task statement is a short note that any member of the team can read
+and that later steps refer to. Without one, the training examples can
+drift towards a different task from the one the collection poses. The
+statement also records the volume and the acceptable cost, because
+these decide whether a small model is worth the development work.
+
+1. Name the input. State whether the model will read a sentence, a
+   paragraph, an abstract, or a whole document, and in which languages.
+2. Name the labels and how many a text can have. A text that can have
+   several labels at once calls for a multi-label classifier, which
+   gives a separate probability for each label.
+3. State the use of the output. A label used to suggest topics to a
+   curator can tolerate more errors than a label published without
+   review.
+4. Estimate the volume: the size of the existing collection and the
+   number of new documents per month.
+5. Check the fit. The approach suits the task when the labels come from
+   a fixed list, when a sentence or a paragraph is enough to see a
+   label, and when a person can explain each label in a line. Tasks
+   that need reasoning over a whole document, or labels that depend on
+   facts outside the text, need another approach.
+
+**Worked example.** The task statement for the running example reads as
+follows. The input is the abstract or the text of a report or working
+paper in English. The labels are the topics of the World Bank's topic
+page, and a document can have several. The output suggests up to five
+topics per document to the curators of the collection, who accept or
+change them. The collection holds the 1,922 Policy Research Working Papers published
+from 2016 to 2020, and new papers arrive every week. A sentence such as
+"Marriage reduces women's labor force participation in South Asia by 12
+percentage points" is enough to see the topics Gender and Labor
+Markets. The evidence sits at the level of a sentence, so the task fits.
+
+**What this does not do.** The check of fit is a judgement made before
+any data exist. The comparison with a large model in
+[chapter 5](./evaluate.mdx) tests it. A task where the small model stays
+far behind may need more examples, a better label set, or a large model.
+
+</Recipe>
+
+<Recipe title="1.2 Turn the published topic list into a label file" level="Foundational" skills="Data scientist" time="Two hours">
+
+**Result:** the organization has a label file with one row per label,
+the parent topics of each label, and the names folded into it. A script
+writes the file from the published list and a short merge file.
+
+A published topic list is written for readers of a web page. It repeats
+a topic under each section where it belongs, and it can spell one topic
+in two ways. A classifier needs each label exactly once. The script
+`prepare_labels.py` reads the list as published, applies a merge file
+that names the topics to treat as one, and writes the label file. The
+merge file is kept separate so that the decisions are visible and can be
+reviewed.
+
+The topic list is a JSON file with two parts. The list `all_topics`
+holds every name in the order of the page, and the mapping `topic_list`
+gives the subtopics under each top-level topic. The merge file is a CSV
+file with three columns:
+
+| Column | Content |
+|---|---|
+| `from` | The name as it appears on the list. |
+| `to` | The label it becomes. |
+| `reason` | Why the two names are treated as one. |
+
+The script reads both files and writes the label file:
+
+```python file=../../website/static/cookbook-files/small-ai-from-synthetic-data/prepare_labels.py
+```
+
+1. Save the topic list as published, with its retrieval date.
+   The [topic list of the example](pathname:///cookbook-files/small-ai-from-synthetic-data/wb_topics.json)
+   was taken from the World Bank's topic page in 2024.
+2. Write the merge file. Add a row only where two names mean the same
+   topic. Topics that are related but different stay separate, and
+   recipe 1.3 deals with them.
+3. Run the script and read its summary. The label file has four
+   columns: `label`; `parents`, the top-level topics it is listed under;
+   `is_parent`, whether it is itself a top-level topic; and
+   `merged_from`, the names folded into it.
+
+**Worked example.** The topic page lists 95 names. The merge file has
+one row, which folds "Jobs & Development" into "Jobs and Development"
+because the page uses both spellings for the same topic.
+
+```text
+$ python prepare_labels.py wb_topics.json label_merges.csv labels.csv
+entries on the list   95
+labels                86
+repeated names        6
+merged names          1
+several parents       3
+wrote labels.csv
+```
+
+Six names appear more than once on the page. Skills Development, for
+example, is listed under Education, Jobs and Development, and Social
+Protection. The label file keeps it once, with its three parents.
+
+**What this does not do.** The script removes repeats and applies the
+merges that a person decided. Two different names for one idea are
+found from the per-label scores of the first model (recipe 1.3).
+
+</Recipe>
+
+<Recipe title="1.3 Review labels that overlap" level="AI-ready" skills="Task owner; data scientist" time="Half a day after the first model">
+
+**Result:** each pair of labels that the first model confuses has been
+reviewed. The decision for each pair (merge, keep both, or define the
+boundary) is recorded in the merge file or in the label definitions.
+
+Two kinds of overlap make labels hard to learn. A broad parent topic,
+such as Environment, covers the subjects of its subtopics. A sentence
+about forests is also about the environment, and the generated examples
+rarely mark both. Two labels can also name nearly the same idea, such as
+Social Inclusion and Social Sustainability and Inclusion. In both cases
+the training examples give the model contradictory signals, and its
+score for those labels stays low. The review takes place after the first
+model is trained, because the per-label scores show where the overlap
+costs most.
+
+1. Train a first model ([chapter 4](./train.mdx)) and list the labels
+   with the lowest F1 score on the synthetic test file. The F1 score
+   combines two shares: the share of predicted labels that are right and
+   the share of true labels that the model finds. A score of 1 is
+   perfect and 0 is no match.
+2. For each weak label, look for the label that the model confuses with it. A parent
+   topic is usually confused with its subtopics, and a near-synonym with
+   its twin.
+3. Decide for each pair. Merge two labels that the users of the output
+   would not distinguish. Keep a parent topic only if the output needs
+   it, and then add it to every example of its subtopics. Otherwise,
+   write a definition that states the boundary, and use it in the
+   generation prompt.
+4. Record the decision in the merge file or the definitions, and train
+   again.
+
+**Worked example.** The first model of the running example scores an F1
+of 0.20 on Environment on the synthetic test file, against an average of
+0.69 over all labels. Social Sustainability and Inclusion scores 0.28 and
+Social Inclusion 0.41. Environment is the parent of Biodiversity,
+Pollution, Natural Capital, and four other labels. Labels with a
+distinct subject score high, for example Competition Policy at 0.94 and
+Pensions at 0.92. The options for the task owner are to derive
+Environment from its subtopics and to merge the two inclusion labels.
+This guide records the options and leaves the decision to the owner of
+the collection.
+
+**What this does not do.** The scores come from generated test
+sentences, which inherit the confusions of the generating model. The
+evaluation on real documents in [chapter 5](./evaluate.mdx) shows which
+confusions matter in practice.
+
+</Recipe>
+
+## Implementation options
+
+- The label file can be any table under version control. A SKOS concept scheme, the W3C standard for publishing classifications and thesauri, is the form to use when the labels are published for other systems.
+- Where the organization already maintains a classification, such as a subject classification of its publications, that classification is the label set, and its definitions go into the generation prompt.
+- A hierarchy can be learned directly, with one classifier per level, at the cost of more models to maintain. This guide uses a flat label set with the parents recorded in the file.
+
+## World Bank examples
+
+- The [World Bank topic page](https://www.worldbank.org/en/topic) is the source of the label list in the running example.
+- The [doc-topics repository](https://github.com/avsolatorio/doc-topics) holds the script that retrieved the topic list and the first version of the generation pipeline that this guide builds on.
+
+## Resources
+
+- [SKOS Simple Knowledge Organization System](https://www.w3.org/2004/02/skos/) is the W3C standard for publishing a label set as a concept scheme with broader and narrower relations.
+- [pandas](https://pandas.pydata.org/docs/) reads and writes the label and merge files in the scripts of this chapter.
+
+## Common mistakes
+
+- **Using the label list as published.** Repeated names and two spellings of one topic become separate outputs, and the model splits its evidence between them.
+- **Keeping broad parents and their subtopics as equal labels.** Generated examples rarely mark both, so the model learns that a sentence about forests is not about the environment.
+- **Writing the task statement after the data.** Examples generated before the input and the use of the output are fixed tend to describe a different task from the one in the collection.
+
+## Verification
+
+- The label file has as many rows as the summary of `prepare_labels.py` reports, and no name appears twice.
+- Every name in the merge file exists on the published list. The script exits with status 1 otherwise.
+- The task statement names the input, the labels, the volume, and the use of the output, and the task owner has approved it.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-task" items={[
+  'Task statement written: input, labels, number of labels per text, use of the output',
+  'Volume of documents and acceptable cost per document recorded',
+  'Published topic list saved with its retrieval date',
+  'Merge file written and reviewed',
+  'Label file generated by prepare_labels.py and under version control',
+  'Overlapping labels reviewed after the first model',
+]} />
