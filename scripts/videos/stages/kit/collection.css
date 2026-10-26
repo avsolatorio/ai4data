@@ -3,17 +3,6 @@
    file after stage.css, and loads collection.js and the page data
    (local/rag-public/pages/pages.js, written by render_pages.py). */
 
-/* map of the steps of RAG, under the heading */
-.rmap { position: absolute; left: 80px; right: 80px; top: 148px; display: flex; align-items: center; gap: 8px; }
-.rmap .grp { display: flex; align-items: center; gap: 6px; }
-.rmap .grp > span { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); margin-right: 6px; }
-.rmap .st { padding: 6px 13px; border-radius: 999px; border: 1px solid var(--hairline); background: #fff; color: var(--muted);
-  font-size: 15px; font-weight: 600; transition: background .4s, color .4s, border-color .4s, box-shadow .4s; }
-.rmap .st.done { background: var(--primary-subtle); border-color: var(--primary-subtle); color: var(--primary); }
-.rmap .st.on { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 0 0 4px var(--primary-subtle); }
-.rmap .ar { width: 14px; height: 14px; color: #b9c4d6; flex: none; }
-.rmap .sep { width: 1px; height: 30px; background: var(--hairline); margin: 0 12px; }
-
 /* source line of the reports, at the bottom of every light scene */
 .srcline { position: absolute; left: 80px; right: 80px; bottom: 24px; font-size: 12px; color: var(--subtle); line-height: 1.5; }
 .dark .srcline { left: 110px; right: 110px; bottom: 34px; color: var(--block-soft); }
@@ -71,9 +60,6 @@
 .store.pulse { animation: pulse .5s ease; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 8px var(--teal-subtle); } }
 
-/* a copy that moves between two places at its own size */
-.mover-card { position: absolute; z-index: 8; pointer-events: none; }
-
 /* map of meaning (an illustration) */
 .mmap { position: absolute; background: #fff; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden; }
 .mmap svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -94,3 +80,7 @@
 .cit { font: 600 .62em var(--mono); color: var(--primary); background: var(--primary-subtle); border-radius: 4px; padding: 1px 5px;
   white-space: nowrap; vertical-align: 2px; transition: box-shadow .3s, background .3s; }
 .cit.hot { background: #fff4cc; color: #8a6400; box-shadow: 0 0 0 3px #fff4cc; }
+
+/* the map of RAG has nine steps; slightly smaller pills keep it on one line */
+.rmap .st { padding: 6px 11px; font-size: 14px; }
+.rmap .grp > span { margin-right: 4px; }

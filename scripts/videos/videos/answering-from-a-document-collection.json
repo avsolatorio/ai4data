@@ -3,21 +3,117 @@
   "series": "ai-applications",
   "next": "how-search-ranks-passages",
   "steps": [
-    {"do": "goto", "url": "stages/answering-from-a-document-collection.html", "pause": 0.1},
-    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
-    {"do": "eval", "js": "go(2,1)", "say": "For a question on growth in Uganda in FY25, the search returns three passages.", "speak": "For a question on growth in Uganda in F Y twenty-five, the search returns three passages.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "go(2,2)", "say": "The December 2025 report gives 6.3 percent for the full year.", "speak": "The December twenty twenty-five report gives six point three percent for the full year.", "pause": 0.35},
-    {"do": "eval", "js": "go(2,3)", "say": "The September 2025 report gives 6.8 percent for the first nine months.", "speak": "The September twenty twenty-five report gives six point eight percent for the first nine months.", "pause": 0.35},
-    {"do": "eval", "js": "go(2,4)", "say": "A table in the June 2023 report gives 6.7 percent as a projection, made before the year began.", "speak": "A table in the June twenty twenty-three report gives six point seven percent as a projection, made before the year began.", "pause": 0.35},
-    {"do": "eval", "js": "go(3,1)", "say": "The application puts the three passages into the prompt, under the instructions.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "go(3,2)", "say": "The instructions tell the model to answer only from the passages, and to cite a passage after each figure.", "min": 2.2, "pause": 0.35},
-    {"do": "eval", "js": "go(3,3)", "say": "They also tell the model to say so when the passages do not contain what is needed.", "pause": 0.35},
-    {"do": "eval", "js": "go(4,1)", "say": "The model answers with 6.3 percent, the full-year figure, and cites the December 2025 report.", "speak": "The model answers with six point three percent, the full-year figure, and cites the December twenty twenty-five report.", "settle": 0.8, "pause": 0.35},
-    {"do": "eval", "js": "0", "say": "It reports the figure for nine months as a partial year.", "pause": 0.35},
-    {"do": "eval", "js": "0", "say": "It leaves out the projection from 2023 and states the reason.", "speak": "It leaves out the projection from twenty twenty-three and states the reason.", "min": 3.5, "pause": 0.35},
-    {"do": "eval", "js": "go(5,1)", "say": "Each citation names a report and a page. Page 12 of the December 2025 report holds the full-year figure.", "speak": "Each citation names a report and a page. Page twelve of the December twenty twenty-five report holds the full-year figure.", "settle": 0.8, "min": 3.2, "pause": 0.35},
-    {"do": "eval", "js": "go(5,2)", "say": "Page 40 of the June 2023 report holds the projection, in a table of forecasts.", "speak": "Page forty of the June twenty twenty-three report holds the projection, in a table of forecasts.", "min": 3.2, "pause": 0.35},
-    {"do": "eval", "js": "0", "say": "A reader can see when each figure was published before using it.", "pause": 0.6},
-    {"do": "eval", "js": "go(6,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+    {
+      "do": "goto",
+      "url": "stages/answering-from-a-document-collection.html",
+      "pause": 0.1
+    },
+    {
+      "do": "eval",
+      "js": "go(1,0)",
+      "min": 3.0,
+      "pause": 0.2
+    },
+    {
+      "do": "eval",
+      "js": "go(2,1)",
+      "say": "For a question on growth in Uganda in FY25, the search returns three passages.",
+      "speak": "For a question on growth in Uganda in F Y twenty-five, the search returns three passages.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,2)",
+      "say": "The December 2025 report gives 6.3 percent for the full year.",
+      "speak": "The December twenty twenty-five report gives six point three percent for the full year.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,3)",
+      "say": "The September 2025 report gives 6.8 percent for the first nine months.",
+      "speak": "The September twenty twenty-five report gives six point eight percent for the first nine months.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(2,4)",
+      "say": "A table in the June 2023 report gives 6.7 percent as a projection, made before the year began.",
+      "speak": "A table in the June twenty twenty-three report gives six point seven percent as a projection, made before the year began.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,1)",
+      "say": "The application puts the three passages into the prompt, under the instructions.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,2)",
+      "say": "The instructions tell the model to answer only from the passages and to cite a passage after each figure, so every figure can be traced to a report.",
+      "min": 2.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(3,3)",
+      "say": "They also tell the model to say so when the passages do not contain what is needed.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(4,1)",
+      "say": "The model answers with 6.3 percent, the full-year figure, and cites the December 2025 report.",
+      "speak": "The model answers with six point three percent, the full-year figure, and cites the December twenty twenty-five report.",
+      "settle": 0.8,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "0",
+      "say": "It reports the figure for nine months as a partial year.",
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "0",
+      "say": "It leaves out the projection from 2023 and states the reason.",
+      "speak": "It leaves out the projection from twenty twenty-three and states the reason.",
+      "min": 3.5,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,1)",
+      "say": "Each citation names a report and a page. Page 12 of the December 2025 report holds the full-year figure.",
+      "speak": "Each citation names a report and a page. Page twelve of the December twenty twenty-five report holds the full-year figure.",
+      "settle": 0.8,
+      "min": 3.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "go(5,2)",
+      "say": "Page 40 of the June 2023 report holds the projection, in a table of forecasts.",
+      "speak": "Page forty of the June twenty twenty-three report holds the projection, in a table of forecasts.",
+      "min": 3.2,
+      "pause": 0.35
+    },
+    {
+      "do": "eval",
+      "js": "0",
+      "say": "A reader can see when each figure was published before using it.",
+      "pause": 0.6
+    },
+    {
+      "do": "eval",
+      "js": "go(6,0)",
+      "min": 4.0,
+      "settle": 0.9,
+      "pause": 1.0
+    }
   ]
 }

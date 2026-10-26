@@ -34,12 +34,13 @@ COLLAGE = [
 
 # Pages that a citation in the videos leads to, with the phrases to mark.
 CITED = {
-    ("ueu-2025-12", 12): ["accelerated to 6.3 percent"],
+    ("ueu-2025-12", 12): ["accelerated to 6.3 percent", "averages. Real gross domestic product (GDP) growth",
+                          "rose to 51.3 percent of GDP, with domestic debt now"],
     ("ueu-2026-06", 20): ["3.0 percent"],
     ("ueu-2026-06", 22): ["USD 3.00-per-day line", "24 percent"],
     ("ueu-2026-06", 23): ["51.5 percent"],
     ("ueu-2023-12", 17): ["2.6 percent"],
-    ("ueu-2023-06", 40): ["Real GDP growth (baseline)", "FY25f"],
+    ("ueu-2023-06", 40): ["Real GDP growth (baseline)", "FY25f", "Table 4:", "Sources: UBOS, MoFPED, BoU"],
     ("ueu-2025-09", 21): ["grew by 6.8 percent"],
 }
 

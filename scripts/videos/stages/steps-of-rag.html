@@ -18,7 +18,7 @@
   .slot { position: absolute; left: 410px; width: 330px; height: 62px; }
   #s3 .pcard { left: 410px; width: 330px; }
   #s3 .vec { left: 760px; }
-  #store3 { left: 1052px; top: 318px; width: 148px; height: 220px; }
+  #store3 { left: 990px; top: 318px; width: 210px; height: 200px; }
   #q4 { position: absolute; left: 80px; top: 240px; width: 360px; }
   #q4 .uq { margin-left: 0; font-size: 20px; }
   #emb4 { position: absolute; left: 80px; top: 380px; width: 360px; }
@@ -53,7 +53,7 @@
   <div class="rowlab" style="left:80px;top:455px;width:236px" data-b="1">Uganda Economic Update<small>6 editions, June 2023 to June 2026</small></div>
   <div id="covers2"></div>
   <div id="leaves2"></div>
-  <div class="count" data-b="2"><b id="n2r">13</b> reports &nbsp;·&nbsp; <b id="n2p">0</b> pages</div>
+  <div class="count" data-b="2"><b>13</b> reports of text, tables and charts</div>
   <div class="srcline"></div>
 </section>
 
@@ -63,11 +63,16 @@
   <h2>Pages become passages in a store</h2>
   <div class="rmap" id="map3"></div>
   <div class="pageview" id="pv3" data-b="1"><div class="cap">Uganda, December 2025 · page 12</div></div>
+  <div id="txt3" class="prompt" style="left:410px;top:222px;width:700px;opacity:0;transition:opacity .4s">
+    <div class="label">Text in reading order</div>
+    <div class="pp" style="white-space:normal;margin-top:12px;font-size:19px;line-height:1.5;padding:10px 14px"><b>1</b>Uganda’s economic growth remained above 6 percent in FY25 … Real gross domestic product (GDP) growth accelerated to 6.3 percent, up from 6.1 percent in FY24 …</div>
+    <div class="pp" style="white-space:normal;margin-top:12px;font-size:19px;line-height:1.5;padding:10px 14px;border-left-color:var(--teal)"><b style="color:var(--teal)">2</b>… in spending, mainly interest payments and non-wage current expenditures, outpacing a 16 percent increase in revenues …</div>
+  </div>
   <div id="cards3"></div>
-  <div class="store" id="store3" data-b="4">
+  <div class="store" id="store3" data-b="5">
     <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#12a08a" stroke-width="1.7"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
-    <div class="big" id="n3">0</div>
-    <div class="lab">passages with their vectors</div>
+    <div class="lab" style="margin-top:10px;color:var(--ink);font-weight:600">Store</div>
+    <div class="lab" style="margin-top:6px">passages and vectors, with the report, date and page of each</div>
   </div>
   <div class="srcline"></div>
 </section>
@@ -81,7 +86,7 @@
   <div id="emb4" data-b="2"><div class="label" style="margin-bottom:8px">The same embedding model</div><span class="chip">question → vector</span></div>
   <div class="vec" id="vec4"></div>
   <div id="picks4" style="position:absolute;left:80px;top:520px;width:360px" data-b="3"><div class="label" style="margin-bottom:6px">Closest passages</div></div>
-  <div class="mmap" id="mm4" data-b="1"><svg id="mms4"></svg><div class="note">Positions drawn for illustration. The search compares vectors of 384 numbers.</div></div>
+  <div class="mmap" id="mm4" data-b="1"><svg id="mms4"></svg><div class="note">Positions drawn for illustration</div></div>
   <div class="srcline"></div>
 </section>
 
@@ -167,7 +172,9 @@
   $('cards3').innerHTML = FIRST.map((_, k) => `<div class="slot" id="slot3-${k}" style="top:${222 + 70 * k}px"></div>` +
     `<div class="pcard hide${k % 2 ? ' alt' : ''}" id="card3-${k}" style="top:${222 + 70 * k}px"><div class="c">[ueu-2025-12 · p. 12]<span>December 2025</span></div><div class="t">${FIRST[k]}</div></div>` +
     `<div class="vec" id="vec3-${k}" style="top:${222 + 70 * k + 9}px"></div>`).join('');
-  let pv3 = null, bands3 = [];
+  // The two columns of the page, read in order.
+  const COLUMNS = [[L[0], .163, L[1], .906], [R[0], .275, R[1], .906]];
+  let pv3 = null, bands3 = [], cols3 = [];
 
   // Scene 4: an illustrated map of meaning with clusters of passages by topic.
   const TOPICS = [['Growth', 220, 165], ['Inflation', 520, 105], ['Poverty', 590, 290], ['Public debt', 335, 300], ['Trade', 105, 300], ['Agriculture', 430, 205]];
@@ -203,7 +210,6 @@
         document.querySelectorAll('#covers2 .cover').forEach((c, k) => later(70 * k, () => { c.style.opacity = 1; c.style.transform = 'none'; }));
       },
       2: () => {
-        countUp($('n2p'), 769, 1600);
         document.querySelectorAll('#covers2 .cover').forEach((c) => { c.style.opacity = .18; });
         document.querySelectorAll('.rowlab').forEach((c) => { c.style.opacity = .3; });
         document.querySelectorAll('#leaves2 .leaf').forEach((l, k) => {
@@ -216,6 +222,16 @@
       1: () => { mapAt($('map3'), 0); pv3 = pageView($('pv3'), P12); },
       2: () => {
         mapAt($('map3'), 1);
+        COLUMNS.forEach((b, k) => later(500 + 1100 * k, () => {
+          const d = pageBox(pv3, b, 'band' + (k ? ' alt' : ''), String(k + 1));
+          cols3.push(d); d.classList.add('in2');
+        }));
+        later(900, () => { $('txt3').style.opacity = 1; });
+      },
+      3: () => {
+        mapAt($('map3'), 2);
+        cols3.forEach((d) => d.classList.remove('in2'));
+        $('txt3').style.opacity = 0;
         REGIONS.forEach((boxes, k) => later(650 * k, () => {
           const bs = boxes.map((b, j) => pageBox(pv3, b, 'band' + (k % 2 ? ' alt' : ''), j ? '' : String(k + 1)));
           bands3.push(bs);
@@ -223,21 +239,20 @@
           moveCard(bs[0], $('slot3-' + k), cardHTML(k), 700, () => $('card3-' + k).classList.remove('hide'));
         }));
       },
-      3: () => {
-        mapAt($('map3'), 2);
-        FIRST.forEach((_, k) => later(260 * k, () => vecBars($('vec3-' + k), PAGES.vectors.passages[`ueu-2025-12/p12/${k}`], PAGES.vectors.of)));
-      },
       4: () => {
         mapAt($('map3'), 3);
+        FIRST.forEach((_, k) => later(260 * k, () => vecBars($('vec3-' + k), PAGES.vectors.passages[`ueu-2025-12/p12/${k}`])));
+      },
+      5: () => {
+        mapAt($('map3'), 4);
         FIRST.forEach((_, k) => later(170 * k, () => moveCard($('vec3-' + k), $('store3'),
           '<div class="pcard" style="position:static;width:150px;height:auto;padding:4px 8px"><div class="c" style="font-size:11px">[ueu-2025-12 · p. 12]</div></div>', 750,
           () => $('store3').classList.add('pulse'))));
-        later(400, () => countUp($('n3'), 3440, 2200));
       },
     },
     4: {
-      1: () => { mapAt($('map4'), 4); typeText($('qt4'), 'How much did Uganda’s economy grow in FY25?', 28); },
-      2: () => { mapAt($('map4'), 5); vecBars($('vec4'), Object.values(PAGES.vectors.questions)[0], PAGES.vectors.of); },
+      1: () => { mapAt($('map4'), 5); typeText($('qt4'), 'How much did Uganda’s economy grow in FY25?', 28); },
+      2: () => { mapAt($('map4'), 6); vecBars($('vec4'), Object.values(PAGES.vectors.questions)[0]); },
       3: () => {
         const s = $('mms4');
         const ring = document.createElementNS(NS, 'circle');
@@ -260,7 +275,7 @@
     },
     5: {
       1: () => {
-        mapAt($('map5'), 6);
+        mapAt($('map5'), 7);
         ['ins5', 'pas5', 'que5'].forEach((id, k) => {
           const e = $(id); e.style.opacity = 0; e.style.transform = 'translateY(10px)';
           later(350 + 650 * k, () => { e.style.opacity = 1; e.style.transform = 'none'; });
@@ -271,13 +286,13 @@
         later(600, () => { flow($('ws5'), p, '#1558d6'); $('m5').classList.add('busy'); });
         later(1300, () => {
           wire($('ws5'), $('m5'), $('w5'), { hot: true });
-          mapAt($('map5'), 7);
+          mapAt($('map5'), 8);
           stream($('a5'), ANSWER, 120, null, () => $('m5').classList.remove('busy'));
         });
       },
     },
     6: {
-      1: () => { mapAt($('map6'), 7); $('v6').style.background = 'var(--primary-subtle)'; $('v6').style.boxShadow = '0 0 0 3px var(--primary-subtle)'; },
+      1: () => { mapAt($('map6'), 8); $('v6').style.background = 'var(--primary-subtle)'; $('v6').style.boxShadow = '0 0 0 3px var(--primary-subtle)'; },
       2: () => {
         $('c6').classList.add('hot');
         pv6 = pageView($('pv6'), P12);

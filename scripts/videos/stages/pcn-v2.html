@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Proof-Carrying Numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<script src="kit/stage.js"></script>
+<style>
+  /* Layout of the PCN explainer, second version: the map of steps under each heading,
+     one focal object per beat, real data from the World Bank API. */
+  .srcline { position: absolute; left: 80px; right: 80px; bottom: 24px; font-size: 12px; color: var(--subtle); }
+  .dark .srcline { left: 110px; right: 110px; bottom: 34px; color: var(--block-soft); }
+  .note { position: absolute; font-size: 13px; color: var(--subtle); }
+
+  /* 2: why it matters */
+  #w2 { left: 80px; top: 180px; width: 610px; height: 454px; }
+  #w2 .tx { font-size: 23px; line-height: 1.6; }
+  .src { position: absolute; left: 740px; width: 290px; padding: 14px 16px 14px 66px; }
+  .src .ic { position: absolute; left: 14px; top: 16px; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .src b { display: block; font-size: 18px; }
+  .src span { font-size: 15px; color: var(--muted); line-height: 1.4; display: block; margin-top: 2px; }
+  .fig { position: absolute; left: 1066px; top: 352px; width: 134px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .fig .v { font-size: 46px; font-weight: 800; letter-spacing: -.03em; }
+  .fig.pulse { animation: pulse .7s ease; }
+  @keyframes pulse { 40% { transform: scale(1.08); } }
+  .fig .qm { position: absolute; right: -14px; top: -14px; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: #fff;
+    font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+  /* 3: data */
+  #api3 { left: 80px; top: 222px; width: 520px; height: 412px; }
+  #api3 { font-size: 13.5px; }
+  #api3 .ln { display: block; opacity: 0; transition: opacity .35s; white-space: pre; }
+  #api3 .ln.in2 { opacity: 1; }
+  #api3 .url { color: var(--primary-light); white-space: normal; overflow-wrap: anywhere; }
+  #t3 { position: absolute; left: 640px; top: 222px; width: 560px; }
+  #t3 table.data { width: 100%; font-size: 18px; }
+  #t3 td, #t3 th { padding: 12px 14px; }
+  #t3 td.mono { font-size: 15px; }
+  #t3 .cid { width: 0; max-width: 0; padding-left: 0 !important; padding-right: 0 !important; overflow: hidden; white-space: nowrap; transition: all .7s ease; }
+  #t3.cidon .cid { width: 250px; max-width: 250px; padding: 12px 14px !important; background: var(--primary-subtle); color: var(--primary); font-weight: 600; }
+  #t3 tr.r { opacity: 0; transition: opacity .4s; }
+  #t3 tr.r.in2 { opacity: 1; }
+  #hash3 { position: absolute; left: 640px; top: 520px; width: 560px; padding: 14px 18px; font-size: 18px; line-height: 1.45; }
+  #hash3 .kv { font-size: 16px; }
+
+  /* 4: instructions */
+  #pr4 { position: absolute; left: 80px; top: 222px; width: 720px; height: 412px; padding: 18px 22px; }
+  #pr4 .sec { margin-top: 14px; transition: opacity .4s; }
+  #pr4 .sec:first-of-type { margin-top: 2px; }
+  #pr4 .tx { font-size: 22px; line-height: 1.5; margin-top: 4px; }
+  #pr4 .tpl { display: inline-block; margin-top: 10px; font: 500 17px var(--mono); color: var(--primary); background: var(--primary-subtle);
+    border-radius: 6px; padding: 6px 10px; transition: box-shadow .4s; }
+  #pr4 .tpl.on { box-shadow: 0 0 0 3px var(--primary-light); }
+  #pr4 .mono { font: 15.5px/1.7 var(--mono); }
+  #m4 { left: 940px; top: 340px; }
+
+  /* 5: the answer with its tags */
+  #raw5 { left: 80px; top: 222px; width: 610px; height: 412px; font-size: 16px; }
+  #w5 { left: 720px; top: 222px; width: 480px; height: 412px; }
+  #w5 .tx { font-size: 21px; line-height: 1.6; }
+  .t-claim { border-radius: 4px; transition: background .4s, box-shadow .4s; }
+  .t-claim.grab { background: rgba(123,167,242,.18); box-shadow: 0 0 0 2px rgba(123,167,242,.5); }
+
+  /* 6: the verifier */
+  #tag6 { position: absolute; left: 80px; top: 222px; width: 1120px; height: 88px; background: var(--block); border-radius: 12px;
+    padding: 0 28px; display: flex; align-items: center; font: 500 22px var(--mono); color: #d5dbe3; white-space: nowrap; overflow: hidden; }
+  .vst { position: absolute; top: 336px; width: 357px; height: 236px; padding: 16px 20px; font-size: 18px; line-height: 1.5; }
+  .vst .label { color: var(--primary); display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .vst .label em { font-style: normal; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .vst.act { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-subtle); }
+  .vst .fill { opacity: 0; transition: opacity .4s; }
+  .vst .fill.in2 { opacity: 1; }
+  .vst .k { color: var(--subtle); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: block; margin-top: 6px; }
+  .vst .mono { font-size: 15px; }
+  .vst .big { font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+  #nollm6 { position: absolute; left: 80px; top: 594px; background: var(--block); color: #fff; font-size: 16px; font-weight: 600; border-radius: 999px; padding: 7px 16px; }
+
+  /* 7: marks */
+  #w7 { left: 80px; top: 222px; width: 660px; height: 380px; }
+  #w7 .tx { font-size: 23px; line-height: 1.65; }
+  .pop { width: 420px; }
+
+  /* 8: judgement */
+  .two { position: absolute; left: 80px; top: 196px; width: 1120px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .two .card { padding: 22px 26px; font-size: 22px; line-height: 1.45; }
+  .two .card b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .two .g { border-top: 4px solid var(--ok); } .two .g b { color: var(--ok); }
+  .two .n { border-top: 4px solid var(--primary); } .two .n b { color: var(--primary); }
+  .match { position: absolute; left: 80px; top: 400px; width: 1120px; height: 230px; padding: 20px 26px; }
+  .match .q { font-size: 23px; }
+  .match .q .w { border-radius: 5px; padding: 0 3px; transition: background .4s; }
+  .match .q .w.on { background: var(--primary-subtle); color: var(--primary); }
+  .chips { position: absolute; left: 26px; top: 150px; display: flex; gap: 14px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="floaters">
+    <span style="left:760px;top:420px;animation-delay:-2s">&lt;claim id="IT.NET.USER.ZS:KEN:2024"&gt;35.0&lt;/claim&gt;</span>
+    <span style="left:880px;top:560px;animation-delay:-9s">claim_id: 81e910d0</span>
+    <span style="left:640px;top:640px;animation-delay:-5s">round(34.97622513, 1) = 35.0 ✓</span>
+    <span style="left:980px;top:300px;animation-delay:-13s">policy="rounded" decimals="1"</span>
+  </div>
+  <div class="kicker">AI for Data – Data for AI · Verification</div>
+  <h1>Proof-Carrying Numbers</h1>
+  <div class="sub">Checking each figure in an AI chatbot’s answer against the data that the chatbot was given</div>
+</section>
+
+<!-- 2 why it matters -->
+<section class="scene" id="s2">
+  <img class="mark-logo" src="../../../website/static/img/program-logo.png" alt="">
+  <div class="eyebrow">Why it matters</div>
+  <h2>Where does a figure in an answer come from?</h2>
+  <svg class="wires" id="ws2"></svg>
+  <div class="win" id="w2" data-b="1"><div class="bar"><span class="dot live"></span>Data chatbot</div>
+    <div class="body"><div class="uq" id="q2" style="font-size:19px"></div>
+      <div class="ua"><div class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg></div><div class="tx" id="a2"></div></div></div></div>
+  <div class="note" style="left:80px;top:640px">Example answer written for this video.</div>
+  <div class="card src" id="o1" style="top:232px" data-b="3"><div class="ic" style="background:var(--primary-subtle)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/></svg></div>
+    <b>The data</b><span>a record, rounded to one decimal</span></div>
+  <div class="card src" id="o2" style="top:362px" data-b="4"><div class="ic" style="background:#f1ecfd"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6d4bd8" stroke-width="2"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 3 5 3 3 0 0 0 5 1V5a3 3 0 0 0-3-1z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-3 5 3 3 0 0 1-5 1"/></svg></div>
+    <b>The model’s memory</b><span>an estimate from its training data</span></div>
+  <div class="card src" id="o3" style="top:492px" data-b="5"><div class="ic" style="background:var(--bad-bg)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b42318" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg></div>
+    <b>A changed digit</b><span>a record copied with an error</span></div>
+  <div class="card fig" id="fig2" data-b="3"><div class="label">In the answer</div><div class="v">35.0</div><div class="qm" data-b="6">?</div></div>
+</section>
+
+<!-- 3 the data and its claim ids -->
+<section class="scene" id="s3">
+  <div class="eyebrow">Step 1 · The data</div>
+  <h2>Each value carries a claim id</h2>
+  <div class="rmap" id="map3"></div>
+  <div class="term" id="api3" data-b="1"><div class="head"><span class="dot"></span>Response of the World Bank API</div><div id="j3"></div></div>
+  <div id="t3" data-b="1"><table class="data">
+    <tr><th>Country</th><th>Year</th><th>Value</th><th class="cid">claim_id</th></tr>
+    <tr class="r" id="r3-0"><td>Kenya</td><td>2023</td><td class="mono">32.07040024</td><td class="cid mono">IT.NET.USER.ZS:KEN:2023</td></tr>
+    <tr class="r" id="r3-1"><td>Kenya</td><td>2024</td><td class="mono">34.97622513</td><td class="cid mono">IT.NET.USER.ZS:KEN:2024</td></tr>
+    <tr class="r" id="r3-2"><td>Rwanda</td><td>2023</td><td class="mono">28.80579948</td><td class="cid mono">IT.NET.USER.ZS:RWA:2023</td></tr>
+    <tr class="r" id="r3-3"><td>Rwanda</td><td>2024</td><td class="mono">31.70330048</td><td class="cid mono">IT.NET.USER.ZS:RWA:2024</td></tr>
+  </table></div>
+  <div class="card" id="hash3" data-b="3">Any key that names one record works. A short hash of the record, such as <span class="kv">81e910d0</span>, serves as well as <span class="kv">indicator:country:year</span>.</div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 4 the instructions -->
+<section class="scene" id="s4">
+  <div class="eyebrow">Step 2 · The instructions</div>
+  <h2>The model names the record behind each figure</h2>
+  <div class="rmap" id="map4"></div>
+  <svg class="wires" id="ws4"></svg>
+  <div class="card" id="pr4" data-b="1">
+    <div class="sec"><div class="label" style="color:var(--primary)">Instructions</div>
+      <div class="tx">Write every number that comes from the data inside a claim tag that names its claim_id and the rule for comparing them, like this:</div>
+      <span class="tpl" id="tpl4">&lt;claim id="{claim_id}" policy="rounded" decimals="1"&gt;12.3&lt;/claim&gt;</span></div>
+    <div class="sec" id="dat4"><div class="label" style="color:var(--teal)">Data</div>
+      <div class="mono">{"claim_id": "IT.NET.USER.ZS:KEN:2024", "value": 34.97622513}<br>{"claim_id": "IT.NET.USER.ZS:RWA:2024", "value": 31.70330048}</div></div>
+    <div class="sec" id="que4"><div class="label" style="color:var(--subtle)">Question</div>
+      <div class="tx">How has internet use changed in Kenya and Rwanda?</div></div>
+  </div>
+  <div class="model" id="m4" data-b="3">Language model<small>writes the answer</small></div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 5 the answer with its tags -->
+<section class="scene" id="s5">
+  <div class="eyebrow">Step 3 · The answer</div>
+  <h2>The tags travel with the answer</h2>
+  <div class="rmap" id="map5"></div>
+  <div class="term" id="raw5" data-b="1"><div class="head"><span class="dot live"></span>Response from the model</div><div id="raw5t"></div></div>
+  <div class="win" id="w5" data-b="2"><div class="bar"><span class="dot"></span>What the reader sees</div>
+    <div class="body"><div class="ua"><div class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg></div><div class="tx" id="a5"></div></div></div></div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 6 the verifier -->
+<section class="scene" id="s6">
+  <div class="eyebrow">Step 4 · The verifier</div>
+  <h2>Ordinary code checks each tag</h2>
+  <div class="rmap" id="map6"></div>
+  <div id="tag6" data-b="1"></div>
+  <div class="card vst" id="p6" style="left:80px" data-b="1"><div class="label"><em>1</em>Parse the tag</div><div class="fill" id="p6f"></div></div>
+  <div class="card vst" id="l6" style="left:461px" data-b="1"><div class="label"><em>2</em>Find the record</div><div class="fill" id="l6f"></div></div>
+  <div class="card vst" id="c6" style="left:843px" data-b="1"><div class="label"><em>3</em>Apply the rule and compare</div><div class="fill" id="c6f"></div></div>
+  <div id="nollm6" data-b="4">No language model takes part in this step</div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 7 marks for the reader -->
+<section class="scene" id="s7">
+  <div class="eyebrow">Step 5 · The marks</div>
+  <h2>Each checked figure carries a mark</h2>
+  <div class="rmap" id="map7"></div>
+  <div class="win" id="w7" data-b="1"><div class="bar"><span class="dot"></span>Data chatbot</div>
+    <div class="body"><div class="ua"><div class="av"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1558d6" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+      <div class="tx">Internet use reached <span class="pm ok" id="m7a">35.0<b>✓</b></span> percent of the population in Kenya and <span class="pm bad" id="m7b">35.7<b>!</b></span> percent in Rwanda in 2024. About 70 percent of adults use mobile money.</div></div>
+      <div class="label" style="margin:22px 0 0 52px;font-size:12px;letter-spacing:.05em"><span style="color:var(--ok)">✓ matches its record</span> &nbsp;·&nbsp; <span style="color:var(--bad)">! differs from its record</span> &nbsp;·&nbsp; no mark: no claim tag</div></div></div>
+  <div class="pop" id="pp7a" style="left:780px;top:222px"><div class="h">✓ Verified</div>
+    <div class="r"><span>Record</span><span class="mono" style="font-size:14px">IT.NET.USER.ZS:KEN:2024</span></div>
+    <div class="r"><span>Value in the data</span><span>34.97622513</span></div>
+    <div class="r"><span>Rule</span><span>rounded to 1 decimal: 35.0</span></div>
+    <div class="r"><span>Source</span><span>World Development Indicators</span></div></div>
+  <div class="pop bad" id="pp7b" style="left:780px;top:452px"><div class="h">! Does not match its record</div>
+    <div class="r"><span>Record</span><span class="mono" style="font-size:14px">IT.NET.USER.ZS:RWA:2024</span></div>
+    <div class="r"><span>Value in the data</span><span>31.70330048, rounded: 31.7</span></div>
+    <div class="r"><span>In the answer</span><span>35.7</span></div></div>
+  <svg class="ptr" id="ptr7" style="left:700px;top:660px" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#fff" stroke="#16191d" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  <div class="srcline"></div>
+</section>
+
+<!-- 8 the reader's judgement -->
+<section class="scene" id="s8">
+  <div class="eyebrow">Scope of the check</div>
+  <h2>The reader makes the final judgement</h2>
+  <div class="two">
+    <div class="card g" data-b="1"><b>Checked by the verifier</b>Each tagged figure matches the record named in its tag, under the stated rule.</div>
+    <div class="card n" data-b="2"><b>Judged by the reader</b>Whether that record is the right one for the question: its indicator, country and year.</div>
+  </div>
+  <div class="card match" data-b="3"><div class="label" style="margin-bottom:8px">Reviewing one figure with its claim id</div>
+    <div class="q">Question: How has <span class="w" id="w8a">internet use</span> changed in <span class="w" id="w8b">Kenya</span> and Rwanda?</div>
+    <svg class="wires" id="ws8" style="left:-80px;top:-400px"></svg>
+    <div class="chips">
+      <div class="chip" id="c8a">IT.NET.USER.ZS<small>Individuals using the Internet (%)</small></div>
+      <div class="chip" id="c8b">KEN<small>Kenya</small></div>
+      <div class="chip" id="c8c">2024<small>latest year in the data</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 closing -->
+<section class="scene dark" id="s9">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="kicker">AI for Data – Data for AI · Verification</div>
+  <h1 style="font-size:60px">Proof-Carrying Numbers</h1>
+  <div class="links">
+    <span>Code</span><b>github.com/worldbank/pcn</b>
+    <span>Paper</span><b>arxiv.org/abs/2509.06902</b>
+    <span>Program</span><b>worldbank.github.io/ai4data</b>
+  </div>
+  <div class="srcline"></div>
+</section>
+
+<script>
+  const SRC = 'Data: World Bank, World Development Indicators, indicator IT.NET.USER.ZS, from api.worldbank.org (last updated 8 October 2026). CC BY 4.0. The chatbot answer is an example written for this video.';
+  document.querySelectorAll('.srcline').forEach((e) => { e.textContent = SRC; });
+  const PCN_STEPS = [['', ['Data', 'Claim ids', 'Instructions', 'Answer', 'Verifier', 'Marks']]];
+  ['map3', 'map4', 'map5', 'map6', 'map7'].forEach((m) => stepMap($(m), PCN_STEPS));
+
+  const ANSWER = 'Internet use reached <b class="num" id="n2">35.0</b> percent of the population in Kenya and <b class="num">35.7</b> percent in Rwanda in 2024. About <b class="num">70</b> percent of adults use mobile money.';
+  const answerTokens = (html) => html.split(/(<b class="num"[^>]*>[^<]+<\/b>)/).flatMap((p) => p.startsWith('<b') ? [p + ' '] : (words(p) || []));
+  const tagHTML = (id, v, cls = '') => `<span class="t-claim ${cls}"><span class="t-tag">&lt;claim </span><span class="t-at">id=</span><span class="t-id">"${id}"</span> <span class="t-at">policy=</span><span class="t-id">"rounded"</span> <span class="t-at">decimals=</span><span class="t-id">"1"</span><span class="t-tag">&gt;</span><span class="t-val">${v}</span><span class="t-tag">&lt;/claim&gt;</span></span>`;
+
+  // The response of api.worldbank.org/v2/country/KEN;RWA/indicator/IT.NET.USER.ZS?date=2023:2024, shortened.
+  const JSON_LINES = [
+    '<span class="url">GET api.worldbank.org/v2/country/KEN;RWA/indicator/IT.NET.USER.ZS?date=2023:2024</span>', ' ',
+    '{"lastupdated": "2026-10-08"}',
+    '{"country": "Kenya", "date": "2023", "value": 32.07040024}',
+    '{"country": "Kenya", "date": "2024", "value": 34.97622513}',
+    '{"country": "Rwanda", "date": "2023", "value": 28.80579948}',
+    '{"country": "Rwanda", "date": "2024", "value": 31.70330048}',
+  ];
+  $('j3').innerHTML = JSON_LINES.map((l, i) => `<span class="ln" id="jl${i}">${l}</span>`).join('');
+
+  const bump = (el) => { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); };
+
+  // The three stages of the verifier for one tag; each runs at its own beat or after a delay.
+  const parseTag = (id, v) => { $('p6').classList.add('act'); $('p6f').innerHTML = `<span class="k">claim id</span><span class="mono">${id}</span><span class="k">rule</span>rounded, 1 decimal<span class="k">figure</span><b>${v}</b>`; $('p6f').classList.add('in2'); };
+  const findRecord = (id, rec) => { $('p6').classList.remove('act'); $('l6').classList.add('act');
+    $('l6f').innerHTML = `<span class="k">record</span><span class="mono">${id}</span><span class="k">value in the data</span><span class="big">${rec}</span>`; $('l6f').classList.add('in2'); };
+  const compare = (v, rec, r, ok) => { $('l6').classList.remove('act'); $('c6').classList.add('act');
+    $('c6f').innerHTML = `<span class="k">rule</span>${rec} → <b>${r}</b><span class="k">compare</span>${r} ${ok ? '=' : '≠'} ${v}<br><span class="verdict ${ok ? 'ok' : 'bad'}">${ok ? '✓ verified' : '! flagged'}</span>`; $('c6f').classList.add('in2'); };
+  const clearVerifier = () => { ['p6', 'l6', 'c6'].forEach((id) => $(id).classList.remove('act')); ['p6f', 'l6f', 'c6f'].forEach((id) => $(id).classList.remove('in2')); };
+
+  const HOOKS = {
+    2: {
+      1: () => typeText($('q2'), 'How has internet use changed in Kenya and Rwanda?', 26),
+      2: () => stream($('a2'), answerTokens(ANSWER), 150),
+      3: () => {
+        $('n2').style.background = 'var(--primary-subtle)'; $('n2').style.boxShadow = '0 0 0 3px var(--primary-subtle)';
+        const p = wire($('ws2'), $('o1'), $('fig2'), { ms: 600, color: '#1558d6' });
+        later(650, () => carry(p, '34.97…', '#1558d6', 1700, (f, t) => { if (f > .6) t.textContent = '35.0'; }, () => bump($('fig2'))));
+      },
+      4: () => {
+        const p = wire($('ws2'), $('o2'), $('fig2'), { ms: 600, color: '#6d4bd8' });
+        later(650, () => carry(p, '≈ 35', '#6d4bd8', 1700, null, () => bump($('fig2'))));
+      },
+      5: () => {
+        const p = wire($('ws2'), $('o3'), $('fig2'), { ms: 600, color: '#b42318' });
+        later(650, () => carry(p, '3<span class="dig">6</span>.0', '#b42318', 2000, (f, t) => {
+          const d = t.querySelector('.dig');
+          if (f > .5 && d.textContent === '6') { d.textContent = '5'; d.classList.add('flip'); }
+        }, () => bump($('fig2'))));
+      },
+      6: () => { const s = $('ws2'); s.querySelectorAll('path').forEach((p) => flow(s, p, p.style.stroke, 1500, 3, 4.5)); },
+    },
+    3: {
+      1: () => {
+        mapAt($('map3'), 0);
+        JSON_LINES.forEach((_, i) => later(120 * i, () => $('jl' + i).classList.add('in2')));
+        [0, 1, 2, 3].forEach((k) => later(1100 + 380 * k, () => moveCard($('jl' + (3 + k)), $('r3-' + k),
+          `<span class="chip" style="font-size:15px">${['Kenya 2023', 'Kenya 2024', 'Rwanda 2023', 'Rwanda 2024'][k]}</span>`, 700, () => $('r3-' + k).classList.add('in2'))));
+      },
+      2: () => { mapAt($('map3'), 1); $('t3').classList.add('cidon'); later(900, () => $('r3-1').classList.add('key')); },
+    },
+    4: {
+      1: () => { mapAt($('map4'), 2); ['dat4', 'que4'].forEach((id) => { $(id).style.opacity = 0; }); later(600, () => $('tpl4').classList.add('on')); },
+      2: () => { later(200, () => { $('dat4').style.opacity = 1; }); later(900, () => { $('que4').style.opacity = 1; }); },
+      3: () => {
+        const p = wire($('ws4'), $('pr4'), $('m4'), { hot: true });
+        later(600, () => { flow($('ws4'), p, '#1558d6'); $('m4').classList.add('busy'); });
+      },
+    },
+    5: {
+      1: () => {
+        mapAt($('map5'), 3);
+        const toks = [...words('Internet use reached '), tagHTML('IT.NET.USER.ZS:KEN:2024', '35.0'), ' ',
+          ...words('percent of the population in Kenya and '), tagHTML('IT.NET.USER.ZS:RWA:2024', '35.7'), ' ',
+          ...words('percent in Rwanda in 2024. About 70 percent of adults use mobile money.')];
+        stream($('raw5t'), toks, 150);
+      },
+      2: () => {
+        stream($('a5'), answerTokens(ANSWER.replace(' id="n2"', '')), 110);
+        later(400, () => document.querySelectorAll('#raw5t .t-claim').forEach((t) => t.classList.add('grab')));
+      },
+    },
+    6: {
+      1: () => {
+        mapAt($('map6'), 4);
+        stream($('tag6'), [tagHTML('IT.NET.USER.ZS:KEN:2024', '35.0')], 10);
+        later(1200, () => parseTag('IT.NET.USER.ZS:KEN:2024', '35.0'));
+      },
+      2: () => findRecord('IT.NET.USER.ZS:KEN:2024', '34.97622513'),
+      3: () => compare('35.0', '34.97622513', '35.0', true),
+      5: () => {
+        clearVerifier();
+        $('tag6').innerHTML = '';
+        later(400, () => stream($('tag6'), [tagHTML('IT.NET.USER.ZS:RWA:2024', '35.7')], 10));
+        later(1000, () => parseTag('IT.NET.USER.ZS:RWA:2024', '35.7'));
+        later(2400, () => findRecord('IT.NET.USER.ZS:RWA:2024', '31.70330048'));
+        later(3800, () => compare('35.7', '31.70330048', '31.7', false));
+      },
+      6: () => {
+        clearVerifier();
+        $('tag6').innerHTML = '';
+        later(300, () => stream($('tag6'), words('About 70 percent of adults use mobile money.'), 90));
+        later(1600, () => { $('p6').classList.add('act'); $('p6f').innerHTML = '<span class="k">figure</span><b>70</b><span class="k">claim tag</span>none'; $('p6f').classList.add('in2'); });
+        later(2600, () => { $('p6').classList.remove('act'); $('c6f').innerHTML = '<span class="k">result</span>no record to compare<br><span class="verdict none">no mark</span>'; $('c6f').classList.add('in2'); });
+      },
+    },
+    7: {
+      1: () => mapAt($('map7'), 5),
+      2: () => {
+        const b = $('m7a').getBoundingClientRect();
+        $('ptr7').style.left = b.left + b.width / 2 + 'px'; $('ptr7').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => $('pp7a').classList.add('in2'));
+      },
+      3: () => {
+        const b = $('m7b').getBoundingClientRect();
+        $('ptr7').style.left = b.left + b.width / 2 + 'px'; $('ptr7').style.top = b.top + b.height / 2 + 'px';
+        later(800, () => $('pp7b').classList.add('in2'));
+      },
+    },
+    8: {
+      3: () => {
+        const s = $('ws8');
+        later(300, () => { $('c8a').classList.add('on'); $('w8a').classList.add('on'); wire(s, $('w8a'), $('c8a'), { from: 'bottom', to: 'top', hot: true }); });
+        later(1500, () => { $('c8b').classList.add('on'); $('w8b').classList.add('on'); wire(s, $('w8b'), $('c8b'), { from: 'bottom', to: 'top', hot: true }); });
+        later(2900, () => $('c8c').classList.add('ask'));
+      },
+    },
+  };
+  go(1, 0);
+</script>
+</body>
+</html>

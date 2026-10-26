@@ -135,3 +135,43 @@ window.go = (scene, beat = 0) => {
   }
   reached[key] = Math.max(reached[key] || 0, beat);
 };
+
+// A map of the steps of a method: groups of [name, [step, ...]]. mapAt(el, i)
+// marks the steps before i as done and step i as current (steps are counted
+// across the groups).
+const ARROW = '<svg class="ar" viewBox="0 0 14 14"><path d="M4 2l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+function stepMap(el, groups, at = -1) {
+  let i = 0;
+  el.innerHTML = groups.map(([name, steps], g) =>
+    (g ? '<i class="sep"></i>' : '') + `<div class="grp">${name ? `<span>${name}</span>` : ''}` +
+    steps.map((s, k) => (k ? ARROW : '') + `<b class="st" data-i="${i++}">${s}</b>`).join('') + '</div>').join('');
+  mapAt(el, at);
+}
+function mapAt(el, i) {
+  el.querySelectorAll('.st').forEach((s) => {
+    const k = Number(s.dataset.i);
+    s.classList.toggle('done', k < i);
+    s.classList.toggle('on', k === i);
+  });
+}
+
+// A copy of `html` that moves from the centre of one element to the centre of
+// another at its own size, then fades. Stretching a small element to the size
+// of a large one distorts it, so the copy keeps its size and only moves.
+function moveCard(fromEl, toEl, html, ms, onEnd, cls = '') {
+  const a = rectOf(fromEl), b = rectOf(toEl), sb = current.getBoundingClientRect();
+  const m = document.createElement('div');
+  m.className = 'mover-card ' + cls; m.innerHTML = html;
+  current.appendChild(m);
+  const w = m.offsetWidth, h = m.offsetHeight;
+  const x0 = a.left + a.width / 2 - w / 2 - sb.left, y0 = a.top + a.height / 2 - h / 2 - sb.top;
+  const x1 = b.left + b.width / 2 - w / 2 - sb.left, y1 = b.top + b.height / 2 - h / 2 - sb.top;
+  m.style.left = x0 + 'px'; m.style.top = y0 + 'px';
+  m.animate([{ transform: 'translate(0,0)', opacity: 0 }, { opacity: 1, offset: .15 },
+             { transform: `translate(${x1 - x0}px, ${y1 - y0}px)`, opacity: 1 }],
+            { duration: ms, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => {
+    if (onEnd) onEnd();
+    m.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' }).onfinish = () => m.remove();
+  };
+}
+

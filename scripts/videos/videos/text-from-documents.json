@@ -1,0 +1,21 @@
+{
+  "title": "Getting text out of documents",
+  "series": "ai-applications",
+  "next": "collection-and-metadata",
+  "steps": [
+    {"do": "goto", "url": "stages/text-from-documents.html", "pause": 0.1},
+    {"do": "eval", "js": "go(1,0)", "min": 3.0, "pause": 0.2},
+    {"do": "eval", "js": "go(2,1)", "say": "Before an application can search a report, it needs the report's text in the order a person reads it.", "settle": 0.8, "pause": 0.35},
+    {"do": "eval", "js": "go(2,2)", "say": "A PDF stores pieces of text with their positions on the page. The reading order, the columns and the tables are left for the eye to see.", "min": 3.4, "pause": 0.35},
+    {"do": "eval", "js": "go(3,1)", "say": "A program that reads straight across this page joins lines from the two columns.", "settle": 0.8, "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(3,2)", "say": "One line then says that GDP growth rose to 51.3 percent of GDP. That figure is public debt, from the other column.", "speak": "One line then says that G D P growth rose to fifty-one point three percent of G D P. That figure is public debt, from the other column.", "pause": 0.35},
+    {"do": "eval", "js": "0", "say": "A search could return that line, and a model could repeat the wrong figure with a citation.", "pause": 0.35},
+    {"do": "eval", "js": "go(4,1)", "say": "The preparation in this example reads the blocks of text column by column.", "settle": 0.8, "min": 2.2, "pause": 0.35},
+    {"do": "eval", "js": "go(4,2)", "say": "It drops the running footer and the page numbers, and keeps each heading with its paragraph.", "pause": 0.35},
+    {"do": "eval", "js": "go(4,3)", "say": "The growth figure stays in its sentence, where the search can find it and a citation can point to it.", "pause": 0.35},
+    {"do": "eval", "js": "go(5,1)", "say": "Tables need more care. Here each row keeps its label, so 6.7 stays with real GDP growth.", "speak": "Tables need more care. Here each row keeps its label, so six point seven stays with real G D P growth.", "settle": 0.8, "min": 3.0, "pause": 0.35},
+    {"do": "eval", "js": "go(5,2)", "say": "The title of the table, a baseline outlook in annual percent change, ended up in another passage.", "pause": 0.35},
+    {"do": "eval", "js": "go(5,3)", "say": "A parser that reads tables as tables would keep the title, the unit and the year with every value.", "pause": 0.6},
+    {"do": "eval", "js": "go(6,0)", "min": 4.0, "settle": 0.9, "pause": 1.0}
+  ]
+}

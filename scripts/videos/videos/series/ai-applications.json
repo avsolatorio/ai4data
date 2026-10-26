@@ -10,6 +10,7 @@
       "title": "Preparing documents",
       "area": "Implementation",
       "shorts": [
+        {"id": "text-from-documents", "title": "Getting text out of documents", "idea": "A PDF records where text sits on a page; the application reconstructs reading order, tables and headings before dividing the text into passages."},
         {"id": "collection-and-metadata", "title": "A document collection and its metadata", "idea": "Metadata records what the text does not say about itself, such as the edition date."},
         {"id": "dividing-into-passages", "title": "Dividing documents into passages", "idea": "Passages that follow the sections of a document keep a figure with its context."},
         {"id": "passages-as-vectors", "title": "Passages as vectors", "idea": "An embedding model turns each passage into a vector, and passages close in meaning get close vectors."},

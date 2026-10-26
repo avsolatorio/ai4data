@@ -299,8 +299,8 @@ are in `stages/kit/stage.css`; do not introduce new colours.
 - Shorts on retrieval-augmented generation show the map of its steps
   (`ragMap()` and `mapAt()` in `stages/kit/collection.js`) under the
   heading of every light scene, with the current step marked: Documents,
-  Passages, Vectors and Store, prepared once; Question, Search, Prompt and
-  Answer, for each question.
+  Text, Passages, Vectors and Store, prepared once; Question, Search,
+  Prompt and Answer, for each question.
 - A store of thousands of chunks is drawn as one small square per chunk,
   grouped by document in store order, so that the retrieved and the needed
   chunks can be marked at their real positions (`rag-public-reports`,
@@ -381,6 +381,14 @@ writing rules of the project (the global and project `CLAUDE.md`):
   aphorisms or punchline closers, no lists kept for rhythm, no "you".
 - Consecutive beats do not open on the same frame. "The model can also ..."
   twice in a row was rewritten.
+- Each step of a method gets one line on why it is needed: the problem
+  that the step solves, with the example on screen ("A PDF records where
+  text sits on the page, so the application first restores the reading
+  order of columns and tables"). A reviewer found the first RAG shorts
+  clear on what each step does and silent on why.
+- Leave out counts and measurements that carry no idea of the short (the
+  number of pages, passages, or vector dimensions, similarity scores).
+  Keep a count only where the short is about it.
 - State facts that the source supports. "Data producers now commonly offer
   AI chatbots" was the framing requested in review for the context scene.
 - Describe what is on screen as it appears; the narration and the animation
@@ -474,3 +482,4 @@ section 7 apply unchanged.
 | 2026-10-25 | A second RAG explainer built on 13 published World Bank reports (`rag-public-reports`); the guide had no rule for attributing licensed report material, and one tile per chunk does not scale to 3,440 chunks | Source line on scenes with report material and on the closing; one square per chunk for a large store |
 | 2026-10-25 | Reviewer found the long RAG explainer on published reports too technical and dense | Series of shorts of 60 to 90 seconds with one idea each; plan in `videos/series/`, templates for shorts, `series.py` |
 | 2026-10-26 | Reviewer could not tell what the document source looked like, saw a stretched blue shape when passages moved, and asked whether the RAG shorts were a serious explanation of its steps | Real covers and pages from `render_pages.py`, a map of the steps of RAG in every scene, one focal object per beat, `moveCard()` without scaling; "document collection" in place of "archive"; a first short on the steps |
+| 2026-10-26 | Reviewer found the RAG shorts lacking the reason for each step and carrying unneeded counts, and asked where parsing is explained | One why line per step; counts removed; Text step in the map of RAG; short "Getting text out of documents" first in part 2 |

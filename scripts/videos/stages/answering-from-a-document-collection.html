@@ -153,19 +153,19 @@ Inflation (CPI)   7.2    5.0</div>
   let pva = null, pvb = null;
   const HOOKS = {
     2: {
-      1: () => mapAt($('map2'), 5),
+      1: () => mapAt($('map2'), 6),
       2: () => { $('fa2').classList.add('on'); $('ka2').classList.add('on'); },
       3: () => { $('fb2').classList.add('on'); $('kb2').classList.add('on'); },
       4: () => { $('fc2').classList.add('on'); $('kc2').classList.add('on'); },
     },
     3: {
-      1: () => mapAt($('map3'), 6),
+      1: () => mapAt($('map3'), 7),
       2: () => { $('i2').classList.add('on'); later(1500, () => $('i3').classList.add('on')); },
       3: () => { $('i4').classList.add('on'); },
     },
     4: {
       1: () => {
-        mapAt($('map4'), 7);
+        mapAt($('map4'), 8);
         stream($('a4'), ANSWER, 95, () => {
           Object.entries(LINKS).forEach(([c, [m, t]]) => {
             const e = $(c);
@@ -182,7 +182,7 @@ Inflation (CPI)   7.2    5.0</div>
     },
     5: {
       1: () => {
-        mapAt($('map5'), 7);
+        mapAt($('map5'), 8);
         const p = citedOf('ueu-2025-12', 12);
         pva = pageView($('pva5'), p);
         later(700, () => {

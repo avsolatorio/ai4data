@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Getting text out of documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/stage.css">
+<link rel="stylesheet" href="kit/collection.css">
+<script src="kit/stage.js"></script>
+<script src="../../../local/rag-public/pages/pages.js"></script>
+<script src="kit/collection.js"></script>
+<style>
+  /* Layout of this short only. */
+  #pv2 { left: 80px; top: 222px; width: 330px; height: 412px; }
+  #pdf2 { left: 450px; top: 222px; width: 750px; }
+  .pos { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--surface-2);
+    opacity: 0; transform: translateY(8px); transition: all .4s; }
+  .pos.in2 { opacity: 1; transform: none; }
+  .pos b { font: 600 15px var(--mono); color: var(--primary); }
+  .pos span { font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #pv3 { left: 80px; top: 222px; width: 1120px; height: 220px; }
+  #raw3 { left: 80px; top: 462px; width: 1120px; }
+  #raw3 .ln { font: 16px/1.75 var(--mono); white-space: nowrap; opacity: 0; transition: opacity .3s; }
+  #raw3 .ln.in2 { opacity: 1; }
+  .bad-run { background: var(--bad-bg); color: var(--bad); border-radius: 4px; box-shadow: 0 0 0 3px var(--bad-bg); transition: background .4s; }
+  .hl.bad { background: rgba(180,35,24,.18); box-shadow: 0 0 0 calc(3px * var(--inv, 1)) rgba(180,35,24,.18); }
+  #pv4 { left: 80px; top: 222px; width: 330px; height: 412px; }
+  #ok4 { left: 450px; top: 222px; width: 750px; }
+  #ok4 .x { font-size: 22px; line-height: 1.6; margin-top: 10px; }
+  .fig { font-weight: 700; border-radius: 4px; padding: 0 3px; transition: background .5s, box-shadow .5s; }
+  .fig.on { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  .clean { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .clean .chip { font-size: 15px; opacity: 0; transition: opacity .4s; }
+  .clean .chip.in2 { opacity: 1; }
+  #pv5 { left: 80px; top: 222px; width: 600px; height: 412px; }
+  .tcard { position: absolute; left: 700px; width: 500px; background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 10px 14px; }
+  .tcard.alt { border-left-color: var(--teal); }
+  .tcard .c { font: 600 13px var(--mono); color: var(--primary); }
+  .tcard.alt .c { color: var(--teal); }
+  .tcard pre { margin: 6px 0 0; font: 14.5px/1.65 var(--mono); background: none; padding: 0; color: var(--ink); }
+  .tcard .t { font-size: 17px; margin-top: 4px; }
+  .tcard.better { border-left-color: var(--ok); background: var(--ok-bg); }
+  .tcard.better .c { color: var(--ok); }
+  .split { position: absolute; left: 700px; width: 500px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--bad); text-align: center; border-top: 2px dashed var(--bad); padding-top: 4px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title card -->
+<section class="scene dark" id="s1">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <h1>Getting text out of documents</h1>
+  <div class="part">Part 2 · Preparing documents · 1 of 5</div>
+</section>
+
+<!-- 2 what a PDF stores -->
+<section class="scene" id="s2">
+  <div class="eyebrow">Prepared once</div>
+  <h2>A PDF stores text with positions</h2>
+  <div class="rmap" id="map2"></div>
+  <div class="pageview" id="pv2" data-b="1"><div class="cap">Uganda, December 2025 · page 12</div></div>
+  <div class="prompt" id="pdf2" data-b="2">
+    <div class="label">What the PDF stores, in the order of the file</div>
+    <div class="pos" id="ps0"><b>x 54 · y 744</b><span>UGANDA: ECONOMIC UPDATE  x</span></div>
+    <div class="pos" id="ps1"><b>x 81 · y 136</b><span>EXECUTIVE SUMMARY</span></div>
+    <div class="pos" id="ps2"><b>x 81 · y 282</b><span>Uganda’s economic growth remained above 6 percent in FY25, …</span></div>
+    <div class="pos" id="ps3"><b>x 322 · y 226</b><span>in spending—mainly interest payments and non-wage …</span></div>
+    <div class="label" style="margin-top:12px;text-transform:none;letter-spacing:0;font-weight:500;font-size:14px">Positions in points from the top left of the page, read with PyMuPDF</div>
+  </div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 3 reading straight across -->
+<section class="scene" id="s3">
+  <div class="eyebrow">Prepared once</div>
+  <h2>Reading straight across joins two columns</h2>
+  <div class="rmap" id="map3"></div>
+  <div class="pageview" id="pv3" data-b="1"></div>
+  <div class="prompt" id="raw3" data-b="1">
+    <div class="label">Text read line by line across the page</div>
+    <div class="ln">6 percent in FY25, outpacing regional and global mainly through government securities. Public debt</div>
+    <div class="ln">averages. <span id="br3">Real gross domestic product (GDP) growth rose to 51.3 percent of GDP</span>, with domestic debt now</div>
+    <div class="ln">accelerated to 6.3 percent, up from 6.1 percent in FY24. accounting for nearly half and high debt servicing</div>
+  </div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 4 column by column -->
+<section class="scene" id="s4">
+  <div class="eyebrow">Prepared once</div>
+  <h2>Reading column by column keeps each sentence whole</h2>
+  <div class="rmap" id="map4"></div>
+  <div class="pageview" id="pv4" data-b="1"><div class="cap">Uganda, December 2025 · page 12</div></div>
+  <div class="prompt" id="ok4" data-b="1">
+    <div class="label">Passage from the left column, as the preparation step wrote it</div>
+    <div class="x">Uganda’s economic growth remained above 6 percent in FY25, outpacing regional and global averages. Real gross domestic product (GDP) growth <span class="fig" id="f4">accelerated to 6.3 percent</span>, up from 6.1 percent in FY24. Drivers included a recovery in household consumption, …</div>
+    <div class="clean">
+      <span class="chip" id="k1">running footer removed</span>
+      <span class="chip" id="k2">page number removed</span>
+      <span class="chip" id="k3">heading kept with its paragraph</span>
+    </div>
+  </div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 5 tables -->
+<section class="scene" id="s5">
+  <div class="eyebrow">Prepared once</div>
+  <h2>Tables need their title and units</h2>
+  <div class="rmap" id="map5"></div>
+  <div class="pageview" id="pv5" data-b="1"><div class="cap">Uganda, June 2023 · page 40</div></div>
+  <div class="tcard" id="t5a" style="top:222px" data-b="1"><div class="c">Passage 1 · [ueu-2023-06 · p. 40]</div>
+<pre>2.1 Uganda’s economic outlook has greatly improved
+                        FY22 FY23f FY24f FY25f
+Real GDP growth (base…)  4.7  5.7   6.2   <span class="fig" id="f5">6.7</span>
+Private consumption      3.4  5.0   5.3   5.6
+…</pre></div>
+  <div class="split" style="top:398px" data-b="2">a different passage</div>
+  <div class="tcard alt" id="t5b" style="top:426px" data-b="2"><div class="c">Passage 2 · [ueu-2023-06 · p. 40]</div>
+    <div class="t">Table 4: Baseline economic outlook (annual % change unless otherwise indicated)</div></div>
+  <div class="tcard better" id="t5c" style="top:540px" data-b="3"><div class="c">What a parser that reads tables keeps together</div>
+    <div class="t">Table 4, baseline economic outlook · Real GDP growth · FY25, forecast · 6.7, annual % change</div></div>
+  <div class="srcline"></div>
+</section>
+
+<!-- 6 end screen -->
+<section class="scene dark" id="s6">
+  <img class="logo" src="../../../website/static/img/program-logo-dark.png" alt="">
+  <div class="series">Building an AI application that answers from data</div>
+  <div class="kicker">AI for Data – Data for AI · Implementation</div>
+  <div class="next"><span>Next in the series</span><b>A document collection and its metadata</b></div>
+  <div class="links"><span>Program</span><b>worldbank.github.io/ai4data</b></div>
+  <div class="srcline"></div>
+</section>
+
+<script>
+  sourceLines();
+  ['map2', 'map3', 'map4', 'map5'].forEach((m) => ragMap($(m), 1));
+
+  const P12 = citedOf('ueu-2025-12', 12), P40 = citedOf('ueu-2023-06', 40);
+  const markOf = (p, phrase) => p.marks.find((m) => m.phrase.startsWith(phrase)).boxes[0];
+  // Text blocks of page 12 as PyMuPDF returns them (fractions of the page).
+  const BLOCKS = [[.0885, .9391, .30, .9533], [.1324, .1721, .7992, .2352], [.1324, .3555, .493, .599], [.5257, .2849, .8864, .4576]];
+  let pv2, pv3, pv4, pv5;
+
+  const HOOKS = {
+    2: {
+      1: () => { pv2 = pageView($('pv2'), P12); },
+      2: () => {
+        BLOCKS.forEach((b, k) => later(300 + 700 * k, () => {
+          pageBox(pv2, b, 'band' + (k % 2 ? ' alt' : ''), String(k + 1)).classList.add('in2');
+          $('ps' + k).classList.add('in2');
+          $('ps' + k).querySelector('b').textContent = `${k + 1}  ` + $('ps' + k).querySelector('b').textContent;
+        }));
+      },
+    },
+    3: {
+      1: () => {
+        pv3 = pageView($('pv3'), P12);
+        pv3.zoom([.12, .35, .89, .44], .98);
+        const a = markOf(P12, 'averages'), b = markOf(P12, 'rose to');
+        const lines = [...document.querySelectorAll('#raw3 .ln')];
+        later(1500, () => {
+          const scan = pageBox(pv3, [a[0] - .004, a[1] - .002, b[2] + .004, a[3] + .002], 'hl');
+          later(50, () => scan.classList.add('in2'));
+          lines.forEach((l, k) => later(400 * k, () => l.classList.add('in2')));
+        });
+      },
+      2: () => {
+        const a = markOf(P12, 'averages'), b = markOf(P12, 'rose to');
+        $('br3').classList.add('bad-run');
+        const h1 = pageBox(pv3, [a[0] + .07, a[1] - .002, a[2] + .002, a[3] + .002], 'hl bad');
+        const h2 = pageBox(pv3, [b[0] - .002, b[1] - .002, b[0] + .19, b[3] + .002], 'hl bad');
+        later(50, () => { h1.classList.add('in2'); h2.classList.add('in2'); });
+      },
+    },
+    4: {
+      1: () => {
+        pv4 = pageView($('pv4'), P12);
+        [[.126, .163, .494, .906], [.516, .275, .89, .906]].forEach((b, k) => later(300 + 900 * k, () =>
+          pageBox(pv4, b, 'band' + (k ? ' alt' : ''), String(k + 1)).classList.add('in2')));
+      },
+      2: () => ['k1', 'k2', 'k3'].forEach((id, k) => later(500 * k, () => $(id).classList.add('in2'))),
+      3: () => {
+        $('f4').classList.add('on');
+        const m = markOf(P12, 'accelerated');
+        const h = pageBox(pv4, [m[0] - .004, m[1] - .004, m[2] + .004, m[3] + .004], 'hl');
+        later(50, () => h.classList.add('in2'));
+      },
+    },
+    5: {
+      1: () => {
+        pv5 = pageView($('pv5'), P40);
+        later(500, () => pv5.zoom([.1, .54, .9, .70], .97));
+        const r = markOf(P40, 'Real GDP'), c = markOf(P40, 'FY25f');
+        later(2000, () => {
+          $('f5').classList.add('on');
+          const h1 = pageBox(pv5, [r[0] - .004, r[1] - .002, .888, r[3] + .002], 'hl');
+          const h2 = pageBox(pv5, [c[0] - .01, c[1] - .003, c[2] + .01, c[3] + .002], 'hl');
+          later(50, () => { h1.classList.add('in2'); h2.classList.add('in2'); });
+        });
+      },
+      2: () => {
+        const t = markOf(P40, 'Table 4');
+        const h = pageBox(pv5, [t[0] - .004, t[1] - .003, .79, t[3] + .003], 'hl bad');
+        later(50, () => h.classList.add('in2'));
+      },
+    },
+  };
+  go(1, 0);
+</script>
+</body>
+</html>
