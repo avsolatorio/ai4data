@@ -50,9 +50,13 @@
   #pr4 .sec { margin-top: 14px; transition: opacity .4s; }
   #pr4 .sec:first-of-type { margin-top: 2px; }
   #pr4 .tx { font-size: 22px; line-height: 1.5; margin-top: 4px; }
-  #pr4 .tpl { display: inline-block; margin-top: 10px; font: 500 17px var(--mono); color: var(--primary); background: var(--primary-subtle);
+  #pr4 .tpl { display: inline-block; white-space: nowrap; margin-top: 10px; font: 500 17px var(--mono); color: var(--primary); background: var(--primary-subtle);
     border-radius: 6px; padding: 6px 10px; transition: box-shadow .4s; }
   #pr4 .tpl.on { box-shadow: 0 0 0 3px var(--primary-light); }
+  #pr4 .hl4 { border-radius: 4px; padding: 0 2px; transition: background .4s, box-shadow .4s, color .4s; }
+  #pr4 .hl4.on { background: #fff4cc; box-shadow: 0 0 0 3px #fff4cc; }
+  #pr4 .tpl .hl4.on { background: var(--primary); color: #fff; box-shadow: 0 0 0 3px var(--primary); }
+  #pr4 .sec.dim { opacity: .35; }
   #pr4 .mono { font: 15.5px/1.7 var(--mono); }
   #m4 { left: 940px; top: 340px; }
 
@@ -156,10 +160,10 @@
   <svg class="wires" id="ws4"></svg>
   <div class="card" id="pr4" data-b="1">
     <div class="sec"><div class="label" style="color:var(--primary)">Instructions</div>
-      <div class="tx">Write every number that comes from the data inside a claim tag that names its claim_id and the rule for comparing them, like this:</div>
-      <span class="tpl" id="tpl4">&lt;claim id="{claim_id}" policy="rounded" decimals="1"&gt;12.3&lt;/claim&gt;</span></div>
+      <div class="tx"><span class="hl4" id="h4a">Write every number that comes from the data inside a claim tag</span> that names <span class="hl4" id="h4b">its claim_id</span> and <span class="hl4" id="h4c">the rule for comparing them</span>, like this:</div>
+      <span class="tpl" id="tpl4">&lt;claim <span class="hl4" id="t4b">id="{claim_id}"</span> <span class="hl4" id="t4c">policy="rounded" decimals="1"</span>&gt;<span class="hl4" id="t4d">12.3</span>&lt;/claim&gt;</span></div>
     <div class="sec" id="dat4"><div class="label" style="color:var(--teal)">Data</div>
-      <div class="mono">{"claim_id": "IT.NET.USER.ZS:KEN:2024", "value": 34.97622513}<br>{"claim_id": "IT.NET.USER.ZS:RWA:2024", "value": 31.70330048}</div></div>
+      <div class="mono">{"claim_id": <span class="hl4 d4b">"IT.NET.USER.ZS:KEN:2024"</span>, "value": 34.97622513}<br>{"claim_id": <span class="hl4 d4b">"IT.NET.USER.ZS:RWA:2024"</span>, "value": 31.70330048}</div></div>
     <div class="sec" id="que4"><div class="label" style="color:var(--subtle)">Question</div>
       <div class="tx">How has internet use changed in Kenya and Rwanda?</div></div>
   </div>
@@ -308,9 +312,23 @@
       2: () => { mapAt($('map3'), 1); $('t3').classList.add('cidon'); later(900, () => $('r3-1').classList.add('key')); },
     },
     4: {
-      1: () => { mapAt($('map4'), 2); ['dat4', 'que4'].forEach((id) => { $(id).style.opacity = 0; }); later(600, () => $('tpl4').classList.add('on')); },
-      2: () => { later(200, () => { $('dat4').style.opacity = 1; }); later(900, () => { $('que4').style.opacity = 1; }); },
+      // The parts of the protocol light up as the narration names them.
+      1: () => {
+        mapAt($('map4'), 2);
+        ['dat4', 'que4'].forEach((id) => $(id).classList.add('dim'));
+        later(4000, () => $('h4a').classList.add('on'));
+      },
+      2: () => {
+        const on = (...ids) => ids.forEach((id) => $(id).classList.add('on'));
+        const off = () => document.querySelectorAll('#pr4 .on').forEach((e) => e.classList.remove('on'));
+        off();
+        later(2600, () => $('tpl4').classList.add('on'));
+        later(4300, () => { off(); on('h4b', 't4b'); $('dat4').classList.remove('dim'); document.querySelectorAll('.d4b').forEach((e) => e.classList.add('on')); });
+        later(6200, () => { off(); on('h4c', 't4c'); });
+      },
       3: () => {
+        document.querySelectorAll('#pr4 .on').forEach((e) => e.classList.remove('on'));
+        ['dat4', 'que4'].forEach((id) => $(id).classList.remove('dim'));
         const p = wire($('ws4'), $('pr4'), $('m4'), { hot: true });
         later(600, () => { flow($('ws4'), p, '#1558d6'); $('m4').classList.add('busy'); });
       },

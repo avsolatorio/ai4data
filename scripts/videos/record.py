@@ -25,6 +25,7 @@ Output: out/<script name>.mp4 and out/<script name>.vtt
 """
 import argparse
 import base64
+import contextlib
 import json
 import subprocess
 import sys
@@ -33,6 +34,7 @@ import wave
 from pathlib import Path
 
 import captions
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
@@ -45,6 +47,15 @@ RATE = 24000
 # draw connectors in layout pixels.
 ZOOM_JS = """z => {
   document.documentElement.style.zoom = String(z);
+  // The screencast sends a frame only when the page repaints, and can hold back
+  // the last change before a pause. A 1-pixel element that changes colour
+  // without end keeps frames coming at the display rate.
+  const tick = document.createElement('div');
+  tick.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;z-index:99;pointer-events:none;animation:rec-tick 1s steps(60) infinite';
+  const style = document.createElement('style');
+  style.textContent = '@keyframes rec-tick { from { background: rgba(255,255,255,0.01); } to { background: rgba(255,255,255,0.02); } }';
+  document.head.appendChild(style);
+  document.body.appendChild(tick);
   const r = document.body.getBoundingClientRect().width / document.body.offsetWidth;
   if (Math.abs(r - 1) > 0.01) {
     const box = Element.prototype.getBoundingClientRect;
@@ -207,7 +218,9 @@ def main():
                 path = frames / f"{len(shots):06d}.jpg"
                 path.write_bytes(base64.b64decode(f["data"]))
                 shots.append((f["metadata"]["timestamp"], path))
-                cdp.send("Page.screencastFrameAck", {"sessionId": f["sessionId"]})
+                # A frame can arrive while the browser closes; its acknowledgement then fails.
+                with contextlib.suppress(PlaywrightError):
+                    cdp.send("Page.screencastFrameAck", {"sessionId": f["sessionId"]})
 
             cdp.on("Page.screencastFrame", on_frame)
             cdp.send("Page.startScreencast", {"format": "jpeg", "quality": 92,
