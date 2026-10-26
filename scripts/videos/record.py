@@ -15,10 +15,16 @@ in "say", for example numbers written out in words.
 Voices: a Piper model name from voices/ (en_US-lessac-medium), or a Kokoro voice
 (af_heart, am_michael, ...) when voices/kokoro holds the Kokoro model files.
 
+Explainer stages (scripts whose steps are all goto and eval) are recorded at
+1920x1080: the page is laid out at 1280x720 and zoomed by 1.5, and the frames
+are captured from Chromium's screencast as high-quality JPEG. Site walkthroughs
+are recorded at 1280x720 with Playwright's video recorder.
+
 Usage: .venv/bin/python record.py videos/document-collection.json [--voice NAME]
 Output: out/<script name>.mp4 and out/<script name>.vtt
 """
 import argparse
+import base64
 import json
 import subprocess
 import sys
@@ -31,7 +37,23 @@ from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
 WIDTH, HEIGHT = 1280, 720
+ZOOM = 1.5  # stages are recorded at 1920x1080
 RATE = 24000
+
+# Zooms a stage and keeps its geometry in layout pixels: with CSS zoom, Chromium
+# reports element boxes in zoomed pixels, while the stages position elements and
+# draw connectors in layout pixels.
+ZOOM_JS = """z => {
+  document.documentElement.style.zoom = String(z);
+  const r = document.body.getBoundingClientRect().width / document.body.offsetWidth;
+  if (Math.abs(r - 1) > 0.01) {
+    const box = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      const b = box.call(this);
+      return new DOMRect(b.x / r, b.y / r, b.width / r, b.height / r);
+    };
+  }
+}"""
 
 OVERLAY_JS = (HERE / "overlay.js").read_text()
 
@@ -68,21 +90,28 @@ def page_url(url):
     return (HERE / url).resolve().as_uri()
 
 
-def run_step(page, step, narrate):
+def wait(page, seconds):
+    """Waits while Playwright keeps handling page events, so that screencast frames keep arriving."""
+    page.wait_for_timeout(seconds * 1000)
+
+
+def run_step(page, step, narrate, zoom=1.0):
     """Play one step. narrate() starts the narration and waits until it ends."""
     kind = step["do"]
     if kind == "goto":
         page.goto(page_url(step["url"]), wait_until="load")
-        time.sleep(1.0)
+        if zoom != 1.0:
+            page.evaluate(ZOOM_JS, zoom)
+        wait(page, 1.0)
     if kind == "eval":
         # Explainer stages: the step runs page code, such as go(scene, beat).
         page.evaluate(step["js"])
-        time.sleep(step.get("settle", 0.4))
+        wait(page, step.get("settle", 0.4))
         narrate()
         return
     if kind == "card":
         page.evaluate("o => window.howto.card(o)", step)
-        time.sleep(0.5)
+        wait(page, 0.5)
         narrate()
         return
     page.evaluate("() => window.howto.card(null)")
@@ -97,20 +126,20 @@ def run_step(page, step, narrate):
     target = page.locator(step["target"]).first
     if kind == "scroll":
         target.evaluate("el => el.scrollIntoView({behavior: 'smooth', block: 'center'})")
-        time.sleep(1.0)
+        wait(page, 1.0)
     else:
         target.scroll_into_view_if_needed()
     if step.get("run"):
         target.evaluate(step["run"])
     if step.get("spotlight"):
         page.evaluate("s => window.howto.spot(s)", target.get_attribute("src"))
-        time.sleep(0.4)
+        wait(page, 0.4)
         target = page.locator("#howto-spot img")
     page.evaluate("b => window.howto.point(b)", target.bounding_box())
-    time.sleep(0.8)
+    wait(page, 0.8)
     if kind == "hover":
         target.hover()
-        time.sleep(0.3)
+        wait(page, 0.3)
     ring = page.locator(step["ring"]).first if step.get("ring") else target
     page.evaluate("b => window.howto.ring(b)", ring.bounding_box())
     if kind != "click":
@@ -121,12 +150,12 @@ def run_step(page, step, narrate):
     page.evaluate("() => window.howto.press()")
     target.click()
     page.wait_for_load_state("load")
-    time.sleep(0.9)
+    wait(page, 0.9)
     page.evaluate("() => window.howto.ring(null)")
     if step.get("then_show"):
         page.locator(step["then_show"]).first.evaluate(
             "el => window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth'})")
-        time.sleep(1.0)
+        wait(page, 1.0)
 
 
 def main():
@@ -135,7 +164,7 @@ def main():
     ap.add_argument("--voice", default="en_US-lessac-medium")
     ap.add_argument("--speed", type=float, default=1.0, help="speaking rate; 1.1 reads 10 percent faster")
     ap.add_argument("--music", action="store_true", help="add quiet background music from music.py")
-    ap.add_argument("--music-level", type=float, default=0.3, help="music gain; 0.3 puts the music about 9 dB under the voice")
+    ap.add_argument("--music-level", type=float, default=0.45, help="music gain; 0.45 puts the music about 6 dB under the voice")
     args = ap.parse_args()
 
     spec = json.loads(Path(args.script).read_text())
@@ -150,30 +179,70 @@ def main():
             step["audio"] = work / f"step{i:02d}.wav"
             step["length"] = synthesise(step.get("speak", step["say"]), args.voice, step["audio"], args.speed)
 
+    stage = all(step["do"] in ("goto", "eval") for step in spec["steps"])
+    frames = work / "frames"
+    if stage:
+        frames.mkdir(exist_ok=True)
+        for f in frames.glob("*.jpg"):
+            f.unlink()
+    shots = []
+
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        context = browser.new_context(
-            viewport={"width": WIDTH, "height": HEIGHT},
-            record_video_dir=str(work), record_video_size={"width": WIDTH, "height": HEIGHT},
-            color_scheme=spec.get("theme", "light"))
+        if stage:
+            context = browser.new_context(
+                viewport={"width": round(WIDTH * ZOOM), "height": round(HEIGHT * ZOOM)},
+                color_scheme=spec.get("theme", "light"))
+        else:
+            context = browser.new_context(
+                viewport={"width": WIDTH, "height": HEIGHT},
+                record_video_dir=str(work), record_video_size={"width": WIDTH, "height": HEIGHT},
+                color_scheme=spec.get("theme", "light"))
         context.add_init_script(OVERLAY_JS)
         page = context.new_page()
-        start = time.monotonic()
+        if stage:
+            cdp = context.new_cdp_session(page)
+
+            def on_frame(f):
+                path = frames / f"{len(shots):06d}.jpg"
+                path.write_bytes(base64.b64decode(f["data"]))
+                shots.append((f["metadata"]["timestamp"], path))
+                cdp.send("Page.screencastFrameAck", {"sessionId": f["sessionId"]})
+
+            cdp.on("Page.screencastFrame", on_frame)
+            cdp.send("Page.startScreencast", {"format": "jpeg", "quality": 92,
+                                              "maxWidth": round(WIDTH * ZOOM), "maxHeight": round(HEIGHT * ZOOM),
+                                              "everyNthFrame": 2})
+        start = time.time()
         for step in spec["steps"]:
             def narrate(step=step):
-                step["at"] = time.monotonic() - start
+                step["at"] = time.time() - start
                 # "min" holds a step for a set time, for example to match an animation.
-                time.sleep(max(step["length"] + step.get("pause", 0.6), step.get("min", 0)))
-            run_step(page, step, narrate)
-        end = time.monotonic() - start
-        video = Path(page.video.path())
+                wait(page, max(step["length"] + step.get("pause", 0.6), step.get("min", 0)))
+            run_step(page, step, narrate, ZOOM if stage else 1.0)
+        end = time.time() - start
+        if stage:
+            cdp.send("Page.stopScreencast")
+            video = work / "frames.txt"
+            # The screencast sends a frame only when the page changes; each frame is
+            # held until the next one.
+            times = [t - start for t, _ in shots] + [end]
+            lines = []
+            for (_, path), t0, t1 in zip(shots, times, times[1:]):
+                lines += [f"file '{path}'", f"duration {max(t1 - t0, 0.001):.4f}"]
+            lines.append(f"file '{shots[-1][1]}'")
+            video.write_text("\n".join(lines) + "\n")
+            video_offset = times[0]
+        else:
+            video = Path(page.video.path())
+            video_offset = 0.0
         context.close()
         browser.close()
 
     # The first step loads the start page; the video begins once it has loaded.
     trim = max(spec["steps"][0]["at"] - 0.3, 0)
-    frames = int((end - trim) * RATE) + RATE
-    track = bytearray(frames * 2)
+    samples = int((end - trim) * RATE) + RATE
+    track = bytearray(samples * 2)
     for step in spec["steps"]:
         if not step["audio"]:
             continue
@@ -189,12 +258,16 @@ def main():
         w.writeframes(bytes(track))
 
     out = HERE / "out" / f"{name}.mp4"
-    inputs = ["-ss", f"{trim:.3f}", "-i", str(video), "-i", str(audio)]
+    if stage:
+        # The frame list starts at the first screencast frame, video_offset seconds after start.
+        inputs = ["-f", "concat", "-safe", "0", "-ss", f"{max(trim - video_offset, 0):.3f}", "-i", str(video), "-i", str(audio)]
+    else:
+        inputs = ["-ss", f"{trim:.3f}", "-i", str(video), "-i", str(audio)]
     fmt = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
     # Piper and Kokoro voices differ in level; loudnorm brings both to -16 LUFS.
     voice = f"[1:a]loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,{fmt}"
     if args.music:
-        # The music sits about 9 dB under the narration and drops a few dB while a line is read.
+        # The music sits about 6 dB under the narration and drops a few dB while a line is read.
         music = work / "music.wav"
         subprocess.run([sys.executable, str(HERE / "music.py"), str(music), f"{end - trim:.3f}"], check=True)
         inputs += ["-i", str(music)]
@@ -209,6 +282,10 @@ def main():
          "-c:v", "libx264", "-crf", "18", "-preset", "slow", "-pix_fmt", "yuv420p",
          "-r", "30", "-c:a", "aac", "-ar", "48000", "-b:a", "160k", "-movflags", "+faststart", str(out)],
         check=True)
+
+    if stage:
+        for f in frames.glob("*.jpg"):
+            f.unlink()
 
     cues = []
     for step in spec["steps"]:

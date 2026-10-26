@@ -414,11 +414,17 @@ words in 34 steps and lasts 4 min 40 s. Aim for 3–5 minutes.
   `af_heart` unless asked.
 - Narration is normalised to -16 LUFS (`loudnorm`) in `record.py`.
 - Music: `--music` adds the track from `music.py`: 112 BPM, C–G–Am–F, soft
-  kick, off-beat hat, bass, plucked chords, at gain 0.3 with light ducking
+  kick, off-beat hat, bass, plucked chords, at gain 0.45 (about 6 dB under
+  the voice; it was 0.3 until a reviewer found it too quiet under dense
+  narration) with light ducking
   under the voice. A reviewer found the first, slow and quiet pad inaudible
   and asked for "a little upbeat". The mixed video measures about -20 dB
   mean volume; check with
   `ffmpeg -i out/<name>.mp4 -af volumedetect -f null -`.
+- Video: stages are recorded at 1920x1080. The page keeps its 1280x720
+  layout and is zoomed by 1.5; `record.py` corrects element boxes for the
+  zoom and captures Chromium's screencast as JPEG frames at about 30 per
+  second. Site walkthroughs stay at 1280x720.
 - Audio is AAC at 48 kHz stereo. A 22 kHz mono track played silent on a
   reviewer's device.
 - Subtitles: `record.py` divides each narration line with `captions.py` into
@@ -483,3 +489,4 @@ section 7 apply unchanged.
 | 2026-10-25 | Reviewer found the long RAG explainer on published reports too technical and dense | Series of shorts of 60 to 90 seconds with one idea each; plan in `videos/series/`, templates for shorts, `series.py` |
 | 2026-10-26 | Reviewer could not tell what the document source looked like, saw a stretched blue shape when passages moved, and asked whether the RAG shorts were a serious explanation of its steps | Real covers and pages from `render_pages.py`, a map of the steps of RAG in every scene, one focal object per beat, `moveCard()` without scaling; "document collection" in place of "archive"; a first short on the steps |
 | 2026-10-26 | Reviewer found the RAG shorts lacking the reason for each step and carrying unneeded counts, and asked where parsing is explained | One why line per step; counts removed; Text step in the map of RAG; short "Getting text out of documents" first in part 2 |
+| 2026-10-26 | Reviewer asked for at least 1080p and found the music too quiet under the narration | Stages recorded at 1920x1080 from the screencast; music gain 0.45 |
