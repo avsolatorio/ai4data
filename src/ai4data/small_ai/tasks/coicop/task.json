@@ -33,9 +33,10 @@
   "model": {
     "base": "microsoft/deberta-v3-small",
     "max_length": 48,
-    "epochs": 4,
+    "epochs": 15,
     "batch": 32,
-    "lr": 5e-05
+    "lr": 5e-05,
+    "early_stopping": 2
   },
   "reference": {
     "calibration": "data/calibration.jsonl",

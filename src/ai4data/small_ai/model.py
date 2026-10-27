@@ -84,6 +84,7 @@ def train(
         AutoModelForSequenceClassification,
         AutoTokenizer,
         DataCollatorWithPadding,
+        EarlyStoppingCallback,
         Trainer,
         TrainingArguments,
         set_seed,
@@ -136,6 +137,8 @@ def train(
             save_strategy="epoch",
             save_total_limit=1,
             load_best_model_at_end=True,
+            metric_for_best_model="eval_loss",
+            greater_is_better=False,
             bf16=bf16,
             logging_steps=200,
             disable_tqdm=True,
@@ -146,6 +149,9 @@ def train(
         eval_dataset=dataset(splits["dev"]),
         processing_class=tokenizer,
         data_collator=DataCollatorWithPadding(tokenizer),
+        callbacks=[EarlyStoppingCallback(int(m["early_stopping"]))]
+        if m.get("early_stopping")
+        else None,
     )
     trainer.train()
     seconds = round(time.time() - started, 1)
@@ -189,6 +195,8 @@ def train(
         "max_length": max_length,
         "seed": seed,
         "train_seconds": seconds,
+        "epochs_run": round(float(trainer.state.epoch or 0), 2),
+        "best_checkpoint": trainer.state.best_model_checkpoint,
         "train_examples": len(splits["train"]),
         "scores": scores,
     }
