@@ -181,15 +181,18 @@ def call(
     model: str,
     prompt: str,
     schema: dict,
-    temperature: float,
+    temperature: float | None,
     extra: dict | None = None,
 ) -> tuple[dict, object]:
+    """One request with a JSON schema. A temperature of None is left out of the request, for
+    models that accept only their own sampling settings."""
     started = time.time()
+    sampling = {} if temperature is None else {"temperature": temperature}
     reply = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_schema", "json_schema": schema},
-        temperature=temperature,
+        **sampling,
         extra_body=extra
         if extra is not None
         else json.loads(os.environ.get("SYNTH_EXTRA_BODY", "{}")),

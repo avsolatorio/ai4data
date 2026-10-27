@@ -7,7 +7,8 @@ The output has the format of model.score(): one record per text with a score of 
 model chose, so evaluate.py scores it in the same way. Token counts are kept for the cost.
 
 The connection is read from SYNTH_BASE_URL, SYNTH_API_KEY, SYNTH_MODEL (or BASELINE_MODEL), and
-SYNTH_EXTRA_BODY, as for generation. Real texts are sent to that server, so the task must allow it
+SYNTH_EXTRA_BODY, as for generation. BASELINE_TEMPERATURE sets the temperature (default 0); "none"
+leaves it out, for models that accept only their own sampling settings. Real texts are sent to that server, so the task must allow it
 (privacy.real_text_to_external.baseline), or the server must be one the organization runs.
 """
 
@@ -72,7 +73,9 @@ def label_batch(
             },
         },
     }
-    raw, choice = call(client, model, prompt, schema, 0.0)
+    setting = os.environ.get("BASELINE_TEMPERATURE", "0")
+    temperature = None if setting.lower() == "none" else float(setting)
+    raw, choice = call(client, model, prompt, schema, temperature)
     chosen: dict[int, list[str]] = {}
     if choice.finish_reason == "stop":
         try:
