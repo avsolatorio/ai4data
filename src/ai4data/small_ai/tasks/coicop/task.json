@@ -1,0 +1,52 @@
+{
+  "id": "coicop-1999",
+  "title": "Consumer goods and services to COICOP 1999 classes",
+  "statement": "Assign the COICOP 1999 class (for example 01.1.1 Bread and cereals) to the description of a good or service bought by a household, as recorded in a price collection or a household expenditure diary.",
+  "multi_label": false,
+  "labels": "data/labels.csv",
+  "levels": [
+    2,
+    4,
+    6
+  ],
+  "generation": {
+    "items": "item descriptions",
+    "item": "item description",
+    "context": "Item descriptions are recorded by price collectors and in household expenditure diaries. ",
+    "rules": [
+      "Write each description as a price collector or a household diary would record it: two to ten words, often in capitals, with abbreviations, quantities, sizes, or the kind of outlet, and usually without a brand name.",
+      "Vary the goods and services within each class, the formats (single items, packs, per kilogram, per visit, per month), and the wording.",
+      "Do not give the list one pattern: mix short and long forms, and leave most of them without an added qualifier.",
+      "Each description must belong to the class it is given under the explanatory notes above, and must not fit another class from the list better."
+    ],
+    "labels_per_request": 4,
+    "per_call": 20,
+    "temperature": 1.0,
+    "group": "siblings",
+    "verify": true,
+    "label_detail": true
+  },
+  "documents": {
+    "unit": "whole",
+    "max_length": 48
+  },
+  "model": {
+    "base": "microsoft/deberta-v3-small",
+    "max_length": 48,
+    "epochs": 4,
+    "batch": 32,
+    "lr": 5e-05
+  },
+  "reference": {
+    "calibration": "data/calibration.jsonl",
+    "report": "data/report.jsonl",
+    "min_support": 3,
+    "source": "ONS consumer price inflation item indices (December 2024, August 2019) and consumption segments (September 2026), with the COICOP class ONS assigned, under the Open Government Licence v3.0. Built by build.py."
+  },
+  "privacy": {
+    "real_text_to_external": {
+      "orchestrator": true,
+      "generation": false
+    }
+  }
+}

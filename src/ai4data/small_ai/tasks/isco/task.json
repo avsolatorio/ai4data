@@ -1,0 +1,53 @@
+{
+  "id": "isco-08",
+  "title": "Occupations to ISCO-08 unit groups",
+  "statement": "Assign the ISCO-08 unit group (four-digit code) to a job title, as written in a job advertisement, a CV, or an answer to a survey question on the main job.",
+  "multi_label": false,
+  "labels": "data/labels.csv",
+  "levels": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "generation": {
+    "items": "job titles",
+    "item": "job title",
+    "context": "Job titles appear in job advertisements, in CVs, and in answers to the survey question \"What is your main job?\". ",
+    "rules": [
+      "Write each job title as an employer, a jobseeker, or a survey respondent would write it: one to twelve words, sometimes with the seniority, the employer's sector, or a short note on the duties.",
+      "Vary the wording: official and informal titles, abbreviations, capitalisation, and titles used in different countries and sectors, including Africa, Asia, Latin America, and Europe.",
+      "Do not give the list one pattern: mix short and long forms, and leave most of them without an added qualifier.",
+      "Each job title must belong to the label it is given under the definitions above, and must not fit another label from the list better."
+    ],
+    "labels_per_request": 4,
+    "per_call": 20,
+    "temperature": 1.0,
+    "group": "siblings",
+    "verify": true,
+    "label_detail": true
+  },
+  "documents": {
+    "unit": "whole",
+    "max_length": 64
+  },
+  "model": {
+    "base": "microsoft/deberta-v3-small",
+    "max_length": 64,
+    "epochs": 4,
+    "batch": 32,
+    "lr": 5e-05
+  },
+  "reference": {
+    "calibration": "data/calibration.jsonl",
+    "report": "data/report.jsonl",
+    "min_support": 5,
+    "source": "tabiya/occupation_titles_esco (CC BY 4.0): job titles from hahu.jobs with the ESCO occupation assigned by the job board, mapped to ISCO-08 by the first four digits of the ESCO code. Built by build.py."
+  },
+  "privacy": {
+    "real_text_to_external": {
+      "orchestrator": true,
+      "generation": false
+    }
+  }
+}
