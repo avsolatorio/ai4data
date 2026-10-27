@@ -143,6 +143,10 @@ class Run:
             "arm": self.settings["arm"],
             "rounds_done": len(rows),
             "max_rounds": self.settings["rounds"],
+            "planned_rounds_remaining": max(
+                0, self.settings["rounds"] - max(self.next_round() - 1, 0)
+            ),
+            "rounds_note": "Round 0 is the balanced baseline; rounds 1 to max_rounds take a plan.",
             "requests_per_round": self.settings["round_requests"],
             "best_feedback_score": best,
             "rounds": rows,
