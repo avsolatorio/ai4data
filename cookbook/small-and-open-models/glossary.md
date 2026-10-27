@@ -9,7 +9,7 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
 
 **AI-ready.** Data and metadata that software, including AI systems, can find, retrieve, interpret, and cite without manual steps. See the [AI-ready data framework](/docs/ai-ready-framework).
 
@@ -59,7 +59,7 @@ description: Terms used in the Practical Guide to Small and Open Models for Stat
 
 **GSBPM.** The Generic Statistical Business Process Model, the UNECE reference model of the phases and sub-processes of statistical production, from specifying needs to disseminating and evaluating.
 
-**Harness.** A program that sends questions to an agent connected to the server and logs the traces.
+**Harness.** A program that runs a model or an agent through a fixed procedure and records what it does, for example by sending questions to an agent connected to the server and logging the traces, or by running the rounds of a feedback loop.
 
 **Inventory.** The list of documents with their type, year, page count, text-layer status, and counts of tables and figures.
 

@@ -9,7 +9,7 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Access tier.** A class of release conditions: public use file, licensed file, or secure access, each with its own disclosure control and agreement.
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
 
 **AI visibility check.** A fixed set of questions asked of AI assistants on a schedule, recording whether the organization is cited and whether the figures are right.
 
@@ -55,7 +55,7 @@ description: Terms used in the Practical Guide to Serving Official Statistics to
 
 **Guidance resource.** A resource that tells the model how to use the tools: search first, read metadata before interpreting, cite the source and release.
 
-**Harness.** A program that sends questions to an agent connected to the server and logs the traces.
+**Harness.** A program that runs a model or an agent through a fixed procedure and records what it does, for example by sending questions to an agent connected to the server and logging the traces, or by running the rounds of a feedback loop.
 
 **Incident.** An AI component's output reaching a reviewer, a product, or a user with an error that the controls should have caught, or that a control caught at the last step; handled by a fixed procedure and recorded.
 

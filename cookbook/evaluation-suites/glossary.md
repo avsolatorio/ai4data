@@ -7,7 +7,7 @@ description: Terms used in the Practical Guide to Evaluation Suites for Statisti
 
 # Glossary
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
 
 **AI visibility check.** A fixed set of questions asked of AI assistants on a schedule, recording whether the organization is cited and whether the figures are right.
 
@@ -61,7 +61,7 @@ description: Terms used in the Practical Guide to Evaluation Suites for Statisti
 
 **Grader (judge).** A language model that scores answers with a rubric where no script can; validated against human scores before use.
 
-**Harness.** A program that sends questions to an agent connected to the server and logs the traces.
+**Harness.** A program that runs a model or an agent through a fixed procedure and records what it does, for example by sending questions to an agent connected to the server and logging the traces, or by running the rounds of a feedback loop.
 
 **Held-out part.** Questions kept out of development so that a change tuned on the rest is tested on questions it has not seen.
 

@@ -170,6 +170,7 @@
 /cookbook/small-ai-from-synthetic-data/check
 /cookbook/small-ai-from-synthetic-data/contributing
 /cookbook/small-ai-from-synthetic-data/evaluate
+/cookbook/small-ai-from-synthetic-data/feedback
 /cookbook/small-ai-from-synthetic-data/generate
 /cookbook/small-ai-from-synthetic-data/glossary
 /cookbook/small-ai-from-synthetic-data/release

@@ -165,8 +165,8 @@ export const allCookbooks = [
     audience: 'Data science teams in national statistical organizations and other data producers',
     title: 'Practical Guide to Small AI from Synthetic Data',
     description:
-      'Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection.',
-    chapters: 7,
+      'Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection. A last chapter applies the method to occupation and expenditure coding and tests a feedback loop that directs further rounds of generation at the classifier\'s errors.',
+    chapters: 8,
     to: '/cookbook/small-ai-from-synthetic-data/',
   },
 ];

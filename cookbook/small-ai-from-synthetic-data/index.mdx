@@ -3,7 +3,7 @@ id: index
 title: Practical Guide to Small AI from Synthetic Data
 sidebar_label: Overview
 sidebar_position: 0
-description: Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection.
+description: Shows how a data producer trains a small text classifier for one task on examples written by a large language model, checks the examples, measures the classifier on real documents, and runs it over a document collection. A last chapter applies the method to occupation and expenditure coding and tests a feedback loop that directs further rounds of generation at the classifier's errors.
 ---
 
 # Practical Guide to Small AI from Synthetic Data
@@ -32,16 +32,19 @@ those examples. The large model is used during development, and the
 small model then runs alone.
 
 The guide follows one task from start to finish: assigning topics from
-the World Bank's topic list to working papers. Its seven chapters
+the World Bank's topic list to working papers. Its first seven chapters
 answer the questions a team asks along the way: which task suits the
 approach and what its labels are, how the examples are generated and
 checked, how the small model is trained, how well it does on real
 documents, what running it over a collection costs, and how the model
-and its data are documented and kept current. Every figure in the
+and its data are documented and kept current. Chapter 8 applies the
+method to two more tasks, occupation coding to ISCO-08 and expenditure
+coding to COICOP, and tests a feedback loop in which an agent directs
+further rounds of generation at the model's errors. Every figure in the
 chapters comes from running the guide's scripts on public data, and the
 results include the ones that did not work as expected.
 
-The figure below steps through the seven chapters with the figures of
+The figure below steps through chapters 1 to 7 with the figures of
 the running example. The dashed arrow marks the one step that returns
 to an earlier one: a label that the model suggests too often is traced
 to the training data, and the examples are generated again with the cause removed.
@@ -89,6 +92,7 @@ task owner has accepted the comparison.
 | [5. Evaluation on real text](./evaluate.mdx) | How well does the model do on real documents? | Real test set and crosswalk, calibration, comparison with a large model |
 | [6. Application to a document collection](./apply.mdx) | How is the model run over a document collection, and at what cost? | Sentence scores, time and cost, stored suggestions, label frequencies |
 | [7. Release, licensing, and maintenance](./release.mdx) | How are the model and its data documented, licensed, and kept current? | Dataset card, model card, licences, retraining rule |
+| [8. Targeted generation with a feedback loop](./feedback.mdx) | Can the model's errors on real texts direct the next round of generation? | Task folders for other classifications, labeller, control arm, agent with a fixed set of tools, comparison with a large model |
 
 ## Maturity levels
 
@@ -151,6 +155,7 @@ the example stops and what the full version adds.
 | [predict.py](pathname:///cookbook-files/small-ai-from-synthetic-data/predict.py) | Chapters 4 to 6: scores texts with the model |
 | [dataset_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/dataset_card.md) | Chapter 7: dataset card of the generated set |
 | [model_card.md](pathname:///cookbook-files/small-ai-from-synthetic-data/model_card.md) | Chapter 7: model card of the classifier |
+| [ai4data.small_ai](https://github.com/worldbank/ai4data/tree/main/src/ai4data/small_ai) | Chapter 8: the harness, with the task folders for topics, ISCO-08, and COICOP, and the agent's tools |
 
 ## Related resources
 

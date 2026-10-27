@@ -18,6 +18,14 @@ one.
 |---|---|---|---|
 | [SKOS](https://www.w3.org/TR/skos-reference/) (W3C) | Publishing a label set as a concept scheme, with broader topics and mappings to other schemes. | — | Chapter 1, the form of a published label file; chapter 5, mapping properties for the crosswalk. |
 
+## Classifications
+
+| Standard | Use | World Bank use | In this guide |
+|---|---|---|---|
+| [ISCO-08](https://isco.ilo.org/en/isco-08/) (ILO) | The International Standard Classification of Occupations, with definitions and example occupations for its 436 unit groups. | — | Chapter 8, the occupation coding task. |
+| [ESCO](https://esco.ec.europa.eu/) (European Commission) | The European classification of occupations, whose codes extend ISCO-08. | — | Chapter 8, the mapping of the reference job titles to ISCO-08. |
+| [COICOP](https://unstats.un.org/unsd/classifications/Econ/) (UN) | The Classification of Individual Consumption According to Purpose, 1999 and 2018 versions, with explanatory notes. | — | Chapter 8, the expenditure coding task. |
+
 ## Generation and data files
 
 | Standard | Use | World Bank use | In this guide |
@@ -46,9 +54,11 @@ one.
 | Licence | Use | World Bank use | In this guide |
 |---|---|---|---|
 | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) | The licence of gpt-oss-120b, the generating model of the example. | — | Chapter 2, the choice of generating model. |
-| [MIT License](https://opensource.org/license/mit) | The licence of DeBERTa-v3-small and of the 2024 doc-topics models. | Code of the AI for Data program. | Chapters 4 and 7. |
+| [MIT License](https://opensource.org/license/mit) | The licence of DeBERTa-v3-small, the 2024 doc-topics models, and the pi agent framework. | Code of the AI for Data program. | Chapters 4 and 7. |
 | [Meta Llama 3 Community License](https://github.com/meta-llama/llama3/blob/main/LICENSE) | The licence of Llama 3, one generator of the public dataset, with terms on the use of outputs. | — | Chapter 2, recipe 2.1. |
 | [CC BY 3.0 IGO](https://creativecommons.org/licenses/by/3.0/igo/) | The licence of World Bank publications, including the working papers whose abstracts form the real test set. | World Bank publications in the [Open Knowledge Repository](https://openknowledge.worldbank.org/). | Chapter 5, the real test set. |
+| [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | The licence of the job titles of the ISCO reference set (tabiya/occupation_titles_esco). | — | Chapter 8. |
+| [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) | The licence of the ONS item descriptions of the COICOP reference set. | — | Chapter 8. |
 
 ## Corrections
 

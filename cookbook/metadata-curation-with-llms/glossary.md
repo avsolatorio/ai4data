@@ -11,7 +11,7 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
 
 **Agents manifest.** The file that defines the agents of the review pipeline (detectors, critic, categorizer, severity scorer) and their instructions.
 
@@ -50,6 +50,8 @@ description: Terms used in the Practical Guide to Metadata Curation with Languag
 **Estimated.** The status of an extracted value for which the document offers no check: no printed label, total, or derivation.
 
 **Evaluation set.** Decided records kept to test changes to prompts, manifests, rubrics, and models.
+
+**Feedback loop.** Rounds of generating training examples for the labels a model gets wrong on real texts, training a new model, and measuring it again; the rounds are planned by a person or an agent.
 
 **Flagged.** The status of an extracted value that failed a check and awaits correction with the page open.
 

@@ -7,15 +7,21 @@ description: Terms used in this guide.
 
 # Glossary
 
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
+
 **AI-ready.** Data and metadata that software, including AI systems, can find, retrieve, interpret, and cite without manual steps. See the [AI-ready data framework](/docs/ai-ready-framework).
 
 **Annotation.** Optional properties on a tool that describe its behaviour (for example that it is read-only); hints that clients treat as untrusted unless the server is trusted.
 
 **API.** Application programming interface: the address at which a program asks a system for data and receives it in a structured form.
 
+**Bootstrap interval.** A confidence interval obtained by resampling the questions with replacement many times; it shows how much a pass rate or a difference could move with a different draw of questions.
+
 **Calibration.** The comparison of model scores with reference scores or labels on a sample, to find systematic bias or to choose the threshold at which the model's scores are used.
 
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
+
+**Control arm.** In a test of targeted generation, a run that adds the same number of generated examples per round as the targeted run, spread evenly over the labels, so that the effect of targeting can be told apart from the effect of more data.
 
 **Cost record.** One row per AI component and month with the provider, the number of requests, and the cost, summarized for the governance board.
 
@@ -35,6 +41,8 @@ description: Terms used in this guide.
 
 **Encoder.** A pretrained model that turns a text into numbers representing its meaning, used as the base of a classifier; DeBERTa and BERT are encoders.
 
+**Feedback loop.** Rounds of generating training examples for the labels a model gets wrong on real texts, training a new model, and measuring it again; the rounds are planned by a person or an agent.
+
 **Fine-tuning.** Changing a model's weights by training it further on the organization's own labelled examples, so that it does one task better or follows the organization's conventions.
 
 **Gap.** The distance between a dimension's current level and its target, measured in levels and in the number of questions below the target's value.
@@ -47,6 +55,10 @@ description: Terms used in this guide.
 
 **Grouped split.** A draw of whole groups (households, documents) into the parts of a dataset, so that no group is divided between training and test.
 
+**Harness.** A program that runs a model or an agent through a fixed procedure and records what it does, for example by sending questions to an agent connected to the server and logging the traces, or by running the rounds of a feedback loop.
+
+**ISCO-08.** The International Standard Classification of Occupations, whose four-digit codes classify jobs; the label of the coding examples in this guide.
+
 **Issue.** The review pipeline's output: a detected problem with a category, a severity from 1 to 5, the current value, and a proposed value.
 
 **Label.** The column a model is trained to predict: the occupation code, the transcribed value, the series a question refers to.
@@ -58,6 +70,8 @@ description: Terms used in this guide.
 **Map.** The table of model-assisted tasks with phase, role, review, data sensitivity, model location, and owner.
 
 **Maturity level.** One of three states used in this guide: foundational, AI-ready, AI-native.
+
+**MCP.** The Model Context Protocol, the open standard through which AI applications discover and call tools, read resources, and use prompts offered by a server, such as a statistics API.
 
 **Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
 
@@ -98,6 +112,8 @@ description: Terms used in this guide.
 **Threshold.** The value of a score (a confidence, a similarity, a garble rate) at which the rule changes what happens to an item; set from measurements.
 
 **Token.** The unit in which language models read and write text, roughly three quarters of a word; prices, context limits, and throughput are counted in tokens.
+
+**Trace.** The logged record of one question: tools called, series used, answer, whether the agent declined, latency.
 
 **Use.** A document whose analysis, decision, or statement depends on the data, as opposed to a mention that cites them as context.
 

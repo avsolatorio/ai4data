@@ -147,7 +147,7 @@ def scene_details():
         "A dataset card names the generating model, its terms and the",
         "prompt version. A model card reports the scores on real",
         "documents and the known errors. The model is retrained when",
-        "the labels change or its score falls by more than 0.03.",
+        "the labels change or its score falls by more than 0.04.",
     ], card(rx, "Dataset card", ["generator and licence", "prompt version", "check counts", "known issues"])
        + card(rx + 215, "Model card", ["encoder and licence", "real-document scores", "known errors", "intended use"])))
     return d

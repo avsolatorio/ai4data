@@ -16,7 +16,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Adapter.** A small set of trained parameters added to a model for a task, so that fine-tuning fits on modest hardware (parameter-efficient fine-tuning).
 
-**Agent.** An AI system that calls tools to complete a task; here an assistant that calls the organization's data API or MCP server to answer a question about statistics.
+**Agent.** An AI system that calls tools to complete a task, for example an assistant that calls the organization's data API or MCP server to answer a question about statistics, or a model that plans the rounds of a feedback loop.
 
 **Agents manifest.** The file that defines the agents of the review pipeline (detectors, critic, categorizer, severity scorer) and their instructions.
 
@@ -76,6 +76,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Confidence threshold.** The model confidence above which a code is accepted automatically, set from the measured accuracy curve.
 
 **Content-Oriented Guidelines.** The SDMX guidelines that define cross-domain concepts (`REF_AREA`, `TIME_PERIOD`, `OBS_VALUE`, `OBS_STATUS`, `UNIT_MEASURE`, and others) and cross-domain code lists for reuse across statistical domains.
+
+**Control arm.** In a test of targeted generation, a run that adds the same number of generated examples per round as the targeted run, spread evenly over the labels, so that the effect of targeting can be told apart from the effect of more data.
 
 **Cost record.** One row per AI component and month with the provider, the number of requests, and the cost, summarized for the governance board.
 
@@ -154,6 +156,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Exit plan.** The steps by which an AI component would be switched off or moved to a second model or provider, tested once on the component's evaluation suite.
 
+**Feedback loop.** Rounds of generating training examples for the labels a model gets wrong on real texts, training a new model, and measuring it again; the rounds are planned by a person or an agent.
+
 **Feature.** A column a model may use as input.
 
 **Fine-tuning.** Changing a model's weights by training it further on the organization's own labelled examples, so that it does one task better or follows the organization's conventions.
@@ -195,7 +199,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Harmonized name.** A variable name used for the same concept across surveys, tied to one definition.
 
-**Harness.** A program that sends questions to an agent connected to the server and logs the traces.
+**Harness.** A program that runs a model or an agent through a fixed procedure and records what it does, for example by sending questions to an agent connected to the server and logging the traces, or by running the rounds of a feedback loop.
 
 **Held-out part.** Questions kept out of development so that a change tuned on the rest is tested on questions it has not seen.
 

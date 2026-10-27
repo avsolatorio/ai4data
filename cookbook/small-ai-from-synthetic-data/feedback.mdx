@@ -1,0 +1,363 @@
+---
+id: feedback
+title: "8. Targeted generation with a feedback loop"
+sidebar_label: "8. Feedback loop"
+sidebar_position: 8
+description: How the errors of the small model on real texts can direct further rounds of generation, how a task folder extends the method to occupation and expenditure coding, how an agent can plan the rounds through a fixed set of tools, and what targeted rounds gained in tests against the same amount of evenly spread data.
+---
+
+import Recipe from '@site/src/components/Cookbook/Recipe';
+import Checklist from '@site/src/components/Cookbook/Checklist';
+
+# 8. Targeted generation with a feedback loop
+
+**Question:** Can the model's errors on real texts direct the next round of generation?
+
+## Rationale
+
+The evaluation of [chapter 5](./evaluate.mdx) reports three kinds of
+error: weak labels, pairs of confused labels, and labels assigned too
+often. Recipe 6.3 traces one such error to the training data and
+changes the generation by hand. A feedback loop repeats that step in
+rounds. Each round generates examples aimed at the current gaps, trains
+a new model on all the examples so far, and measures it again on real
+texts.
+
+A person can plan the rounds, and so can an agent: a large language
+model that calls a fixed set of tools. In this chapter the agent reads
+the gap report and the examples, writes a plan with a reason for each
+part, runs the round, and decides when to stop. It has no other tools,
+so it cannot read files or run commands, and every plan and reason is
+recorded with the run.
+
+Any round adds examples, and more examples alone can raise the score.
+The loop is worth its cost only if it does better than a control arm
+that adds the same number of examples spread evenly over the labels.
+The real texts also have to be kept apart by use. The agent reads
+scores on a feedback set, the threshold is set on a second set, and a
+report set that the rounds never read gives the final scores.
+
+The tests for this guide ran the loop on three tasks: the topics of the
+running example, occupation coding to ISCO-08, and expenditure coding to
+COICOP. In all four comparisons, the targeted rounds scored the same as
+the control arm, within the variation between runs, and usually with
+fewer examples. The chapter describes the method, the harness that runs
+it, and those measurements. The figure below steps through one round of
+each arm, with the figures of the tests.
+
+![Animation of the feedback loop. The targeted arm is a cycle: a gap report on the feedback set, a plan by an agent with seven tools of the harness and no shell or files, generation by a writer and a labeller that drops texts on which the two disagree, and training to convergence. A control arm adds rounds of the same size spread evenly. Both are scored once on a report set. Report scores for control, targeted, and gpt-oss-120b: topics 0.484, 0.502, 0.511; ISCO-08 0.330, 0.331, 0.353; COICOP 0.561, 0.563, 0.726.](/img/cookbook/small-ai-from-synthetic-data/loop.svg)
+
+## Target state
+
+- The task is described in a task folder: the label file with definitions, the kind of text, the generation settings, the reference files, and the steps that may send real text outside the organization.
+- The real reference set is split into feedback, threshold, and report files, and the report file is scored once, at the end.
+- Every round is recorded with its plan, the reasons for it, the generated data, the scores, and the decision to keep or drop it.
+- A control arm of the same size runs alongside, and the final comparison uses several training seeds and an interval over the report texts.
+- An agent that plans rounds has only the tools of the loop, and sees real texts only where the task allows it.
+
+## Maturity levels
+
+| Level | Steps |
+|---|---|
+| **Foundational** | Read the gap report of chapter 5, generate one round of examples for the weakest labels by hand, and compare it with an evenly spread round of the same size. |
+| **AI-ready** | Run the loop with the harness: a task folder, a three-way split of the reference set, a labeller that checks the examples, a control arm, and final scores with three seeds. |
+| **AI-native** | Let an agent plan the rounds through the harness's tools, keep its notes with the run, and use the loop only where it beats the control arm. |
+
+:::info[Running example]
+The chapter runs the loop on the topic task of chapters 1 to 7 and on
+two coding tasks: job titles to the 436 unit groups of ISCO-08, and
+descriptions of goods and services to the 117 classes of COICOP 1999.
+The writer, the labeller, and the agent are gpt-oss-120b. The agent runs
+in pi, an open-source agent framework, with the harness's tools only.
+:::
+
+## Recipes
+
+<Recipe title="8.1 Describe a new task in a task folder" level="Foundational" skills="Data scientist; task owner" time="One to two days">
+
+**Result:** a task folder from which the harness generates examples, trains the model, and evaluates it on real texts.
+
+The scripts of chapters 1 to 6 are collected in a Python package,
+`ai4data.small_ai`, which reads everything specific to a task from a
+folder. The folder holds `task.json` and a label file. The label file
+gives each code its title, its parent, its definition, examples of what
+it includes and excludes, and other names for it. `task.json` states the
+task as a coder would, whether a text takes one label or several, and
+the code lengths of the hierarchy. It also describes the kind of text
+the writer produces, with its rules, how real texts are read, where the
+reference files are, and which steps may send real text to an outside
+service.
+
+1. Write the task statement, as in recipe 1.1.
+2. Build the label file from the official classification, with its
+   definitions. The definitions go into the writer's prompt and the
+   labeller's.
+3. Describe the kind of text and the rules for the writer. For a
+   hierarchical code, set `group` to `siblings`, so that each request
+   asks for examples of codes with the same parent and the writer has to
+   tell them apart.
+4. Build the reference files from real texts coded by someone other
+   than the model, and record their source and licence.
+5. Run `python -m ai4data.small_ai task` on the folder and read a
+   rendered writer prompt before generating.
+
+**Worked example.** The two coding tasks have build scripts that create
+the label file and the reference files from the official sources. The
+ILO and UN files carry copyright notices, so the scripts build the files
+on the user's machine and the repository does not hold copies of them.
+
+| Task | Labels | Text | Real reference set |
+|---|---|---|---|
+| Topics | 86 World Bank topics, several per text | Abstracts of working papers | 1,792 abstracts with catalogue subjects (chapter 5) |
+| ISCO-08 | 436 unit groups, with ILO definitions and example occupations | Job titles | 4,000 titles from the Ethiopian job board hahu.jobs, with the ESCO occupation the board assigned, mapped to ISCO-08 (CC BY 4.0) |
+| COICOP 1999 | 117 classes of household consumption, with UNSD explanatory notes | Item descriptions | 959 descriptions from the ONS consumer price index, with the class ONS assigned (Open Government Licence) |
+
+A request of the ISCO task asks for 20 job titles across four codes,
+for example 7321 Pre-press technicians, 7322 Printers, and 7323 Print
+finishing and binding workers, each with its definition and example
+occupations. The COICOP task uses COICOP 1999 because the UK consumer
+price index codes its items to it.
+
+**What this does not do.** No public set of survey answers coded to
+ISCO-08 or COICOP was found for this guide. The reference sets are job
+advertisement titles and price-index item descriptions, so the scores
+measure agreement with a job board and with a statistical office on
+those texts.
+
+</Recipe>
+
+<Recipe title="8.2 Add a labeller that checks the generated examples" level="AI-ready" skills="Data scientist" time="Half a day">
+
+**Result:** every generated example has been labelled a second time by a separate call, and the examples on which the two calls disagree are dropped.
+
+The writer gives each text a label from the request's labels. The
+labeller reads the same texts without those labels and chooses from a
+wider list: the request's labels, codes with the same parent, eight
+codes drawn at random, and "none". For a single-label task the example
+is kept when the two agree; for a multi-label task the shared labels are
+kept. The agreement rate per label goes into the gap report, where a
+low rate points to an unclear definition or close neighbours.
+
+1. Set `verify` to true in `task.json`.
+2. Read the check report: the rows the labeller disagreed with and the
+   rows whose labeller reply could not be read.
+3. Read the labels with the lowest agreement, with their examples.
+
+**Worked example.** In the first round of the ISCO task, the labeller
+disagreed with 500 of 18,061 titles (2.8 percent), and in the COICOP task
+with 453 of 10,035 descriptions (4.5 percent). The median agreement per
+label was 1.0 for ISCO and 0.98 for COICOP. The lowest COICOP rates were
+for 12.6.1 Financial intermediation services indirectly measured (0.60)
+and 10.1.0 Pre-primary and primary education (0.65): "AFTER-SCHOOL
+SUPERVISION DAILY", written for 10.1.0, was left without a label by the
+labeller.
+
+**What this does not do.** The writer and the labeller were the same
+model. Agreement shows that the model is consistent with itself, which
+removes careless examples, and it does not show that a label is right.
+
+</Recipe>
+
+<Recipe title="8.3 Run the loop with a control arm" level="AI-ready" skills="Data scientist" time="Two to four hours of computing per task">
+
+**Result:** a targeted arm and a control arm have run the same number of rounds of the same size, and their final models are compared on the report file.
+
+The harness keeps each arm in a run folder. Round 0 is a balanced plan
+and is shared by both arms. In each later round, the targeted arm takes
+a plan and the control arm takes a balanced plan of the same number of
+requests that counts the examples already there. Every round trains a
+new model from the base encoder on all accepted examples and scores it
+on the feedback file. At the end, `final` trains the accepted data of
+each arm with three seeds, sets the threshold on the threshold file,
+and scores the report file once.
+
+```bash
+python -m ai4data.small_ai init runs/coicop-targeted --task tasks/coicop --arm targeted \
+    --baseline-requests 500 --round-requests 75 --rounds 5 --tolerance 0.03
+python -m ai4data.small_ai round runs/coicop-targeted
+python -m ai4data.small_ai init runs/coicop-control --task tasks/coicop --arm control \
+    --baseline-requests 500 --round-requests 75 --rounds 5 --tolerance 0.03 \
+    --baseline-from runs/coicop-targeted
+python -m ai4data.small_ai final runs/coicop-control --seeds 42,1,2
+```
+
+1. Split the calibration file of chapter 5 into feedback and threshold
+   files, two thirds and one third, by a hash of the document id.
+2. Train every model to convergence: up to 15 epochs with early stopping
+   on the development loss.
+3. Add rounds of about 15 percent of the round-0 data to each arm.
+4. Compare the arms on the report file with three seeds each and a
+   bootstrap interval over the report texts.
+
+**Worked example.** On the topic task, the loop ran twice, with
+different seeds for the splits and the training. Scores are micro F1 on
+the 300 report abstracts, the mean of three seeds.
+
+| Replicate | Round 0 only | Control | Targeted | Targeted minus control (95% interval) |
+|---|---|---|---|---|
+| 1 | 0.460 | 0.484 (35,079 examples) | 0.502 (31,811 examples) | +0.019 (+0.002 to +0.037) |
+| 2 | 0.454 | 0.478 (35,104 examples) | 0.482 (28,970 examples) | +0.004 (-0.012 to +0.020) |
+
+The extra rounds raised the score in both arms, by 0.02 to 0.04 over
+round 0. The targeted arm matched the control arm with 9 to 17 percent
+fewer examples, and the first replicate's lead did not repeat in the
+second.
+
+Two settings changed the results before these runs. With the four
+epochs of chapter 4, the COICOP model was undertrained: on the same
+round-0 data, feedback accuracy was 0.382 after four epochs and 0.529
+after nine with early stopping, so a later round's gain could come from
+the extra training steps. For topics, training to convergence left the
+score on real abstracts unchanged (0.442 against 0.443). The second
+setting is the rule that drops a round. A round is kept when its
+feedback score is no more than a tolerance below the best round so far.
+With a tolerance of 0.01, rounds were dropped for differences of the
+size of the noise between runs. With 0.03 on the COICOP task, the
+control arm's first round scored 0.607 on 440 feedback texts, and
+all four later rounds, between 0.525 and 0.561, were dropped.
+
+**What this does not do.** Two replicates on one task and one on each
+of the others give the direction of the effect, with wide intervals.
+The ISCO and COICOP report sets have 1,000 and 288 texts.
+
+</Recipe>
+
+<Recipe title="8.4 Let an agent plan the rounds" level="AI-native" skills="Data scientist; IT security officer" time="One day to set up">
+
+**Result:** an agent plans each round of the targeted arm through the harness's tools, and its plans and reasons are recorded with the run.
+
+The agent runs in [pi](https://github.com/earendil-works/pi), an
+open-source agent framework under the MIT licence. An extension gives it
+seven tools. Three report on the run: its status, the gap report of a
+round, and a search of the label definitions. Two show texts: examples
+of a label, and real texts the model got wrong for a label. The last two
+run a round with a plan and stop the run.
+pi's built-in tools (shell, file reading and writing) are switched off,
+as are MCP servers, skills, and context files. The tools run commands of
+the harness on the one run folder the operator names. The tool for real
+texts refuses when `task.json` does not allow real text to reach the
+agent's model.
+
+A plan is a list of items, each with labels, a number of requests, a
+mode, and a note that the writer sees. The modes are `positive` (more
+examples of weak or thin labels), `contrast` (examples near the
+boundary between confused labels, each with its correct label), and `background` (texts about none of the labels, for multi-label
+tasks). The harness refuses a plan whose requests do not add up to the
+round's size.
+
+1. Install pi in the harness folder (`npm ci`) and run it in a container
+   or under an account with access to the run folder only. pi has no
+   approval step for tool calls.
+2. Start the agent with `orchestrator/run.sh` on the targeted run
+   folder. The script resumes the session when the agent ends its turn
+   before the run is stopped or out of rounds.
+3. Read the plans and notes of each round in `orchestrator_plan.json`.
+
+**Worked example.** In the first round of the topic task, the agent
+spent 65 of its 150 requests on positive items for six weak labels, such
+as Indigenous Peoples and Debt. It spent the other 85 on contrast items
+for five confused pairs, such as Macroeconomics and Migration, with the
+note "economic aggregates vs movement of people", and Inequality and
+Shared Prosperity and Measuring Poverty. Its own calls on the first topic run used 191,000 tokens, most
+of them cached, for 0.002 dollars.
+
+Over four runs, the agent read examples of a label before planning in
+two (the second topic run and COICOP), and it never asked for real
+texts. It stopped twice one round early, counting round 0 as a planned
+round, and twice after two rounds that each gained less than 0.01. Once it wrote a tool call
+into its reasoning in place of calling the tool, which ended its turn;
+the launch script now resumes the session in that case.
+
+**What this does not do.** The agent's plans were reasonable on reading
+and did no better than evenly spread rounds (recipe 8.5). A stronger
+model, or plans that use the real errors, may do better; the tests for
+this guide did not show it.
+
+</Recipe>
+
+<Recipe title="8.5 Compare with the large model and decide" level="AI-ready" skills="Data scientist; task owner" time="Half a day">
+
+**Result:** the task owner has the scores of the small model with and without the loop and of a large model on the same report texts, and decides whether the loop is used.
+
+The harness's `baseline` command gives a large model the task statement,
+the full label list, and the report texts in batches of 20, and writes
+its labels in the format of the small model's scores.
+
+**Worked example.** Report scores, mean of three seeds for the small
+models: micro F1 for topics (first replicate), accuracy at the finest
+level for the coding tasks.
+
+| Task | Round 0 only | Control | Targeted | gpt-oss-120b |
+|---|---|---|---|---|
+| Topics | 0.460 | 0.484 | 0.502 | 0.511 |
+| ISCO-08 | 0.329 | 0.330 | 0.331 | 0.353 |
+| COICOP 1999 | 0.520 | 0.561 | 0.563 | 0.726 |
+
+The extra rounds helped where the generated texts resemble the real
+ones, on topics and on COICOP, where the control arm gained 0.042
+(interval +0.012 to +0.072). They did not help on ISCO. There, the large
+model also agreed with the reference on only 59 percent of titles at the
+first digit. Most disagreements were between manager, professional,
+and associate professional codes for one title, such as "Regional
+Financial Management Specialists" (reference 2411 Accountants, large
+model 1211 Finance managers), and some were errors in the reference,
+such as "Civil Engineer" coded 3112 Civil engineering technicians. On
+COICOP the large model led by 0.16. The ONS descriptions use a shorthand
+("LGE LOAF-WHTE-UNSLED-750-800G") that the generated descriptions did not
+match, and neither arm addressed it.
+
+1. Run the baseline on the report file.
+2. Read the disagreements between the reference and both models before
+   trusting a small difference.
+3. Use the loop when its gain over the control arm is larger than the
+   interval, and spread extra rounds evenly otherwise.
+
+**What this does not do.** A reference coded by one job board or one
+office measures agreement with that coder. A sample of a few hundred
+texts coded twice by trained coders would show how much of the
+remaining error belongs to the reference.
+
+</Recipe>
+
+## Implementation options
+
+- The writer, the labeller, the baseline, and the agent all use the OpenAI chat completions interface, so a local vLLM server can play every role when real texts may not leave the organization.
+- A person can plan the rounds with the same tools from the command line (`gap`, `examples`, `errors`, `round`), with the plan written as JSON.
+- Other agent frameworks that restrict an agent to a list of tools can run the same commands; the harness does not depend on pi.
+- Real texts without labels from the same collection, kept apart from the reference set, could be given to the writer as style examples; the COICOP result suggests this as the next test.
+
+## Resources
+
+- [ISCO-08](https://isco.ilo.org/en/isco-08/) is the ILO's classification of occupations, with the structure and definitions used for the label file.
+- [COICOP](https://unstats.un.org/unsd/classifications/Econ/) is the UN classification of individual consumption by purpose, with the 1999 and 2018 versions and their correspondence.
+- [ESCO](https://esco.ec.europa.eu/) is the European classification of occupations whose codes extend ISCO-08.
+- [tabiya/occupation_titles_esco](https://huggingface.co/datasets/tabiya/occupation_titles_esco) holds the job titles of the ISCO reference set.
+- [ONS item indices and price quotes](https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/consumerpriceindicescpiandretailpricesindexrpiitemindicesandpricequotes) hold the item descriptions of the COICOP reference set.
+- [pi](https://github.com/earendil-works/pi) documents its tool selection, extensions, and the security of running an agent.
+
+## Common mistakes
+
+- **Comparing a round with the round before it.** More examples alone raised the score by about 0.02 on topics and 0.04 on COICOP; only a control arm of the same size separates targeting from volume.
+- **Training each round for a fixed small number of epochs.** An undertrained model gains from the extra steps of a larger set, and the gain looks like an effect of the data.
+- **Keeping rounds by comparing them with the best round so far on a small feedback set.** One high score stops every later round from being kept.
+- **Letting the agent or the person planning see the report set.** The plans then fit the texts that report the result.
+- **Reading one seed.** Runs that differed only in their seed spread over 0.032 in micro F1 on topics.
+
+## Verification
+
+- The report file was scored once per arm, after the last round, and no tool of the loop reads it.
+- Both arms added the same number of requests per round, and the final models were trained to convergence with three seeds.
+- Every round folder holds its plan, the generated data, the check report, the scores, and the decision.
+
+## Checklist
+
+<Checklist id="small-ai-from-synthetic-data-feedback" items={[
+  'Task folder written, with label definitions, reference files, and privacy settings',
+  'Reference set split into feedback, threshold, and report files',
+  'Labeller enabled and its agreement read',
+  'Control arm of the same size run alongside the targeted arm',
+  'Every model trained to convergence; final models with three seeds',
+  'Targeted and control arms compared on the report file with an interval',
+  'Agent restricted to the harness tools, with its plans and notes kept',
+  'Large-model baseline scored on the same report texts',
+]} />
