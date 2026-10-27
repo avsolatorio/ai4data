@@ -58,9 +58,12 @@ python -m ai4data.small_ai baseline TASK reference.jsonl llm_scores.jsonl   # a 
 ```
 
 The generation steps read `SYNTH_BASE_URL`, `SYNTH_API_KEY`, `SYNTH_MODEL`,
-and optionally `SYNTH_LABEL_MODEL` and `SYNTH_EXTRA_BODY`. Any server with
-the OpenAI chat completions interface works, including a local vLLM
-server for tasks whose data may not leave the organization.
+and optionally `SYNTH_LABEL_MODEL` and `SYNTH_EXTRA_BODY`. The labeller can
+run on a server of its own (`SYNTH_LABEL_BASE_URL`, `SYNTH_LABEL_API_KEY`,
+`SYNTH_LABEL_EXTRA_BODY`), for example a model of another family on a
+second GPU, and `SYNTH_WORKERS` sets the number of requests sent at once.
+Any server with the OpenAI chat completions interface works, including a
+local vLLM server for tasks whose data may not leave the organization.
 
 ## Feedback loop
 
@@ -82,7 +85,9 @@ python -m ai4data.small_ai final runs/isco-targeted --seeds 42,1
 python -m ai4data.small_ai final runs/isco-control --seeds 42,1
 ```
 
-The orchestrator runs in pi with its built-in tools switched off: no
+`ORCH_BASE_URL` and `ORCH_MODEL` point the orchestrator at a local
+OpenAI-compatible server in place of a hosted provider. The orchestrator
+runs in pi with its built-in tools switched off: no
 shell, no file reading or writing, no MCP servers, skills, or context
 files. Its seven tools run commands of this package on the run folder
 that the operator names. `run.sh` records the event stream in

@@ -20,6 +20,11 @@ role. The connection is read from the environment:
     SYNTH_MODEL        the writer, for example openai/gpt-oss-120b
     SYNTH_LABEL_MODEL  optional: the labeller (default: the writer's model)
     SYNTH_EXTRA_BODY   optional JSON with options of that server
+    SYNTH_LABEL_BASE_URL, SYNTH_LABEL_API_KEY, SYNTH_LABEL_EXTRA_BODY
+                       optional: a separate server for the labeller, for example a model of
+                       another family on a second GPU (default: the writer's settings)
+    SYNTH_WORKERS      optional: the number of requests sent at once, which overrides the
+                       command's setting (a local server batches many requests well)
 
 Every reply is kept in full in raw.jsonl (role, request, model, time,
 prompt version, token counts, finish reason, content). The examples go
@@ -67,15 +72,31 @@ Rules:
 
 
 def connection() -> tuple:
+    """(client, model, extra body) of the writer and of the labeller."""
     from openai import OpenAI
 
-    client = OpenAI(
-        base_url=os.environ["SYNTH_BASE_URL"],
-        api_key=os.environ["SYNTH_API_KEY"],
-        timeout=300,
+    env = os.environ
+    writer = (
+        OpenAI(
+            base_url=env["SYNTH_BASE_URL"], api_key=env["SYNTH_API_KEY"], timeout=300
+        ),
+        env["SYNTH_MODEL"],
+        json.loads(env.get("SYNTH_EXTRA_BODY", "{}")),
     )
-    writer = os.environ["SYNTH_MODEL"]
-    return client, writer, os.environ.get("SYNTH_LABEL_MODEL", writer)
+    if "SYNTH_LABEL_BASE_URL" not in env:
+        return writer, (writer[0], env.get("SYNTH_LABEL_MODEL", writer[1]), writer[2])
+    labeller = (
+        OpenAI(
+            base_url=env["SYNTH_LABEL_BASE_URL"],
+            api_key=env.get("SYNTH_LABEL_API_KEY", env["SYNTH_API_KEY"]),
+            timeout=300,
+        ),
+        env.get("SYNTH_LABEL_MODEL", writer[1]),
+        json.loads(
+            env.get("SYNTH_LABEL_EXTRA_BODY", env.get("SYNTH_EXTRA_BODY", "{}"))
+        ),
+    )
+    return writer, labeller
 
 
 def writer_prompt(task: Task, request: dict, n: int) -> str:
@@ -156,7 +177,12 @@ def item_schema(
 
 
 def call(
-    client, model: str, prompt: str, schema: dict, temperature: float
+    client,
+    model: str,
+    prompt: str,
+    schema: dict,
+    temperature: float,
+    extra: dict | None = None,
 ) -> tuple[dict, object]:
     started = time.time()
     reply = client.chat.completions.create(
@@ -164,7 +190,9 @@ def call(
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_schema", "json_schema": schema},
         temperature=temperature,
-        extra_body=json.loads(os.environ.get("SYNTH_EXTRA_BODY", "{}")),
+        extra_body=extra
+        if extra is not None
+        else json.loads(os.environ.get("SYNTH_EXTRA_BODY", "{}")),
     )
     choice = reply.choices[0]
     usage = reply.usage.model_dump() if reply.usage else {}
@@ -209,7 +237,12 @@ Labels:
 
 
 def label_texts(
-    task: Task, client, model: str, request: dict, texts: list[str]
+    task: Task,
+    client,
+    model: str,
+    request: dict,
+    texts: list[str],
+    extra: dict | None = None,
 ) -> tuple[dict, list[list[str]] | None]:
     cands = candidates(task, request)
     names = {x: x for x in cands}
@@ -233,6 +266,7 @@ def label_texts(
         prompt,
         item_schema([*names, "none"], len(texts), index=True),
         0.0,
+        extra,
     )
     if choice.finish_reason != "stop":
         return raw, None
@@ -281,7 +315,8 @@ def generate(
             if r.get("role") == "writer"
         }
     todo = [r for r in plan if r["request_id"] not in done][: limit or None]
-    client, writer, labeller = connection()
+    (client, writer, writer_extra), (label_client, labeller, label_extra) = connection()
+    workers = int(os.environ.get("SYNTH_WORKERS", workers))
     lock, failed = Lock(), []
     temperature = float(task.generation.get("temperature", 1.0))
 
@@ -296,6 +331,7 @@ def generate(
                 prompt,
                 item_schema(enum, per_call, with_labels=bool(labels)),
                 temperature,
+                writer_extra,
             )
             raw.update(
                 role="writer",
@@ -328,7 +364,12 @@ def generate(
             check_raw = None
             if verify and rows:
                 check_raw, verdicts = label_texts(
-                    task, client, labeller, request, [r["text"] for r in rows]
+                    task,
+                    label_client,
+                    labeller,
+                    request,
+                    [r["text"] for r in rows],
+                    label_extra,
                 )
                 check_raw.update(
                     role="labeller",

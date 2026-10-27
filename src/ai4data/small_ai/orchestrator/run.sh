@@ -6,6 +6,9 @@
 #   ORCH_PROVIDER    pi provider name (default: openrouter)
 #   ORCH_MODEL       model id for the orchestrator (default: openai/gpt-oss-120b)
 #   ORCH_ATTEMPTS    how many times to start or resume the session (default: 6)
+#   ORCH_BASE_URL    optional: an OpenAI-compatible server for the orchestrator, for example a local
+#                    vLLM server; pi then uses a provider "local" with the model ORCH_MODEL, described in
+#                    RUN_FOLDER/pi-agent/models.json (ORCH_CONTEXT sets its context window, default 32768)
 #
 #   src/ai4data/small_ai/orchestrator/run.sh RUN_FOLDER
 #
@@ -23,6 +26,19 @@ TOOLS=harness_status,gap_report,find_labels,label_examples,label_errors,run_roun
 FIRST="Run the feedback loop for this run folder. Start with harness_status and gap_report, then plan and run each round until you stop the run."
 AGAIN="Continue the feedback loop: call harness_status, then plan and run the next round, or call stop_run if the run should end. Call the tools; do not write tool calls as text."
 cd "$RUN"
+if [ -n "${ORCH_BASE_URL:-}" ]; then
+  export PI_CODING_AGENT_DIR="$RUN/pi-agent"
+  mkdir -p "$PI_CODING_AGENT_DIR"
+  ORCH_MODEL="${ORCH_MODEL:?set ORCH_MODEL}" ORCH_BASE_URL="$ORCH_BASE_URL" "$PY" - "$PI_CODING_AGENT_DIR/models.json" <<PYEOF
+import json, os, sys
+model = {"id": os.environ["ORCH_MODEL"], "reasoning": True,
+         "contextWindow": int(os.environ.get("ORCH_CONTEXT", 32768)), "maxTokens": 8192}
+provider = {"baseUrl": os.environ["ORCH_BASE_URL"], "api": "openai-completions", "apiKey": "local",
+            "models": [model]}
+json.dump({"providers": {"local": provider}}, open(sys.argv[1], "w"), indent=2)
+PYEOF
+  ORCH_PROVIDER=local
+fi
 
 remaining() {
   "$PY" -m ai4data.small_ai status "$RUN" | "$PY" -c \
