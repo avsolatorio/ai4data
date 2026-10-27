@@ -14,8 +14,12 @@ Sources, downloaded by the operator (they are not redistributed here):
         - the CPI classification framework (item_id, coicop4_id, start_date, end_date)
         - consumption segments of a month (CS_DESC, COICOP4_ID), any number of months
 
-ONS codes a class as a number (10101 for 01.1.1) in the framework and as CP0111 in the segment files.
-The reference set holds every distinct description that ONS assigned to exactly one class.
+Each description takes its class from the ECOICOP subclass that ONS assigns: coicop5_id in the
+framework (a number, 1010101 for 01.1.1.1) and COICOP5_ID in the segment files (CP01111). The
+class-level columns (coicop4_id, COICOP4_ID) are not used, because ONS fills them with its own
+aggregates for some items: 120102 for every personal care article (12.1.2 and 12.1.3 together),
+80200 for telephone equipment and services, and CP1212_1213 in the segment files. The reference set
+holds every distinct description that ONS assigned to exactly one class.
 
     python build.py --unsd CORRESPONDENCE.xlsx --framework FRAMEWORK.csv \
         --items itemindices202412.csv itemindices201908.csv --segments consumptionsegments202609.csv
@@ -40,8 +44,17 @@ def code_from_number(value) -> str | None:
     return f"{int(digits[:-4]):02d}.{int(digits[-4:-2])}.{int(digits[-2:])}"
 
 
+def code_from_subclass_number(value) -> str | None:
+    """Class of an ECOICOP subclass number: 12010302 (12.1.3.2) gives 12.1.3."""
+    digits = re.sub(r"\D", "", str(value))
+    if not digits or int(digits) == 0:
+        return None
+    return code_from_number(digits.zfill(8)[:6])
+
+
 def code_from_cp(value) -> str | None:
-    m = re.match(r"^CP(\d{2})(\d)(\d)$", str(value).strip())
+    """Class of a CP subclass code: CP12132 gives 12.1.3."""
+    m = re.match(r"^CP(\d{2})(\d)(\d)\d$", str(value).strip())
     return f"{m[1]}.{m[2]}.{m[3]}" if m else None
 
 
@@ -102,14 +115,14 @@ def reference(
         ]
         merged = table.merge(valid, left_on="ITEM_ID", right_on="item_id")
         pairs += [
-            (clean(d), code_from_number(c), f"item {path.name}")
-            for d, c in zip(merged["ITEM_DESC"], merged["coicop4_id"])
+            (clean(d), code_from_subclass_number(c), f"item {path.name}")
+            for d, c in zip(merged["ITEM_DESC"], merged["coicop5_id"])
         ]
     for path in segments:
-        table = read_any(path).dropna(subset=["COICOP4_ID"])
+        table = read_any(path).dropna(subset=["COICOP5_ID"])
         pairs += [
             (clean(d), code_from_cp(c), f"segment {path.name}")
-            for d, c in zip(table["CS_DESC"], table["COICOP4_ID"])
+            for d, c in zip(table["CS_DESC"], table["COICOP5_ID"])
         ]
     frame = pd.DataFrame(pairs, columns=["text", "code", "source"]).dropna()
     frame["key"] = (
