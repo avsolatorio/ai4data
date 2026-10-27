@@ -129,8 +129,9 @@ def check_files_table(index: Path, cid: str, problems: list[str]) -> None:
         )
 
 
-def sync_card(cid: str, count: int, problems: list[str]) -> str:
-    text = CARDS.read_text(encoding="utf-8")
+def sync_card(text: str, cid: str, count: int, problems: list[str]) -> str:
+    """The cards text with the chapter count of one card set; it builds on the
+    text passed in, so that the counts of earlier cards in the run are kept."""
     m = re.search(rf"id: '{re.escape(cid)}',(.*?)chapters: (\d+),", text, re.DOTALL)
     if not m:
         problems.append(f"{CARDS.relative_to(REPO)}: no card for '{cid}'")
@@ -199,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
                 index.write_text(new_index, encoding="utf-8")
         check_files_table(index, folder.name, problems)
         check_self_assessment(folder, chs, problems)
-        new_cards = sync_card(folder.name, len(chs), problems)
+        new_cards = sync_card(cards, folder.name, len(chs), problems)
         if new_cards != cards:
             changed += 1
             print(
