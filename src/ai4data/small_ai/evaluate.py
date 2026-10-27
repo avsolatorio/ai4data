@@ -102,7 +102,9 @@ def single_label(task: Task, gold: pd.DataFrame, pred: list[dict]) -> dict:
 
     data = joined(gold, pred)
     truth = [ls[0] for ls in data["labels"]]
-    ranked = [sorted(s.items(), key=lambda kv: -kv[1]) for s in data["scores"]]
+    ranked = [
+        sorted(s.items(), key=lambda kv: -kv[1]) or [("", 0.0)] for s in data["scores"]
+    ]
     guess = [r[0][0] for r in ranked]
     confidence = np.array([r[0][1] for r in ranked])
     top3 = [[c for c, _ in r[:3]] for r in ranked]

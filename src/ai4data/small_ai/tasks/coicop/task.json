@@ -47,7 +47,8 @@
   "privacy": {
     "real_text_to_external": {
       "orchestrator": true,
-      "generation": false
+      "generation": false,
+      "baseline": true
     }
   }
 }

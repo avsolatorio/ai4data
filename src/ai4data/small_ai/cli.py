@@ -8,6 +8,7 @@ Task and data steps:
     train TASK CLEAN MODEL            split by request and train
     score TASK MODEL DOCS OUT         score documents or short texts
     evaluate TASK REFERENCE SCORES    compare with reference labels
+    baseline TASK TEXTS OUT           a large model labels the texts directly, for comparison
 
 Feedback loop (one run folder per arm):
 
@@ -82,6 +83,12 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--threshold", type=float)
     a.add_argument("--top", type=int, default=5)
     a.add_argument("--sweep", action="store_true")
+    a = sub.add_parser("baseline")
+    a.add_argument("task")
+    a.add_argument("texts")
+    a.add_argument("out")
+    a.add_argument("--batch", type=int, default=20)
+    a.add_argument("--workers", type=int, default=8)
     a = sub.add_parser("init")
     a.add_argument("run")
     a.add_argument("--task", required=True)
@@ -225,6 +232,20 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"threshold {t:<6g} micro F1 {f:.3f}")
             return 0
         print(ev.summary(task, ev.evaluate(task, gold, pred, args.threshold, args.top)))
+        return 0
+    if args.command == "baseline":
+        from . import baseline
+
+        task = load_task(args.task)
+        if not task.allows_external("baseline"):
+            print(
+                "this task does not allow real texts to be sent to an outside model (privacy.real_text_to_external.baseline)"
+            )
+            return 1
+        texts = pd.read_json(args.texts, lines=True, dtype={"id": str})
+        records, info = baseline.run(task, texts, args.batch, args.workers)
+        loop.write_jsonl(records, Path(args.out))
+        dump(info)
         return 0
     if args.command == "init":
         price = tuple(float(x) for x in args.price.split(","))
