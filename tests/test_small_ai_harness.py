@@ -301,3 +301,50 @@ def test_run_plans_and_reference_split(tmp_path):
         )
         == 4
     )
+
+
+def test_agreement_table_counts_writer_labels(tmp_path):
+    examples = pd.DataFrame(
+        [
+            {
+                "text": "a",
+                "labels": ["2512"],
+                "written_labels": ["2512"],
+                "verified": True,
+                "kind": "topic",
+            },
+            {
+                "text": "b",
+                "labels": ["2512"],
+                "written_labels": ["2512"],
+                "verified": False,
+                "kind": "topic",
+            },
+            {
+                "text": "c",
+                "labels": ["2611"],
+                "written_labels": ["2611"],
+                "verified": True,
+                "kind": "topic",
+            },
+        ]
+    )
+    table = check.agreement(examples).set_index("label")
+    assert table.loc["2512", "agreement"] == 0.5
+    assert table.loc["2611", "agreement"] == 1.0
+
+
+def test_status_counts_planned_rounds(tmp_path):
+    task_dir = tmp_path / "task"
+    task_dir.mkdir()
+    make_task(task_dir)
+    run = loop.init_run(
+        task_dir,
+        tmp_path / "run",
+        "control",
+        baseline_requests=6,
+        round_requests=4,
+        rounds=3,
+    )
+    status = run.status()
+    assert status["planned_rounds_remaining"] == 3 and status["rounds_done"] == 0
