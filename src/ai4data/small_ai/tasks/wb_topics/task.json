@@ -1,0 +1,54 @@
+{
+  "id": "wb-topics",
+  "title": "World Bank topics for working papers",
+  "statement": "Suggest topics from the World Bank's topic list for a working paper, from its abstract, for curators to accept or change.",
+  "multi_label": true,
+  "labels": "labels.csv",
+  "leaves": "all",
+  "levels": [],
+  "generation": {
+    "items": "sentences",
+    "item": "sentence",
+    "labels_per_request": 8,
+    "per_call": 20,
+    "temperature": 1.0,
+    "verify": false,
+    "label_detail": false,
+    "prompt": "Write {n} different sentences of the kind found in reports, working papers, policy notes, and news about economic and social development.\n\nEach sentence must be about one or more of these topics, and its \"labels\" must list every topic from this list that the sentence is about:\n{topics}\n\nRules:\n- {names_rule}\n- Vary the length from 10 to 45 words, and vary the style: findings, policy statements, project descriptions, statistics, questions a study asks.\n- Mention places, institutions, and numbers only as an author would; invent nothing that reads as a quotation of a real document.\n- About a third of the sentences should be about two or three of the topics at once.",
+    "names": "allow",
+    "names_rules": {
+      "avoid": "Do not use the topic names or their key words in the sentences. Describe the subject in other words, as a report would.",
+      "allow": "Use the words a report on the subject would use, including the topic names or their key words where an author would use them."
+    },
+    "rules": [],
+    "background_rules": [
+      "Write sentences that describe methods, data sources, samples, estimation, robustness checks, the structure of the document, earlier literature in general terms, limitations, and acknowledgements.",
+      "Vary the length from 10 to 45 words.",
+      "Do not name a sector, a policy area, or a development topic."
+    ],
+    "context": "Sentences of the kind found in reports, working papers, and policy notes about economic and social development. "
+  },
+  "documents": {
+    "unit": "sentence",
+    "aggregate": "mean"
+  },
+  "model": {
+    "base": "microsoft/deberta-v3-small",
+    "max_length": 128,
+    "epochs": 4,
+    "batch": 32,
+    "lr": 5e-05
+  },
+  "reference": {
+    "calibration": "data/calibration.jsonl",
+    "report": "data/report.jsonl",
+    "min_support": 5,
+    "source": "Abstracts of Policy Research Working Papers 2016-2020 from the World Bank Documents and Reports API, with catalogue subjects mapped to labels by the cookbook's crosswalk; built by build_real_testset.py of the Small AI cookbook."
+  },
+  "privacy": {
+    "real_text_to_external": {
+      "orchestrator": true,
+      "generation": false
+    }
+  }
+}

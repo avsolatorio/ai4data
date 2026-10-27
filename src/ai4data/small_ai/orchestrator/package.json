@@ -1,0 +1,10 @@
+{
+  "name": "ai4data-small-ai-orchestrator",
+  "private": true,
+  "description": "pi extension that lets an agent run the feedback loop of ai4data.small_ai through a fixed set of tools",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "1.2.0"
+  }
+}
