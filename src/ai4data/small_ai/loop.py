@@ -368,6 +368,9 @@ class Run:
             report = self.reference("report")
             rs, timing = mdl.score(self.task, folder / "model", report)
             write_jsonl(rs, folder / "report_scores.jsonl")
+            if not self.settings.get("keep_models"):
+                for weights in (folder / "model").glob("*.safetensors"):
+                    weights.unlink()
             result = ev.evaluate(self.task, report, rs, threshold)
             out["seeds"][str(seed)] = {
                 "headline": ev.headline(self.task, result),
