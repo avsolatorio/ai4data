@@ -41,6 +41,13 @@ and its data are documented and kept current. Every figure in the
 chapters comes from running the guide's scripts on public data, and the
 results include the ones that did not work as expected.
 
+The figure below steps through the seven chapters with the figures of
+the running example. The dashed arrow marks the one step that returns
+to an earlier one: a label that the model suggests too often is traced
+to the training data, and the examples are generated again with the cause removed.
+
+![Animation of the seven steps of the guide with the figures of the running example: 86 labels; 20,074 generated sentences for 1.96 dollars; micro F1 on real abstracts of 0.446 for the set with topic names allowed against 0.406 and 0.387 for the other sets; a split by request and two minutes of training on one GPU; 0.460 for the small model against 0.511 for gpt-oss-120b on 300 abstracts; 0.17 seconds per abstract on four CPU cores, and Measuring Poverty suggested for 216 abstracts against 1,298 with the first model and 48 in the reference; a dataset card, a model card, and a retraining rule.](/img/cookbook/small-ai-from-synthetic-data/workflow.svg)
+
 The recipes build on open tools: the OpenAI chat completions interface,
 which hosted services and local model servers offer, for generation;
 Hugging Face Transformers for training; and scikit-learn for
