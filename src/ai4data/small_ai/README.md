@@ -39,8 +39,11 @@ are not committed. The label file has the columns `id`, `name`, `parent`,
 | `privacy.real_text_to_external` | Per step, whether real reference text may be sent to an outside service. With `orchestrator: false`, the orchestrator cannot see real texts. |
 
 The tasks in `tasks/` are `wb_topics` (World Bank topics for working
-papers), `isco` (occupations to ISCO-08), and `coicop` (household
-expenditure items to COICOP 2018).
+papers), `isco` (job titles to the 436 unit groups of ISCO-08), and
+`coicop` (descriptions of goods and services to the 117 household
+classes of COICOP 1999). The `build.py` script of each coding task makes
+the label file and the reference files from the official sources, which
+the repository does not redistribute; its docstring lists them.
 
 ## Command line
 
@@ -51,6 +54,7 @@ python -m ai4data.small_ai check TASK gen/examples.jsonl --out clean.jsonl
 python -m ai4data.small_ai train TASK clean.jsonl model/
 python -m ai4data.small_ai score TASK model/ texts.jsonl scores.jsonl
 python -m ai4data.small_ai evaluate TASK reference.jsonl scores.jsonl
+python -m ai4data.small_ai baseline TASK reference.jsonl llm_scores.jsonl   # a large model, for comparison
 ```
 
 The generation steps read `SYNTH_BASE_URL`, `SYNTH_API_KEY`, `SYNTH_MODEL`,
@@ -70,7 +74,7 @@ python -m ai4data.small_ai init runs/isco-control --task tasks/isco --arm contro
 # the orchestrator plans and runs the targeted rounds
 src/ai4data/small_ai/orchestrator/run.sh runs/isco-targeted
 
-# the control arm runs the same number of rounds without a plan
+# the control arm runs the same number of rounds with balanced plans
 for k in 1 2 3 4 5; do python -m ai4data.small_ai round runs/isco-control; done
 
 # each arm is trained with two seeds on its accepted data and scored once on the report set
@@ -86,6 +90,16 @@ that the operator names. `run.sh` records the event stream in
 notes, the generated data, the model's scores, and the decision. pi
 itself runs with the permissions of the account that starts it, and its
 documentation recommends a container for untrusted work.
+
+## Results
+
+Chapter 8 of the cookbook reports the tests of the loop on the three
+tasks. In four comparisons, targeted rounds scored the same as the
+control arm on the report sets (differences of +0.019, +0.004, +0.000,
+and +0.001), usually with fewer examples. Train every round to
+convergence (`model.early_stopping` in `task.json`) and set the
+tolerance for keeping a round at or above the noise between runs; both
+settings changed the results of the tests.
 
 ## Installation
 
