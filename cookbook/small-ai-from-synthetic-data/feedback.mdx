@@ -42,10 +42,9 @@ running example, occupation coding to ISCO-08, and expenditure coding to
 COICOP. In all four comparisons, the targeted rounds scored the same as
 the control arm, within the variation between runs, and usually with
 fewer examples. The chapter describes the method, the harness that runs
-it, and those measurements. The figure below steps through one round of
-each arm, with the figures of the tests.
+it, and those measurements. The figure below shows the two arms.
 
-![Animation of the feedback loop. The targeted arm is a cycle: a gap report on the feedback set, a plan by an agent with seven tools of the harness and no shell or files, generation by a writer and a labeller that drops texts on which the two disagree, and training to convergence. A control arm adds rounds of the same size spread evenly. Both are scored once on a report set. Report scores for control, targeted, and gpt-oss-120b: topics 0.484, 0.502, 0.511; ISCO-08 0.330, 0.331, 0.353; COICOP 0.561, 0.563, 0.726.](/img/cookbook/small-ai-from-synthetic-data/loop.svg)
+![The feedback loop. The targeted arm is a cycle of four steps run for five rounds: 1 a gap report on the feedback set, 2 the agent plans the next round, 3 a writer and a labeller generate examples, 4 the small model is trained to convergence. The control arm runs five rounds of the same size with balanced plans. Both arms are scored once on the report set at the end, with three seeds per arm.](/img/cookbook/small-ai-from-synthetic-data/loop.svg)
 
 ## Target state
 
