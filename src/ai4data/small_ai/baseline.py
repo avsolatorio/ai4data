@@ -8,7 +8,8 @@ model chose, so evaluate.py scores it in the same way. Token counts are kept for
 
 The connection is read from SYNTH_BASE_URL, SYNTH_API_KEY, SYNTH_MODEL (or BASELINE_MODEL), and
 SYNTH_EXTRA_BODY, as for generation. BASELINE_TEMPERATURE sets the temperature (default 0); "none"
-leaves it out, for models that accept only their own sampling settings. Real texts are sent to that server, so the task must allow it
+leaves it out, for models that accept only their own sampling settings. BASELINE_MAX_TOKENS
+limits the reply (default 16384, which leaves room for the thinking of reasoning models). Real texts are sent to that server, so the task must allow it
 (privacy.real_text_to_external.baseline), or the server must be one the organization runs.
 """
 
@@ -69,20 +70,24 @@ def label_batch(
             "additionalProperties": False,
             "required": ["items"],
             "properties": {
-                "items": {"type": "array", "items": item, "minItems": len(batch)}
+                # no minItems: Gemini 3.8 Flash on OpenRouter rejects (400, invalid argument) a
+                # minimum of 20 items with the 86 topic names; a text without an item stays unlabelled
+                "items": {"type": "array", "items": item}
             },
         },
     }
     setting = os.environ.get("BASELINE_TEMPERATURE", "0")
     temperature = None if setting.lower() == "none" else float(setting)
-    raw, choice = call(client, model, prompt, schema, temperature)
+    # reasoning models count their thinking in the reply, so the limit is above the generation default
+    raw, choice = call(client, model, prompt, schema, temperature,
+                       max_tokens=int(os.environ.get("BASELINE_MAX_TOKENS", 16384)))
     chosen: dict[int, list[str]] = {}
     if choice.finish_reason == "stop":
         try:
             for it in json.loads(raw["content"]).get("items", []):
                 chosen[it.get("index")] = [
                     x for x in it.get("labels", []) if x in task.labels
-                ]
+                ][:top]
         except json.JSONDecodeError:
             pass
     out = [

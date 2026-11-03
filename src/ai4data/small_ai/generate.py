@@ -198,6 +198,7 @@ def call(
     schema: dict,
     temperature: float | None,
     extra: dict | None = None,
+    max_tokens: int | None = None,
 ) -> tuple[dict, object]:
     """One request with a JSON schema. A temperature of None is left out of the request, for
     models that accept only their own sampling settings."""
@@ -207,7 +208,7 @@ def call(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_schema", "json_schema": schema},
-        max_tokens=int(os.environ.get("SYNTH_MAX_TOKENS", 4096)),
+        max_tokens=max_tokens or int(os.environ.get("SYNTH_MAX_TOKENS", 4096)),
         **sampling,
         extra_body=extra
         if extra is not None
