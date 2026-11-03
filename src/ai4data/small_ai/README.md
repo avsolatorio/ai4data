@@ -64,6 +64,12 @@ run on a server of its own (`SYNTH_LABEL_BASE_URL`, `SYNTH_LABEL_API_KEY`,
 second GPU, and `SYNTH_WORKERS` sets the number of requests sent at once.
 Any server with the OpenAI chat completions interface works, including a
 local vLLM server for tasks whose data may not leave the organization.
+A vLLM server for generation is started with
+`--structured-outputs-config.backend xgrammar
+--structured-outputs-config.disable_any_whitespace true`. Without the
+second setting, Gemma 4 as labeller wrote only whitespace inside the
+JSON structure in 8 of 100 ISCO requests until the reply reached its
+token limit (`SYNTH_MAX_TOKENS`, default 4,096).
 
 ## Feedback loop
 
