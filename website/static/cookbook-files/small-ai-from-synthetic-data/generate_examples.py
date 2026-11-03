@@ -22,7 +22,7 @@ The connection is read from the environment:
 
     SYNTH_BASE_URL   for example https://openrouter.ai/api/v1
     SYNTH_API_KEY    the key for that server
-    SYNTH_MODEL      for example openai/gpt-oss-120b
+    SYNTH_MODEL      for example qwen3.8-27b on a local vLLM server
     SYNTH_EXTRA_BODY optional JSON with options of that server, for example
                      {"provider": {"require_parameters": true, "sort": "throughput"}}
                      on OpenRouter, which sends the request only to providers

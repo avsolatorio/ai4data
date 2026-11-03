@@ -17,7 +17,7 @@ role. The connection is read from the environment:
 
     SYNTH_BASE_URL     for example https://openrouter.ai/api/v1, or a local vLLM server
     SYNTH_API_KEY      the key for that server
-    SYNTH_MODEL        the writer, for example openai/gpt-oss-120b
+    SYNTH_MODEL        the writer, for example qwen3.8-27b on a local vLLM server
     SYNTH_LABEL_MODEL  optional: the labeller (default: the writer's model)
     SYNTH_EXTRA_BODY   optional JSON with options of that server
     SYNTH_LABEL_BASE_URL, SYNTH_LABEL_API_KEY, SYNTH_LABEL_EXTRA_BODY

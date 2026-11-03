@@ -85,8 +85,11 @@ python -m ai4data.small_ai final runs/isco-targeted --seeds 42,1
 python -m ai4data.small_ai final runs/isco-control --seeds 42,1
 ```
 
-`ORCH_BASE_URL` and `ORCH_MODEL` point the orchestrator at a local
-OpenAI-compatible server in place of a hosted provider. The orchestrator
+`ORCH_MODEL` names the orchestrator's model and is required. With
+`ORCH_BASE_URL`, the model runs on a local OpenAI-compatible server, and
+`ORCH_CONTEXT` sets its context window (default 131,072 tokens). The
+`--price` option of `init` gives the writer's price per million input
+and output tokens, for the cost in the records and the budget. The orchestrator
 runs in pi with its built-in tools switched off: no
 shell, no file reading or writing, no MCP servers, skills, or context
 files. Its seven tools run commands of this package on the run folder

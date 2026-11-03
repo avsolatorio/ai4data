@@ -99,8 +99,8 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--seed", type=int, default=42)
     a.add_argument(
         "--price",
-        default="0.15,0.60",
-        help="dollars per million input and output tokens",
+        default="0,0",
+        help="dollars per million input and output tokens of the writer's provider (0,0 for a local server)",
     )
     a.add_argument("--budget", type=float)
     a.add_argument("--baseline-from")

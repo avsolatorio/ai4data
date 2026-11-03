@@ -4,11 +4,12 @@
 #   HARNESS_PYTHON   Python with ai4data.small_ai importable (set PYTHONPATH if it is not installed)
 #   OPENROUTER_API_KEY or another provider key that pi reads
 #   ORCH_PROVIDER    pi provider name (default: openrouter)
-#   ORCH_MODEL       model id for the orchestrator (default: openai/gpt-oss-120b)
+#   ORCH_MODEL       model id for the orchestrator (required)
 #   ORCH_ATTEMPTS    how many times to start or resume the session (default: 6)
 #   ORCH_BASE_URL    optional: an OpenAI-compatible server for the orchestrator, for example a local
 #                    vLLM server; pi then uses a provider "local" with the model ORCH_MODEL, described in
-#                    RUN_FOLDER/pi-agent/models.json (ORCH_CONTEXT sets its context window, default 32768)
+#                    RUN_FOLDER/pi-agent/models.json (ORCH_CONTEXT sets its context window, default 131072;
+#                    an ISCO run filled 32768 tokens after one round)
 #
 #   src/ai4data/small_ai/orchestrator/run.sh RUN_FOLDER
 #
@@ -32,7 +33,7 @@ if [ -n "${ORCH_BASE_URL:-}" ]; then
   ORCH_MODEL="${ORCH_MODEL:?set ORCH_MODEL}" ORCH_BASE_URL="$ORCH_BASE_URL" "$PY" - "$PI_CODING_AGENT_DIR/models.json" <<PYEOF
 import json, os, sys
 model = {"id": os.environ["ORCH_MODEL"], "reasoning": True,
-         "contextWindow": int(os.environ.get("ORCH_CONTEXT", 32768)), "maxTokens": 8192}
+         "contextWindow": int(os.environ.get("ORCH_CONTEXT", 131072)), "maxTokens": 8192}
 provider = {"baseUrl": os.environ["ORCH_BASE_URL"], "api": "openai-completions", "apiKey": "local",
             "models": [model]}
 json.dump({"providers": {"local": provider}}, open(sys.argv[1], "w"), indent=2)
@@ -50,7 +51,7 @@ for attempt in $(seq 1 "${ORCH_ATTEMPTS:-6}"); do
   if [ "$attempt" -eq 1 ] && [ ! -d "$RUN/pi-session" ]; then resume=(); prompt="$FIRST"; else resume=(--continue); prompt="$AGAIN"; fi
   echo "{\"type\":\"harness_attempt\",\"attempt\":$attempt}" >> "$RUN/orchestrator.jsonl"
   "$HERE/node_modules/.bin/pi" "${resume[@]}" \
-    --provider "${ORCH_PROVIDER:-openrouter}" --model "${ORCH_MODEL:-openai/gpt-oss-120b}" \
+    --provider "${ORCH_PROVIDER:-openrouter}" --model "${ORCH_MODEL:?set ORCH_MODEL}" \
     --extension "$HERE/extension.ts" --no-builtin-tools --tools "$TOOLS" \
     --no-mcp --no-skills --no-context-files --no-extensions \
     --append-system-prompt "$HERE/instructions.md" \
