@@ -150,8 +150,16 @@ def writer_prompt(task: Task, request: dict, n: int) -> str:
 
 
 def item_schema(
-    enum: list[str], n: int, with_labels: bool = True, index: bool = False
+    enum: list[str],
+    n: int,
+    with_labels: bool = True,
+    index: bool = False,
+    max_labels: int | None = None,
 ) -> dict:
+    """JSON schema of a reply: exactly n items, each with a text (the writer) or an index (the
+    labeller), and labels from enum, at most max_labels of them. Without the upper bounds, a
+    labeller put the labels of all twenty texts on the first text and then wrote whitespace until
+    the reply hit its token limit."""
     props: dict = (
         {"index": {"type": "integer"}} if index else {"text": {"type": "string"}}
     )
@@ -162,6 +170,8 @@ def item_schema(
             "items": {"type": "string", "enum": enum},
             "minItems": 1,
         }
+        if max_labels:
+            props["labels"]["maxItems"] = max_labels
         required.append("labels")
     item = {
         "type": "object",
@@ -174,7 +184,7 @@ def item_schema(
         "strict": True,
         "schema": {
             "type": "object",
-            "properties": {"examples": {"type": "array", "items": item, "minItems": n}},
+            "properties": {"examples": {"type": "array", "items": item, "minItems": n, "maxItems": n}},
             "required": ["examples"],
             "additionalProperties": False,
         },
@@ -273,7 +283,7 @@ def label_texts(
         client,
         model,
         prompt,
-        item_schema([*names, "none"], len(texts), index=True),
+        item_schema([*names, "none"], len(texts), index=True, max_labels=None if task.multi_label else 1),
         0.0,
         extra,
     )
@@ -338,7 +348,7 @@ def generate(
                 client,
                 writer,
                 prompt,
-                item_schema(enum, per_call, with_labels=bool(labels)),
+                item_schema(enum, per_call, with_labels=bool(labels), max_labels=None if task.multi_label else 1),
                 temperature,
                 writer_extra,
             )

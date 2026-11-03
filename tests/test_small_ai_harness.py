@@ -348,3 +348,12 @@ def test_status_counts_planned_rounds(tmp_path):
     )
     status = run.status()
     assert status["planned_rounds_remaining"] == 3 and status["rounds_done"] == 0
+
+
+def test_reply_schema_bounds_items_and_labels():
+    single = generate.item_schema(["2511", "2512", "none"], 20, index=True, max_labels=1)
+    examples = single["schema"]["properties"]["examples"]
+    assert examples["minItems"] == examples["maxItems"] == 20
+    assert examples["items"]["properties"]["labels"]["maxItems"] == 1
+    multi = generate.item_schema(["A", "B"], 20)
+    assert "maxItems" not in multi["schema"]["properties"]["examples"]["items"]["properties"]["labels"]
