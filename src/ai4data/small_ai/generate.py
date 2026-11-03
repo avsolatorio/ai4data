@@ -25,11 +25,16 @@ role. The connection is read from the environment:
                        another family on a second GPU (default: the writer's settings)
     SYNTH_WORKERS      optional: the number of requests sent at once, which overrides the
                        command's setting (a local server batches many requests well)
+    SYNTH_MAX_TOKENS   optional: the longest reply, in tokens (default 4096). A reply that does
+                       not end, which happens when a model repeats whitespace inside the JSON
+                       structure, would otherwise run to the end of the context and hold the
+                       server until the request times out
 
 Every reply is kept in full in raw.jsonl (role, request, model, time,
 prompt version, token counts, finish reason, content). The examples go
 to examples.jsonl. A reply that did not finish normally counts as
-failed. A request already in raw.jsonl is skipped, so an interrupted run
+failed, and failed requests are listed in failed.jsonl with the reason.
+A request already in raw.jsonl is skipped, so an interrupted run
 continues where it stopped, and a lock file stops two runs from writing
 to the same folder.
 """
@@ -192,6 +197,7 @@ def call(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_schema", "json_schema": schema},
+        max_tokens=int(os.environ.get("SYNTH_MAX_TOKENS", 4096)),
         **sampling,
         extra_body=extra
         if extra is not None
@@ -409,6 +415,10 @@ def generate(
             list(pool.map(work, todo))
     finally:
         lock_path.unlink()
+    if failed:
+        with (out_dir / "failed.jsonl").open("a", encoding="utf-8") as handle:
+            for request_id, reason in failed:
+                handle.write(json.dumps({"request_id": request_id, "reason": reason, "time": int(time.time())}) + "\n")
     return {"requests": len(todo), "failed": len(failed), "errors": failed[:5]}
 
 
