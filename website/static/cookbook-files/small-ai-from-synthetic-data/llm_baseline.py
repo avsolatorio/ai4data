@@ -11,7 +11,9 @@ already in the output file is skipped.
 
 The connection is read from the same environment variables as
 generate_examples.py: SYNTH_BASE_URL, SYNTH_API_KEY, SYNTH_MODEL, and the
-optional SYNTH_EXTRA_BODY.
+optional SYNTH_EXTRA_BODY. BASELINE_TEMPERATURE sets the temperature
+(default 0); "none" leaves it out, for models that accept only their own
+sampling settings.
 
 Needs, beyond the cookbook requirements: openai.
 
@@ -64,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
         timeout=300,
     )
     model = os.environ["SYNTH_MODEL"]
+    setting = os.environ.get("BASELINE_TEMPERATURE", "0")
+    temperature = {} if setting.lower() == "none" else {"temperature": float(setting)}
     documents = pd.read_json(args.documents, lines=True, dtype={"id": str})
     if args.limit:
         documents = documents.head(args.limit)
@@ -110,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
                     }
                 ],
                 response_format={"type": "json_schema", "json_schema": schema},
-                temperature=0,
+                **temperature,
                 extra_body=json.loads(os.environ.get("SYNTH_EXTRA_BODY", "{}")),
             )
             chosen = set(
