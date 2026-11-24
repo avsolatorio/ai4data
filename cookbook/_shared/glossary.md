@@ -30,6 +30,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **API.** Application programming interface: the address at which a program asks a system for data and receives it in a structured form.
 
+**Artifact class.** The kind of object a schema describes, defined by its analytical purpose, boundaries, and expected diversity. A member of the class is an artifact.
+
 **Attribute inference.** The risk that a sensitive attribute of real people can be predicted from their other characteristics through the synthetic file; measured against a baseline.
 
 **Automated share.** The share of responses coded at or above the confidence threshold without a coder; measured by a re-coded sample each round.
@@ -48,6 +50,8 @@ chapters. Edit terms here; never edit the generated pages.
 **Calibration.** The comparison of model scores with reference scores or labels on a sample, to find systematic bias or to choose the threshold at which the model's scores are used.
 
 **Candidate.** A model shortlisted for a task, with its licence classified and its card checked, to be run on the suite.
+
+**Canonical metadata concept.** A shared descriptive meaning proposed across field profiles, with a name, definition, examples, and rationale for consolidation.
 
 **Canonical name.** The one name, with its acronym and identifier, under which a dataset's mentions are counted.
 
@@ -68,6 +72,10 @@ chapters. Edit terms here; never edit the generated pages.
 <!-- match: kappa -->
 
 **Component register.** The table with one row per AI component the organization runs: owner, model, provider, data, human review, risk tier, approval and review dates, and exit plan.
+
+**Concept coverage.** The descriptive evidence obtained by assigning development field profiles to reviewed concepts or a residual category; it supports human review.
+
+**Concept inventory.** An intermediate collection of descriptive concepts, definitions, examples, and refinement decisions that precedes operational field design.
 
 **Concept map.** A table that links each variable to the concept it measures and the classification it follows, with version, level, and URI.
 
@@ -98,7 +106,7 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Data dictionary.** The documentation of a data file's variables: names, labels, types, value codes, missing codes, universes, questions.
 
-**Data snapshot.** The image of one table or figure cropped from a page, with its coordinates, class, and source document; the unit of extraction and of citation.
+**Data snapshot.** A bounded visual region of a document page containing structured or semi-structured information for analytical interpretation or operational reuse, such as a statistical table, chart, analytical map, or monitoring dashboard. A crop should retain the context needed to interpret it.
 
 **Data tier.** The class of a text for the purpose of entering it into an assistant: public (published), internal (drafts, embargoed, for the organization only), or confidential (anything at the level of a respondent, a record, or a member of staff, and any identifier).
 
@@ -203,6 +211,10 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Held-out part.** Questions kept out of development so that a change tuned on the rest is tested on questions it has not seen.
 
+**Held-out validation.** Assessment of an operational schema against artifacts excluded from its initial development, with candidate findings and explicit claim limits.
+
+**Human adjudication.** A documented human decision about the evidence, scope, materiality, and appropriate treatment of a proposed concept or schema change.
+
 **Improvement pathway.** The document, generated from the profile, the targets, the sequence, and the estimate, that a board approves and a funder reads, with the narrative and the dates added by the planning team.
 
 **Incident.** An AI component's output reaching a reviewer, a product, or a user with an error that the controls should have caught, or that a control caught at the last step; handled by a fixed procedure and recorded.
@@ -260,6 +272,10 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Metadata Editor.** The World Bank's open-source application for documenting data of all the types in the World Bank schemas, with templates and validation, publishing to NADA, and export to SDMX and, for some data types, schema.org, Croissant, and DCAT.
 
+**Metadata field profile.** An exact-name aggregation of metadata observations that preserves representative evidence and occurrence statistics for semantic comparison.
+
+**Metadata observation.** An artifact-level proposal for a reusable descriptive property, retaining its observed value, evidence source, description, and rationale.
+
 **Method of record.** The documented, reproducible imputation or estimation method the organization applies; a model proposes and explains beside it.
 
 **Micro and macro F1.** Two ways to average the F1 score over labels: micro F1 pools every item-label decision, so frequent labels weigh more; macro F1 averages the F1 of each label, so every label weighs the same.
@@ -292,6 +308,8 @@ chapters. Edit terms here; never edit the generated pages.
 <!-- match: open-weight -->
 
 **OpenAPI.** The standard way to describe an API in a file: which addresses exist, what parameters they take, and what they return.
+
+**Operational metadata schema.** A specification of usable metadata fields, definitions, evidence rules, examples, and annotation guidance for an intended application.
 
 **Paired comparison.** The same questions through two versions, so that differences are between versions.
 
@@ -388,6 +406,8 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Stable identifier.** An identifier for a series or dataset that does not change across releases or site redesigns.
 
+**Standards crosswalk.** A comparison of local schema fields with external terms or patterns, recording semantic relationships and sources for human refinement decisions.
+
 **Statement of model use.** The section of a release's quality report that says where models were used, which, how they performed, who decided, and what the effect was.
 
 **Statistical disclosure control.** Methods that prevent the identification of individuals from published data.
@@ -482,3 +502,15 @@ chapters. Edit terms here; never edit the generated pages.
 
 **Zero-shot model.** A model that performs a task from a description of the labels alone, without examples of that task in its training.
 <!-- match: zero-shot -->
+
+**Council deliberation.** Independent proposals, cross-critiques, and revisions by distinct models that examine extraction evidence before an orchestrator synthesizes a candidate policy.
+
+**Cumulative experiment state.** The compact record of accepted decisions, known failure modes, and unresolved questions carried forward from one experiment round to the next.
+
+**Diagnostic judge.** A model that assesses the generated metadata against the supplied image, schema, and extraction policy and compares it with a full human reference when available.
+
+**Discovery sample.** A snapshot whose human-reviewed semantic annotation is available to the diagnostic judge and human reviewer during policy development.
+
+**Extraction policy.** The versioned prompts and rules that guide the reference extractor in describing a snapshot.
+
+**Round manifest.** The machine-readable inventory of a round's sample IDs, settings, versions, status, and artifact paths.
