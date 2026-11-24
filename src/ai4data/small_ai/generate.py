@@ -208,7 +208,7 @@ def call(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_schema", "json_schema": schema},
-        max_tokens=max_tokens or int(os.environ.get("SYNTH_MAX_TOKENS", 4096)),
+        max_tokens=max_tokens or int(os.environ.get("SYNTH_MAX_TOKENS", "4096")),
         **sampling,
         extra_body=extra
         if extra is not None

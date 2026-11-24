@@ -11,7 +11,19 @@ The scores are in a separate chart (draw_small_ai_results.py). The helpers come 
 
 import math
 
-from draw_small_ai_workflow import AMBER, BLUE, GREY, INK, LINE, PALE, ROOT, legend, marker, svg_open, text
+from draw_small_ai_workflow import (
+    AMBER,
+    BLUE,
+    GREY,
+    INK,
+    LINE,
+    PALE,
+    ROOT,
+    legend,
+    marker,
+    svg_open,
+    text,
+)
 
 OUT = ROOT / "website" / "static" / "img" / "cookbook" / "small-ai-from-synthetic-data" / "loop.svg"
 ROUNDS, PER_ROUND = 5, 3.0

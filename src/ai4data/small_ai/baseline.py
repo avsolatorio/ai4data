@@ -80,7 +80,7 @@ def label_batch(
     temperature = None if setting.lower() == "none" else float(setting)
     # reasoning models count their thinking in the reply, so the limit is above the generation default
     raw, choice = call(client, model, prompt, schema, temperature,
-                       max_tokens=int(os.environ.get("BASELINE_MAX_TOKENS", 16384)))
+                       max_tokens=int(os.environ.get("BASELINE_MAX_TOKENS", "16384")))
     chosen: dict[int, list[str]] = {}
     if choice.finish_reason == "stop":
         try:
