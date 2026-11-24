@@ -1,6 +1,6 @@
 # Survey-style occupation answers: run scripts
 
-This folder holds the scripts that produced the occupation-coding data and figures of training session 02
+This folder contains the scripts that produced the occupation-coding data and figures of training session 02
 (`training/session-02-small-ai-synthetic-data`). The scripts call the small AI harness in `src/ai4data/small_ai`.
 The run outputs are not stored in the repository.
 
@@ -30,7 +30,7 @@ The scripts read their paths and connections from the environment.
 
 | Variable | Meaning |
 |---|---|
-| `SMALL_AI_RUNS` | Folder of the run folders. The default is `runs/` in the repository. It holds `isco-l-targeted`, the harness run on the `isco` task, and `isco-survey`, the outputs of these scripts. |
+| `SMALL_AI_RUNS` | Folder of the run folders. The default is `runs/` in the repository. It contains `isco-l-targeted`, the harness run on the `isco` task, and `isco-survey`, the outputs of these scripts. |
 | `HAHU_TITLES` | Path of `occupations_training_set.csv` from the dataset [tabiya/occupation_titles_esco](https://huggingface.co/datasets/tabiya/occupation_titles_esco). |
 | `SESSION02_SLIDES` | Folder `slides/src` of session 02. The default is the folder in the repository. |
 | `PY` | Python of the harness environment, used by the launch scripts. |
@@ -39,7 +39,7 @@ The scripts read their paths and connections from the environment.
 
 ## Order of a full run
 
-1. A harness run on the `isco` task with the targeted arm, in `$SMALL_AI_RUNS/isco-l-targeted`. It provides the titles written from the ISCO-08 definitions and the file `reference/report.jsonl` with the 1,000 test titles.
+1. A harness run on the `isco` task with the targeted arm, in `$SMALL_AI_RUNS/isco-l-targeted`. The scripts in `research/small-ai-loop-runs` started this run. It provides the titles written from the ISCO-08 definitions and the file `reference/report.jsonl` with the 1,000 test titles.
 2. `rewrite.py` and `rewrite_test.py`.
 3. `run_arms.sh` for the five combinations and three seeds, then `summarize.py`.
 4. `run_direct.sh`.
